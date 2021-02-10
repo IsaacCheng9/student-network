@@ -4,7 +4,16 @@ A platform which promotes a student community, through providing social
 opportunities and providing infrastructure to help students engage with each
 other and foster student community.
 
----
+## Group N - Contributors
+
+Group members (contributors) include:
+
+- Isaac Cheng
+- Ryan Storey
+- Sofia Reid
+- Barnie Gill
+- Oskar Oramus
+- Sam Shailer
 
 ## GitHub Repository
 
@@ -13,17 +22,6 @@ repository as follows:
 
 [https://github.com/IsaacCheng9/student-network]([https://github.com/IsaacCheng9/student-network]
 )
-
-### Group N
-
-Group members include:
-
-- Isaac Cheng
-- Ryan Storey
-- Sofia Reid
-- Barnie Gill
-- Oskar Oramus
-- Sam Shailer
 
 ### Process Documents
 
