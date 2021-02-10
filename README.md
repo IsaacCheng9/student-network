@@ -20,8 +20,7 @@ Group members (contributors) include:
 The documentation and source files for our project can be found in our GitHub
 repository as follows:
 
-[https://github.com/IsaacCheng9/student-network]([https://github.com/IsaacCheng9/student-network]
-)
+[https://github.com/IsaacCheng9/student-network](https://github.com/IsaacCheng9/student-network)
 
 ### Process Documents
 
