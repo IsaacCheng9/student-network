@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="django_test">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/Initial_design_choice_testing/django_test.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
