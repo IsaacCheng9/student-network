@@ -1,0 +1,26 @@
+<html>
+  <head>
+    <div class="topnav">
+      <a href="index.php">Log In</a>
+      <a class="active" href="register.php">Register</a>
+    </div>
+    <br />
+    <link rel="stylesheet" type="text/css" href="<?php echo $style; ?>" />
+  </head>
+
+  <body>
+    <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+      Username:<br />
+      <input type="text" name="username" maxlength="16" /><br /><br />
+      Password:<br />
+      <input type="password" name="password" maxlength="40" /><br /><br />
+      Confirm Password:<br />
+      <input
+        type="password"
+        name="confirm_password"
+        maxlength="40"
+      /><br /><br />
+      <input type="submit" name="register" value="Register" />
+    </form>
+  </body>
+</html>
