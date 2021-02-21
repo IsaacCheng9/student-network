@@ -1,0 +1,25 @@
+<html>
+  <head>
+    <div class="topnav">
+      <a class="active" href="index.php">Log In</a>
+      <a href="register.php">Register</a>
+    </div>
+    <br />
+    <link rel="stylesheet" type="text/css" href="<?php echo $style; ?>" />
+  </head>
+
+  <body>
+    <form method="post" action="index.php">
+      Username:<br />
+      <input type="text" name="username" maxlength="16" /><br /><br />
+      Password:<br />
+      <input type="password" name="password" maxlength="40" /><br /><br />
+      <input type="submit" name="log_in" value="Log In" />
+    </form>
+    <input
+      type="button"
+      onClick="location.href='register.php'"
+      value="Register"
+    />
+  </body>
+</html>
