@@ -3,11 +3,11 @@
 <meta charset="UTF-8">
 <title>Student Network - Register</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="css/semantic.css">
+<link rel= "stylesheet" type= "text/css" href="{{ url_for('static', filename='styles/semantic.css') }}"/>
 
     <style>
         .student-background {
-            background-image: url('images/students.jpg') !important;
+            background-image: url("{{ url_for('static', filename='images/students.jpg') }}") !important;
             
             height: 100%;
             
@@ -39,49 +39,51 @@
             </div>
         </div>
 
-        <div class="ui card centered" style="min-width: 600px;">
-            <div class="content">
-                <div class="header">Register</div>
-            </div>
-            <div class="content">
-               <div class="ui message red">
-                    <div class="header">Incorrect Credentials</div>
-                    <p>Invalid email address.</p>
+        <form action="/register" method='POST'>
+            <div class="ui card centered" style="min-width: 600px;">
+                <div class="content">
+                    <div class="header">Register</div>
                 </div>
-                <div class="ui message green">
-                    <div class="header">Success</div>
-                    <p>A confirmation email has been sent to someone3***@gmail.com</p>
-                </div>
-                <div class="ui form">
-                    <div class="required field">
-                        <label>Username</label>
-                        <input type="text" name="username" placeholder="Full Name">
+                <div class="content">
+                <div class="ui message red">
+                        <div class="header">Incorrect Credentials</div>
+                        <p>Invalid email address.</p>
                     </div>
-                    <div class="required field">
-                        <label>Email Address</label>
-                        <input type="text" name="email" placeholder="Email Address">
+                    <div class="ui message green">
+                        <div class="header">Success</div>
+                        <p>A confirmation email has been sent to someone3***@gmail.com</p>
                     </div>
-                    <div class="required field">
-                        <label>Password</label>
-                        <input type="password" name="password" placeholder="Password">
-                    </div>
-                    <div class="required field">
-                        <label>Confirm Password</label>
-                        <input type="password" name="password_confirm" placeholder="Password">
-                    </div>
-                    <div class="required field">
-                        <div class="ui checkbox">
-                            <label>I have read and understood the <a href="">Terms and Conditions</a></label>
-                            <input type="checkbox">
+                    <div class="ui form">
+                        <div class="required field">
+                            <label>Username</label>
+                            <input name="username_input" type="text" placeholder="Full Name">
+                        </div>
+                        <div class="required field">
+                            <label>Email Address</label>
+                            <input name="email_input" type="email" placeholder="Email Address">
+                        </div>
+                        <div class="required field">
+                            <label>Password</label>
+                            <input name="psw_input" type="password" placeholder="Password">
+                        </div>
+                        <div class="required field">
+                            <label>Confirm Password</label>
+                            <input name="psw_input_check" type="password" placeholder="Password">
+                        </div>
+                        <div class="required field">
+                            <div class="ui checkbox">
+                                <label>I have read and understood the <a href="">Terms and Conditions</a></label>
+                                <input type="checkbox">
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div class="extra content">
+                    <p>Already have an account?<a href="" style="color: #0077CC;"> Login here</a>.</p>
+                </div>
+                <input type="submit" value="Register" class="ui button submit"/>
             </div>
-            <div class="extra content">
-                <p>Already have an account?<a href="" style="color: #0077CC;"> Login here</a>.</p>
-            </div>
-            <button class="ui button submit">Register</button>
-        </div>
+        </form>
         
     </div>
 
