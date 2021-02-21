@@ -1,23 +1,12 @@
-# Flask connectivity required
-'''
-from flask import Flask, render_template, request
-import html
-app = Flask(__name__)
-'''
+# pip install passlib
 
-import hashlib
-import random
+from passlib.hash import sha256_crypt
 
-user_password = "myPassword123"
+password = sha256_crypt.hash("myPassword123")
+password2 = sha256_crypt.hash("myPassword123")
 
-ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-salt = ''.join(random.choice(ALPHABET) for i in range(16))
+print("password1 -> " + password)
+print("password2 -> " + password2)
 
-db_pw = user_password+salt
-
-h = hashlib.md5(db_pw.encode())
-
-print(user_password)
-print(salt)
-print(db_pw)
-print(h.hexdigest())
+print(sha256_crypt.verify("myPassword123", password))
+print(sha256_crypt.verify("myPassword1234", password))
