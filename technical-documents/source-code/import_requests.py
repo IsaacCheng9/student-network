@@ -20,9 +20,7 @@ def home():
 
 
 def password_check(psw, psw_check):
-    if psw = psw_check:
+    if psw == psw_check:
         return True
     else:
-        return False
-
-        
+        return False      
