@@ -1,3 +1,4 @@
+# Flask connectivity required
 '''
 from flask import Flask, render_template, request
 import html
@@ -5,10 +6,10 @@ app = Flask(__name__)
 '''
 
 import hashlib
+import random
 
 user_password = "myPassword123"
 
-import random
 ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 salt = ''.join(random.choice(ALPHABET) for i in range(16))
 
