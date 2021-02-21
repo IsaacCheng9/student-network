@@ -3,11 +3,11 @@
 <meta charset="UTF-8">
 <title>Student Network - Login</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="css/semantic.css">
+<link rel= "stylesheet" type= "text/css" href="{{ url_for('static', filename='styles/semantic.css') }}"/>
 
     <style>
         .student-background {
-            background-image: url('images/students.jpg') !important;
+            background-image: url("{{ url_for('static', filename='images/students.jpg') }}") !important;
             
             height: 100%;
             
@@ -38,32 +38,34 @@
             </div>
         </div>
 
-        <div class="ui card centered" style="min-width: 600px;">
-            <div class="content">
-                <div class="header">Login</div>
-            </div>
-            <div class="content">
-               <div class="ui message red">
-                    <div class="header">Incorrect Credentials</div>
-                    <p>Username and/or password is incorrect.</p>
+        <form action="/login" method='POST'>
+            <div class="ui card centered" style="min-width: 600px;">
+                <div class="content">
+                    <div class="header">Login</div>
                 </div>
-                <div class="ui form">
-                    <div class="required field">
-                        <label>Username</label>
-                        <input type="text" placeholder="Full Name">
+                <div class="content">
+                    <div class="ui message red">
+                        <div class="header">Incorrect Credentials</div>
+                        <p>Username and/or password is incorrect.</p>
                     </div>
-                    <div class="required field">
-                        <label>Password</label>
-                        <input type="password" placeholder="Password">
+                    <div class="ui form">
+                        <div class="required field">
+                            <label>Username</label>
+                            <input name='username_input' type="text" placeholder="Full Name">
+                        </div>
+                        <div class="required field">
+                            <label>Password</label>
+                            <input name='psw_input' type="password" placeholder="Password">
+                        </div>
+                            <p><a href="" style="color: #0077CC;">Forgot your password?</a></p>
                     </div>
-                        <p><a href="" style="color: #0077CC;">Forgot your password?</a></p>
                 </div>
+                <div class="extra content">
+                    <p>Don't have an account? <a href="" style="color: #0077CC;">Register here</a>.</p>
+                </div>
+                <input type='submit' value='Login' class="ui button submit"/>
             </div>
-            <div class="extra content">
-                <p>Don't have an account? <a href="" style="color: #0077CC;">Register here</a>.</p>
-            </div>
-            <button class="ui button submit">Login</button>
-        </div>
+        </form>
     </div>
 
 </body>
