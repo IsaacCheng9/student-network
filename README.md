@@ -57,3 +57,9 @@ back-end files.
 They can be found in the following path:
 
 [./technical-documents](./technical-documents)
+
+### Python Libraries
+
+Python libraries to pip install using the following commands:
+
+pip install passlib
