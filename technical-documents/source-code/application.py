@@ -56,7 +56,15 @@ def error_test():
 
 @application.route("/register", methods=["GET"])
 def register_page():
-    return render_template("register.html")
+    notifs = []
+    errors = ""
+    if "notifs" in session:
+        notifs = session["notifs"]
+    if "error" in session:
+        errors = session['error']
+    session.pop("error", None)
+    session.pop("notifs", None)
+    return render_template("register.html", notifs=notifs, errors=errors)
 
 
 @application.route("/register", methods=["POST"])
@@ -67,18 +75,21 @@ def register_submit():
     email = request.form["email_input"]
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        if validate_registration(cur, username, password, password_confirm,
-                                 email) is True:
+        message = []
+        valid = False
+        valid, message = validate_registration(cur, username, password, password_confirm,
+                        email)
+        if  valid is True:
             hash_password = sha256_crypt.hash(password)
             cur.execute(
                 "INSERT INTO ACCOUNTS (username, password, email, type) "
                 "VALUES (?, ?, ?, ?);", (username, hash_password, email,
                                          "student",))
             conn.commit()
-            return redirect("/postpage")
+            session['notifs'] = ['register']
+            return redirect("/register")
         else:
-            print("Registration validation failed.")
-            session["error"] = ["passwordMatch"]
+            session["error"] = message
             return redirect("/register")
 
 
@@ -105,7 +116,7 @@ def validate_registration(cur, username: str, password: str,
         valid (bool): States whether the registration details are valid.
     """
     valid = True
-
+    message = []
     # Checks that the email address has the correct format, checks whether it
     # exists, and isn't a blacklist email.
     try:
@@ -115,31 +126,32 @@ def validate_registration(cur, username: str, password: str,
     except EmailNotValidError:
         print("Email is invalid!")
         valid = False
+        message.append("Email is invalid!")
 
     # Checks that the email address has the University of Exeter domain.
     domain = re.search('@.*', email).group()
     if domain != "@exeter.ac.uk":
-        print("Email address does not belong to University of Exeter!")
         valid = False
+        message.append("Email address does not belong to University of Exeter!")
 
     # Checks that the username hasn't already been registered.
     cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
     if cur.fetchone() is not None:
-        print("Username has already been registered!")
+        message.append("Username has already been registered!")
         valid = False
 
     # Checks that the password has a minimum length of 6 characters, and at
     # least one number.
     if len(password) <= 5 or any(char.isdigit() for char in password) is False:
-        print("Password does not meet requirements!")
+        message.append("Password does not meet requirements!")
         valid = False
 
     # Checks that the passwords match.
     if password != password_confirm:
-        print("Passwords do not match!")
+        message.append("Passwords do not match!")
         valid = False
 
-    return valid
+    return valid, message
 
 
 if __name__ == '__main__':

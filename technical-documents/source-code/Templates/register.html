@@ -49,14 +49,18 @@
             <div class="header">Register</div>
           </div>
           <div class="content">
+            {% if errors %}
             <div class="ui message red">
               <div class="header">Incorrect Credentials</div>
-              <p>Invalid email address.</p>
+              {% for item in errors %}<p>{{ item }}</p>{% endfor %}
             </div>
+            {% endif %}
+            {% if "register" in notifs %}
             <div class="ui message green">
               <div class="header">Success</div>
-              <p>A confirmation email has been sent to someone3***@gmail.com</p>
+              <p>Account created successfully. You can now login.</p>
             </div>
+            {% endif %}
             <div class="ui form">
               <div class="required field">
                 <label>Username</label>
@@ -103,7 +107,7 @@
           </div>
           <div class="extra content">
             <p>
-              Already have an account?<a href="" style="color: #0077cc">
+              Already have an account?<a href="/login" style="color: #0077cc">
                 Login here</a
               >.
             </p>
