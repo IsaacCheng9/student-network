@@ -23,6 +23,13 @@ def login_page():
     session.pop("error", None)  # clear error session variables
     return render_template("login.html", errors=errors)
 
+@application.route("/terms", methods=["GET"])
+def terms_page():
+    return render_template("terms.html")
+
+@application.route("/terms", methods=["POST"])
+def terms_submit():
+    return redirect("/login")
 
 @application.route("/login", methods=["POST"])
 def login_submit():
