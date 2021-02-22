@@ -1,34 +1,36 @@
 import re
-from flask import Flask, render_template, request, redirect, session
-from email_validator import validate_email, EmailNotValidError
-from passlib.hash import sha256_crypt
 import sqlite3
 
+from email_validator import validate_email, EmailNotValidError
+from flask import Flask, render_template, request, redirect, session
+from passlib.hash import sha256_crypt
+
 application = Flask(__name__)
-application.secret_key = '\xfd{H\xe5<\x95\xf9\xe3\x96.5\xd1\x01O<!\xd5\xa2\xa0\x9fR"\xa1\xa8'
+application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
+                          "xa2\xa0\x9fR\xa1\xa8")
 
 
-@application.route('/', methods=['GET'])
+@application.route("/", methods=["GET"])
 def index_page():
     return redirect("/login")
 
 
-@application.route('/login', methods=['GET'])
+@application.route("/login", methods=["GET"])
 def login_page():
     errors = []
-    if 'error' in session:
-        errors = session['error']
-    session.pop('error', None)
-    return render_template('login.html', errors=errors)
+    if "error" in session:
+        errors = session["error"]
+    session.pop("error", None)
+    return render_template("login.html", errors=errors)
 
 
-@application.route('/login', methods=['POST'])
+@application.route("/login", methods=["POST"])
 def login_submit():
-    username = request.form['username_input']
-    psw = request.form['psw_input']
-    # Get user from database using username
-    # Compare password with hashed password
-    # Compare using sha256_crypt.verify(psw, hashed_password)
+    username = request.form["username_input"]
+    psw = request.form["psw_input"]
+    # Gets user from database using username.
+    # Compares password with hashed password.
+    # Compares using sha256_crypt.verify(psw, hashed_password).
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
@@ -36,51 +38,53 @@ def login_submit():
         hashed_psw = cur.fetchone()[0]
         conn.commit()
         if hashed_psw is not None:
-            if(sha256_crypt.verify(psw, hashed_psw)):
+            if sha256_crypt.verify(psw, hashed_psw):
                 return redirect("/postpage")
             else:
-                session['error'] = ['login']
+                session["error"] = ["login"]
                 return redirect("/login")
         else:
-            session['error'] = ['login']
+            session["error"] = ["login"]
             return redirect("/login")
 
 
-@application.route('/error', methods=['GET'])
-def errortest():
-    session['error'] = ['login']
+@application.route("/error", methods=["GET"])
+def error_test():
+    session["error"] = ["login"]
     return redirect("/login")
 
 
-@application.route('/register', methods=['GET'])
+@application.route("/register", methods=["GET"])
 def register_page():
-    return render_template('register.html')
+    return render_template("register.html")
 
 
-@application.route('/register', methods=['POST'])
+@application.route("/register", methods=["POST"])
 def register_submit():
     username = request.form["username_input"]
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
-    with sqlite3.connect('database.db') as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         if validate_registration(cur, username, password, password_confirm,
                                  email) is True:
             hash_password = sha256_crypt.hash(password)
-            cur.execute("INSERT INTO ACCOUNTS (username, password, email, type) VALUES (?, ?, ?, ?);",
-                        (username, hash_password, email, 'student',))
+            cur.execute(
+                "INSERT INTO ACCOUNTS (username, password, email, type) "
+                "VALUES (?, ?, ?, ?);", (username, hash_password, email,
+                                         "student",))
             conn.commit()
             return redirect("/postpage")
         else:
             print("Registration validation failed.")
-            session['error'] = ['passwordMatch']
+            session["error"] = ["passwordMatch"]
             return redirect("/register")
 
 
-@application.route('/postpage', methods=['GET'])
+@application.route("/postpage", methods=["GET"])
 def post_page():
-    return render_template('postpage.html')
+    return render_template("post_page.html")
 
 
 def validate_registration(cur, username: str, password: str,
@@ -140,10 +144,3 @@ def validate_registration(cur, username: str, password: str,
 
 if __name__ == '__main__':
     application.run(debug=True)
-
-
-#print("password1 -> " + password)
-#print("password2 -> " + password2)
-
-#print(sha256_crypt.verify("myPassword123", password))
-#print(sha256_crypt.verify("myPassword1234", password))
