@@ -49,7 +49,7 @@ def register_submit():
         if password_check(psw, psw_check):
             print('Password Matches')
             hash_psw = sha256_crypt.hash(psw)
-            with sqlite3.connect('database.db') as conn
+            with sqlite3.connect('database.db') as conn:
                 cur = conn.cursor()
                 cur.execute("INSERT INTO ACCOUNTS (username,password,email,type) VALUES (?,?,?,?);",(username,hash_psw,email,'student',))
                 conn.commit()
