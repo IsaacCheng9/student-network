@@ -133,4 +133,5 @@ dmypy.json
 .vscode/settings.json
 
 # IntelliJ
-/.idea
+.idea
+identifier.sqlite
