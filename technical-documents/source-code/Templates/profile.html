@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<title>Student Network - Profile</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="css/semantic.css">
+<head>
+  <!-- Standard Meta -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <style type="text/css">
+
+    .hidden.menu {
+      display: none;
+    }
+
+    .masthead.segment {
+      min-height: 700px;
+      padding: 1em 0em;
+    }
+    .masthead .logo.item img {
+      margin-right: 1em;
+    }
+    .masthead .ui.menu .ui.button {
+      margin-left: 0.5em;
+    }
+    .masthead h1.ui.header {
+      margin-top: 3em;
+      margin-bottom: 0em;
+      font-size: 4em;
+      font-weight: normal;
+    }
+    .masthead h2 {
+      font-size: 1.7em;
+      font-weight: normal;
+    }
+
+    .ui.vertical.stripe {
+      padding: 8em 0em;
+    }
+    .ui.vertical.stripe h3 {
+      font-size: 2em;
+    }
+    .ui.vertical.stripe .button + h3,
+    .ui.vertical.stripe p + h3 {
+      margin-top: 3em;
+    }
+    .ui.vertical.stripe .floated.image {
+      clear: both;
+    }
+    .ui.vertical.stripe p {
+      font-size: 1.33em;
+    }
+    .ui.vertical.stripe .horizontal.divider {
+      margin: 3em 0em;
+    }
+
+    .quote.stripe.segment {
+      padding: 0em;
+    }
+    .quote.stripe.segment .grid .column {
+      padding-top: 5em;
+      padding-bottom: 5em;
+    }
+
+    .footer.segment {
+      padding: 5em 0em;
+    }
+
+    .secondary.pointing.menu .toc.item {
+      display: none;
+    }
+
+    @media only screen and (max-width: 700px) {
+      .ui.fixed.menu {
+        display: none !important;
+      }
+      .secondary.pointing.menu .item,
+      .secondary.pointing.menu .menu {
+        display: none;
+      }
+      .secondary.pointing.menu .toc.item {
+        display: block;
+      }
+      .masthead.segment {
+        min-height: 350px;
+      }
+      .masthead h1.ui.header {
+        font-size: 2em;
+        margin-top: 1.5em;
+      }
+      .masthead h2 {
+        margin-top: 0.5em;
+        font-size: 1.5em;
+      }
+    }
+    
+	.student-background {
+            background-image: url('images/students.jpg') !important;
+            
+            height: 100%;
+            
+            filter: saturate(1.5) blur(20px);
+            
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            
+            position: fixed;
+            z-index: -1;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
+        .centered {
+            text-align: center;
+        }
+
+  </style>
+</head>
+<body>
+	<!-- Page Contents -->
+	<div class="pusher">
+		<div class="ui container">
+		<div class="student-background"></div>
+			<div class="ui segment basic ">
+				<div class="ui menu">
+				<a class="active item">Home</a>
+				<a class="item active">Login</a>
+				<a class="item">Friends</a>
+				<div class="right menu">
+					<a class="ui item">Logout</a>
+				</div>
+			</div>
+			<div class="row">	
+				<div class="column">
+					    <div class="ui internally celled grid container">
+						  <div class="row">
+							<div class="five wide column">
+							  <img class="fluid rounded" src="https://via.placeholder.com/600">
+							</div>
+							<div class="eleven wide column">
+							  <h1>Name</h1>
+							  <h3>Degree</h3>
+							  <h3>Gender</h3>
+							  <h3>Hobbies</h3>
+							      <div class="ui tiny red labels">
+								  <a class="ui label">
+									Fun <i class="icon close"></i>
+								  </a>
+								  <a class="ui label">
+									Happy
+									<div class="detail">22</div>
+								  </a>
+								  <a class="ui label">
+									Smart
+								  </a>
+								  <a class="ui label">
+									Insane
+								  </a>
+								  <a class="ui label">
+									Exciting
+								  </a>
+								</div>
+								</div>
+							</div>
+							</div>
+							</div>
+						</div>
+
+		    <div class="ui segment basic ">	
+				<div class="row">	
+				<div class="column">
+				   
+			    <h1>bio</h1>
+				<p>write something about yourself<p>
+				</div>
+			</div>
+			</div>
+		  <div class="ui segment basic ">	
+			<div class="column">
+				<h3 class="ui header">Posts</h3>
+					<div class="ui cards">
+						<div class="ui fluid card ">
+						   <div class="content">
+								<div class="header">Look at this cool browser game I found!</div>
+								<div class="right floated meta">
+									<a class="ui blue image label spaced basic">
+									  <img src="https://via.placeholder.com/600"> Elliot
+									  <div class="detail">Student</div>
+									</a>
+								</div>
+								<div class="ui divider hidden"></div>
+								<div class="right floated meta">6 days ago</div>
+							  </div>
+						</div>
+						</div>
+						<div class="ui fluid card ">
+						   <div class="content">
+								<div class="header">Look at this cool browser game I found!</div>
+								<div class="right floated meta">
+									<a class="ui blue image label spaced basic">
+									  <img src="https://via.placeholder.com/600"> Elliot
+									  <div class="detail">Student</div>
+									</a>
+								</div>
+								<div class="ui divider hidden"></div>
+								<div class="right floated meta">6 days ago</div>
+							  </div>
+						</div>
+					</div>
+			    </div>
+			</div>
+		</div>
+
+	</div>
+
+
+	</body>
+
+</html>
