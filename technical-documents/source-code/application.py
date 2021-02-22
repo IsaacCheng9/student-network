@@ -3,6 +3,7 @@ from passlib.hash import sha256_crypt
 
 application = Flask(__name__)
 application.secret_key = '\xfd{H\xe5<\x95\xf9\xe3\x96.5\xd1\x01O<!\xd5\xa2\xa0\x9fR"\xa1\xa8'
+
 @application.route('/', methods=['GET'])
 def index_page():
     return redirect("/login")
@@ -31,7 +32,7 @@ def login_submit():
 def errortest():
     session['error'] = ['login']
     return redirect("/login")
-    
+
 @application.route('/register', methods=['GET'])
 def register_page():
     return render_template('register.html')
@@ -39,19 +40,27 @@ def register_page():
 
 @application.route('/register', methods=['POST'])
 def register_submit():
-    username = request.form['username_input']
-    email = request.form['email_input']
-    psw = request.form['psw_input']
-    psw_check = request.form['psw_input_check']
-    if password_check(psw, psw_check):
-        print('Password Matches')
-        hash_psw = sha256_crypt.hash(psw)
-        # store username and email in db
-        # store hashed psw in db
-    else:
-        print('Passwords do not match')
-        # set a variable = to false which returns an error message on redirect
-    return redirect("/postpage")
+    try:
+        username = request.form['username_input']
+        email = request.form['email_input']
+        psw = request.form['psw_input']
+        psw_check = request.form['psw_input_check']
+        if password_check(psw, psw_check):
+            print('Password Matches')
+            hash_psw = sha256_crypt.hash(psw)
+            with sqlite3.connect("database.db") as con:
+                cur = con.cursor()
+                cur.execute("INSERT INTO Accounts (username,password,email,type) VALUES (?,?,?,'student')",(username,hash_psw,email))
+                con.commit()
+                con.close()
+        else:
+            print('Passwords do not match')
+            session['error'] = ['passwordMatch']
+            return redirect("/register")
+    except:
+        con.rollback()
+    finally:
+        return redirect("/postpage")
 
 
 @application.route('/postpage', methods=['GET'])
