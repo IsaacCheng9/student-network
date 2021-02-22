@@ -26,7 +26,23 @@ def login_submit():
     # Get user from database using username
     # Compare password with hashed password
     # Compare using sha256_crypt.verify(psw, hashed_password)
-    return redirect("/postpage")
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT password FROM Accounts WHERE username=?;", (username,))
+        hashed_psw = cur.fetchone()[0]
+        conn.commit()
+        if hashed_psw is not None:
+            if(sha256_crypt.verify(psw, hashed_psw)):
+                return redirect("/postpage")
+            else:
+                session['error'] = ['login']
+                return redirect("/login")
+        else:
+            session['error'] = ['login']
+            return redirect("/login")
+        
+        
+    
 
 
 @application.route('/error', methods=['GET'])
