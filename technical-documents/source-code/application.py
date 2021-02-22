@@ -6,6 +6,7 @@ import sqlite3
 application = Flask(__name__)
 application.secret_key = '\xfd{H\xe5<\x95\xf9\xe3\x96.5\xd1\x01O<!\xd5\xa2\xa0\x9fR"\xa1\xa8'
 
+
 @application.route('/', methods=['GET'])
 def index_page():
     return redirect("/login")
@@ -29,7 +30,8 @@ def login_submit():
     # Compare using sha256_crypt.verify(psw, hashed_password)
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT password FROM Accounts WHERE username=?;", (username,))
+        cur.execute(
+            "SELECT password FROM Accounts WHERE username=?;", (username,))
         hashed_psw = cur.fetchone()[0]
         conn.commit()
         if hashed_psw is not None:
@@ -41,15 +43,13 @@ def login_submit():
         else:
             session['error'] = ['login']
             return redirect("/login")
-        
-        
-    
 
 
 @application.route('/error', methods=['GET'])
 def errortest():
     session['error'] = ['login']
     return redirect("/login")
+
 
 @application.route('/register', methods=['GET'])
 def register_page():
@@ -65,14 +65,14 @@ def register_submit():
             psw = request.form["psw_input"]
             email = request.form["email_input"]
             hash_psw = sha256_crypt.hash(psw)
-            cur.execute("INSERT INTO ACCOUNTS (username,password,email,type) VALUES (?,?,?,?);",(username,hash_psw,email,'student',))
+            cur.execute("INSERT INTO ACCOUNTS (username, password, email, type) VALUES (?, ?, ?, ?);",
+                        (username, hash_psw, email, 'student',))
             conn.commit()
             return redirect("/postpage")
         else:
             print("Registration validation failed.")
             session['error'] = ['passwordMatch']
             return redirect("/register")
-
 
 
 @application.route('/postpage', methods=['GET'])
@@ -92,10 +92,10 @@ def validate_registration(cur) -> bool:
         valid (bool): States whether the registration details are valid.
     """
     # Gets the user inputs from the registration page.
-    email = request.args.get("email_input")
-    username = request.args.get("username_input")
-    password = request.args.get("psw_input")
-    password_confirm = request.args.get("psw_input_check")
+    username = request.form["username_input"]
+    password = request.form["psw_input"]
+    password_confirm = request.form["psw_input_check"]
+    email = request.form["email_input"]
     valid = True
 
     # Checks that the email address has the correct format, checks whether it
