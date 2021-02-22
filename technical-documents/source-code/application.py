@@ -29,7 +29,7 @@ def terms_page():
 
 @application.route("/terms", methods=["POST"])
 def terms_submit():
-    return redirect("/login")
+    return redirect("/register")
 
 @application.route("/login", methods=["POST"])
 def login_submit():
