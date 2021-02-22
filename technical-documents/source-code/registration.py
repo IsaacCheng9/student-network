@@ -1,44 +1,41 @@
 """Handles the registration process for a new user account."""
+import re
 import sqlite3
-from flask.globals import request
 from email_validator import validate_email, EmailNotValidError
 
 
 def main():
-    with sqlite3.connect("database.db") as con:
-        c = con.cursor()
-        valid = validate_registration(c)
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        # Gets the user inputs from the registration page.
+        username = "ic324"
+        password = "Password01"
+        password_confirm = "Password01"
+        email = "ic324@exeter.ac.uk"
+        valid = validate_registration(cur, username, password,
+                                      password_confirm, email)
         print(valid)
-        con.commit()
+        conn.commit()
 
 
-def validate_registration(c) -> bool:
+def validate_registration(cur, username: str, password: str,
+                          password_confirm: str, email: str) -> bool:
     """
     Validates the registration details to ensure that the email address is
     valid, and that the passwords in the form match.
 
     Arguments:
-        c: Cursor for the SQLite database.
+        cur: Cursor for the SQLite database.
+        username: The username input by the user in the form.
+        password: The password input by the user in the form.
+        password_confirm: The password confirmation input by the user in the
+            form.
+        email: The email address input by the user in the form.
 
     Returns:
         valid (bool): States whether the registration details are valid.
     """
-    # Gets the user inputs from the registration page.
-    # TODO: Connect function to Flask web application and test if it works.
     valid = True
-    """
-    email = request.args.get("email_input")
-    username = request.args.get("username_input")
-    password = request.args.get("psw_input")
-    password_confirm = request.args.get("psw_input_check")
-
-    c.execute("INSERT INTO Accounts VALUES ('test123', 'Password01', "
-              "'test123@exeter.ac.uk', 'student');")
-    """
-    email = "ic324@exeter.ac.uk"
-    username = "test123"
-    password = "Password01"
-    password_confirm = "Password01"
 
     # Checks that the email address has the correct format, checks whether it
     # exists, and isn't a blacklist email.
@@ -50,18 +47,27 @@ def validate_registration(c) -> bool:
         print("Email is invalid!")
         valid = False
 
+    # Checks that the email address has the University of Exeter domain.
+    domain = re.search('@.*', email).group()
+    if domain != "@exeter.ac.uk":
+        print("Email address does not belong to University of Exeter!")
+        valid = False
+
     # Checks that the username hasn't already been registered.
-    c.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
-    if c.fetchone() is not None:
+    cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
+    if cur.fetchone() is not None:
+        print("Username has already been registered!")
         valid = False
 
     # Checks that the password has a minimum length of 6 characters, and at
     # least one number.
     if len(password) <= 5 or any(char.isdigit() for char in password) is False:
+        print("Password does not meet requirements!")
         valid = False
 
     # Checks that the passwords match.
     if password != password_confirm:
+        print("Passwords do not match!")
         valid = False
 
     return valid
