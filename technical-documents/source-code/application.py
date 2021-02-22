@@ -1,9 +1,8 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 from passlib.hash import sha256_crypt
 
 application = Flask(__name__)
-session = {'error': []}
-
+application.secret_key = '\xfd{H\xe5<\x95\xf9\xe3\x96.5\xd1\x01O<!\xd5\xa2\xa0\x9fR"\xa1\xa8'
 @application.route('/', methods=['GET'])
 def index_page():
     return redirect("/login")
@@ -11,7 +10,11 @@ def index_page():
 
 @application.route('/login', methods=['GET'])
 def login_page():
-    return render_template('login.html', errors=session['error'])
+    errors = []
+    if 'error' in session:
+        errors = session['error']
+    session.pop('error', None)
+    return render_template('login.html', errors=errors)
 
 
 @application.route('/login', methods=['POST'])
@@ -24,6 +27,11 @@ def login_submit():
     return redirect("/postpage")
 
 
+@application.route('/error', methods=['GET'])
+def errortest():
+    session['error'] = ['login']
+    return redirect("/login")
+    
 @application.route('/register', methods=['GET'])
 def register_page():
     return render_template('register.html')
