@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, session
 from passlib.hash import sha256_crypt
+import sqlite3
 
 application = Flask(__name__)
 application.secret_key = '\xfd{H\xe5<\x95\xf9\xe3\x96.5\xd1\x01O<!\xd5\xa2\xa0\x9fR"\xa1\xa8'
@@ -48,11 +49,11 @@ def register_submit():
         if password_check(psw, psw_check):
             print('Password Matches')
             hash_psw = sha256_crypt.hash(psw)
-            with sqlite3.connect("database.db") as con:
-                cur = con.cursor()
-                cur.execute("INSERT INTO Accounts (username,password,email,type) VALUES (?,?,?,'student')",(username,hash_psw,email))
-                con.commit()
-                con.close()
+            with sqlite3.connect('database.db') as conn
+                cur = conn.cursor()
+                cur.execute("INSERT INTO ACCOUNTS (username,password,email,type) VALUES (?,?,?,?);",(username,hash_psw,email,'student',))
+                conn.commit()
+                conn.close()
         else:
             print('Passwords do not match')
             session['error'] = ['passwordMatch']
