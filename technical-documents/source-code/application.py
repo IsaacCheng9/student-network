@@ -176,6 +176,17 @@ def validate_registration(
         message.append("Not all fields have been filled in!")
         valid = False
 
+    # Checks that the username only contains valid characters.
+    if username.isalnum() is False:
+        message.append("Username must only contain letters and numbers!")
+        valid = False
+
+    # Checks that the username hasn't already been registered.
+    cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
+    if cur.fetchone() is not None:
+        message.append("Username has already been registered!")
+        valid = False
+
     # Checks that the email address has the correct format, checks whether it
     # exists, and isn't a blacklist email.
     try:
@@ -196,12 +207,6 @@ def validate_registration(
             valid = False
             message.append(
                 "Email address does not belong to University of Exeter!")
-
-    # Checks that the username hasn't already been registered.
-    cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
-    if cur.fetchone() is not None:
-        message.append("Username has already been registered!")
-        valid = False
 
     # Checks that the password has a minimum length of 6 characters, and at
     # least one number.
