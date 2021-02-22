@@ -1,30 +1,35 @@
 from flask import Flask, render_template, request, redirect
 from passlib.hash import sha256_crypt
 
-app = Flask(__name__)
+application = Flask(__name__)
+session = {'error': []}
 
-@app.route('/', methods=['GET'])
+@application.route('/', methods=['GET'])
 def index_page():
     return redirect("/login")
 
-@app.route('/login', methods=['GET'])
+
+@application.route('/login', methods=['GET'])
 def login_page():
-    return render_template('login.html')
-    
-@app.route('/login', methods=['POST'])
+    return render_template('login.html', errors=session['error'])
+
+
+@application.route('/login', methods=['POST'])
 def login_submit():
     username = request.form['username_input']
     psw = request.form['psw_input']
-    #Get user from database using username
-    #Compare password with hashed password 
-    #Compare using sha256_crypt.verify(psw, hashed_password)
+    # Get user from database using username
+    # Compare password with hashed password
+    # Compare using sha256_crypt.verify(psw, hashed_password)
     return redirect("/postpage")
 
-@app.route('/register', methods=['GET'])
-def register_page():
-    return render_template('register.html')      
 
-@app.route('/register', methods=['POST'])
+@application.route('/register', methods=['GET'])
+def register_page():
+    return render_template('register.html')
+
+
+@application.route('/register', methods=['POST'])
 def register_submit():
     username = request.form['username_input']
     email = request.form['email_input']
@@ -33,16 +38,15 @@ def register_submit():
     if password_check(psw, psw_check):
         print('Password Matches')
         hash_psw = sha256_crypt.hash(psw)
-        #store username and email in db
-        #store hashed psw in db
+        # store username and email in db
+        # store hashed psw in db
     else:
         print('Passwords do not match')
-        #set a variable = to false which returns an error message on redirect
+        # set a variable = to false which returns an error message on redirect
     return redirect("/postpage")
-    
 
 
-@app.route('/postpage', methods=['GET'])
+@application.route('/postpage', methods=['GET'])
 def post_page():
     return render_template('postpage.html')
 
@@ -51,10 +55,11 @@ def password_check(psw, psw_check):
     if psw == psw_check:
         return True
     else:
-        return False     
+        return False
+
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    application.run(debug=True)
 
 
 #print("password1 -> " + password)
