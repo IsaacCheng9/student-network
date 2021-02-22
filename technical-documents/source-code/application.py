@@ -20,10 +20,10 @@ def login_page():
     errors = []
     if "error" in session:
         errors = session["error"]
-    session.pop("error", None)
+    session.pop("error", None)  # clear error session variables
     return render_template("login.html", errors=errors)
 
-
+# TODO: FOUND ERROR: CLICKING LOGIN BUTTON WITH NOTHING IN THE FORM
 @application.route("/login", methods=["POST"])
 def login_submit():
     username = request.form["username_input"]
@@ -35,7 +35,7 @@ def login_submit():
         cur = conn.cursor()
         cur.execute(
             "SELECT password FROM Accounts WHERE username=?;", (username,))
-        hashed_psw = cur.fetchone()[0]
+        hashed_psw = cur.fetchone()[0] # <----------- line causes an error if you attempt to login with name that is not in db
         conn.commit()
         if hashed_psw is not None:
             if sha256_crypt.verify(psw, hashed_psw):
@@ -66,7 +66,7 @@ def register_page():
     session.pop("notifs", None)
     return render_template("register.html", notifs=notifs, errors=errors)
 
-
+# TODO: FOUND ERROR: CLICKING REGISTER BUTTON WITH NOTHING IN THE FORM
 @application.route("/register", methods=["POST"])
 def register_submit():
     username = request.form["username_input"]
@@ -75,7 +75,7 @@ def register_submit():
     email = request.form["email_input"]
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        message = []
+        message = []  # stores error messages to be printed to page
         valid = False
         valid, message = validate_registration(cur, username, password, password_confirm,
                         email)
