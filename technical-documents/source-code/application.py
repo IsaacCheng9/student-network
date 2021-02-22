@@ -37,7 +37,8 @@ def login_page():
     errors = []
     if "error" in session:
         errors = session["error"]
-    session.pop("error", None)  # clear error session variables
+    # Clear error session variables.
+    session.pop("error", None)
     return render_template("login.html", errors=errors)
 
 
