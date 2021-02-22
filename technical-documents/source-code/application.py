@@ -108,7 +108,7 @@ def register_submit():
             session["error"] = message
             return redirect("/register")
 
-
+#Checks user is logged in before viewing the post
 @application.route("/postpage", methods=["GET"])
 def post_page():
     if "username" in session:
@@ -116,6 +116,7 @@ def post_page():
     else:
         return redirect("/login")
 
+#Checks user is logged in before viewing the feed page
 @application.route("/feed", methods=["GET"])
 def feed():
     if  "username" in session:
@@ -123,6 +124,7 @@ def feed():
     else:
         return redirect("/login")
 
+#Checks user is logged in before viewing the profile page
 @application.route("/profile", methods=["GET"])
 def profile():
     if  "username" in session:
@@ -130,6 +132,7 @@ def profile():
     else:
         return redirect("/login")
 
+#Clears session when the user logs out 
 @application.route("/logout", methods=["GET"])
 def logout():
     if 'username' in session:
@@ -162,16 +165,19 @@ def validate_registration(cur, username: str, password: str,
         valid_email = validate_email(email)
         # Updates with the normalised form of the email address.
         email = valid_email.email
+    #Checks if email is of valid format
     except EmailNotValidError:
         print("Email is invalid!")
         valid = False
         message.append("Email is invalid!")
-
-    # Checks that the email address has the University of Exeter domain.
-    domain = re.search('@.*', email).group()
-    if domain != "@exeter.ac.uk":
-        valid = False
-        message.append("Email address does not belong to University of Exeter!")
+    
+    #if the format is valid check that the email address has 
+    # the University of Exeter domain.
+    if re.search('@.*', email) is not None:
+        domain = re.search('@.*', email).group()
+        if domain != "@exeter.ac.uk":
+            valid = False
+            message.append("Email address does not belong to University of Exeter!")
 
     # Checks that the username hasn't already been registered.
     cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
