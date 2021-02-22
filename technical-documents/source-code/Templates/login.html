@@ -44,10 +44,12 @@
                     <div class="header">Login</div>
                 </div>
                 <div class="content">
+                    {% if login in errors %}}
                     <div class="ui message red">
                         <div class="header">Incorrect Credentials</div>
                         <p>Username and/or password is incorrect.</p>
                     </div>
+                    {% endif %}
                     <div class="ui form">
                         <div class="required field">
                             <label>Username</label>
