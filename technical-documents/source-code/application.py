@@ -1,3 +1,4 @@
+import re
 from flask import Flask, render_template, request, redirect, session
 from email_validator import validate_email, EmailNotValidError
 from passlib.hash import sha256_crypt
@@ -58,15 +59,17 @@ def register_page():
 
 @application.route('/register', methods=['POST'])
 def register_submit():
+    username = request.form["username_input"]
+    password = request.form["psw_input"]
+    password_confirm = request.form["psw_input_check"]
+    email = request.form["email_input"]
     with sqlite3.connect('database.db') as conn:
         cur = conn.cursor()
-        if validate_registration(cur) is True:
-            username = request.form["username_input"]
-            psw = request.form["psw_input"]
-            email = request.form["email_input"]
-            hash_psw = sha256_crypt.hash(psw)
+        if validate_registration(cur, username, password, password_confirm,
+                                 email) is True:
+            hash_password = sha256_crypt.hash(password)
             cur.execute("INSERT INTO ACCOUNTS (username, password, email, type) VALUES (?, ?, ?, ?);",
-                        (username, hash_psw, email, 'student',))
+                        (username, hash_password, email, 'student',))
             conn.commit()
             return redirect("/postpage")
         else:
@@ -80,22 +83,23 @@ def post_page():
     return render_template('postpage.html')
 
 
-def validate_registration(cur) -> bool:
+def validate_registration(cur, username: str, password: str,
+                          password_confirm: str, email: str) -> bool:
     """
     Validates the registration details to ensure that the email address is
     valid, and that the passwords in the form match.
 
     Arguments:
-        c: Cursor for the SQLite database.
+        cur: Cursor for the SQLite database.
+        username: The username input by the user in the form.
+        password: The password input by the user in the form.
+        password_confirm: The password confirmation input by the user in the
+            form.
+        email: The email address input by the user in the form.
 
     Returns:
         valid (bool): States whether the registration details are valid.
     """
-    # Gets the user inputs from the registration page.
-    username = request.form["username_input"]
-    password = request.form["psw_input"]
-    password_confirm = request.form["psw_input_check"]
-    email = request.form["email_input"]
     valid = True
 
     # Checks that the email address has the correct format, checks whether it
@@ -108,18 +112,27 @@ def validate_registration(cur) -> bool:
         print("Email is invalid!")
         valid = False
 
+    # Checks that the email address has the University of Exeter domain.
+    domain = re.search('@.*', email).group()
+    if domain != "@exeter.ac.uk":
+        print("Email address does not belong to University of Exeter!")
+        valid = False
+
     # Checks that the username hasn't already been registered.
     cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
     if cur.fetchone() is not None:
+        print("Username has already been registered!")
         valid = False
 
     # Checks that the password has a minimum length of 6 characters, and at
     # least one number.
     if len(password) <= 5 or any(char.isdigit() for char in password) is False:
+        print("Password does not meet requirements!")
         valid = False
 
     # Checks that the passwords match.
     if password != password_confirm:
+        print("Passwords do not match!")
         valid = False
 
     return valid
