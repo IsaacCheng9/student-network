@@ -23,7 +23,7 @@ def login_page():
     session.pop("error", None)  # clear error session variables
     return render_template("login.html", errors=errors)
 
-
+# TODO: FOUND ERROR: CLICKING LOGIN BUTTON WITH NOTHING IN THE FORM
 @application.route("/login", methods=["POST"])
 def login_submit():
     username = request.form["username_input"]
@@ -66,7 +66,7 @@ def register_page():
     session.pop("notifs", None)
     return render_template("register.html", notifs=notifs, errors=errors)
 
-
+# TODO: FOUND ERROR: CLICKING REGISTER BUTTON WITH NOTHING IN THE FORM
 @application.route("/register", methods=["POST"])
 def register_submit():
     username = request.form["username_input"]
