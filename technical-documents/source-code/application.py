@@ -12,7 +12,10 @@ application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
 
 @application.route("/", methods=["GET"])
 def index_page():
-    return redirect("/login")
+    if "username" in session:
+        return render_template("feed.html")
+    else:
+        return redirect("/login")
 
 
 @application.route("/login", methods=["GET"])
@@ -42,11 +45,17 @@ def login_submit():
         cur = conn.cursor()
         cur.execute(
             "SELECT password FROM Accounts WHERE username=?;", (username,))
-        hashed_psw = cur.fetchone()[0] # <----------- line causes an error if you attempt to login with name that is not in db
         conn.commit()
+        row = cur.fetchone()
+        if  row is not None:
+            hashed_psw = row[0] 
+        else :
+            session["error"] = ["login"]
+            return redirect("/login")
         if hashed_psw is not None:
             if sha256_crypt.verify(psw, hashed_psw):
-                return redirect("/postpage")
+                session["username"] = username
+                return render_template("/feed.html")
             else:
                 session["error"] = ["login"]
                 return redirect("/login")
@@ -102,7 +111,30 @@ def register_submit():
 
 @application.route("/postpage", methods=["GET"])
 def post_page():
-    return render_template("post_page.html")
+    if "username" in session:
+        return render_template("/post_page.html")
+    else:
+        return redirect("/login")
+
+@application.route("/feed", methods=["GET"])
+def feed():
+    if  "username" in session:
+        return render_template("/feed.html")
+    else:
+        return redirect("/login")
+
+@application.route("/profile", methods=["GET"])
+def profile():
+    if  "username" in session:
+        return render_template("/profile.html")
+    else:
+        return redirect("/login")
+
+@application.route("/logout", methods=["GET"])
+def logout():
+    if 'username' in session:
+        session.clear()
+        return render_template("/login.html")
 
 
 def validate_registration(cur, username: str, password: str,
