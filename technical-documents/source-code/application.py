@@ -18,7 +18,6 @@ application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
 @application.route("/", methods=["GET"])
 def index_page():
     """
-    Redirects the user to the login page.
     Renders the feed page if logged in.
 
     Returns:
