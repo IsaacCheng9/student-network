@@ -19,11 +19,15 @@ application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
 def index_page():
     """
     Redirects the user to the login page.
+    Renders the feed page if logged in.
 
     Returns:
-        Redirection to the login page.
+        The web page for user login.
     """
-    return redirect("/login")
+    if "username" in session:
+        return render_template("feed.html")
+    else:
+        return redirect("/login")
 
 
 @application.route("/login", methods=["GET"])
@@ -42,7 +46,16 @@ def login_page():
     return render_template("login.html", errors=errors)
 
 
-# TODO: FOUND ERROR: CLICKING LOGIN BUTTON WITH NOTHING IN THE FORM
+@application.route("/terms", methods=["GET"])
+def terms_page():
+    return render_template("terms.html")
+
+
+@application.route("/terms", methods=["POST"])
+def terms_submit():
+    return redirect("/register")
+
+
 @application.route("/login", methods=["POST"])
 def login_submit():
     """
@@ -59,13 +72,17 @@ def login_submit():
         # Gets user from database using username.
         cur.execute(
             "SELECT password FROM Accounts WHERE username=?;", (username,))
-        # TODO: Line causes error for attempted login with username not in DB.
-        # Compares password with hashed password.
-        hashed_psw = cur.fetchone()[0]
         conn.commit()
+        row = cur.fetchone()
+        if row is not None:
+            hashed_psw = row[0]
+        else:
+            session["error"] = ["login"]
+            return redirect("/login")
         if hashed_psw is not None:
             if sha256_crypt.verify(psw, hashed_psw):
-                return redirect("/post_page")
+                session["username"] = username
+                return render_template("/feed.html")
             else:
                 session["error"] = ["login"]
                 return redirect("/login")
@@ -114,12 +131,15 @@ def register_submit() -> object:
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
+    terms = request.form.get("terms")
 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
+        message = []  # stores error messages to be printed to page
+        valid = False
         valid, message = validate_registration(cur, username, password,
                                                password_confirm,
-                                               email)
+                                               email,terms)
         if valid is True:
             hash_password = sha256_crypt.hash(password)
             cur.execute(
@@ -134,20 +154,44 @@ def register_submit() -> object:
             return redirect("/register")
 
 
-@application.route("/post_page", methods=["GET"])
+# Checks user is logged in before viewing the post
+@application.route("/postpage", methods=["GET"])
 def post_page():
-    """
-    Renders the social wall page.
-
-    Returns:
-        The web page for viewing social wall posts.
-    """
-    return render_template("post_page.html")
+    if "username" in session:
+        return render_template("/post_page.html")
+    else:
+        return redirect("/login")
 
 
-def validate_registration(cur, username: str,
-                          password: str, password_confirm: str,
-                          email: str) -> Tuple[bool, List[str]]:
+# Checks user is logged in before viewing the feed page
+@application.route("/feed", methods=["GET"])
+def feed():
+    if "username" in session:
+        return render_template("/feed.html")
+    else:
+        return redirect("/login")
+
+
+# Checks user is logged in before viewing the profile page
+@application.route("/profile", methods=["GET"])
+def profile():
+    if "username" in session:
+        return render_template("/profile.html")
+    else:
+        return redirect("/login")
+
+
+# Clears session when the user logs out
+@application.route("/logout", methods=["GET"])
+def logout():
+    if 'username' in session:
+        session.clear()
+        return render_template("/login.html")
+
+
+def validate_registration(
+        cur, username: str, password: str,
+        password_confirm: str, email: str, terms:str) -> Tuple[bool, List[str]]:
     """
     Validates the registration details to ensure that the email address is
     valid, and that the passwords in the form match.
@@ -168,21 +212,15 @@ def validate_registration(cur, username: str,
     valid = True
     message = []
 
-    # Checks that the email address has the correct format, checks whether it
-    # exists, and isn't a blacklist email.
-    try:
-        valid_email = validate_email(email)
-        # Updates with the normalised form of the email address.
-        email = valid_email.email
-    except EmailNotValidError:
-        message.append("Email is invalid!")
+    # Checks that there are no null inputs.
+    if (username == "" or password == "" or password_confirm == "" or
+            email == ""):
+        message.append("Not all fields have been filled in!")
         valid = False
 
-    # Checks that the email address has the University of Exeter domain.
-    domain = re.search("@.*", email).group()
-    if domain != "@exeter.ac.uk":
-        message.append(
-            "Email address does not belong to University of Exeter!")
+    # Checks that the username only contains valid characters.
+    if username.isalnum() is False:
+        message.append("Username must only contain letters and numbers!")
         valid = False
 
     # Checks that the username hasn't already been registered.
@@ -190,6 +228,26 @@ def validate_registration(cur, username: str,
     if cur.fetchone() is not None:
         message.append("Username has already been registered!")
         valid = False
+    
+    # Checks that the email address has the correct format, checks whether it
+    # exists, and isn't a blacklist email.
+    try:
+        valid_email = validate_email(email)
+        # Updates with the normalised form of the email address.
+        email = valid_email.email
+    # Checks if email is of valid format
+    except EmailNotValidError:
+        message.append("Email is invalid!")
+        valid = False
+
+    # if the format is valid check that the email address has
+    # the University of Exeter domain.
+    if re.search('@.*', email) is not None:
+        domain = re.search('@.*', email).group()
+        if domain != "@exeter.ac.uk":
+            valid = False
+            message.append(
+                "Email address does not belong to University of Exeter!")
 
     # Checks that the password has a minimum length of 6 characters, and at
     # least one number.
@@ -200,6 +258,11 @@ def validate_registration(cur, username: str,
     # Checks that the passwords match.
     if password != password_confirm:
         message.append("Passwords do not match!")
+        valid = False
+    
+    # Checks that the terms of service has been ticked.
+    if terms is None:
+        message.append("You need to accept the terms of service!")
         valid = False
 
     return valid, message

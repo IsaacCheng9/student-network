@@ -34,13 +34,8 @@
     <div class="student-background"></div>
     <div class="ui segment basic">
       <div class="ui menu">
-        <a class="item">Home</a>
-        <a class="item">Login</a>
-        <a class="item active">Register</a>
-        <a class="item">Friends</a>
-        <div class="right menu">
-          <a class="ui item">Logout</a>
-        </div>
+        <a href="/login" class="item active">Login</a>
+        <a href="/register" class="active item">Register</a>
       </div>
 
       <form action="/register" method="POST">
@@ -96,11 +91,10 @@
               </div>
               <div class="required field">
                 <div class="ui checkbox">
-                  <label
-                    >I have read and understood the
-                    <a href="">Terms and Conditions</a></label
-                  >
-                  <input type="checkbox" />
+                <input type="checkbox" name="terms"></input>
+                  <label>
+                    I have read and understood the
+                    <a href="/terms">Terms of Service</a></label>
                 </div>
               </div>
             </div>
