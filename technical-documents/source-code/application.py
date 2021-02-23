@@ -93,13 +93,15 @@ def register_submit():
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
+    terms = request.form.get("terms")
+
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         message = []  # stores error messages to be printed to page
         valid = False
         valid, message = validate_registration(cur, username, password,
                                                password_confirm,
-                                               email)
+                                               email,terms)
         if valid is True:
             hash_password = sha256_crypt.hash(password)
             cur.execute(
@@ -151,7 +153,7 @@ def logout():
 
 def validate_registration(
         cur, username: str, password: str,
-        password_confirm: str, email: str) -> Tuple[bool, List[str]]:
+        password_confirm: str, email: str, terms:str) -> Tuple[bool, List[str]]:
     """
     Validates the registration details to ensure that the email address is
     valid, and that the passwords in the form match.
@@ -217,6 +219,11 @@ def validate_registration(
     # Checks that the passwords match.
     if password != password_confirm:
         message.append("Passwords do not match!")
+        valid = False
+    
+    # Checks that the terms of service has been ticked.
+    if terms is None:
+        message.append("You need to accept the terms of service!")
         valid = False
 
     return valid, message
