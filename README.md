@@ -15,6 +15,13 @@ Group members (contributors) include:
 - Oskar Oramus
 - Sam Shailer
 
+## Hosting
+
+This application has been deployed on Amazon Web Services (AWS). The link for
+this is as follows:
+
+[http://reconnect-env.eba-dz733adm.us-east-2.elasticbeanstalk.com/](http://reconnect-env.eba-dz733adm.us-east-2.elasticbeanstalk.com/)
+
 ## GitHub Repository
 
 The documentation and source files for our project can be found in our GitHub
@@ -58,8 +65,14 @@ They can be found in the following path:
 
 [./technical-documents](./technical-documents)
 
+## Prerequisites
+
 ### Python Libraries
 
-Python libraries to pip install using the following commands:
+This project uses several Python libraries. To run the application successfully,
+you should `pip install` the following:
 
-pip install passlib
+- passlib
+- email-validator
+
+For example, you should `pip install passlib`.
