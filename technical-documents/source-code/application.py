@@ -210,16 +210,16 @@ def profile(username):
         cur.execute(
             "SELECT name, bio, gender, birthday, profilepicture FROM "
             "UserProfile WHERE username=?;", (username,))
-        row = cur.fetchone()
+        row = cur.fetchall()
         if row is None:
             message.append("The username "+username+" does not exists.")
             message.append(" Please ensure you have entered the name correctly.") 
             return render_template("/error.html", message=message)
         else:
             data = row[0]
+
             (name, bio, gender, birthday,
-                profile_picture) = data[0], data[1], data[2], data[3], data[4]
-<<<<<<< Updated upstream
+             profile_picture) = data[0], data[1], data[2], data[3], data[4]
 
         # Gets the user's hobbies.
         cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
@@ -266,32 +266,6 @@ def profile(username):
                             hobbies=hobbies,
                             interests=interests, email=email, posts=posts)
 
-=======
-            # Gets the user's hobbies.
-            cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
-                        (username,))
-            row = cur.fetchall()
-            if len(row) > 0:
-                hobbies = row
-
-            # Gets the user's interests.
-            cur.execute("SELECT interest FROM UserInterests WHERE username=?;",
-                        (username,))
-            row = cur.fetchall()
-            if len(row) > 0:
-                interests = row
-
-            # Calculates the user's age based on their date of birth.
-            datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
-            age = calculate_age(datetime_object)
-
-            return render_template("/profile.html", username=username,
-                                    name=name, bio=bio, gender=gender,
-                                    birthday=birthday,
-                                    profile_picture=profile_picture, age=age,
-                                    hobbies=hobbies,
-                                    interests=interests)
->>>>>>> Stashed changes
 
 def calculate_age(born):
     today = date.today()

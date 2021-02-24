@@ -17,7 +17,7 @@
 
     <style type="text/css">
         .student-background {
-            background-image: url("{{ url_for('static', filename='images/tile_background_g.png') }}") !important;
+            background-image: url("{{ url_for('static', filename='images/background_blue.png') }}") !important;
 
             height: 100%;
 
@@ -46,7 +46,6 @@
     <div class="pusher">
         <div class="ui container">
             <div class="student-background"></div>
-            <div class="ui segment basic">
                 <div class="ui menu">
                    {% if not "username" in session %}
                     <a href="/login" class="item">Login</a>
@@ -68,6 +67,8 @@
                         {%endif%}
                     </div>
                 </div>
+                
+                <div class="ui segment">
                 <div class="ui grid container">
                     
                     <div class="row">
