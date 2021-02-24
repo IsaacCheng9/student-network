@@ -241,7 +241,7 @@ def profile(username):
             "UserPosts": [
             ]
         }
-        for i in range(1, 25):
+        for i in range(1, 10):
             posts["UserPosts"].append({
                 "title": "Post " + str(i),
                 "profile_pic": "https://via.placeholder.com/600",
