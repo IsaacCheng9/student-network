@@ -59,14 +59,8 @@ def connect_request(username):
                     cur.execute("INSERT INTO Connection (user1, user2, connection_type) VALUES (?,?,?);", (session["username"], username, "request",))
                     conn.commit()
                     session["add"] = True
-                else:
-                    return redirect("/profile/"+username)   
-            else:
-                return redirect("/profilenotfound")
-            return redirect("/profile/"+username)
-    else:
         session["add"] = "You can't connect with yourself!"
-        return redirect("/profile/"+username)
+    return redirect("/profile/"+username)
         
 
 
@@ -79,17 +73,12 @@ def connect_request(username):
                 row = cur.execute("SELECT * FROM Connection WHERE (user1=? AND user2=?) OR (user1=? AND user2=?);", (username,session["username"],session["username"],username))
                 if row is not None:
                     # Gets user from database using username.
-                    cur.execute("INSERT INTO Connection (user1, user2, connection_type) VALUES (?,?,?);", (session["username"], username, "request",))
+                    cur.execute("UPDATE Connection SET connection_type = connected WHERE (user1=? AND user2=?) OR (user1=? AND user2=?);", (username,session["username"],session["username"],username))
                     conn.commit()
                     session["add"] = True
-                else:
-                    return redirect("/profile/"+username)   
-            else:
-                return redirect("/profilenotfound")
-            return redirect("/profile/"+username)
     else:
         session["add"] = "You can't connect with yourself!"
-        return redirect("/profile/"+username)
+    return redirect("/profile/"+username)
 
 
 
