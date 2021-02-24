@@ -10,6 +10,8 @@ from email_validator import validate_email, EmailNotValidError
 from flask import Flask, render_template, request, redirect, session
 from passlib.hash import sha256_crypt
 
+from datetime import date, datetime
+
 application = Flask(__name__)
 application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
                           "xa2\xa0\x9fR\xa1\xa8")
@@ -63,6 +65,7 @@ def login_submit():
     Returns:
          Redirection depending on whether login was successful or not.
     """
+
     username = request.form["username_input"]
     psw = request.form["psw_input"]
 
@@ -174,11 +177,61 @@ def feed():
 # Checks user is logged in before viewing the profile page
 @application.route("/profile", methods=["GET"])
 def profile():
+    """
+    Displays the user's profile page and fills in all of the necessary details.
+    Also hides the request buttons if the user is seeing their own page.
+
+    Returns:
+        The updated web page based on whether the details provided were valid.
+    """
     if "username" in session:
-        return render_template("/profile.html")
+        username = session["username"]
+
+        name = ""
+        bio = ""
+        gender = ""
+        birthday = ""
+        profile_picture = ""
+
+        hobbies = []
+        interests = []
+
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            # Gets user from database using username.
+            cur.execute(
+                "SELECT name, bio, gender, birthday, profilepicture FROM UserProfile WHERE username=?;", (username,))
+            row = cur.fetchall()
+
+            if row is not None:
+                data = row[0]
+                name, bio, gender, birthday, profile_picture = data[0], data[1], data[2], data[3], data[4]
+
+            cur.execute("SELECT hobby FROM UserHobby WHERE username=?;", (username,))
+            row = cur.fetchall()
+
+            if len(row) > 0:
+                hobbies = row[0]
+
+            cur.execute("SELECT interest FROM UserInterests WHERE username=?;", (username,))
+            row = cur.fetchall()
+
+            if len(row) > 0:
+                interests = row[0]
+
+        datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
+        age = calculate_age(datetime_object)
+
+        return render_template("/profile.html", username=username,
+        name=name, bio=bio, gender=gender, birthday=birthday, 
+        profile_picture=profile_picture, age=age, hobbies=hobbies,
+        interests=interests)
     else:
         return redirect("/login")
 
+def calculate_age(born):
+    today = date.today()
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
 # Clears session when the user logs out
 @application.route("/logout", methods=["GET"])

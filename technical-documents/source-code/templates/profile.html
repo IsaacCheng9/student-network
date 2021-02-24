@@ -59,28 +59,31 @@
                 <div class="ui grid container">
                     <div class="row">
                         <div class="five wide column">
-                            <img class="fluid rounded" src="https://via.placeholder.com/600" />
+                            <img class="fluid rounded" src="{{profile_picture}}" />
                         </div>
                         <div class="eleven wide column">
                             <div class="ui list">
                                 <div class="item">
-                                    <h1>Jeremy Rose</h1>
+                                    <h1>{{name}}</h1>
                                     <span class="right floated content">
+<!--
                                         <a href="">
                                             <i class="exclamation triangle icon"></i>
                                             Report user
                                         </a>
+-->
                                     </span>
                                 </div>
                                 <div class="item">
-                                    <h5>@JeremyRose528</h5>
+                                    <h5><div class="ui label basic medium blue">@{{username}} <div class="detail">Student</div></div></h5>
                                 </div>
                             </div>
                             <div class="ui list">
                                 <div class="item"><b>Studying Biology at University of Bristol</b></div>
                             </div>
 
-                            <p>My name is Alex Drysdale and I am a Junior Web Developer for Oswald Technologies. I am an accomplished coder and programmer, and I enjoy using my skills to contribute to the exciting technological advances that happen every day at Oswald Tech. I graduated from the California Institute of Technology in 2016 with a Bachelor's Degree in Software Development. While in school, I earned the 2015 Edmund Gains Award for my exemplary academic performance and leadership skills.</p>
+                            <p>{{bio}}</p>
+                            {%if username != session["username"]%}
                             <div class="ui buttons right floated">
                                 <button class="ui blue button tiny">
                                     <i class="user icon"></i>
@@ -95,19 +98,20 @@
                                     Block
                                 </button>
                             </div>
+                            {%endif%}
                         </div>
                         <div class="five wide column">
                             <div class="ui list">
                                 <div class="item">
                                     <div class="ui label basic">
                                         <i class="male icon"></i>
-                                        Male
+                                        {{gender}}
                                     </div>
                                 </div>
                                 <div class="item">
                                     <div class="ui label basic">
                                         <i class="birthday cake icon"></i>
-                                        3rd April 1997 (24 years old)
+                                        {{birthday}} ({{age}} years old)
                                     </div>
                                 </div>
                                 <div class="item">
@@ -119,18 +123,15 @@
                             </div>
                             <div class="ui divider horizontal">Hobbies</div>
                             <div class="ui medium teal labels">
-                                <a class="ui label">Programming</a>
-                                <a class="ui label">Science</a>
-                                <a class="ui label">Gaming</a>
-                                <a class="ui label">Geography</a>
-                                <a class="ui label">Reddit</a>
+                               {% for hobby in hobbies %}
+                                <a class="ui label">{{hobby}}</a>
+                                {%endfor%}
                             </div>
                             <div class="ui divider horizontal">Interests</div>
                             <div class="ui medium orange labels">
-                                <a class="ui label">Theater</a>
-                                <a class="ui label">Travelling</a>
-                                <a class="ui label">Artificial Intelligence</a>
-                                <a class="ui label">Caligraphy</a>
+                               {% for interest in interests %}
+                                <a class="ui label">{{interest}}</a>
+                                {% endfor %}
                             </div>
                             <div class="ui horizontal divider">Socials</div>
                             <div class="ui grid two column container stackable">
