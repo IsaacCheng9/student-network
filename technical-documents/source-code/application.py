@@ -4,13 +4,12 @@ the Flask module.
 """
 import re
 import sqlite3
+from datetime import date, datetime
 from typing import Tuple, List
 
 from email_validator import validate_email, EmailNotValidError
 from flask import Flask, render_template, request, redirect, session
 from passlib.hash import sha256_crypt
-
-from datetime import date, datetime
 
 application = Flask(__name__)
 application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
@@ -29,7 +28,8 @@ def index_page():
         return render_template("feed.html")
     else:
         return redirect("/login")
-        
+
+
 @application.route("/login", methods=["GET"])
 def login_page():
     """
@@ -140,7 +140,7 @@ def register_submit() -> object:
         valid = False
         valid, message = validate_registration(cur, username, password,
                                                password_confirm,
-                                               email,terms)
+                                               email, terms)
         if valid is True:
             hash_password = sha256_crypt.hash(password)
             cur.execute(
@@ -199,20 +199,24 @@ def profile():
             cur = conn.cursor()
             # Gets user from database using username.
             cur.execute(
-                "SELECT name, bio, gender, birthday, profilepicture FROM UserProfile WHERE username=?;", (username,))
+                "SELECT name, bio, gender, birthday, profilepicture FROM "
+                "UserProfile WHERE username=?;", (username,))
             row = cur.fetchall()
 
             if row is not None:
                 data = row[0]
-                name, bio, gender, birthday, profile_picture = data[0], data[1], data[2], data[3], data[4]
+                (name, bio, gender, birthday,
+                 profile_picture) = data[0], data[1], data[2], data[3], data[4]
 
-            cur.execute("SELECT hobby FROM UserHobby WHERE username=?;", (username,))
+            cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
+                        (username,))
             row = cur.fetchall()
 
             if len(row) > 0:
                 hobbies = row[0]
 
-            cur.execute("SELECT interest FROM UserInterests WHERE username=?;", (username,))
+            cur.execute("SELECT interest FROM UserInterests WHERE username=?;",
+                        (username,))
             row = cur.fetchall()
 
             if len(row) > 0:
@@ -222,15 +226,20 @@ def profile():
         age = calculate_age(datetime_object)
 
         return render_template("/profile.html", username=username,
-        name=name, bio=bio, gender=gender, birthday=birthday, 
-        profile_picture=profile_picture, age=age, hobbies=hobbies,
-        interests=interests)
+                               name=name, bio=bio, gender=gender,
+                               birthday=birthday,
+                               profile_picture=profile_picture, age=age,
+                               hobbies=hobbies,
+                               interests=interests)
     else:
         return redirect("/login")
 
+
 def calculate_age(born):
     today = date.today()
-    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+    return today.year - born.year - (
+            (today.month, today.day) < (born.month, born.day))
+
 
 # Clears session when the user logs out
 @application.route("/logout", methods=["GET"])
@@ -242,7 +251,8 @@ def logout():
 
 def validate_registration(
         cur, username: str, password: str,
-        password_confirm: str, email: str, terms:str) -> Tuple[bool, List[str]]:
+        password_confirm: str, email: str, terms: str) -> Tuple[
+    bool, List[str]]:
     """
     Validates the registration details to ensure that the email address is
     valid, and that the passwords in the form match.
@@ -279,7 +289,7 @@ def validate_registration(
     if cur.fetchone() is not None:
         message.append("Username has already been registered!")
         valid = False
-    
+
     # Checks that the email address has the correct format, checks whether it
     # exists, and isn't a blacklist email.
     try:
@@ -310,7 +320,7 @@ def validate_registration(
     if password != password_confirm:
         message.append("Passwords do not match!")
         valid = False
-    
+
     # Checks that the terms of service has been ticked.
     if terms is None:
         message.append("You need to accept the terms of service!")
