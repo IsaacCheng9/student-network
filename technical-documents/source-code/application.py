@@ -46,27 +46,19 @@ def login_page():
     return render_template("/login.html", errors=errors)
 
 
-@application.route("/terms", methods=["GET"])
+@application.route("/terms", methods=["GET", "POST"])
 def terms_page():
-    """
-    Renders the terms and conditions page for using this application.
+    if request.method == "GET":
+        return render_template("terms.html")
+    else:
+        return redirect("/register")
 
-    Returns:
-        The web page for terms and conditions.
-    """
-    return render_template("terms.html")
-
-
-@application.route("/terms", methods=["POST"])
-def terms_submit():
-    """
-    Navigates the user to the registration page after pressing a button.
-
-    Returns:
-        Redirection to the registration page.
-    """
-    return redirect("/register")
-
+@application.route("/privacy_policy", methods=["GET", "POST"])
+def privacy_policy_page():
+    if request.method == "GET":
+        return render_template("privacy_policy.html")
+    else:
+        return redirect("/terms")
 
 @application.route("/login", methods=["POST"])
 def login_submit():
