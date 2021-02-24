@@ -43,7 +43,7 @@ def terms_submit():
 
 @application.route("/privacy_policy", methods=["POST"])
 def privacy_policy_submit():
-    return redirect("/register")
+    return redirect("/terms")
 
 @application.route("/login", methods=["POST"])
 def login_submit():
