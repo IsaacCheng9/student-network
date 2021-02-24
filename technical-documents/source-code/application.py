@@ -49,6 +49,12 @@ def login_page():
 
 @application.route("/terms", methods=["GET", "POST"])
 def terms_page():
+    """
+    Renders the terms and conditions page.
+
+    Returns:
+        The web page for terms and conditions, or redirection back to register.
+    """
     if request.method == "GET":
         return render_template("terms.html")
     else:
@@ -57,6 +63,12 @@ def terms_page():
 
 @application.route("/privacy_policy", methods=["GET", "POST"])
 def privacy_policy_page():
+    """
+    Renders the privacy policy page.
+
+    Returns:
+        The web page for the privacy policy, or redirection back to T&C.
+    """
     if request.method == "GET":
         return render_template("privacy_policy.html")
     else:
@@ -293,6 +305,13 @@ def profile(username):
 
 
 def calculate_age(born):
+    """
+    Args:
+        born: The user's date of birth.
+
+    Returns:
+        The age of the user in years.
+    """
     today = date.today()
     return today.year - born.year - (
             (today.month, today.day) < (born.month, born.day))
@@ -300,6 +319,12 @@ def calculate_age(born):
 
 @application.route("/logout", methods=["GET"])
 def logout():
+    """
+    Clears the user's session if they are logged in.
+
+    Returns:
+        The web page for logging in if the user logged out of an account.
+    """
     if "username" in session:
         session.clear()
         return render_template("/login.html")
