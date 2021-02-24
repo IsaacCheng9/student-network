@@ -27,8 +27,7 @@ def index_page():
         return render_template("feed.html")
     else:
         return redirect("/login")
-
-
+        
 @application.route("/login", methods=["GET"])
 def login_page():
     """
