@@ -17,11 +17,9 @@
 
     <style type="text/css">
         .student-background {
-            background-image: url("{{ url_for('static', filename='images/students.jpg') }}") !important;
+            background-image: url("{{ url_for('static', filename='images/tile_background_g.png') }}") !important;
 
             height: 100%;
-
-            filter: saturate(1.5) blur(20px);
 
             background-position: center;
             background-repeat: no-repeat;
@@ -38,6 +36,7 @@
         .centered {
             text-align: center;
         }
+
 
     </style>
 </head>
@@ -70,6 +69,7 @@
                     </div>
                 </div>
                 <div class="ui grid container">
+                    
                     <div class="row">
                         <div class="five wide column">
                             <img class="fluid rounded" src="{{profile_picture}}" />
@@ -146,13 +146,13 @@
                             </div>
                             <div class="ui divider horizontal">Hobbies</div>
                             <div class="ui medium teal labels">
-                               {% for hobby in hobbies %}
+                            {% for hobby in hobbies %}
                                 <a class="ui label">{{hobby[0]}}</a>
                                 {%endfor%}
                             </div>
                             <div class="ui divider horizontal">Interests</div>
                             <div class="ui medium orange labels">
-                               {% for interest in interests %}
+                            {% for interest in interests %}
                                 <a class="ui label">{{interest[0]}}</a>
                                 {% endfor %}
                             </div>
