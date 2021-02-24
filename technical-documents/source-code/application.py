@@ -8,8 +8,8 @@ import sqlite3
 from datetime import date, datetime
 from typing import Tuple, List
 
-from email_validator import EmailNotValidError, validate_email
-from flask import Flask, redirect, render_template, request, session
+from email_validator import validate_email, EmailNotValidError
+from flask import Flask, render_template, request, redirect, session, json
 from passlib.hash import sha256_crypt
 
 application = Flask(__name__)
@@ -206,7 +206,8 @@ def user_aprofile():
     """
     if "username" in session:
         return redirect("/profile/"+session["username"])
-    return redirect("/login")
+
+    return redirect("/")
 
 # Checks user is logged in before viewing the profile page
 @application.route("/profile/<username>", methods=["GET"])
@@ -237,7 +238,7 @@ def profile(username):
         row = cur.fetchone()
         if row is None:
             message.append("The username "+username+" does not exists.")
-            message.append(" Please ensure you have entered the name correctly.") 
+            message.append(" Please ensure you have entered the name correctly.")
             return render_template("/error.html", message=message)
         else:
             data = row[0]
@@ -258,10 +259,25 @@ def profile(username):
     if len(row) > 0:
         interests = row
 
-    cur.execute("SELECT email from ACCOUNTS WHERE username=?;", (username,))
-    row = cur.fetchall()
-    if len(row) > 0:
-        email = row[0][0]
+        cur.execute("SELECT email from ACCOUNTS WHERE username=?;", (username,))
+        row = cur.fetchall()
+        if len(row) > 0:
+            email = row[0][0]
+
+        # TODO: db search query in posts table for all the users posts
+        # TODO: store all the users posts in a json file
+        posts = {
+            "UserPosts": [
+            ]
+        }
+        for i in range(1, 10):
+            posts["UserPosts"].append({
+                "title": "Post " + str(i),
+                "profile_pic": "https://via.placeholder.com/600",
+                "author":"John Smith",
+                "account_type":"Student",
+                "time_elapsed": str(i) + " days"
+            })
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
@@ -272,7 +288,7 @@ def profile(username):
                             birthday=birthday,
                             profile_picture=profile_picture, age=age,
                             hobbies=hobbies,
-                            interests=interests, email=email)
+                            interests=interests, email=email, posts=posts)
 
 
 def calculate_age(born):
