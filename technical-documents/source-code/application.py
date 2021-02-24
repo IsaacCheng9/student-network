@@ -82,26 +82,20 @@ def connect_request(username):
 
 
 
-@application.route("/terms", methods=["GET"])
+@application.route("/terms", methods=["GET", "POST"])
 def terms_page():
-    """
-    Renders the terms and conditions page for using this application.
-
-    Returns:
-        The web page for terms and conditions.
-    """
-    return render_template("terms.html")
+    if request.method == "GET":
+        return render_template("terms.html")
+    else:
+        return redirect("/register")
 
 
-@application.route("/terms", methods=["POST"])
-def terms_submit():
-    """
-    Navigates the user to the registration page after pressing a button.
-
-    Returns:
-        Redirection to the registration page.
-    """
-    return redirect("/register")
+@application.route("/privacy_policy", methods=["GET", "POST"])
+def privacy_policy_page():
+    if request.method == "GET":
+        return render_template("privacy_policy.html")
+    else:
+        return redirect("/terms")
 
 
 @application.route("/login", methods=["POST"])
@@ -112,8 +106,7 @@ def login_submit():
     Returns:
          Redirection depending on whether login was successful or not.
     """
-
-    username = request.form["username_input"]
+    username = request.form["username_input"].lower()
     psw = request.form["psw_input"]
 
     with sqlite3.connect("database.db") as conn:
@@ -182,7 +175,7 @@ def register_submit() -> object:
         The updated web page based on whether the details provided were valid.
     """
     # Obtains user input from the account registration form.
-    username = request.form["username_input"]
+    username = request.form["username_input"].lower()
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
@@ -248,8 +241,7 @@ def user_profile():
     """
     if "username" in session:
         return redirect("/profile/"+session["username"])
-        
-    return redirect("/")
+    return redirect("/login")
 
 # Checks user is logged in before viewing the profile page
 @application.route("/profile/<username>", methods=["GET"])
@@ -266,34 +258,45 @@ def profile(username):
     gender = ""
     birthday = ""
     profile_picture = ""
+    email = ""
     hobbies = []
     interests = []
-    
+    message = []
+
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
             "SELECT name, bio, gender, birthday, profilepicture FROM "
             "UserProfile WHERE username=?;", (username,))
-        row = cur.fetchall()
-        if row is not None:
+        row = cur.fetchone()
+        if row is None:
+            message.append("The username "+username+" does not exists.")
+            message.append(" Please ensure you have entered the name correctly.") 
+            return render_template("/error.html", message=message)
+        else:
             data = row[0]
             (name, bio, gender, birthday,
                 profile_picture) = data[0], data[1], data[2], data[3], data[4]
 
-        # Gets the user's hobbies.
-        cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
-                    (username,))
-        row = cur.fetchall()
-        if len(row) > 0:
-            hobbies = row
+    # Gets the user's hobbies.
+    cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
+                (username,))
+    row = cur.fetchall()
+    if len(row) > 0:
+        hobbies = row
 
-        # Gets the user's interests.
-        cur.execute("SELECT interest FROM UserInterests WHERE username=?;",
-                    (username,))
-        row = cur.fetchall()
-        if len(row) > 0:
-            interests = row
+    # Gets the user's interests.
+    cur.execute("SELECT interest FROM UserInterests WHERE username=?;",
+                (username,))
+    row = cur.fetchall()
+    if len(row) > 0:
+        interests = row
+
+    cur.execute("SELECT email from ACCOUNTS WHERE username=?;", (username,))
+    row = cur.fetchall()
+    if len(row) > 0:
+        email = row[0][0]
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
@@ -304,7 +307,7 @@ def profile(username):
                             birthday=birthday,
                             profile_picture=profile_picture, age=age,
                             hobbies=hobbies,
-                            interests=interests)
+                            interests=interests, email=email)
 
 
 def calculate_age(born):
@@ -315,12 +318,6 @@ def calculate_age(born):
 
 @application.route("/logout", methods=["GET"])
 def logout():
-    """
-    Clears the session when the user logs out.
-
-    Returns:
-        The web page for logging in.
-    """
     if "username" in session:
         session.clear()
         return render_template("/login.html")
