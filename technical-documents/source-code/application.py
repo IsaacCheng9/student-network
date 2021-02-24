@@ -247,7 +247,7 @@ def profile(username):
         cur.execute(
             "SELECT name, bio, gender, birthday, profilepicture FROM "
             "UserProfile WHERE username=?;", (username,))
-        row = cur.fetchone()
+        row = cur.fetchall()
         if row is None:
             message.append("The username " + username + " does not exists.")
             message.append(
