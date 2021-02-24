@@ -17,11 +17,9 @@
 
     <style type="text/css">
         .student-background {
-            background-image: url("images/students.jpg") !important;
+            background-image: url("{{ url_for('static', filename='images/tile_background_g.png') }}") !important;
 
             height: 100%;
-
-            filter: saturate(1.5) blur(20px);
 
             background-position: center;
             background-repeat: no-repeat;
@@ -38,6 +36,7 @@
         .centered {
             text-align: center;
         }
+
 
     </style>
 </head>
@@ -70,6 +69,7 @@
                     </div>
                 </div>
                 <div class="ui grid container">
+                    
                     <div class="row">
                         <div class="five wide column">
                             <img class="fluid rounded" src="{{profile_picture}}" />
@@ -146,13 +146,13 @@
                             </div>
                             <div class="ui divider horizontal">Hobbies</div>
                             <div class="ui medium teal labels">
-                               {% for hobby in hobbies %}
+                            {% for hobby in hobbies %}
                                 <a class="ui label">{{hobby[0]}}</a>
                                 {%endfor%}
                             </div>
                             <div class="ui divider horizontal">Interests</div>
                             <div class="ui medium orange labels">
-                               {% for interest in interests %}
+                            {% for interest in interests %}
                                 <a class="ui label">{{interest[0]}}</a>
                                 {% endfor %}
                             </div>
@@ -183,38 +183,25 @@
                 <div class="ui segment basic">
                     <div class="column">
                         <h3 class="ui header">Posts</h3>
+                        {% for post in posts.UserPosts %}
                         <div class="ui cards">
                             <div class="ui fluid card">
                                 <div class="content">
                                     <div class="header">
-                                        Look at this cool browser game I found!
+                                        {{ post.title }}
                                     </div>
                                     <div class="right floated meta">
                                         <a class="ui blue image label spaced basic">
-                                            <img src="https://via.placeholder.com/600" /> Elliot
-                                            <div class="detail">Student</div>
+                                            <img src={{ post.profile_pic }} /> {{ post.author }}
+                                            <div class="detail">{{ post.account_type }}</div>
                                         </a>
                                     </div>
                                     <div class="ui divider hidden"></div>
-                                    <div class="right floated meta">6 days ago</div>
+                                    <div class="right floated meta">{{ post.time_elapsed }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="ui fluid card">
-                            <div class="content">
-                                <div class="header">
-                                    Look at this cool browser game I found!
-                                </div>
-                                <div class="right floated meta">
-                                    <a class="ui blue image label spaced basic">
-                                        <img src="https://via.placeholder.com/600" /> Elliot
-                                        <div class="detail">Student</div>
-                                    </a>
-                                </div>
-                                <div class="ui divider hidden"></div>
-                                <div class="right floated meta">6 days ago</div>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
