@@ -71,8 +71,7 @@ def login_submit():
     Returns:
          Redirection depending on whether login was successful or not.
     """
-
-    username = request.form["username_input"]
+    username = request.form["username_input"].lower()
     psw = request.form["psw_input"]
 
     with sqlite3.connect("database.db") as conn:
@@ -141,7 +140,7 @@ def register_submit() -> object:
         The updated web page based on whether the details provided were valid.
     """
     # Obtains user input from the account registration form.
-    username = request.form["username_input"]
+    username = request.form["username_input"].lower()
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
