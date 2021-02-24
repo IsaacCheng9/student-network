@@ -61,7 +61,11 @@ def connect_request(username):
             return redirect("/profile/"+username)
     else:
         session["add"] = "You can't add yourself!"
+        return redirect("/profile/"+username)
         
+
+
+
 
 @application.route("/terms", methods=["GET"])
 def terms_page():
