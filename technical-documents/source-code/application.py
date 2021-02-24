@@ -200,6 +200,7 @@ def profile(username):
     gender = ""
     birthday = ""
     profile_picture = ""
+    email = ""
     hobbies = []
     interests = []
 
@@ -229,6 +230,11 @@ def profile(username):
         if len(row) > 0:
             interests = row
 
+        cur.execute("SELECT email from ACCOUNTS WHERE username=?;", (username,))
+        row = cur.fetchall()
+        if len(row) > 0:
+            email = row[0][0]
+
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
     age = calculate_age(datetime_object)
@@ -238,7 +244,7 @@ def profile(username):
                             birthday=birthday,
                             profile_picture=profile_picture, age=age,
                             hobbies=hobbies,
-                            interests=interests)
+                            interests=interests, email=email)
 
 
 def calculate_age(born):

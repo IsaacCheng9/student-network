@@ -4,6 +4,8 @@
 <title>Student Network - Feed</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/semantic.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+
 <style>
     .student-background {
         background-image: url("{{ url_for('static', filename='images/students.jpg') }}") !important;
@@ -43,31 +45,22 @@
                 </div>
             </div>
 
-            <div class="ui grid">
-                <div class="four wide column">
-
-                </div>
-                <div class="eight wide column">
-                    <div class="ui cards">
-                        <div class="ui card fluid">
-                            <div class="content">
-                                <div class="header">Look at this cool browser game I found!</div>
-                                <div class="right floated meta">
-                                    <a class="ui blue image label spaced basic">
-                                        <img src="https://via.placeholder.com/600"> Elliot
-                                        <div class="detail">Student</div>
-                                    </a>
-                                </div>
-                                <div class="ui divider hidden"></div>
-                                <div class="right floated meta">6 days ago</div>
-                            </div>
-                            <div class="content">
-                                <div class="centered">
-                                    <img class="ui image centered rounded" src="https://via.placeholder.com/500" alt="">
-                                </div>
-                            </div>
-
+            <div class="ui segment">
+                <div class="ui grid">
+                    <div class="two wide column">
+                        <img class="ui image centered rounded" src="https://via.placeholder.com/500" alt="">
+                    </div>
+                    <div class="fourteen wide column">
+                        <h2>
+                        <a href="">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</a>
+                        <div style="float: right;">5 hours ago</div>
+                        </h2>
+                        <div class="ui label blue">
+                            user123
+                            <div class="detail">Student</div>
                         </div>
+                        <div class="ui horizontal divider"></div>
+                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reprehenderit alias unde repudiandae quod cumque ducimus qui officia, odit cupiditate mollitia expedita inventore perspiciatis ipsa. Inventore corrupti, suscipit expedita hic quod!
                     </div>
                 </div>
             </div>
