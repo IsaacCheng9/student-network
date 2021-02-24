@@ -52,17 +52,25 @@ def connect_request(username):
         with sqlite3.connect("database.db") as conn:
             cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
             if cur.fetchone() is not None:
-                print(request.referrer)
                 cur = conn.cursor()
-                # Gets user from database using username.
-                cur.execute("INSERT INTO Connection (user1, user2, connection_type) VALUES (?,?,?);", (session["username"], username, "request",))
-                conn.commit()
-                session["add"] = True
+                cur.execute("SELECT * FROM Connection WHERE (user1=? AND user2=?) OR (user1=? AND user2=?);", (username,session["username"],session["username"],username))
+                if cur.fetchone() is None:
+                    # Gets user from database using username.
+                    cur.execute("INSERT INTO Connection (user1, user2, connection_type) VALUES (?,?,?);", (session["username"], username, "request",))
+                    conn.commit()
+                    session["add"] = True
+                else:
+                    return redirect("/profile/"+username)   
+            else:
+                return redirect("/profilenotfound")
             return redirect("/profile/"+username)
     else:
-        session["add"] = "You can't add yourself!"
+        session["add"] = "You can't connect with yourself!"
         return redirect("/profile/"+username)
         
+
+
+@application.route("/accept/<username>", methods=["GET", "POST"])
 
 
 
