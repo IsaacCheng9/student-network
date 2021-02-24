@@ -40,7 +40,7 @@ def terms_submit():
 
 @application.route("/login", methods=["POST"])
 def login_submit():
-    username = request.form["username_input"]
+    username = request.form["username_input"].lower()
     psw = request.form["psw_input"]
     # Gets user from database using username.
     # Compares password with hashed password.
@@ -89,7 +89,7 @@ def register_page():
 
 @application.route("/register", methods=["POST"])
 def register_submit():
-    username = request.form["username_input"]
+    username = request.form["username_input"].lower()
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
