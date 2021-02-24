@@ -53,12 +53,14 @@ def terms_page():
     else:
         return redirect("/register")
 
+
 @application.route("/privacy_policy", methods=["GET", "POST"])
 def privacy_policy_page():
     if request.method == "GET":
         return render_template("privacy_policy.html")
     else:
         return redirect("/terms")
+
 
 @application.route("/login", methods=["POST"])
 def login_submit():
