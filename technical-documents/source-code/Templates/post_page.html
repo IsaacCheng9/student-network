@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<title>Student Network - Login</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" type="text/css"
+      href="{{ url_for('static', filename='styles/semantic.css') }}"/>
+      
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+
+<style>
+    .student-background {
+        background-image: url(
+        "{{ url_for('static', filename='images/students.jpg') }}") !important;
+
+        height: 100%;
+
+        filter: saturate(1.5) blur(20px);
+
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+
+        position: fixed;
+        z-index: -1;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+    }
+
+    .centered {
+        text-align: center;
+    }
+</style>
+
+<body>
+<div class="student-background"></div>
+<div class="ui segment basic ">
+    <div class="ui menu">
+        <a href="/login" class="item active">Login</a>
+        <a href="/profile" class="active item">Profile</a>
+        <a href="/feed" class="item">Feed</a>
+        <div class="right menu">
+            <a href="/logout"class="ui item">Logout</a>
+        </div>
+    </div>
+
+    <div class="ui grid">
+        <div class="four wide column">
+
+        </div>
+        <div class="eight wide column">
+            <div class="ui cards">
+                <div class="ui card fluid">
+                    <div class="content">
+                        <div class="header">Look at this cool browser game I
+                            found!
+                        </div>
+                        <div class="right floated meta">
+                            <a class="ui blue image label spaced basic">
+                                <img src="https://via.placeholder.com/600">
+                                Elliot
+                                <div class="detail">Student</div>
+                            </a>
+                        </div>
+                        <div class="ui divider hidden"></div>
+                        <div class="right floated meta">6 days ago</div>
+                    </div>
+                    <div class="content">
+                        <div class="centered">
+                            <img class="ui image centered rounded"
+                                 src="https://via.placeholder.com/500" alt="">
+                        </div>
+                    </div>
+
+                    <div class="content">
+                        <div class="ui comments">
+                            <h3 class="ui dividing header">Comments (4)</h3>
+                            <div class="comment">
+                                <a class="avatar">
+                                    <img src="https://via.placeholder.com/500">
+                                </a>
+                                <div class="content">
+                                    <a class="author">Matt</a>
+                                    <div class="metadata">
+                                        <span class="date">Today at 5:42PM</span>
+                                    </div>
+                                    <div class="text">
+                                        Wow, I'm surprised such an old game
+                                        still holds up.
+                                    </div>
+                                    <div class="actions">
+                                        <a class="reply">Reply</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="comment">
+                                <a class="avatar">
+                                    <img src="https://via.placeholder.com/500">
+                                </a>
+                                <div class="content">
+                                    <a class="author">Elliot Fu</a>
+                                    <div class="metadata">
+                                        <span class="date">Yesterday at 12:30AM</span>
+                                    </div>
+                                    <div class="text">
+                                        <p>Yes! I was looking for this game for
+                                            a long time! How do you upgrade your
+                                            castle again?</p>
+                                    </div>
+                                    <div class="actions">
+                                        <a class="reply">Reply</a>
+                                    </div>
+                                </div>
+                                <div class="comments">
+                                    <div class="comment">
+                                        <a class="avatar">
+                                            <img src="https://via.placeholder.com/500">
+                                        </a>
+                                        <div class="content">
+                                            <a class="author">Jenny Hess</a>
+                                            <div class="metadata">
+                                                <span class="date">Just now</span>
+                                            </div>
+                                            <div class="text">
+                                                Under menu there should be a
+                                                construction building, you need
+                                                to be level 5 though.
+                                            </div>
+                                            <div class="actions">
+                                                <a class="reply">Reply</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="comment">
+                                <a class="avatar">
+                                    <img src="https://via.placeholder.com/500">
+                                </a>
+                                <div class="content">
+                                    <a class="author">Joe Henderson</a>
+                                    <div class="metadata">
+                                        <span class="date">5 days ago</span>
+                                    </div>
+                                    <div class="text">
+                                        Dude, this is awesome. Thanks so much
+                                    </div>
+                                    <div class="actions">
+                                        <a class="reply">Reply</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <form class="ui reply form">
+                                <div class="field">
+                                    <textarea></textarea>
+                                </div>
+                                <div class="ui blue labeled submit icon button">
+                                    <i class="icon edit"></i> Add Reply
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="four wide column">
+
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>

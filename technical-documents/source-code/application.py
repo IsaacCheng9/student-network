@@ -5,7 +5,8 @@ on their feed.
 """
 import re
 import sqlite3
-from typing import List, Tuple
+from datetime import date, datetime
+from typing import Tuple, List
 
 from email_validator import EmailNotValidError, validate_email
 from flask import Flask, redirect, render_template, request, session
@@ -70,6 +71,7 @@ def login_submit():
     Returns:
          Redirection depending on whether login was successful or not.
     """
+
     username = request.form["username_input"]
     psw = request.form["psw_input"]
 
@@ -196,7 +198,7 @@ def feed():
 
 
 @application.route("/profile", methods=["GET"])
-def profile():
+def user_aprofile():
     """
     Checks the user is logged in before viewing their profile page.
 
@@ -204,22 +206,88 @@ def profile():
         Redirection to their profile if they're logged in.
     """
     if "username" in session:
-        return render_template("/profile.html")
-    else:
-        return redirect("/login")
+        return redirect("/profile/"+session["username"])
+    return redirect("/login")
+
+# Checks user is logged in before viewing the profile page
+@application.route("/profile/<username>", methods=["GET"])
+def profile(username):
+    """
+    Displays the user's profile page and fills in all of the necessary details.
+    Also hides the request buttons if the user is seeing their own page.
+
+    Returns:
+        The updated web page based on whether the details provided were valid.
+    """
+    name = ""
+    bio = ""
+    gender = ""
+    birthday = ""
+    profile_picture = ""
+    email = ""
+    hobbies = []
+    interests = []
+    message = []
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        # Gets user from database using username.
+        cur.execute(
+            "SELECT name, bio, gender, birthday, profilepicture FROM "
+            "UserProfile WHERE username=?;", (username,))
+        row = cur.fetchone()
+        if row is None:
+            message.append("The username "+username+" does not exists.")
+            message.append(" Please ensure you have entered the name correctly.") 
+            return render_template("/error.html", message=message)
+        else:
+            data = row[0]
+            (name, bio, gender, birthday,
+                profile_picture) = data[0], data[1], data[2], data[3], data[4]
+
+    # Gets the user's hobbies.
+    cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
+                (username,))
+    row = cur.fetchall()
+    if len(row) > 0:
+        hobbies = row
+
+    # Gets the user's interests.
+    cur.execute("SELECT interest FROM UserInterests WHERE username=?;",
+                (username,))
+    row = cur.fetchall()
+    if len(row) > 0:
+        interests = row
+
+    cur.execute("SELECT email from ACCOUNTS WHERE username=?;", (username,))
+    row = cur.fetchall()
+    if len(row) > 0:
+        email = row[0][0]
+
+    # Calculates the user's age based on their date of birth.
+    datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
+    age = calculate_age(datetime_object)
+
+    return render_template("/profile.html", username=username,
+                            name=name, bio=bio, gender=gender,
+                            birthday=birthday,
+                            profile_picture=profile_picture, age=age,
+                            hobbies=hobbies,
+                            interests=interests, email=email)
+
+
+def calculate_age(born):
+    today = date.today()
+    return today.year - born.year - (
+            (today.month, today.day) < (born.month, born.day))
 
 
 @application.route("/logout", methods=["GET"])
 def logout():
-    """
-    Clears the session when the user logs out.
-
-    Returns:
-        The web page for logging in.
-    """
     if "username" in session:
         session.clear()
         return render_template("/login.html")
+    return redirect("/")
 
 
 def validate_registration(

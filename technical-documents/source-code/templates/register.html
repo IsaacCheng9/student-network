@@ -1,114 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-  <meta charset="UTF-8" />
-  <title>Student Network - Register</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="{{ url_for('static', filename='styles/semantic.css') }}"
-  />
+<meta charset="UTF-8" />
+<title>Student Network - Register</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/semantic.css') }}" />
 
-  <style>
+<style>
     .student-background {
-      background-image: url("{{ url_for('static', filename='images/students.jpg') }}") !important;
+        background-image: url("{{ url_for('static', filename='images/students.jpg') }}") !important;
 
-      height: 100%;
+        height: 100%;
 
-      filter: saturate(1.5) blur(20px);
+        filter: saturate(1.5) blur(20px);
 
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
 
-      position: fixed;
-      z-index: -1;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
+        position: fixed;
+        z-index: -1;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
     }
-  </style>
 
-  <body>
+</style>
+
+<body>
     <div class="student-background"></div>
-    <div class="ui segment basic">
-      <div class="ui menu">
-        <a href="/login" class="item active">Login</a>
-        <a href="/register" class="active item">Register</a>
-      </div>
+    <div class="ui container">
+        <div class="ui segment basic">
+            <div class="ui menu">
+                <a href="/login" class="item active">Login</a>
+                <a href="/register" class="active item">Register</a>
+            </div>
 
-      <form action="/register" method="POST">
-        <div class="ui card centered" style="min-width: 600px">
-          <div class="content">
-            <div class="header">Register</div>
-          </div>
-          <div class="content">
-            {% if errors %}
-            <div class="ui message red">
-              <div class="header">Incorrect Credentials</div>
-              {% for item in errors %}<p>{{ item }}</p>{% endfor %}
-            </div>
-            {% endif %}
-            {% if "register" in notifs %}
-            <div class="ui message green">
-              <div class="header">Success</div>
-              <p>Account created successfully. You can now login.</p>
-            </div>
-            {% endif %}
-            <div class="ui form">
-              <div class="required field">
-                <label>Username</label>
-                <input
-                  name="username_input"
-                  type="text"
-                  placeholder="Username"
-                />
-              </div>
-              <div class="required field">
-                <label>Email Address</label>
-                <input
-                  name="email_input"
-                  type="email"
-                  placeholder="Email Address"
-                />
-              </div>
-              <div class="required field">
-                <label>Password</label>
-                <input
-                  name="psw_input"
-                  type="password"
-                  placeholder="Password"
-                />
-              </div>
-              <div class="required field">
-                <label>Confirm Password</label>
-                <input
-                  name="psw_input_check"
-                  type="password"
-                  placeholder="Password"
-                />
-              </div>
-              <div class="required field">
-                <div class="ui checkbox">
-                <input type="checkbox" name="terms"></input>
-                  <label>
-                    I have read and understood the
-                    <a href="/terms">Terms of Service</a></label>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="extra content">
-            <p>
-              Already have an account?<a href="/login" style="color: #0077cc">
-                Login here</a
-              >.
-            </p>
-          </div>
-          <input type="submit" value="Register" class="ui button submit" />
+            <form action="/register" method="POST">
+                <div class="ui card centered" style="min-width: 600px">
+                    <div class="content">
+                        <div class="header">Register</div>
+                    </div>
+                    <div class="content">
+                        {% if errors %}
+                        <div class="ui message red">
+                            <div class="header">Incorrect Credentials</div>
+                            {% for item in errors %}<p>{{ item }}</p>{% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if "register" in notifs %}
+                        <div class="ui message green">
+                            <div class="header">Success</div>
+                            <p>Account created successfully. You can now login.</p>
+                        </div>
+                        {% endif %}
+                        <div class="ui form">
+                            <div class="required field">
+                                <label>Username</label>
+                                <input name="username_input" type="text" placeholder="Full Name" />
+                            </div>
+                            <div class="required field">
+                                <label>Email Address</label>
+                                <input name="email_input" type="email" placeholder="Email Address" />
+                            </div>
+                            <div class="required field">
+                                <label>Password</label>
+                                <input name="psw_input" type="password" placeholder="Password" />
+                            </div>
+                            <div class="required field">
+                                <label>Confirm Password</label>
+                                <input name="psw_input_check" type="password" placeholder="Password" />
+                            </div>
+                            <div class="required field">
+                                <div class="ui checkbox">
+                                    <input type="checkbox" name="terms"></input>
+                                    <label>
+                                        I have read and understood the
+                                        <a href="/terms">Terms of Service</a></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="extra content">
+                        <p>
+                            Already have an account?<a href="/login" style="color: #0077cc">
+                                Login here</a>.
+                        </p>
+                    </div>
+                    <input type="submit" value="Register" class="ui button submit" />
+            </form>
         </div>
-      </form>
     </div>
-  </body>
+</body>
+
 </html>
