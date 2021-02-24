@@ -173,9 +173,21 @@ def feed():
         return redirect("/login")
 
 
+@application.route("/profile")
+def my_profile():
+    """
+        Makes sure that if we just type in url.com/profile it will redirect to
+        your own profile (if you're logged in)
+    """
+    # TODO: Make sure to redirect to an error page or home page if the user is not logged in
+    if "username" in session:
+        return redirect("/profile/"+session["username"])
+        
+    return redirect("/")
+
 # Checks user is logged in before viewing the profile page
-@application.route("/profile", methods=["GET"])
-def profile():
+@application.route("/profile/<username>", methods=["GET"])
+def profile(username):
     """
     Displays the user's profile page and fills in all of the necessary details.
     Also hides the request buttons if the user is seeing their own page.
@@ -183,55 +195,50 @@ def profile():
     Returns:
         The updated web page based on whether the details provided were valid.
     """
-    if "username" in session:
-        username = session["username"]
+    name = ""
+    bio = ""
+    gender = ""
+    birthday = ""
+    profile_picture = ""
+    hobbies = []
+    interests = []
 
-        name = ""
-        bio = ""
-        gender = ""
-        birthday = ""
-        profile_picture = ""
-        hobbies = []
-        interests = []
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        # Gets user from database using username.
+        cur.execute(
+            "SELECT name, bio, gender, birthday, profilepicture FROM "
+            "UserProfile WHERE username=?;", (username,))
+        row = cur.fetchall()
+        if row is not None:
+            data = row[0]
+            (name, bio, gender, birthday,
+                profile_picture) = data[0], data[1], data[2], data[3], data[4]
 
-        with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-            # Gets user from database using username.
-            cur.execute(
-                "SELECT name, bio, gender, birthday, profilepicture FROM "
-                "UserProfile WHERE username=?;", (username,))
-            row = cur.fetchall()
-            if row is not None:
-                data = row[0]
-                (name, bio, gender, birthday,
-                 profile_picture) = data[0], data[1], data[2], data[3], data[4]
+        # Gets the user's hobbies.
+        cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
+                    (username,))
+        row = cur.fetchall()
+        if len(row) > 0:
+            hobbies = row
 
-            # Gets the user's hobbies.
-            cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
-                        (username,))
-            row = cur.fetchall()
-            if len(row) > 0:
-                hobbies = row[0]
+        # Gets the user's interests.
+        cur.execute("SELECT interest FROM UserInterests WHERE username=?;",
+                    (username,))
+        row = cur.fetchall()
+        if len(row) > 0:
+            interests = row
 
-            # Gets the user's interests.
-            cur.execute("SELECT interest FROM UserInterests WHERE username=?;",
-                        (username,))
-            row = cur.fetchall()
-            if len(row) > 0:
-                interests = row[0]
+    # Calculates the user's age based on their date of birth.
+    datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
+    age = calculate_age(datetime_object)
 
-        # Calculates the user's age based on their date of birth.
-        datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
-        age = calculate_age(datetime_object)
-
-        return render_template("/profile.html", username=username,
-                               name=name, bio=bio, gender=gender,
-                               birthday=birthday,
-                               profile_picture=profile_picture, age=age,
-                               hobbies=hobbies,
-                               interests=interests)
-    else:
-        return redirect("/login")
+    return render_template("/profile.html", username=username,
+                            name=name, bio=bio, gender=gender,
+                            birthday=birthday,
+                            profile_picture=profile_picture, age=age,
+                            hobbies=hobbies,
+                            interests=interests)
 
 
 def calculate_age(born):
@@ -246,6 +253,7 @@ def logout():
     if 'username' in session:
         session.clear()
         return render_template("/login.html")
+    return redirect("/")
 
 
 def validate_registration(

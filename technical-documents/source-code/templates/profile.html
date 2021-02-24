@@ -83,7 +83,7 @@
                             </div>
 
                             <p>{{bio}}</p>
-                            {%if username != session["username"]%}
+                            {%if username != session["username"] and session["username"] %}
                             <div class="ui buttons right floated">
                                 <button class="ui blue button tiny">
                                     <i class="user icon"></i>
@@ -124,13 +124,13 @@
                             <div class="ui divider horizontal">Hobbies</div>
                             <div class="ui medium teal labels">
                                {% for hobby in hobbies %}
-                                <a class="ui label">{{hobby}}</a>
+                                <a class="ui label">{{hobby[0]}}</a>
                                 {%endfor%}
                             </div>
                             <div class="ui divider horizontal">Interests</div>
                             <div class="ui medium orange labels">
                                {% for interest in interests %}
-                                <a class="ui label">{{interest}}</a>
+                                <a class="ui label">{{interest[0]}}</a>
                                 {% endfor %}
                             </div>
                             <div class="ui horizontal divider">Socials</div>
