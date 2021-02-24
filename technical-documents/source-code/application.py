@@ -200,6 +200,7 @@ def profile(username):
     gender = ""
     birthday = ""
     profile_picture = ""
+    email = ""
     hobbies = []
     interests = []
 
@@ -229,6 +230,11 @@ def profile(username):
         if len(row) > 0:
             interests = row
 
+        cur.execute("SELECT email from ACCOUNTS WHERE username=?;", (username,))
+        row = cur.fetchall()
+        if len(row) > 0:
+            email = row[0][0]
+        
         # TODO: db search query in posts table for all the users posts
         # TODO: store all the users posts in a json file
         posts = {
@@ -253,7 +259,7 @@ def profile(username):
                             birthday=birthday,
                             profile_picture=profile_picture, age=age,
                             hobbies=hobbies,
-                            interests=interests, posts=posts)
+                            interests=interests, email=email, posts=posts)
 
 
 def calculate_age(born):
