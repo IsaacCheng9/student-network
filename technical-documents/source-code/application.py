@@ -6,7 +6,7 @@ on their feed.
 import re
 import sqlite3
 from typing import List, Tuple
-
+from datetime import datetime, date, time
 from email_validator import EmailNotValidError, validate_email
 from flask import Flask, redirect, render_template, request, session
 from passlib.hash import sha256_crypt
@@ -232,7 +232,7 @@ def feed():
 
 
 @application.route("/profile", methods=["GET"])
-def profile():
+def user_profile():
     """
     Checks the user is logged in before viewing their profile page.
 
@@ -261,7 +261,7 @@ def profile(username):
     profile_picture = ""
     hobbies = []
     interests = []
-
+    
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets user from database using username.
