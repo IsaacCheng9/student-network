@@ -9,7 +9,7 @@ from datetime import date, datetime
 from typing import Tuple, List
 
 from email_validator import validate_email, EmailNotValidError
-from flask import Flask, render_template, request, redirect, session, json
+from flask import Flask, render_template, request, redirect, session
 from passlib.hash import sha256_crypt
 
 application = Flask(__name__)
@@ -197,7 +197,7 @@ def feed():
 
 
 @application.route("/profile", methods=["GET"])
-def user_aprofile():
+def user_profile():
     """
     Checks the user is logged in before viewing their profile page.
 
@@ -205,11 +205,11 @@ def user_aprofile():
         Redirection to their profile if they're logged in.
     """
     if "username" in session:
-        return redirect("/profile/"+session["username"])
+        return redirect("/profile/" + session["username"])
 
     return redirect("/")
 
-# Checks user is logged in before viewing the profile page
+
 @application.route("/profile/<username>", methods=["GET"])
 def profile(username):
     """
@@ -237,13 +237,14 @@ def profile(username):
             "UserProfile WHERE username=?;", (username,))
         row = cur.fetchone()
         if row is None:
-            message.append("The username "+username+" does not exists.")
-            message.append(" Please ensure you have entered the name correctly.")
+            message.append("The username " + username + " does not exists.")
+            message.append(
+                " Please ensure you have entered the name correctly.")
             return render_template("/error.html", message=message)
         else:
             data = row[0]
-            (name, bio, gender, birthday,
-                profile_picture) = data[0], data[1], data[2], data[3], data[4]
+            name, bio, gender, birthday, profile_picture = (
+                data[0], data[1], data[2], data[3], data[4])
 
     # Gets the user's hobbies.
     cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
@@ -274,8 +275,8 @@ def profile(username):
             posts["UserPosts"].append({
                 "title": "Post " + str(i),
                 "profile_pic": "https://via.placeholder.com/600",
-                "author":"John Smith",
-                "account_type":"Student",
+                "author": "John Smith",
+                "account_type": "Student",
                 "time_elapsed": str(i) + " days"
             })
 
@@ -284,11 +285,11 @@ def profile(username):
     age = calculate_age(datetime_object)
 
     return render_template("/profile.html", username=username,
-                            name=name, bio=bio, gender=gender,
-                            birthday=birthday,
-                            profile_picture=profile_picture, age=age,
-                            hobbies=hobbies,
-                            interests=interests, email=email, posts=posts)
+                           name=name, bio=bio, gender=gender,
+                           birthday=birthday,
+                           profile_picture=profile_picture, age=age,
+                           hobbies=hobbies,
+                           interests=interests, email=email, posts=posts)
 
 
 def calculate_age(born):
