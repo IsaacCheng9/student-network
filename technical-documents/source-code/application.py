@@ -32,11 +32,18 @@ def login_page():
 def terms_page():
     return render_template("terms.html")
 
+@application.route("/privacy_policy", methods=["GET"])
+def privacy_policy_page():
+    return render_template("privacy_policy.html")
+
 
 @application.route("/terms", methods=["POST"])
 def terms_submit():
     return redirect("/register")
 
+@application.route("/privacy_policy", methods=["POST"])
+def privacy_policy_submit():
+    return redirect("/register")
 
 @application.route("/login", methods=["POST"])
 def login_submit():
