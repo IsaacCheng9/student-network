@@ -28,22 +28,19 @@ def login_page():
     return render_template("login.html", errors=errors)
 
 
-@application.route("/terms", methods=["GET"])
+@application.route("/terms", methods=["GET", "POST"])
 def terms_page():
-    return render_template("terms.html")
+    if request.method == "GET":
+        return render_template("terms.html")
+    else:
+        return redirect("/register")
 
-@application.route("/privacy_policy", methods=["GET"])
+@application.route("/privacy_policy", methods=["GET", "POST"])
 def privacy_policy_page():
-    return render_template("privacy_policy.html")
-
-
-@application.route("/terms", methods=["POST"])
-def terms_submit():
-    return redirect("/register")
-
-@application.route("/privacy_policy", methods=["POST"])
-def privacy_policy_submit():
-    return redirect("/terms")
+    if request.method == "GET":
+        return render_template("privacy_policy.html")
+    else:
+        return redirect("/terms")
 
 @application.route("/login", methods=["POST"])
 def login_submit():
