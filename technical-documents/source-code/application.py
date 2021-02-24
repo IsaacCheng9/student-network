@@ -46,6 +46,23 @@ def login_page():
     return render_template("/login.html", errors=errors)
 
 
+@application.route("/connect/<username>", methods=["GET", "POST"])
+def connect_request(username):
+    if session["username"] != username:
+        with sqlite3.connect("database.db") as conn:
+            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
+            if cur.fetchone() is not None:
+                print(request.referrer)
+                cur = conn.cursor()
+                # Gets user from database using username.
+                cur.execute("INSERT INTO Connection (user1, user2, connection_type) VALUES (?,?,?);", (session["username"], username, "request",))
+                conn.commit()
+                session["add"] = True
+            return redirect("/profile/"+username)
+    else:
+        session["add"] = "You can't add yourself!"
+        
+
 @application.route("/terms", methods=["GET"])
 def terms_page():
     """
