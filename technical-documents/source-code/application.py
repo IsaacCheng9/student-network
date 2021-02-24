@@ -8,7 +8,7 @@ from datetime import date, datetime
 from typing import Tuple, List
 
 from email_validator import validate_email, EmailNotValidError
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, json
 from passlib.hash import sha256_crypt
 
 application = Flask(__name__)
@@ -229,6 +229,21 @@ def profile(username):
         if len(row) > 0:
             interests = row
 
+        # TODO: db search query in posts table for all the users posts
+        # TODO: store all the users posts in a json file
+        posts = {
+            "UserPosts": [
+            ]
+        }
+        for i in range(1, 25):
+            posts["UserPosts"].append({
+                "title": "Post " + str(i),
+                "profile_pic": "https://via.placeholder.com/600",
+                "author":"John Smith",
+                "account_type":"Student",
+                "time_elapsed": str(i) + " days"
+            })
+
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
     age = calculate_age(datetime_object)
@@ -238,7 +253,7 @@ def profile(username):
                             birthday=birthday,
                             profile_picture=profile_picture, age=age,
                             hobbies=hobbies,
-                            interests=interests)
+                            interests=interests, posts=posts)
 
 
 def calculate_age(born):

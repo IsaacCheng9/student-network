@@ -17,7 +17,7 @@
 
     <style type="text/css">
         .student-background {
-            background-image: url("images/students.jpg") !important;
+            background-image: url("{{ url_for('static', filename='images/students.jpg') }}") !important;
 
             height: 100%;
 
@@ -160,38 +160,25 @@
                 <div class="ui segment basic">
                     <div class="column">
                         <h3 class="ui header">Posts</h3>
+                        {% for post in posts.UserPosts %}
                         <div class="ui cards">
                             <div class="ui fluid card">
                                 <div class="content">
                                     <div class="header">
-                                        Look at this cool browser game I found!
+                                        {{ post.title }}
                                     </div>
                                     <div class="right floated meta">
                                         <a class="ui blue image label spaced basic">
-                                            <img src="https://via.placeholder.com/600" /> Elliot
-                                            <div class="detail">Student</div>
+                                            <img src={{ post.profile_pic }} /> {{ post.author }}
+                                            <div class="detail">{{ post.account_type }}</div>
                                         </a>
                                     </div>
                                     <div class="ui divider hidden"></div>
-                                    <div class="right floated meta">6 days ago</div>
+                                    <div class="right floated meta">{{ post.time_elapsed }}</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="ui fluid card">
-                            <div class="content">
-                                <div class="header">
-                                    Look at this cool browser game I found!
-                                </div>
-                                <div class="right floated meta">
-                                    <a class="ui blue image label spaced basic">
-                                        <img src="https://via.placeholder.com/600" /> Elliot
-                                        <div class="detail">Student</div>
-                                    </a>
-                                </div>
-                                <div class="ui divider hidden"></div>
-                                <div class="right floated meta">6 days ago</div>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
