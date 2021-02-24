@@ -182,8 +182,7 @@ def my_profile():
     # TODO: Make sure to redirect to an error page or home page if the user is not logged in
     if "username" in session:
         return redirect("/profile/"+session["username"])
-        
-    return redirect("/")
+    return redirect("/login")
 
 # Checks user is logged in before viewing the profile page
 @application.route("/profile/<username>", methods=["GET"])
@@ -203,6 +202,7 @@ def profile(username):
     email = ""
     hobbies = []
     interests = []
+    message = []
 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -210,11 +210,16 @@ def profile(username):
         cur.execute(
             "SELECT name, bio, gender, birthday, profilepicture FROM "
             "UserProfile WHERE username=?;", (username,))
-        row = cur.fetchall()
-        if row is not None:
+        row = cur.fetchone()
+        if row is None:
+            message.append("The username "+username+" does not exists.")
+            message.append(" Please ensure you have entered the name correctly.") 
+            return render_template("/error.html", message=message)
+        else:
             data = row[0]
             (name, bio, gender, birthday,
                 profile_picture) = data[0], data[1], data[2], data[3], data[4]
+<<<<<<< Updated upstream
 
         # Gets the user's hobbies.
         cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
@@ -246,6 +251,32 @@ def profile(username):
                             hobbies=hobbies,
                             interests=interests, email=email)
 
+=======
+            # Gets the user's hobbies.
+            cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
+                        (username,))
+            row = cur.fetchall()
+            if len(row) > 0:
+                hobbies = row
+
+            # Gets the user's interests.
+            cur.execute("SELECT interest FROM UserInterests WHERE username=?;",
+                        (username,))
+            row = cur.fetchall()
+            if len(row) > 0:
+                interests = row
+
+            # Calculates the user's age based on their date of birth.
+            datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
+            age = calculate_age(datetime_object)
+
+            return render_template("/profile.html", username=username,
+                                    name=name, bio=bio, gender=gender,
+                                    birthday=birthday,
+                                    profile_picture=profile_picture, age=age,
+                                    hobbies=hobbies,
+                                    interests=interests)
+>>>>>>> Stashed changes
 
 def calculate_age(born):
     today = date.today()
@@ -256,7 +287,7 @@ def calculate_age(born):
 # Clears session when the user logs out
 @application.route("/logout", methods=["GET"])
 def logout():
-    if 'username' in session:
+    if "username" in session:
         session.clear()
         return render_template("/login.html")
     return redirect("/")
