@@ -38,9 +38,11 @@
     <div class="ui container">
         <div class="ui segment basic ">
             <div class="ui menu">
-                <a href="/login" class="item active">Login</a>
-                <a href="/profile" class="active item">Profile</a>
-                <a href="/feed" class="item">Feed</a>
+                {% if not "username" in session %}
+                <a href="/login" class="item">Login</a>
+                {%endif%}
+                <a href="/profile" class="item">Profile</a>
+                <a href="/feed" class="active item">Feed</a>
                 <div class="right menu">
                     <a href="/logout" class="ui item">Logout</a>
                 </div>
