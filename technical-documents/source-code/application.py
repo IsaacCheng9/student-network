@@ -49,10 +49,20 @@ def login_page():
 
 @application.route("/connect/<username>", methods=["GET", "POST"])
 def connect_request(username):
+    """
+    Sends a connect request to another user on the network.
+
+    Args:
+        username: The username of the person to request a connection with.
+
+    Returns:
+        Redirection to the profile of the user they want to connect with.
+    """
     if session["username"] != username:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
+            cur.execute("SELECT * FROM Accounts WHERE username=?;",
+                        (username,))
             if cur.fetchone() is not None:
                 cur.execute(
                     "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
@@ -68,15 +78,26 @@ def connect_request(username):
                     conn.commit()
                     session["add"] = True
         session["add"] = "You can't connect with yourself!"
+
     return redirect("/profile/" + username)
 
 
 @application.route("/accept/<username>", methods=["GET", "POST"])
 def accept(username):
+    """
+    Accepts the connect request from another user on the network.
+
+    Args:
+        username: The username of the person who requested a connection.
+
+    Returns:
+        Redirection to the profile of the user they want to connect with.
+    """
     if session["username"] != username:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
+            cur.execute("SELECT * FROM Accounts WHERE username=?;",
+                        (username,))
             if cur.fetchone() is not None:
                 row = cur.execute(
                     "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
@@ -95,6 +116,7 @@ def accept(username):
                     session["add"] = True
     else:
         session["add"] = "You can't connect with yourself!"
+
     return redirect("/profile/" + username)
 
 
@@ -323,7 +345,8 @@ def profile(username):
     if len(row) > 0:
         interests = row
 
-        cur.execute("SELECT email from ACCOUNTS WHERE username=?;", (username,))
+        cur.execute("SELECT email from ACCOUNTS WHERE username=?;",
+                    (username,))
         row = cur.fetchall()
         if len(row) > 0:
             email = row[0][0]
