@@ -3,7 +3,8 @@
 <meta charset="UTF-8">
 <title>Student Network - Feed</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel= "stylesheet" type= "text/css" href="{{ url_for('static', filename='styles/semantic.css') }}"/>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/semantic.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
     <style>
         .student-background {
             background-image: url("{{ url_for('static', filename='images/background_blue.png') }}") !important;
@@ -30,16 +31,31 @@
 
 <body>
    <div class="student-background"></div>
+   <div class="ui container">
     <div class="ui segment basic ">
         <div class="ui menu">
-            <a href="/login" class="item active">Login</a>
-            <a href="/profile" class="active item">Profile</a>
+            {% if not "username" in session %}
+            <a href="/login" class="item">Login</a>
+            {%endif%}
+            <a href="/profile" class="item">Profile</a>
+            <a href="/requests" class="item">Connect Requests</a>
             <a href="/feed" class="item">Feed</a>
             <div class="right menu">
-                <a href="/logout"class="ui item">Logout</a>
+                 <div class="ui item">
+                      <div class="ui transparent icon input">
+                          <input class="prompt" type="text" id="search" placeholder="Search for a user">
+                          <i class="search link icon"></i>
+                      </div>
+                  </div>
+               {% if session["username"] %}
+                <a class="ui item">
+                    Logged in as {{session["username"]}}
+                </a>
+                <a href="/logout" class="ui item">Logout</a>
+                {%endif%}
             </div>
         </div>
-        
+    
         <div class="ui grid">
             <div class="four wide column">  
             </div>
@@ -58,7 +74,7 @@
             </div>
         </div>
     </div>
-
+</div>
 </body>
 <script type="text/javascript" src="static/searchbar.js"></script>
 </html>

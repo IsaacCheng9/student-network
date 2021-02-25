@@ -15,7 +15,7 @@ from passlib.hash import sha256_crypt
 application = Flask(__name__)
 application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
                           "xa2\xa0\x9fR\xa1\xa8")
-
+application.url_map.strict_slashes = False
 
 @application.route("/", methods=["GET"])
 def index_page():
@@ -26,8 +26,7 @@ def index_page():
         The web page for user login.
     """
     if "username" in session:
-        session["prev-page"] = request.url
-        return render_template("feed.html")
+        return redirect("/profile")
     else:
         return redirect("/login")
 
@@ -197,7 +196,7 @@ def login_submit():
             if sha256_crypt.verify(psw, hashed_psw):
                 session["username"] = username
                 session["prev-page"] = request.url
-                return render_template("/feed.html")
+                return redirect("/profile")
             else:
                 session["error"] = ["login"]
                 return redirect("/login")
@@ -270,7 +269,7 @@ def register_submit() -> object:
                                          "student",))
             cur.execute(
                 "INSERT INTO UserProfile (username, name, bio, gender, birthday, profilepicture) "
-                "VALUES (?, ?, ?, ?, ?, ?);", (username, fullname, "Change your bio in the settings.", "Male", "01/01/1970", "",))
+                "VALUES (?, ?, ?, ?, ?, ?);", (username, fullname, "Change your bio in the settings.", "Male", "01/01/1970", "/static/images/default-pfp.jpg",))
             conn.commit()
             session["notifs"] = ["register"]
             return redirect("/register")

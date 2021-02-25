@@ -17,11 +17,9 @@
 
     <style type="text/css">
         .student-background {
-            background-image: url("images/students.jpg") !important;
+            background-image: url("{{ url_for('static', filename='images/background_blue.png') }}") !important;
 
             height: 100%;
-
-            filter: saturate(1.5) blur(20px);
 
             background-position: center;
             background-repeat: no-repeat;
@@ -39,6 +37,7 @@
             text-align: center;
         }
 
+
     </style>
 </head>
 
@@ -49,10 +48,11 @@
             <div class="student-background"></div>
             <div class="ui segment basic">
                 <div class="ui menu">
-                   {% if not "username" in session %}
+                    {% if not "username" in session %}
                     <a href="/login" class="item">Login</a>
                     {%endif%}
-                    <a href="/profile" class="active item">Profile</a>
+                    <a href="/profile" class="item">Profile</a>
+                    <a href="/requests" class="active item">Connect Requests</a>
                     <a href="/feed" class="item">Feed</a>
                     <div class="right menu">
                          <div class="ui item">
