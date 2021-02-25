@@ -17,11 +17,9 @@
 
     <style type="text/css">
         .student-background {
-            background-image: url("images/students.jpg") !important;
+            background-image: url("{{ url_for('static', filename='images/background_blue.png') }}") !important;
 
             height: 100%;
-
-            filter: saturate(1.5) blur(20px);
 
             background-position: center;
             background-repeat: no-repeat;
@@ -39,6 +37,7 @@
             text-align: center;
         }
 
+
     </style>
 </head>
 
@@ -49,15 +48,16 @@
             <div class="student-background"></div>
             <div class="ui segment basic">
                 <div class="ui menu">
-                   {% if not "username" in session %}
+                    {% if not "username" in session %}
                     <a href="/login" class="item">Login</a>
                     {%endif%}
-                    <a href="/profile" class="active item">Profile</a>
+                    <a href="/profile" class="item">Profile</a>
+                    <a href="/requests" class="active item">Connect Requests</a>
                     <a href="/feed" class="item">Feed</a>
                     <div class="right menu">
                          <div class="ui item">
                               <div class="ui transparent icon input">
-                                  <input class="prompt" type="text" placeholder="Search for a user">
+                                  <input class="prompt" type="text" id="search" placeholder="Search for a user">
                                   <i class="search link icon"></i>
                               </div>
                           </div>
@@ -72,20 +72,36 @@
                 <div class="ui segment">
                     <div class="ui horizontal divider">Your connection requests</div>
                     <div class="ui middle aligned divided list">
-                      <div class="item">
-                        <div class="right floated content">
-                          <div class="ui button">Add</div>
-                        </div>
-                        <img class="ui avatar image" src="https://via.placeholder.com/50">
-                        <div class="content">
-                         <a href="">Lena</a>
-                        </div>
-                      </div>
+                        {% for i in range(requests|length) %}
+                            <div class="item">
+                            <div class="ui mini buttons right floated">
+                                <form action="{{ url_for('accept', username=requests[i]) }}" method="GET">
+                                    <button class="ui green button tiny">
+                                        <i class="user icon"></i>
+                                        Accept
+                                    </button>
+                                </form>
+                                <div class="or"></div>
+                                <form action="{{ url_for('remove_connection', username=requests[i]) }}" method="GET">
+                                    <button class="ui red button tiny">
+                                        <i class="user icon"></i>
+                                        Deny
+                                    </button>
+                                </form>
+                            </div>
+                            <img class="ui avatar image" src ="{{ avatars[i] }}">
+                            <div class="content">
+                                <a href="{{ url_for('profile', username=requests[i]) }}">{{ requests[i] }}</a>
+                            </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </body>
+
+<script type="text/javascript" src="static/searchbar.js"></script>
 
 </html>

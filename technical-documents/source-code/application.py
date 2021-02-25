@@ -15,6 +15,7 @@ from passlib.hash import sha256_crypt
 application = Flask(__name__)
 application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
                           "xa2\xa0\x9fR\xa1\xa8")
+application.url_map.strict_slashes = False
 
 
 @application.route("/", methods=["GET"])
@@ -26,7 +27,7 @@ def index_page():
         The web page for user login.
     """
     if "username" in session:
-        return render_template("feed.html")
+        return redirect("/profile")
     else:
         return redirect("/login")
 
@@ -42,6 +43,7 @@ def login_page():
     errors = []
     if "error" in session:
         errors = session["error"]
+    session["prev-page"] = request.url
     # Clear error session variables.
     session.pop("error", None)
     return render_template("/login.html", errors=errors)
@@ -107,17 +109,62 @@ def accept(username):
                 if row is not None:
                     # Gets user from database using username.
                     cur.execute(
-                        "UPDATE Connection SET connection_type = connected "
+                        "UPDATE Connection SET connection_type = ? "
                         "WHERE (user1=? AND user2=?) OR (user1=? AND "
                         "user2=?);",
-                        (username, session["username"], session["username"],
+                        ("connected", username, session["username"],
+                         session["username"],
                          username))
                     conn.commit()
                     session["add"] = True
     else:
         session["add"] = "You can't connect with yourself!"
+    return redirect(session["prev-page"])
 
-    return redirect("/profile/" + username)
+
+@application.route("/remove_connection/<username>")
+def remove_connection(username):
+    if username != session['username']:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM Accounts WHERE username=?;",
+                        (username,))
+            if cur.fetchone() is not None:
+                row = cur.execute(
+                    "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
+                    "(user1=? AND user2=?);",
+                    (username, session["username"], session["username"],
+                     username))
+                if row is not None:
+                    cur.execute(
+                        "DELETE FROM Connection WHERE (user1=? AND user2=?) "
+                        "OR (user1=? AND user2=?);",
+                        (username, session["username"], session["username"],
+                         username))
+                    conn.commit()
+    return redirect(session["prev-page"])
+
+
+@application.route("/requests", methods=["GET", "POST"])
+def show_requests():
+    with sqlite3.connect("database.db") as conn:
+        requests = []
+        avatars = []
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT Connection.user1, UserProfile.profilepicture FROM "
+            "Connection LEFT JOIN UserProfile ON Connection.user1 = "
+            "UserProfile.username WHERE user2=? AND connection_type=?;",
+            (session["username"], "request"))
+        conn.commit()
+        row = cur.fetchall()
+        if len(row) > 0:
+            for elem in row:
+                requests.append(elem[0])
+                avatars.append(elem[1])
+
+    session["prev-page"] = request.url
+    return render_template("request.html", requests=requests, avatars=avatars)
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -126,9 +173,10 @@ def terms_page():
     Renders the terms and conditions page.
 
     Returns:
-        The web page for terms and conditions, or redirection back to register.
+        The web page for T&Cs, or redirection back to register page.
     """
     if request.method == "GET":
+        session["prev-page"] = request.url
         return render_template("terms.html")
     else:
         return redirect("/register")
@@ -143,6 +191,7 @@ def privacy_policy_page():
         The web page for the privacy policy, or redirection back to T&C.
     """
     if request.method == "GET":
+        session["prev-page"] = request.url
         return render_template("privacy_policy.html")
     else:
         return redirect("/terms")
@@ -174,7 +223,8 @@ def login_submit():
         if hashed_psw is not None:
             if sha256_crypt.verify(psw, hashed_psw):
                 session["username"] = username
-                return render_template("/feed.html")
+                session["prev-page"] = request.url
+                return redirect("/profile")
             else:
                 session["error"] = ["login"]
                 return redirect("/login")
@@ -212,6 +262,7 @@ def register_page():
         errors = session["error"]
     session.pop("error", None)
     session.pop("notifs", None)
+    session["prev-page"] = request.url
 
     return render_template("register.html", notifs=notifs, errors=errors)
 
@@ -226,6 +277,7 @@ def register_submit() -> object:
     """
     # Obtains user input from the account registration form.
     username = request.form["username_input"].lower()
+    fullname = request.form["fullname_input"]
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
@@ -244,6 +296,13 @@ def register_submit() -> object:
                 "INSERT INTO Accounts (username, password, email, type) "
                 "VALUES (?, ?, ?, ?);", (username, hash_password, email,
                                          "student",))
+            cur.execute(
+                "INSERT INTO UserProfile (username, name, bio, gender, "
+                "birthday, profilepicture) "
+                "VALUES (?, ?, ?, ?, ?, ?);", (
+                    username, fullname, "Change your bio in the settings.",
+                    "Male",
+                    "01/01/1970", "/static/images/default-pfp.jpg",))
             conn.commit()
             session["notifs"] = ["register"]
             return redirect("/register")
@@ -262,6 +321,7 @@ def post_page():
         The web page for their post if they're logged in.
     """
     if "username" in session:
+        session["prev-page"] = request.url
         return render_template("/post_page.html")
     else:
         return redirect("/login")
@@ -276,6 +336,7 @@ def feed():
         Redirection to their feed if they're logged in.
     """
     if "username" in session:
+        session["prev-page"] = request.url
         return render_template("/feed.html")
     else:
         return redirect("/login")
@@ -298,8 +359,8 @@ def user_profile():
 @application.route("/profile/<username>", methods=["GET"])
 def profile(username):
     """
-    Displays the user's profile page and fills in all of the necessary details.
-    Also hides the request buttons if the user is seeing their own page.
+    Displays the user's profile page and fills in all of the necessary
+    details. Hides the request buttons if the user is seeing their own page.
 
     Returns:
         The updated web page based on whether the details provided were valid.
@@ -321,10 +382,11 @@ def profile(username):
             "SELECT name, bio, gender, birthday, profilepicture FROM "
             "UserProfile WHERE username=?;", (username,))
         row = cur.fetchall()
-        if row is None:
-            message.append("The username " + username + " does not exists.")
+        if len(row) == 0:
+            message.append("The username " + username + " does not exist.")
             message.append(
                 " Please ensure you have entered the name correctly.")
+            session["prev-page"] = request.url
             return render_template("/error.html", message=message)
         else:
             data = row[0]
@@ -369,13 +431,39 @@ def profile(username):
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
     age = calculate_age(datetime_object)
+    conn_type = get_connection_type(username)
+    session["prev-page"] = request.url
+    print(conn_type)
 
     return render_template("/profile.html", username=username,
                            name=name, bio=bio, gender=gender,
-                           birthday=birthday,
-                           profile_picture=profile_picture, age=age,
-                           hobbies=hobbies,
-                           interests=interests, email=email, posts=posts)
+                           birthday=birthday, profile_picture=profile_picture,
+                           age=age, hobbies=hobbies, interests=interests,
+                           email=email, posts=posts, type=conn_type)
+
+
+def get_connection_type(username):
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT connection_type FROM Connection WHERE user1=? "
+            "AND user2=?", (session["username"], username,))
+        conn.commit()
+        row = cur.fetchone()
+        if row is not None:
+            return row[0]
+        else:
+            cur.execute(
+                "SELECT connection_type FROM Connection WHERE user1=? AND "
+                "user2=?", (username, session["username"],))
+            conn.commit()
+            row = cur.fetchone()
+            if row is not None:
+                if row[0] == "connected":
+                    return row[0]
+                return "incoming"
+            else:
+                return None
 
 
 def calculate_age(born):
@@ -401,6 +489,7 @@ def logout():
     """
     if "username" in session:
         session.clear()
+        session["prev-page"] = request.url
         return render_template("/login.html")
     return redirect("/")
 
@@ -467,7 +556,8 @@ def validate_registration(
 
     # Checks that the password has a minimum length of 6 characters, and at
     # least one number.
-    if len(password) <= 7 or any(char.isdigit() for char in password) is False:
+    if (len(password) <= 7 or any(
+            char.isdigit() for char in password) is False):
         message.append("Password does not meet requirements! It must contain "
                        "at least eight characters, including at least one "
                        "number.")

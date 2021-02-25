@@ -42,9 +42,21 @@
                 <a href="/login" class="item">Login</a>
                 {%endif%}
                 <a href="/profile" class="item">Profile</a>
+                <a href="/requests" class="item">Connect Requests</a>
                 <a href="/feed" class="active item">Feed</a>
                 <div class="right menu">
+                     <div class="ui item">
+                          <div class="ui transparent icon input">
+                              <input class="prompt" type="text" id="search" placeholder="Search for a user">
+                              <i class="search link icon"></i>
+                          </div>
+                      </div>
+                   {% if session["username"] %}
+                    <a class="ui item">
+                        Logged in as {{session["username"]}}
+                    </a>
                     <a href="/logout" class="ui item">Logout</a>
+                    {%endif%}
                 </div>
             </div>
 
@@ -71,5 +83,5 @@
     </div>
 
 </body>
-
+<script type="text/javascript" src="static/searchbar.js"></script>
 </html>
