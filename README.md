@@ -20,7 +20,7 @@ Group members (contributors) include:
 This application has been deployed on Amazon Web Services (AWS). The link for
 this is as follows:
 
-[http://reconnect-env.eba-dz733adm.us-east-2.elasticbeanstalk.com/](http://reconnect-env.eba-dz733adm.us-east-2.elasticbeanstalk.com/)
+[http://reconnect-app-env.eba-imk2pxf5.eu-west-2.elasticbeanstalk.com](http://reconnect-app-env.eba-imk2pxf5.eu-west-2.elasticbeanstalk.com)
 
 ## GitHub Repository
 
