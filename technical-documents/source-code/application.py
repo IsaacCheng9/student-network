@@ -322,8 +322,7 @@ def profile(username):
         row = cur.fetchall()
         if len(row) == 0:
             message.append("The username " + username + " does not exist.")
-            message.append(
-                " Please ensure you have entered the name correctly.")
+            message.append(" Please ensure you have entered the name correctly.")
             return render_template("/error.html", message=message)
         else:
             data = row[0]
@@ -379,7 +378,6 @@ def profile(username):
 
 def get_connection_type(username):
     with sqlite3.connect("database.db") as conn:
-        requests = []
         cur = conn.cursor()
         cur.execute(
                     "SELECT connection_type FROM Connection WHERE (user1=? AND user2=?) OR "
