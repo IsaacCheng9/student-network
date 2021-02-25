@@ -220,6 +220,7 @@ def register_submit() -> object:
     """
     # Obtains user input from the account registration form.
     username = request.form["username_input"].lower()
+    fullname = request.form["fullname_input"]
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
@@ -238,6 +239,9 @@ def register_submit() -> object:
                 "INSERT INTO Accounts (username, password, email, type) "
                 "VALUES (?, ?, ?, ?);", (username, hash_password, email,
                                          "student",))
+            cur.execute(
+                "INSERT INTO UserProfile (username, name, bio, gender, birthday, profilepicture) "
+                "VALUES (?, ?, ?, ?, ?, ?);", (username, fullname, "Change your bio in the settings.", "Male", "01/01/1970", "",))
             conn.commit()
             session["notifs"] = ["register"]
             return redirect("/register")
