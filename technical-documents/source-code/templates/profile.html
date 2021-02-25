@@ -54,15 +54,16 @@
         <div class="ui container">
             <div class="student-background"></div>
                 <div class="ui menu">
-                   {% if not "username" in session %}
+                    {% if not "username" in session %}
                     <a href="/login" class="item">Login</a>
                     {%endif%}
                     <a href="/profile" class="active item">Profile</a>
+                    <a href="/requests" class="item">Connect Requests</a>
                     <a href="/feed" class="item">Feed</a>
                     <div class="right menu">
                          <div class="ui item">
                               <div class="ui transparent icon input">
-                                  <input class="prompt" type="text" placeholder="Search for a user">
+                                  <input class="prompt" type="text" id="search" placeholder="Search for a user">
                                   <i class="search link icon"></i>
                               </div>
                           </div>
@@ -104,16 +105,40 @@
                             </div>
 
                             <p>{{bio}}</p>
-                            {%if username != session["username"] and session["username"] %}
+                            {% if username != session["username"] and session["username"] %}
                             <div class="ui buttons right floated">
-                                <button class="ui blue button tiny">
-                                    <i class="user icon"></i>
-                                    Connect
-                                </button>
-                                <button class="ui green button tiny">
-                                    <i class="user icon"></i>
-                                    Connected
-                                </button>
+                                {% if type == None %}
+                                <form action="{{ url_for('connect_request', username=username) }}" method="POST">
+                                    <button class="ui blue button tiny">
+                                        <i class="user icon"></i>
+                                        Connect
+                                    </button>
+                                </form>
+                                {% endif %}
+                                {% if type == "request" %}
+                                <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
+                                    <button class="ui grey button tiny">
+                                        <i class="bell slash icon"></i>
+                                        Pending
+                                    </button>
+                                </form>
+                                {% endif %}
+                                {% if type == "incoming" %}
+                                <form action="{{ url_for('accept', username=username) }}" method="GET">
+                                    <button class="ui green button tiny">
+                                        <i class="user icon"></i>
+                                        Accept Request
+                                    </button>
+                                </form>
+                                {% endif %}
+                                {% if type == "connected" %}
+                                <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
+                                    <button class="ui green button tiny">
+                                        <i class="user icon"></i>
+                                        Connected
+                                    </button>
+                                </form>
+                                {% endif %}
                                 <button class="ui red button tiny">
                                     <i class="bell slash icon"></i>
                                     Block
@@ -216,5 +241,7 @@
         </div>
     </div>
 </body>
+
+<script type="text/javascript" src="../static/searchbar.js"></script>
 
 </html>
