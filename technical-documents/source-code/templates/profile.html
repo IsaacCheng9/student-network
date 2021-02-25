@@ -107,20 +107,26 @@
                             <p>{{bio}}</p>
                             {%if username != session["username"] and session["username"] %}
                             <div class="ui buttons right floated">
+                                {% if type == None %}
                                 <form action="{{ url_for('connect_request', username=username) }}" method="POST">
                                     <button class="ui blue button tiny">
                                         <i class="user icon"></i>
                                         Connect
                                     </button>
                                 </form>
+                                {% endif %}
+                                {% if type == "request" %}
                                 <button class="ui grey button tiny">
                                     <i class="bell slash icon"></i>
                                     Pending
                                 </button>
+                                {% endif %}
+                                {% if type == "connected" %}
                                 <button class="ui green button tiny">
                                     <i class="user icon"></i>
                                     Connected
                                 </button>
+                                {% endif %}
                                 <button class="ui red button tiny">
                                     <i class="bell slash icon"></i>
                                     Block

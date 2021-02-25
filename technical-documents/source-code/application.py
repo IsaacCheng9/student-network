@@ -114,6 +114,7 @@ def show_requests():
             print(requests)
     return render_template("request.html",requests=requests)
 
+
 @application.route("/terms", methods=["GET", "POST"])
 def terms_page():
     """
@@ -324,7 +325,7 @@ def profile(username):
             data = row[0]
             name, bio, gender, birthday, profile_picture = (
                 data[0], data[1], data[2], data[3], data[4])
-
+    
     # Gets the user's hobbies.
     cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
                 (username,))
@@ -362,14 +363,31 @@ def profile(username):
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
     age = calculate_age(datetime_object)
+    conn_type = get_connection_type(username)
 
     return render_template("/profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday,
                            profile_picture=profile_picture, age=age,
                            hobbies=hobbies,
-                           interests=interests, email=email, posts=posts)
+                           interests=interests, email=email, posts=posts, type=conn_type)
 
+
+def get_connection_type(username):
+    with sqlite3.connect("database.db") as conn:
+        requests = []
+        cur = conn.cursor()
+        cur.execute(
+                    "SELECT connection_type FROM Connection WHERE (user1=? AND user2=?) OR "
+                    "(user1=? AND user2=?);",
+                    (username, session["username"], session["username"],
+                     username))
+        conn.commit()
+        row = cur.fetchone()
+        if row is not None:
+            return row[0]
+        else:
+            return None
 
 def calculate_age(born):
     """
