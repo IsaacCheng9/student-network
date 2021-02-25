@@ -22,6 +22,15 @@ this is as follows:
 
 [http://reconnect-app-env.eba-imk2pxf5.eu-west-2.elasticbeanstalk.com](http://reconnect-app-env.eba-imk2pxf5.eu-west-2.elasticbeanstalk.com)
 
+## Test Instructions
+For testing purposes, we have created 9 accounts, with usernames `student1` to
+`student9` (`student1`, `student2`, etc). Each of these accounts can be
+searched for on the system.
+
+The password for each account is `Password01`.
+
+`student1` has eight connection requests, and a full profile page. 
+
 ## GitHub Repository
 
 The documentation and source files for our project can be found in our GitHub

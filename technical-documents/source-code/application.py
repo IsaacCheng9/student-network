@@ -51,6 +51,15 @@ def login_page():
 
 @application.route("/connect/<username>", methods=["GET", "POST"])
 def connect_request(username):
+    """
+    Sends a connect request to another user on the network.
+
+    Args:
+        username: The username of the person to request a connection with.
+
+    Returns:
+        Redirection to the profile of the user they want to connect with.
+    """
     if session["username"] != username:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
@@ -71,11 +80,21 @@ def connect_request(username):
                     conn.commit()
                     session["add"] = True
         session["add"] = "You can't connect with yourself!"
+
     return redirect("/profile/" + username)
 
 
 @application.route("/accept/<username>", methods=["GET", "POST"])
 def accept(username):
+    """
+    Accepts the connect request from another user on the network.
+
+    Args:
+        username: The username of the person who requested a connection.
+
+    Returns:
+        Redirection to the profile of the user they want to connect with.
+    """
     if session["username"] != username:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
@@ -244,6 +263,7 @@ def register_page():
     session.pop("error", None)
     session.pop("notifs", None)
     session["prev-page"] = request.url
+
     return render_template("register.html", notifs=notifs, errors=errors)
 
 
@@ -414,6 +434,7 @@ def profile(username):
     conn_type = get_connection_type(username)
     session["prev-page"] = request.url
     print(conn_type)
+
     return render_template("/profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
