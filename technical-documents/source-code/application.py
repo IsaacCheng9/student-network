@@ -17,6 +17,7 @@ application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
                           "xa2\xa0\x9fR\xa1\xa8")
 application.url_map.strict_slashes = False
 
+
 @application.route("/", methods=["GET"])
 def index_page():
     """
@@ -53,7 +54,8 @@ def connect_request(username):
     if session["username"] != username:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
+            cur.execute("SELECT * FROM Accounts WHERE username=?;",
+                        (username,))
             if cur.fetchone() is not None:
                 cur.execute(
                     "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
@@ -77,7 +79,8 @@ def accept(username):
     if session["username"] != username:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
+            cur.execute("SELECT * FROM Accounts WHERE username=?;",
+                        (username,))
             if cur.fetchone() is not None:
                 row = cur.execute(
                     "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
@@ -90,7 +93,8 @@ def accept(username):
                         "UPDATE Connection SET connection_type = ? "
                         "WHERE (user1=? AND user2=?) OR (user1=? AND "
                         "user2=?);",
-                        ("connected", username, session["username"], session["username"],
+                        ("connected", username, session["username"],
+                         session["username"],
                          username))
                     conn.commit()
                     session["add"] = True
@@ -104,7 +108,8 @@ def remove_connection(username):
     if username != session['username']:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
+            cur.execute("SELECT * FROM Accounts WHERE username=?;",
+                        (username,))
             if cur.fetchone() is not None:
                 row = cur.execute(
                     "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
@@ -112,31 +117,35 @@ def remove_connection(username):
                     (username, session["username"], session["username"],
                      username))
                 if row is not None:
-                    cur.execute("DELETE FROM Connection WHERE (user1=? AND user2=?) OR (user1=? AND user2=?);",
+                    cur.execute(
+                        "DELETE FROM Connection WHERE (user1=? AND user2=?) "
+                        "OR (user1=? AND user2=?);",
                         (username, session["username"], session["username"],
                          username))
                     conn.commit()
     return redirect(session["prev-page"])
 
+
 @application.route("/requests", methods=["GET", "POST"])
 def show_requests():
     with sqlite3.connect("database.db") as conn:
-            requests = []
-            avatars = []
-            cur = conn.cursor()
-            cur.execute(
-                "SELECT Connection.user1, UserProfile.profilepicture FROM Connection LEFT JOIN UserProfile ON Connection.user1 = UserProfile.username WHERE user2=? AND connection_type=?;",
-                (session["username"], "request"))
-            conn.commit()
-            row = cur.fetchall()
-            if len(row) > 0:
-                for elem in row:
-                    requests.append(elem[0])
-                    avatars.append(elem[1])
-            
-            
+        requests = []
+        avatars = []
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT Connection.user1, UserProfile.profilepicture FROM "
+            "Connection LEFT JOIN UserProfile ON Connection.user1 = "
+            "UserProfile.username WHERE user2=? AND connection_type=?;",
+            (session["username"], "request"))
+        conn.commit()
+        row = cur.fetchall()
+        if len(row) > 0:
+            for elem in row:
+                requests.append(elem[0])
+                avatars.append(elem[1])
+
     session["prev-page"] = request.url
-    return render_template("request.html",requests=requests,avatars=avatars)
+    return render_template("request.html", requests=requests, avatars=avatars)
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -145,7 +154,7 @@ def terms_page():
     Renders the terms and conditions page.
 
     Returns:
-        The web page for terms and conditions, or redirection back to register.
+        The web page for T&Cs, or redirection back to register page.
     """
     if request.method == "GET":
         session["prev-page"] = request.url
@@ -268,8 +277,12 @@ def register_submit() -> object:
                 "VALUES (?, ?, ?, ?);", (username, hash_password, email,
                                          "student",))
             cur.execute(
-                "INSERT INTO UserProfile (username, name, bio, gender, birthday, profilepicture) "
-                "VALUES (?, ?, ?, ?, ?, ?);", (username, fullname, "Change your bio in the settings.", "Male", "01/01/1970", "/static/images/default-pfp.jpg",))
+                "INSERT INTO UserProfile (username, name, bio, gender, "
+                "birthday, profilepicture) "
+                "VALUES (?, ?, ?, ?, ?, ?);", (
+                    username, fullname, "Change your bio in the settings.",
+                    "Male",
+                    "01/01/1970", "/static/images/default-pfp.jpg",))
             conn.commit()
             session["notifs"] = ["register"]
             return redirect("/register")
@@ -326,8 +339,8 @@ def user_profile():
 @application.route("/profile/<username>", methods=["GET"])
 def profile(username):
     """
-    Displays the user's profile page and fills in all of the necessary details.
-    Also hides the request buttons if the user is seeing their own page.
+    Displays the user's profile page and fills in all of the necessary
+    details. Hides the request buttons if the user is seeing their own page.
 
     Returns:
         The updated web page based on whether the details provided were valid.
@@ -359,7 +372,7 @@ def profile(username):
             data = row[0]
             name, bio, gender, birthday, profile_picture = (
                 data[0], data[1], data[2], data[3], data[4])
-    
+
     # Gets the user's hobbies.
     cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
                 (username,))
@@ -374,7 +387,8 @@ def profile(username):
     if len(row) > 0:
         interests = row
 
-        cur.execute("SELECT email from ACCOUNTS WHERE username=?;", (username,))
+        cur.execute("SELECT email from ACCOUNTS WHERE username=?;",
+                    (username,))
         row = cur.fetchall()
         if len(row) > 0:
             email = row[0][0]
@@ -402,26 +416,25 @@ def profile(username):
     print(conn_type)
     return render_template("/profile.html", username=username,
                            name=name, bio=bio, gender=gender,
-                           birthday=birthday,
-                           profile_picture=profile_picture, age=age,
-                           hobbies=hobbies,
-                           interests=interests, email=email, posts=posts, type=conn_type)
+                           birthday=birthday, profile_picture=profile_picture,
+                           age=age, hobbies=hobbies, interests=interests,
+                           email=email, posts=posts, type=conn_type)
 
 
 def get_connection_type(username):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-                    "SELECT connection_type FROM Connection WHERE user1=? AND user2=?",
-                    (session["username"], username,))
+            "SELECT connection_type FROM Connection WHERE user1=? "
+            "AND user2=?", (session["username"], username,))
         conn.commit()
         row = cur.fetchone()
         if row is not None:
             return row[0]
         else:
             cur.execute(
-                        "SELECT connection_type FROM Connection WHERE user1=? AND user2=?",
-                        (username, session["username"],))
+                "SELECT connection_type FROM Connection WHERE user1=? AND "
+                "user2=?", (username, session["username"],))
             conn.commit()
             row = cur.fetchone()
             if row is not None:
@@ -522,7 +535,8 @@ def validate_registration(
 
     # Checks that the password has a minimum length of 6 characters, and at
     # least one number.
-    if len(password) <= 7 or any(char.isdigit() for char in password) is False:
+    if (len(password) <= 7 or any(
+            char.isdigit() for char in password) is False):
         message.append("Password does not meet requirements! It must contain "
                        "at least eight characters, including at least one "
                        "number.")
