@@ -1,9 +1,11 @@
 """
 A student network application which is presented as a web application using
-the Flask module.
+the Flask module. Students each have their own profile page, and they can post
+on their feed.
 """
 import re
 import sqlite3
+from datetime import date, datetime
 from typing import Tuple, List
 
 from email_validator import validate_email, EmailNotValidError
@@ -13,18 +15,19 @@ from passlib.hash import sha256_crypt
 application = Flask(__name__)
 application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
                           "xa2\xa0\x9fR\xa1\xa8")
+application.url_map.strict_slashes = False
 
 
 @application.route("/", methods=["GET"])
 def index_page():
     """
-    Renders the feed page if logged in.
+    Renders the feed page if the user is logged in.
 
     Returns:
         The web page for user login.
     """
     if "username" in session:
-        return render_template("feed.html")
+        return redirect("/profile")
     else:
         return redirect("/login")
 
@@ -40,19 +43,158 @@ def login_page():
     errors = []
     if "error" in session:
         errors = session["error"]
+    session["prev-page"] = request.url
     # Clear error session variables.
     session.pop("error", None)
-    return render_template("login.html", errors=errors)
+    return render_template("/login.html", errors=errors)
 
 
-@application.route("/terms", methods=["GET"])
+@application.route("/connect/<username>", methods=["GET", "POST"])
+def connect_request(username):
+    """
+    Sends a connect request to another user on the network.
+
+    Args:
+        username: The username of the person to request a connection with.
+
+    Returns:
+        Redirection to the profile of the user they want to connect with.
+    """
+    if session["username"] != username:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM Accounts WHERE username=?;",
+                        (username,))
+            if cur.fetchone() is not None:
+                cur.execute(
+                    "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
+                    "(user1=? AND user2=?);",
+                    (username, session["username"], session["username"],
+                     username))
+                if cur.fetchone() is None:
+                    # Gets user from database using username.
+                    cur.execute(
+                        "INSERT INTO Connection (user1, user2, "
+                        "connection_type) VALUES (?,?,?);",
+                        (session["username"], username, "request",))
+                    conn.commit()
+                    session["add"] = True
+        session["add"] = "You can't connect with yourself!"
+
+    return redirect("/profile/" + username)
+
+
+@application.route("/accept/<username>", methods=["GET", "POST"])
+def accept(username):
+    """
+    Accepts the connect request from another user on the network.
+
+    Args:
+        username: The username of the person who requested a connection.
+
+    Returns:
+        Redirection to the profile of the user they want to connect with.
+    """
+    if session["username"] != username:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM Accounts WHERE username=?;",
+                        (username,))
+            if cur.fetchone() is not None:
+                row = cur.execute(
+                    "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
+                    "(user1=? AND user2=?);",
+                    (username, session["username"], session["username"],
+                     username))
+                if row is not None:
+                    # Gets user from database using username.
+                    cur.execute(
+                        "UPDATE Connection SET connection_type = ? "
+                        "WHERE (user1=? AND user2=?) OR (user1=? AND "
+                        "user2=?);",
+                        ("connected", username, session["username"],
+                         session["username"],
+                         username))
+                    conn.commit()
+                    session["add"] = True
+    else:
+        session["add"] = "You can't connect with yourself!"
+    return redirect(session["prev-page"])
+
+
+@application.route("/remove_connection/<username>")
+def remove_connection(username):
+    if username != session['username']:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM Accounts WHERE username=?;",
+                        (username,))
+            if cur.fetchone() is not None:
+                row = cur.execute(
+                    "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
+                    "(user1=? AND user2=?);",
+                    (username, session["username"], session["username"],
+                     username))
+                if row is not None:
+                    cur.execute(
+                        "DELETE FROM Connection WHERE (user1=? AND user2=?) "
+                        "OR (user1=? AND user2=?);",
+                        (username, session["username"], session["username"],
+                         username))
+                    conn.commit()
+    return redirect(session["prev-page"])
+
+
+@application.route("/requests", methods=["GET", "POST"])
+def show_requests():
+    with sqlite3.connect("database.db") as conn:
+        requests = []
+        avatars = []
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT Connection.user1, UserProfile.profilepicture FROM "
+            "Connection LEFT JOIN UserProfile ON Connection.user1 = "
+            "UserProfile.username WHERE user2=? AND connection_type=?;",
+            (session["username"], "request"))
+        conn.commit()
+        row = cur.fetchall()
+        if len(row) > 0:
+            for elem in row:
+                requests.append(elem[0])
+                avatars.append(elem[1])
+
+    session["prev-page"] = request.url
+    return render_template("request.html", requests=requests, avatars=avatars)
+
+
+@application.route("/terms", methods=["GET", "POST"])
 def terms_page():
-    return render_template("terms.html")
+    """
+    Renders the terms and conditions page.
+
+    Returns:
+        The web page for T&Cs, or redirection back to register page.
+    """
+    if request.method == "GET":
+        session["prev-page"] = request.url
+        return render_template("terms.html")
+    else:
+        return redirect("/register")
 
 
-@application.route("/terms", methods=["POST"])
-def terms_submit():
-    return redirect("/register")
+@application.route("/privacy_policy", methods=["GET", "POST"])
+def privacy_policy_page():
+    """
+    Renders the privacy policy page.
+
+    Returns:
+        The web page for the privacy policy, or redirection back to T&C.
+    """
+    if request.method == "GET":
+        session["prev-page"] = request.url
+        return render_template("privacy_policy.html")
+    else:
+        return redirect("/terms")
 
 
 @application.route("/login", methods=["POST"])
@@ -63,7 +205,7 @@ def login_submit():
     Returns:
          Redirection depending on whether login was successful or not.
     """
-    username = request.form["username_input"]
+    username = request.form["username_input"].lower()
     psw = request.form["psw_input"]
 
     with sqlite3.connect("database.db") as conn:
@@ -81,7 +223,8 @@ def login_submit():
         if hashed_psw is not None:
             if sha256_crypt.verify(psw, hashed_psw):
                 session["username"] = username
-                return render_template("/feed.html")
+                session["prev-page"] = request.url
+                return redirect("/profile")
             else:
                 session["error"] = ["login"]
                 return redirect("/login")
@@ -92,6 +235,12 @@ def login_submit():
 
 @application.route("/error", methods=["GET"])
 def error_test():
+    """
+    Redirects the user back to the login page if an error occurred.
+
+    Returns:
+        Redirection to the login page.
+    """
     session["error"] = ["login"]
     return redirect("/login")
 
@@ -113,11 +262,11 @@ def register_page():
         errors = session["error"]
     session.pop("error", None)
     session.pop("notifs", None)
+    session["prev-page"] = request.url
 
     return render_template("register.html", notifs=notifs, errors=errors)
 
 
-# TODO: FOUND ERROR: CLICKING REGISTER BUTTON WITH NOTHING IN THE FORM
 @application.route("/register", methods=["POST"])
 def register_submit() -> object:
     """
@@ -126,71 +275,228 @@ def register_submit() -> object:
     Returns:
         The updated web page based on whether the details provided were valid.
     """
-    username = request.form["username_input"]
+    # Obtains user input from the account registration form.
+    username = request.form["username_input"].lower()
+    fullname = request.form["fullname_input"]
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
     terms = request.form.get("terms")
 
+    # Connects to the database to perform validation.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        message = []  # stores error messages to be printed to page
-        valid = False
         valid, message = validate_registration(cur, username, password,
                                                password_confirm,
-                                               email,terms)
+                                               email, terms)
+        # Registers the user if the details are valid.
         if valid is True:
             hash_password = sha256_crypt.hash(password)
             cur.execute(
-                "INSERT INTO ACCOUNTS (username, password, email, type) "
+                "INSERT INTO Accounts (username, password, email, type) "
                 "VALUES (?, ?, ?, ?);", (username, hash_password, email,
                                          "student",))
+            cur.execute(
+                "INSERT INTO UserProfile (username, name, bio, gender, "
+                "birthday, profilepicture) "
+                "VALUES (?, ?, ?, ?, ?, ?);", (
+                    username, fullname, "Change your bio in the settings.",
+                    "Male",
+                    "01/01/1970", "/static/images/default-pfp.jpg",))
             conn.commit()
             session["notifs"] = ["register"]
             return redirect("/register")
+        # Displays error message(s) stating why their details are invalid.
         else:
             session["error"] = message
             return redirect("/register")
 
 
-# Checks user is logged in before viewing the post
-@application.route("/postpage", methods=["GET"])
+@application.route("/post_page", methods=["GET"])
 def post_page():
+    """
+    Checks the user is logged in before viewing their post page.
+
+    Returns:
+        The web page for their post if they're logged in.
+    """
     if "username" in session:
+        session["prev-page"] = request.url
         return render_template("/post_page.html")
     else:
         return redirect("/login")
 
 
-# Checks user is logged in before viewing the feed page
 @application.route("/feed", methods=["GET"])
 def feed():
+    """
+    Checks user is logged in before viewing their feed page.
+
+    Returns:
+        Redirection to their feed if they're logged in.
+    """
     if "username" in session:
+        session["prev-page"] = request.url
         return render_template("/feed.html")
     else:
         return redirect("/login")
 
 
-# Checks user is logged in before viewing the profile page
 @application.route("/profile", methods=["GET"])
-def profile():
+def user_profile():
+    """
+    Checks the user is logged in before viewing their profile page.
+
+    Returns:
+        Redirection to their profile if they're logged in.
+    """
     if "username" in session:
-        return render_template("/profile.html")
-    else:
-        return redirect("/login")
+        return redirect("/profile/" + session["username"])
+
+    return redirect("/")
 
 
-# Clears session when the user logs out
+@application.route("/profile/<username>", methods=["GET"])
+def profile(username):
+    """
+    Displays the user's profile page and fills in all of the necessary
+    details. Hides the request buttons if the user is seeing their own page.
+
+    Returns:
+        The updated web page based on whether the details provided were valid.
+    """
+    name = ""
+    bio = ""
+    gender = ""
+    birthday = ""
+    profile_picture = ""
+    email = ""
+    hobbies = []
+    interests = []
+    message = []
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        # Gets user from database using username.
+        cur.execute(
+            "SELECT name, bio, gender, birthday, profilepicture FROM "
+            "UserProfile WHERE username=?;", (username,))
+        row = cur.fetchall()
+        if len(row) == 0:
+            message.append("The username " + username + " does not exist.")
+            message.append(
+                " Please ensure you have entered the name correctly.")
+            session["prev-page"] = request.url
+            return render_template("/error.html", message=message)
+        else:
+            data = row[0]
+            name, bio, gender, birthday, profile_picture = (
+                data[0], data[1], data[2], data[3], data[4])
+
+    # Gets the user's hobbies.
+    cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
+                (username,))
+    row = cur.fetchall()
+    if len(row) > 0:
+        hobbies = row
+
+    # Gets the user's interests.
+    cur.execute("SELECT interest FROM UserInterests WHERE username=?;",
+                (username,))
+    row = cur.fetchall()
+    if len(row) > 0:
+        interests = row
+
+        cur.execute("SELECT email from ACCOUNTS WHERE username=?;",
+                    (username,))
+        row = cur.fetchall()
+        if len(row) > 0:
+            email = row[0][0]
+
+    # TODO: db search query in posts table for all the users posts
+    # TODO: store all the users posts in a json file
+    posts = {
+        "UserPosts": [
+        ]
+    }
+    for i in range(1, 10):
+        posts["UserPosts"].append({
+            "title": "Post " + str(i),
+            "profile_pic": "https://via.placeholder.com/600",
+            "author": "John Smith",
+            "account_type": "Student",
+            "time_elapsed": str(i) + " days"
+        })
+
+    # Calculates the user's age based on their date of birth.
+    datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
+    age = calculate_age(datetime_object)
+    conn_type = get_connection_type(username)
+    session["prev-page"] = request.url
+    print(conn_type)
+
+    return render_template("/profile.html", username=username,
+                           name=name, bio=bio, gender=gender,
+                           birthday=birthday, profile_picture=profile_picture,
+                           age=age, hobbies=hobbies, interests=interests,
+                           email=email, posts=posts, type=conn_type)
+
+
+def get_connection_type(username):
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT connection_type FROM Connection WHERE user1=? "
+            "AND user2=?", (session["username"], username,))
+        conn.commit()
+        row = cur.fetchone()
+        if row is not None:
+            return row[0]
+        else:
+            cur.execute(
+                "SELECT connection_type FROM Connection WHERE user1=? AND "
+                "user2=?", (username, session["username"],))
+            conn.commit()
+            row = cur.fetchone()
+            if row is not None:
+                if row[0] == "connected":
+                    return row[0]
+                return "incoming"
+            else:
+                return None
+
+
+def calculate_age(born):
+    """
+    Args:
+        born: The user's date of birth.
+
+    Returns:
+        The age of the user in years.
+    """
+    today = date.today()
+    return today.year - born.year - (
+            (today.month, today.day) < (born.month, born.day))
+
+
 @application.route("/logout", methods=["GET"])
 def logout():
-    if 'username' in session:
+    """
+    Clears the user's session if they are logged in.
+
+    Returns:
+        The web page for logging in if the user logged out of an account.
+    """
+    if "username" in session:
         session.clear()
+        session["prev-page"] = request.url
         return render_template("/login.html")
+    return redirect("/")
 
 
 def validate_registration(
-        cur, username: str, password: str,
-        password_confirm: str, email: str, terms:str) -> Tuple[bool, List[str]]:
+        cur, username: str, password: str, password_confirm: str,
+        email: str, terms: str) -> Tuple[bool, List[str]]:
     """
     Validates the registration details to ensure that the email address is
     valid, and that the passwords in the form match.
@@ -202,6 +508,7 @@ def validate_registration(
         password_confirm: The password confirmation input by the user in the
             form.
         email: The email address input by the user in the form.
+        terms: The terms and conditions input checkbox.
 
     Returns:
         Whether the registration was valid, and the error message(s) if not.
@@ -227,22 +534,21 @@ def validate_registration(
     if cur.fetchone() is not None:
         message.append("Username has already been registered!")
         valid = False
-    
+
     # Checks that the email address has the correct format, checks whether it
     # exists, and isn't a blacklist email.
     try:
         valid_email = validate_email(email)
         # Updates with the normalised form of the email address.
         email = valid_email.email
-    # Checks if email is of valid format
     except EmailNotValidError:
         message.append("Email is invalid!")
         valid = False
 
-    # if the format is valid check that the email address has
-    # the University of Exeter domain.
-    if re.search('@.*', email) is not None:
-        domain = re.search('@.*', email).group()
+    # If the format is valid, checks that the email address has the
+    # University of Exeter domain.
+    if re.search("@.*", email) is not None:
+        domain = re.search("@.*", email).group()
         if domain != "@exeter.ac.uk":
             valid = False
             message.append(
@@ -250,18 +556,21 @@ def validate_registration(
 
     # Checks that the password has a minimum length of 6 characters, and at
     # least one number.
-    if len(password) <= 5 or any(char.isdigit() for char in password) is False:
-        message.append("Password does not meet requirements!")
+    if (len(password) <= 7 or any(
+            char.isdigit() for char in password) is False):
+        message.append("Password does not meet requirements! It must contain "
+                       "at least eight characters, including at least one "
+                       "number.")
         valid = False
 
     # Checks that the passwords match.
     if password != password_confirm:
         message.append("Passwords do not match!")
         valid = False
-    
+
     # Checks that the terms of service has been ticked.
     if terms is None:
-        message.append("You need to accept the terms of service!")
+        message.append("You must accept the terms of service!")
         valid = False
 
     return valid, message

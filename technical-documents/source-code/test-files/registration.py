@@ -5,7 +5,7 @@ from email_validator import validate_email, EmailNotValidError
 
 
 def main():
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("../database.db") as conn:
         cur = conn.cursor()
         # Gets the user inputs from the registration page.
         username = "ic324"
