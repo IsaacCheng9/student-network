@@ -411,7 +411,6 @@ def profile(username):
 
 def get_connection_type(username):
     with sqlite3.connect("database.db") as conn:
-        requests = []
         cur = conn.cursor()
         cur.execute(
                     "SELECT connection_type FROM Connection WHERE user1=? AND user2=?",
