@@ -86,16 +86,16 @@ def accept(username):
                 if row is not None:
                     # Gets user from database using username.
                     cur.execute(
-                        "UPDATE Connection SET connection_type = connected "
+                        "UPDATE Connection SET connection_type = ? "
                         "WHERE (user1=? AND user2=?) OR (user1=? AND "
                         "user2=?);",
-                        (username, session["username"], session["username"],
+                        ("connected", username, session["username"], session["username"],
                          username))
                     conn.commit()
                     session["add"] = True
     else:
         session["add"] = "You can't connect with yourself!"
-    return redirect("/profile/" + username)
+    return redirect("/requests")
 
 
 @application.route("/requests", methods=["GET", "POST"])
@@ -109,8 +109,8 @@ def show_requests():
             conn.commit()
             row = cur.fetchall()
             if len(row) > 0:
-                for elem in row[0]:
-                    requests.append(elem)
+                for elem in row:
+                    requests.append(elem[0])
             print(requests)
     return render_template("request.html",requests=requests)
 
