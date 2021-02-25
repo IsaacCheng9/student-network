@@ -58,6 +58,7 @@
                     <a href="/login" class="item">Login</a>
                     {%endif%}
                     <a href="/profile" class="active item">Profile</a>
+                    <a href="/requests" class="item">Connect Requests</a>
                     <a href="/feed" class="item">Feed</a>
                     <div class="right menu">
                          <div class="ui item">
@@ -106,9 +107,15 @@
                             <p>{{bio}}</p>
                             {%if username != session["username"] and session["username"] %}
                             <div class="ui buttons right floated">
-                                <button class="ui blue button tiny">
-                                    <i class="user icon"></i>
-                                    Connect
+                                <form action="{{ url_for('connect_request', username=username) }}" method="POST">
+                                    <button class="ui blue button tiny">
+                                        <i class="user icon"></i>
+                                        Connect
+                                    </button>
+                                </form>
+                                <button class="ui grey button tiny">
+                                    <i class="bell slash icon"></i>
+                                    Pending
                                 </button>
                                 <button class="ui green button tiny">
                                     <i class="user icon"></i>

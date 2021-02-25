@@ -72,15 +72,17 @@
                 <div class="ui segment">
                     <div class="ui horizontal divider">Your connection requests</div>
                     <div class="ui middle aligned divided list">
-                      <div class="item">
-                        <div class="right floated content">
-                          <div class="ui button">Add</div>
-                        </div>
-                        <img class="ui avatar image" src="https://via.placeholder.com/50">
-                        <div class="content">
-                         <a href="">Lena</a>
-                        </div>
-                      </div>
+                        {% for request in requests %}
+                            <div class="item">
+                            <div class="right floated content">
+                                <div class="ui button">Add</div>
+                            </div>
+                            <img class="ui avatar image" src="https://via.placeholder.com/50">
+                            <div class="content">
+                                <a href="{{ url_for('profile', username=request) }}">{{ request }}</a>
+                            </div>
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>

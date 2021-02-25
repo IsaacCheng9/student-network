@@ -98,6 +98,22 @@ def accept(username):
     return redirect("/profile/" + username)
 
 
+@application.route("/requests", methods=["GET", "POST"])
+def show_requests():
+    with sqlite3.connect("database.db") as conn:
+            requests = []
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT user1 FROM Connection WHERE user2=? AND connection_type=?;",
+                (session["username"], "request"))
+            conn.commit()
+            row = cur.fetchall()
+            if len(row) > 0:
+                for elem in row[0]:
+                    requests.append(elem)
+            print(requests)
+    return render_template("request.html",requests=requests)
+
 @application.route("/terms", methods=["GET", "POST"])
 def terms_page():
     """
@@ -299,8 +315,8 @@ def profile(username):
             "SELECT name, bio, gender, birthday, profilepicture FROM "
             "UserProfile WHERE username=?;", (username,))
         row = cur.fetchall()
-        if row is None:
-            message.append("The username " + username + " does not exists.")
+        if len(row) == 0:
+            message.append("The username " + username + " does not exist.")
             message.append(
                 " Please ensure you have entered the name correctly.")
             return render_template("/error.html", message=message)
