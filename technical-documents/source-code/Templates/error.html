@@ -55,24 +55,11 @@
                 {%endif%}
             </div>
         </div>
-    
-        <div class="ui grid">
-            <div class="four wide column">  
-            </div>
-            <div class="eight wide column">
-                <div class="ui cards">
-                    <div class="ui card fluid">
-                       <div class="content">
-                        {% if message %}
-                        <div class="ui message red">
-                            {% for item in message %}<p>{{ item }}</p>{% endfor %}
-                        </div>
-                        {% endif %}
-                       </div>
-                    </div>
-                </div>
-            </div>
+        {% if message %}
+        <div class="ui message red">
+            {% for item in message %}<p>{{ item }}</p>{% endfor %}
         </div>
+        {% endif %}
     </div>
 </div>
 </body>
