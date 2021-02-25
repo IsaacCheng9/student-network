@@ -277,20 +277,20 @@ def profile(username):
         if len(row) > 0:
             email = row[0][0]
 
-        # TODO: db search query in posts table for all the users posts
-        # TODO: store all the users posts in a json file
-        posts = {
-            "UserPosts": [
-            ]
-        }
-        for i in range(1, 10):
-            posts["UserPosts"].append({
-                "title": "Post " + str(i),
-                "profile_pic": "https://via.placeholder.com/600",
-                "author": "John Smith",
-                "account_type": "Student",
-                "time_elapsed": str(i) + " days"
-            })
+    # TODO: db search query in posts table for all the users posts
+    # TODO: store all the users posts in a json file
+    posts = {
+        "UserPosts": [
+        ]
+    }
+    for i in range(1, 10):
+        posts["UserPosts"].append({
+            "title": "Post " + str(i),
+            "profile_pic": "https://via.placeholder.com/600",
+            "author": "John Smith",
+            "account_type": "Student",
+            "time_elapsed": str(i) + " days"
+        })
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
