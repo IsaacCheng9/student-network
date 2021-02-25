@@ -65,6 +65,7 @@ def connect_request(username):
 
 
 @application.route("/accept/<username>", methods=["GET", "POST"])
+def accept(username):
     if session["username"] != username:
         with sqlite3.connect("database.db") as conn:
             cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
