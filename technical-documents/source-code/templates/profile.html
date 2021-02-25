@@ -63,7 +63,7 @@
                     <div class="right menu">
                          <div class="ui item">
                               <div class="ui transparent icon input">
-                                  <input class="prompt" type="text" placeholder="Search for a user">
+                                  <input class="prompt" type="text" id="search" placeholder="Search for a user">
                                   <i class="search link icon"></i>
                               </div>
                           </div>
@@ -105,7 +105,7 @@
                             </div>
 
                             <p>{{bio}}</p>
-                            {%if username != session["username"] and session["username"] %}
+                            {% if username != session["username"] and session["username"] %}
                             <div class="ui buttons right floated">
                                 {% if type == None %}
                                 <form action="{{ url_for('connect_request', username=username) }}" method="POST">
@@ -116,16 +116,28 @@
                                 </form>
                                 {% endif %}
                                 {% if type == "request" %}
-                                <button class="ui grey button tiny">
-                                    <i class="bell slash icon"></i>
-                                    Pending
-                                </button>
+                                <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
+                                    <button class="ui grey button tiny">
+                                        <i class="bell slash icon"></i>
+                                        Pending
+                                    </button>
+                                </form>
+                                {% endif %}
+                                {% if type == "incoming" %}
+                                <form action="{{ url_for('accept', username=username) }}" method="GET">
+                                    <button class="ui green button tiny">
+                                        <i class="user icon"></i>
+                                        Accept Request
+                                    </button>
+                                </form>
                                 {% endif %}
                                 {% if type == "connected" %}
-                                <button class="ui green button tiny">
-                                    <i class="user icon"></i>
-                                    Connected
-                                </button>
+                                <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
+                                    <button class="ui green button tiny">
+                                        <i class="user icon"></i>
+                                        Connected
+                                    </button>
+                                </form>
                                 {% endif %}
                                 <button class="ui red button tiny">
                                     <i class="bell slash icon"></i>
@@ -229,5 +241,7 @@
         </div>
     </div>
 </body>
+
+<script type="text/javascript" src="../static/searchbar.js"></script>
 
 </html>

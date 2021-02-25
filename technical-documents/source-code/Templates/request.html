@@ -57,7 +57,7 @@
                     <div class="right menu">
                          <div class="ui item">
                               <div class="ui transparent icon input">
-                                  <input class="prompt" type="text" placeholder="Search for a user">
+                                  <input class="prompt" type="text" id="search" placeholder="Search for a user">
                                   <i class="search link icon"></i>
                               </div>
                           </div>
@@ -72,14 +72,14 @@
                 <div class="ui segment">
                     <div class="ui horizontal divider">Your connection requests</div>
                     <div class="ui middle aligned divided list">
-                        {% for request in requests %}
+                        {% for i in range(requests|length) %}
                             <div class="item">
                             <div class="right floated content">
-                                <a href="{{ url_for('accept', username=request) }}"><div class="ui button">Add</div></a>
+                                <a href="{{ url_for('accept', username=requests[i]) }}"><div class="ui button">Add</div></a>
                             </div>
-                            <img class="ui avatar image" src="https://via.placeholder.com/50">
+                            <img class="ui avatar image" src ="{{ avatars[i] }}">
                             <div class="content">
-                                <a href="{{ url_for('profile', username=request) }}">{{ request }}</a>
+                                <a href="{{ url_for('profile', username=requests[i]) }}">{{ requests[i] }}</a>
                             </div>
                             </div>
                         {% endfor %}
@@ -89,5 +89,7 @@
         </div>
     </div>
 </body>
+
+<script type="text/javascript" src="static/searchbar.js"></script>
 
 </html>

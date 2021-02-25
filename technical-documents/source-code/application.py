@@ -26,6 +26,7 @@ def index_page():
         The web page for user login.
     """
     if "username" in session:
+        session["prev-page"] = request.url
         return render_template("feed.html")
     else:
         return redirect("/login")
@@ -42,6 +43,7 @@ def login_page():
     errors = []
     if "error" in session:
         errors = session["error"]
+    session["prev-page"] = request.url
     # Clear error session variables.
     session.pop("error", None)
     return render_template("/login.html", errors=errors)
@@ -95,24 +97,47 @@ def accept(username):
                     session["add"] = True
     else:
         session["add"] = "You can't connect with yourself!"
-    return redirect("/requests")
+    return redirect(session["prev-page"])
 
+
+@application.route("/remove_connection/<username>")
+def remove_connection(username):
+    if username != session['username']:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
+            if cur.fetchone() is not None:
+                row = cur.execute(
+                    "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
+                    "(user1=? AND user2=?);",
+                    (username, session["username"], session["username"],
+                     username))
+                if row is not None:
+                    cur.execute("DELETE FROM Connection WHERE (user1=? AND user2=?) OR (user1=? AND user2=?);",
+                        (username, session["username"], session["username"],
+                         username))
+                    conn.commit()
+    return redirect(session["prev-page"])
 
 @application.route("/requests", methods=["GET", "POST"])
 def show_requests():
     with sqlite3.connect("database.db") as conn:
             requests = []
+            avatars = []
             cur = conn.cursor()
             cur.execute(
-                "SELECT user1 FROM Connection WHERE user2=? AND connection_type=?;",
+                "SELECT Connection.user1, UserProfile.profilepicture FROM Connection LEFT JOIN UserProfile ON Connection.user1 = UserProfile.username WHERE user2=? AND connection_type=?;",
                 (session["username"], "request"))
             conn.commit()
             row = cur.fetchall()
             if len(row) > 0:
                 for elem in row:
                     requests.append(elem[0])
-            print(requests)
-    return render_template("request.html",requests=requests)
+                    avatars.append(elem[1])
+            
+            
+    session["prev-page"] = request.url
+    return render_template("request.html",requests=requests,avatars=avatars)
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -124,6 +149,7 @@ def terms_page():
         The web page for terms and conditions, or redirection back to register.
     """
     if request.method == "GET":
+        session["prev-page"] = request.url
         return render_template("terms.html")
     else:
         return redirect("/register")
@@ -138,6 +164,7 @@ def privacy_policy_page():
         The web page for the privacy policy, or redirection back to T&C.
     """
     if request.method == "GET":
+        session["prev-page"] = request.url
         return render_template("privacy_policy.html")
     else:
         return redirect("/terms")
@@ -169,6 +196,7 @@ def login_submit():
         if hashed_psw is not None:
             if sha256_crypt.verify(psw, hashed_psw):
                 session["username"] = username
+                session["prev-page"] = request.url
                 return render_template("/feed.html")
             else:
                 session["error"] = ["login"]
@@ -207,7 +235,7 @@ def register_page():
         errors = session["error"]
     session.pop("error", None)
     session.pop("notifs", None)
-
+    session["prev-page"] = request.url
     return render_template("register.html", notifs=notifs, errors=errors)
 
 
@@ -261,6 +289,7 @@ def post_page():
         The web page for their post if they're logged in.
     """
     if "username" in session:
+        session["prev-page"] = request.url
         return render_template("/post_page.html")
     else:
         return redirect("/login")
@@ -275,6 +304,7 @@ def feed():
         Redirection to their feed if they're logged in.
     """
     if "username" in session:
+        session["prev-page"] = request.url
         return render_template("/feed.html")
     else:
         return redirect("/login")
@@ -324,6 +354,7 @@ def profile(username):
             message.append("The username " + username + " does not exist.")
             message.append(
                 " Please ensure you have entered the name correctly.")
+            session["prev-page"] = request.url
             return render_template("/error.html", message=message)
         else:
             data = row[0]
@@ -368,7 +399,8 @@ def profile(username):
     datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
     age = calculate_age(datetime_object)
     conn_type = get_connection_type(username)
-
+    session["prev-page"] = request.url
+    print(conn_type)
     return render_template("/profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday,
@@ -382,16 +414,25 @@ def get_connection_type(username):
         requests = []
         cur = conn.cursor()
         cur.execute(
-                    "SELECT connection_type FROM Connection WHERE (user1=? AND user2=?) OR "
-                    "(user1=? AND user2=?);",
-                    (username, session["username"], session["username"],
-                     username))
+                    "SELECT connection_type FROM Connection WHERE user1=? AND user2=?",
+                    (session["username"], username,))
         conn.commit()
         row = cur.fetchone()
         if row is not None:
             return row[0]
         else:
-            return None
+            cur.execute(
+                        "SELECT connection_type FROM Connection WHERE user1=? AND user2=?",
+                        (username, session["username"],))
+            conn.commit()
+            row = cur.fetchone()
+            if row is not None:
+                if row[0] == "connected":
+                    return row[0]
+                return "incoming"
+            else:
+                return None
+
 
 def calculate_age(born):
     """
@@ -416,6 +457,7 @@ def logout():
     """
     if "username" in session:
         session.clear()
+        session["prev-page"] = request.url
         return render_template("/login.html")
     return redirect("/")
 
