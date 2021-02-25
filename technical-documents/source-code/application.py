@@ -47,6 +47,57 @@ def login_page():
     return render_template("/login.html", errors=errors)
 
 
+@application.route("/connect/<username>", methods=["GET", "POST"])
+def connect_request(username):
+    if session["username"] != username:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
+            if cur.fetchone() is not None:
+                cur.execute(
+                    "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
+                    "(user1=? AND user2=?);",
+                    (username, session["username"], session["username"],
+                     username))
+                if cur.fetchone() is None:
+                    # Gets user from database using username.
+                    cur.execute(
+                        "INSERT INTO Connection (user1, user2, "
+                        "connection_type) VALUES (?,?,?);",
+                        (session["username"], username, "request",))
+                    conn.commit()
+                    session["add"] = True
+        session["add"] = "You can't connect with yourself!"
+    return redirect("/profile/" + username)
+
+
+@application.route("/accept/<username>", methods=["GET", "POST"])
+def accept(username):
+    if session["username"] != username:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
+            if cur.fetchone() is not None:
+                row = cur.execute(
+                    "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
+                    "(user1=? AND user2=?);",
+                    (username, session["username"], session["username"],
+                     username))
+                if row is not None:
+                    # Gets user from database using username.
+                    cur.execute(
+                        "UPDATE Connection SET connection_type = connected "
+                        "WHERE (user1=? AND user2=?) OR (user1=? AND "
+                        "user2=?);",
+                        (username, session["username"], session["username"],
+                         username))
+                    conn.commit()
+                    session["add"] = True
+    else:
+        session["add"] = "You can't connect with yourself!"
+    return redirect("/profile/" + username)
+
+
 @application.route("/terms", methods=["GET", "POST"])
 def terms_page():
     """
