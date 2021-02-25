@@ -1,67 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
-<meta charset="UTF-8">
-<title>Student Network - Feed</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/semantic.css') }}" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
-    <style>
-        .student-background {
-            background-image: url("{{ url_for('static', filename='images/background_blue.png') }}") !important;
-            
-            height: 100%;
-            
-            filter: saturate(1.5) blur(20px);
-            
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-            
-            position: fixed;
-            z-index: -1;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-        }
-        .centered {
-            text-align: center;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <head>
+    <title>Student Network - Feed</title>
+  </head>
 
-<body>
-   <div class="student-background"></div>
-   <div class="ui container">
-    <div class="ui segment basic ">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="{{ url_for('static', filename='styles/semantic.css') }}"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
+  />
+  <style>
+    .student-background {
+      background-image: url("{{ url_for('static', filename='images/background_blue.png') }}") !important;
+
+      height: 100%;
+
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+
+      position: fixed;
+      z-index: -1;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+    }
+    .centered {
+      text-align: center;
+    }
+  </style>
+
+  <body>
+    <div class="student-background"></div>
+    <div class="ui container">
+      <div class="ui segment basic">
         <div class="ui menu">
-            {% if not "username" in session %}
-            <a href="/login" class="item">Login</a>
-            {%endif%}
-            <a href="/profile" class="item">Profile</a>
-            <a href="/requests" class="item">Connect Requests</a>
-            <a href="/feed" class="item">Feed</a>
-            <div class="right menu">
-                 <div class="ui item">
-                      <div class="ui transparent icon input">
-                          <input class="prompt" type="text" id="search" placeholder="Search for a user">
-                          <i class="search link icon"></i>
-                      </div>
-                  </div>
-               {% if session["username"] %}
-                <a class="ui item">
-                    Logged in as {{session["username"]}}
-                </a>
-                <a href="/logout" class="ui item">Logout</a>
-                {%endif%}
+          {% if not "username" in session %}
+          <a href="/login" class="item">Login</a>
+          {%endif%}
+          <a href="/profile" class="item">Profile</a>
+          <a href="/requests" class="item">Connect Requests</a>
+          <a href="/feed" class="item">Feed</a>
+          <div class="right menu">
+            <div class="ui item">
+              <div class="ui transparent icon input">
+                <input
+                  class="prompt"
+                  type="text"
+                  id="search"
+                  placeholder="Search for a user"
+                />
+                <i class="search link icon"></i>
+              </div>
             </div>
+            {% if session["username"] %}
+            <a class="ui item"> Logged in as {{session["username"]}} </a>
+            <a href="/logout" class="ui item">Logout</a>
+            {%endif%}
+          </div>
         </div>
         {% if message %}
         <div class="ui message red">
-            {% for item in message %}<p>{{ item }}</p>{% endfor %}
+          {% for item in message %}
+          <p>{{ item }}</p>
+          {% endfor %}
         </div>
         {% endif %}
+      </div>
     </div>
-</div>
-</body>
-<script type="text/javascript" src="../static/searchbar.js"></script>
+  </body>
+  <script type="text/javascript" src="../static/searchbar.js"></script>
 </html>
