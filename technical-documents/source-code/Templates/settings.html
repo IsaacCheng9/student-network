@@ -59,6 +59,12 @@
         background-color: #cacbcd;
         cursor: pointer;
       }
+
+      .sticky {
+        position: sticky; top: 5px;
+        z-index: 99;
+      }
+
     </style>
   </head>
 
@@ -67,7 +73,7 @@
     <div class="pusher">
       <div class="ui container">
         <div class="student-background"></div>
-        <div class="ui segment basic">
+        <div class="sticky">
           <div class="ui menu">
             <a href="/login" class="item active">Login</a>
             <a href="/profile" class="active item">Profile</a>
@@ -76,7 +82,8 @@
               <a href="/logout" class="ui item">Logout</a>
             </div>
           </div>
-
+        </div>  
+        <div class="ui segment basic">
           <div class="ui grid">
             <div class="four wide column">
               <div class="ui vertical fluid tabular menu">

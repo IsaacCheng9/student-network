@@ -33,17 +33,24 @@
       top: 0;
       bottom: 0;
     }
+
+    .sticky {
+      position: sticky; top: 5px;
+      z-index: 99;
+    }
+
   </style>
 
   <body>
     <div class="student-background"></div>
     <div class="ui container">
-      <div class="ui segment basic">
+      <div class="sticky">
         <div class="ui menu">
-          <a href="/login" class="item">Login</a>
-          <a href="/register" class="active item">Register</a>
+            <a href="/login" class="item">Login</a>
+            <a href="/register" class="active item">Register</a>
         </div>
-
+      </div>
+      <div class="ui segment basic">  
         <form action="/register" method="POST">
           <div class="ui card centered" style="min-width: 600px">
             <div class="content">

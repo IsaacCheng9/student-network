@@ -28,18 +28,25 @@
       top: 0;
       bottom: 0;
     }
+
+    .sticky {
+        position: sticky; top: 5px;
+        z-index: 99;
+    }
+
   </style>
 
   <!--CSS blur: filter: saturate(1.5) blur(20px);-->
   <body>
     <div class="student-background"></div>
     <div class="ui container">
-      <div class="ui segment basic">
+      <div class="sticky">
         <div class="ui menu">
           <a href="/login" class="item active">Login</a>
           <a href="/register" class="item">Register</a>
         </div>
-
+      </div>  
+      <div class="ui segment basic">  
         <form action="/login" method="POST">
           <div class="ui card centered" style="min-width: 600px">
             <div class="content">
