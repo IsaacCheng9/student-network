@@ -4,8 +4,8 @@
 
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <!--
-  <link rel="stylesheet" href={{ url_for('static',
-  filename='styles/semantic.css') }}>
+<link rel="stylesheet" href={{ url_for('static',
+filename='styles/semantic.css') }}>
 -->
   <link
     rel="stylesheet"
@@ -55,6 +55,7 @@
         background-color: #e0e1e2;
         padding: 10px;
       }
+
       .custom-file-upload:hover {
         background-color: #cacbcd;
         cursor: pointer;
@@ -92,11 +93,11 @@
                 <form action="" class="ui form">
                   <div class="field">
                     <label>Bio</label>
-                    <textarea rows="2"></textarea>
+                    <textarea name="bio_input" rows="2"> </textarea>
                   </div>
                   <div class="field">
                     <label>Gender</label>
-                    <select name="" id="">
+                    <select name="gender_input" id="">
                       <option value="">Male</option>
                       <option value="">Female</option>
                       <option value="">Other</option>
@@ -104,11 +105,15 @@
                   </div>
                   <div class="field">
                     <label>Birthday</label>
-                    <input type="date" />
+                    <input name="dob_input" type="date" />
                   </div>
                   <div class="field">
                     <label>Profile Picture</label>
-                    <input type="file" id="profile-picture-upload" />
+                    <input
+                      name="profile_picture_input"
+                      type="file"
+                      id="profile-picture-upload"
+                    />
                     <label
                       for="profile-picture-upload"
                       class="custom-file-upload ui label"
@@ -121,7 +126,7 @@
                   <div class="ui divider"></div>
                   <div class="field">
                     <label>Hobbies</label>
-                    <input type="text" />
+                    <input name="hobbies_input" type="text" />
                     <div class="ui divider hidden"></div>
                     <div class="ui labels teal">
                       <div class="ui label">
@@ -133,7 +138,7 @@
                   <div class="ui divider"></div>
                   <div class="field">
                     <label>Interests</label>
-                    <input type="text" />
+                    <input name="interests_input" type="text" />
                     <div class="ui divider hidden"></div>
                     <div class="ui labels orange">
                       <div class="ui label">

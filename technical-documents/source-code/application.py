@@ -442,6 +442,41 @@ def profile(username):
                            email=email, posts=posts, type=conn_type)
 
 
+@application.route("/profile/<username>/edit", methods=["GET"])
+def edit_profile(username):
+    return render_template("/settings.html")
+
+
+@application.route("/profile/<username>/edit", methods=["POST"])
+def edit_profile(username):
+    # Gets the input data from the edit profile details form.
+    bio = request.form.get("bio_input")
+    gender = request.form.get("gender_input")
+    dob = request.form.get("dob_input")
+    profile_pic = request.form.get("profile_picture_input")
+    hobbies = request.form.get("hobbies_input")
+    interests = request.form.get("interests_input")
+
+    # Applies changes to the user's profile details on the database if valid.
+    valid, messages = validate_edit_profile(username, bio, gender, dob,
+                                            profile_pic, hobbies, interests)
+
+
+@application.route("/logout", methods=["GET"])
+def logout():
+    """
+    Clears the user's session if they are logged in.
+
+    Returns:
+        The web page for logging in if the user logged out of an account.
+    """
+    if "username" in session:
+        session.clear()
+        session["prev-page"] = request.url
+        return render_template("/login.html")
+    return redirect("/")
+
+
 def get_connection_type(username):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -476,22 +511,7 @@ def calculate_age(born):
     """
     today = date.today()
     return today.year - born.year - (
-            (today.month, today.day) < (born.month, born.day))
-
-
-@application.route("/logout", methods=["GET"])
-def logout():
-    """
-    Clears the user's session if they are logged in.
-
-    Returns:
-        The web page for logging in if the user logged out of an account.
-    """
-    if "username" in session:
-        session.clear()
-        session["prev-page"] = request.url
-        return render_template("/login.html")
-    return redirect("/")
+        (today.month, today.day) < (born.month, born.day))
 
 
 def validate_registration(
@@ -572,6 +592,16 @@ def validate_registration(
     if terms is None:
         message.append("You must accept the terms of service!")
         valid = False
+
+    return valid, message
+
+
+def validate_edit_profile(username, bio, gender, dob, profile_pic,
+                          hobbies, interests) -> Tuple[bool, List[str]]:
+    # Editing profile remains valid as long as it isn't caught by any checks.
+    # If not, error messages will be provided to the user.
+    valid = True
+    message = []
 
     return valid, message
 
