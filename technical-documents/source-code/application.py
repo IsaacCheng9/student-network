@@ -442,24 +442,27 @@ def profile(username):
                            email=email, posts=posts, type=conn_type)
 
 
-@application.route("/profile/<username>/edit", methods=["GET"])
+@application.route("/profile/<username>/edit", methods=["GET", "POST"])
 def edit_profile(username):
-    return render_template("/settings.html")
+    if request.method == "GET":
+        return render_template("/settings.html")
 
+    if request.method == "POST":
+        # Gets the input data from the edit profile details form.
+        bio = request.form.get("bio_input")
+        gender = request.form.get("gender_input")
+        dob = request.form.get("dob_input")
+        profile_pic = request.form.get("profile_picture_input")
+        hobbies = request.form.get("hobbies_input")
+        interests = request.form.get("interests_input")
 
-@application.route("/profile/<username>/edit", methods=["POST"])
-def edit_profile(username):
-    # Gets the input data from the edit profile details form.
-    bio = request.form.get("bio_input")
-    gender = request.form.get("gender_input")
-    dob = request.form.get("dob_input")
-    profile_pic = request.form.get("profile_picture_input")
-    hobbies = request.form.get("hobbies_input")
-    interests = request.form.get("interests_input")
+        # Applies changes to the user's profile details on the database if
+        # valid.
+        valid, messages = validate_edit_profile(username, bio, gender, dob,
+                                                profile_pic, hobbies,
+                                                interests)
 
-    # Applies changes to the user's profile details on the database if valid.
-    valid, messages = validate_edit_profile(username, bio, gender, dob,
-                                            profile_pic, hobbies, interests)
+        return render_template("/settings.html")
 
 
 @application.route("/logout", methods=["GET"])
@@ -511,7 +514,7 @@ def calculate_age(born):
     """
     today = date.today()
     return today.year - born.year - (
-        (today.month, today.day) < (born.month, born.day))
+            (today.month, today.day) < (born.month, born.day))
 
 
 def validate_registration(
