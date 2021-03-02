@@ -44,6 +44,12 @@
       .centered {
         text-align: center;
       }
+
+      .sticky {
+        position: sticky; top: 5px;
+        z-index: 99;
+      }
+
     </style>
   </head>
 
@@ -52,7 +58,8 @@
     <div class="pusher">
       <div class="ui container">
         <div class="student-background"></div>
-        <div class="ui segment basic">
+        <!--<div class="ui segment basic">-->
+        <div class="sticky">
           <div class="ui menu">
             {% if not "username" in session %}
             <a href="/login" class="item">Login</a>
@@ -78,6 +85,7 @@
               {%endif%}
             </div>
           </div>
+        </div>
           <div class="ui segment">
             <div class="ui horizontal divider">Your connection requests</div>
             <div class="ui middle aligned divided list">
@@ -114,7 +122,6 @@
               {% endfor %}
             </div>
           </div>
-        </div>
       </div>
     </div>
   </body>

@@ -46,7 +46,7 @@ def login_page():
     session["prev-page"] = request.url
     # Clear error session variables.
     session.pop("error", None)
-    return render_template("/login.html", errors=errors)
+    return render_template("login.html", errors=errors)
 
 
 @application.route("/connect/<username>", methods=["GET", "POST"])
@@ -322,7 +322,7 @@ def post_page():
     """
     if "username" in session:
         session["prev-page"] = request.url
-        return render_template("/post_page.html")
+        return render_template("post_page.html")
     else:
         return redirect("/login")
 
@@ -337,7 +337,7 @@ def feed():
     """
     if "username" in session:
         session["prev-page"] = request.url
-        return render_template("/feed.html")
+        return render_template("feed.html")
     else:
         return redirect("/login")
 
@@ -387,7 +387,7 @@ def profile(username):
             message.append(
                 " Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
-            return render_template("/error.html", message=message)
+            return render_template("error.html", message=message)
         else:
             data = row[0]
             name, bio, gender, birthday, profile_picture = (
@@ -435,31 +435,34 @@ def profile(username):
     session["prev-page"] = request.url
     print(conn_type)
 
-    return render_template("/profile.html", username=username,
+    return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, interests=interests,
                            email=email, posts=posts, type=conn_type)
 
 
-@application.route("/profile/<username>/edit", methods=["GET"])
+@application.route("/profile/<username>/edit", methods=["GET", "POST"])
 def edit_profile(username):
-    return render_template("/settings.html")
+    if request.method == "GET":
+        return render_template("settings.html")
 
+    if request.method == "POST":
+        # Gets the input data from the edit profile details form.
+        bio = request.form.get("bio_input")
+        gender = request.form.get("gender_input")
+        dob = request.form.get("dob_input")
+        profile_pic = request.form.get("profile_picture_input")
+        hobbies = request.form.get("hobbies_input")
+        interests = request.form.get("interests_input")
 
-@application.route("/profile/<username>/edit", methods=["POST"])
-def edit_profile(username):
-    # Gets the input data from the edit profile details form.
-    bio = request.form.get("bio_input")
-    gender = request.form.get("gender_input")
-    dob = request.form.get("dob_input")
-    profile_pic = request.form.get("profile_picture_input")
-    hobbies = request.form.get("hobbies_input")
-    interests = request.form.get("interests_input")
+        # Applies changes to the user's profile details on the database if
+        # valid.
+        valid, messages = validate_edit_profile(username, bio, gender, dob,
+                                                profile_pic, hobbies,
+                                                interests)
 
-    # Applies changes to the user's profile details on the database if valid.
-    valid, messages = validate_edit_profile(username, bio, gender, dob,
-                                            profile_pic, hobbies, interests)
+        return render_template("settings.html")
 
 
 @application.route("/logout", methods=["GET"])
@@ -473,7 +476,7 @@ def logout():
     if "username" in session:
         session.clear()
         session["prev-page"] = request.url
-        return render_template("/login.html")
+        return render_template("login.html")
     return redirect("/")
 
 
@@ -511,7 +514,7 @@ def calculate_age(born):
     """
     today = date.today()
     return today.year - born.year - (
-        (today.month, today.day) < (born.month, born.day))
+            (today.month, today.day) < (born.month, born.day))
 
 
 def validate_registration(
