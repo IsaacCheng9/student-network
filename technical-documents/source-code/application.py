@@ -6,6 +6,7 @@ on their feed.
 import re
 import sqlite3
 from datetime import date, datetime
+from string import capwords
 from typing import Tuple, List
 
 from email_validator import validate_email, EmailNotValidError
@@ -453,16 +454,21 @@ def edit_profile(username):
         gender = request.form.get("gender_input")
         dob = request.form.get("dob_input")
         profile_pic = request.form.get("profile_picture_input")
-        hobbies = request.form.get("hobbies_input")
-        interests = request.form.get("interests_input")
+        hobbies = capwords(request.form.get("hobbies_input"))
+        interests = capwords(request.form.get("interests_input"))
 
-        # Applies changes to the user's profile details on the database if
-        # valid.
-        valid, messages = validate_edit_profile(username, bio, gender, dob,
-                                                profile_pic, hobbies,
-                                                interests)
-
-        return render_template("settings.html")
+        # Connects to the database to perform validation.
+        with sqlite3.connect("database.db") as conn:
+            # Applies changes to the user's profile details on the database if
+            # valid.
+            valid, message = validate_edit_profile(bio, gender, dob,
+                                                   profile_pic, hobbies,
+                                                   interests)
+            if valid is True:
+                conn.commit()
+            else:
+                session["error"] = message
+                return redirect("/profile/<>username>/edit")
 
 
 @application.route("/logout", methods=["GET"])
@@ -599,12 +605,51 @@ def validate_registration(
     return valid, message
 
 
-def validate_edit_profile(username, bio, gender, dob, profile_pic,
+def validate_edit_profile(bio, gender, dob, profile_pic,
                           hobbies, interests) -> Tuple[bool, List[str]]:
+    """
+    Validates the details in the profile editing form.
+
+    Args:
+        bio: The bio input by the user in the form.
+        gender: The gender input selected by the user in the form.
+        dob: The date of birth input selected by the user in the form.
+        profile_pic: The profile picture uploaded by the user in the form.
+        hobbies: The hobby input by the user in the form.
+        interests: The interest input by the user in the form.
+
+    Returns:
+        Whether profile editing was valid, and the error message(s) if not.
+    """
     # Editing profile remains valid as long as it isn't caught by any checks.
     # If not, error messages will be provided to the user.
     valid = True
     message = []
+
+    # Checks that the gender is male, female, or other.
+    if gender not in ["Male", "Female", "Other"]:
+        valid = False
+        message.append("Gender must be male, female, or other!")
+
+    # Checks that date of birth is a past date.
+    if date.today() < dob:
+        valid = False
+        message.append("Date of birth must be a past date!")
+
+    # Checks that the bio has a maximum of 160 characters.
+    if len(bio) > 160:
+        valid = False
+        message.append("Bio must not exceed 160 characters!")
+
+    # Checks that the hobby has a maximum of 24 characters.
+    if len(hobbies) > 24:
+        valid = False
+        message.append("Hobbies must not exceed 24 characters!")
+
+    # Checks that the interest has a maximum of 24 characters.
+    if len(interests) > 24:
+        valid = False
+        message.append("Interests must not exceed 24 characters!")
 
     return valid, message
 
