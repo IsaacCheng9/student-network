@@ -271,7 +271,7 @@ def register_page():
 @application.route("/register", methods=["POST"])
 def register_submit() -> object:
     """
-    Validates the user's input submitted from the registration form.
+    Registers an account using the user's input from the registration form.
 
     Returns:
         The updated web page based on whether the details provided were valid.
@@ -444,10 +444,20 @@ def profile(username):
 
 
 @application.route("/profile/<username>/edit", methods=["GET", "POST"])
-def edit_profile(username):
+def edit_profile(username: str) -> object:
+    """
+    Updates the user's profile using info from the edit profile form.
+
+    Args:
+        username: The username of the profile to edit.
+    Returns:
+        The updated profile page if the details provided were valid.
+    """
+    # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
         return render_template("settings.html")
 
+    # Processes the form if they updated their profile using the form.
     if request.method == "POST":
         # Gets the input data from the edit profile details form.
         bio = request.form.get("bio_input")
@@ -459,13 +469,22 @@ def edit_profile(username):
 
         # Connects to the database to perform validation.
         with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
             # Applies changes to the user's profile details on the database if
             # valid.
             valid, message = validate_edit_profile(bio, gender, dob,
                                                    profile_pic, hobbies,
                                                    interests)
+
+            # Updates the user profile if details are valid.
             if valid is True:
+                cur.execute(
+                    "UPDATE UserProfile SET (bio=?, gender=?, birthday) "
+                    "WHERE username=?",
+                    (bio, gender, dob, username,))
                 conn.commit()
+                return redirect("/profile")
+            # Displays error message(s) stating why their details are invalid.
             else:
                 session["error"] = message
                 return redirect("/profile/<>username>/edit")
