@@ -337,7 +337,26 @@ def feed():
     """
     if "username" in session:
         session["prev-page"] = request.url
-        return render_template("feed.html")
+
+        allPosts = {
+            "AllPosts": []
+        }
+        plural = ""
+        for i in range(1, 50):
+            if i > 1:
+                plural = "s"
+            allPosts["AllPosts"].append({
+                "title": "Post " + str(i),
+                "profile_pic": "https://via.placeholder.com/600",
+                "author": "John Smith",
+                "account_type": "Student",
+                "time_elapsed": str(i) + " day" + plural + " ago",
+                "body": "Lorem ipsum dolor sit amet, consectetur adipisicing elit."
+                        "Reprehenderit alias unde repudiandae quod cumque ducimus qui"
+                        "officia, odit cupiditate mollitia expedita inventore perspiciatis"
+                        "ipsa. Inventore corrupti, suscipit expedita hic quod!"
+            })
+        return render_template("feed.html", posts = allPosts)
     else:
         return redirect("/login")
 
@@ -419,13 +438,16 @@ def profile(username):
         "UserPosts": [
         ]
     }
+    plural = ""
     for i in range(1, 10):
+        if i > 1:
+            plural = "s"
         posts["UserPosts"].append({
             "title": "Post " + str(i),
             "profile_pic": "https://via.placeholder.com/600",
             "author": "John Smith",
             "account_type": "Student",
-            "time_elapsed": str(i) + " days"
+            "time_elapsed": str(i) + " day" + plural + " ago"
         })
 
     # Calculates the user's age based on their date of birth.
