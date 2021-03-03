@@ -85,7 +85,7 @@ def connect_request(username):
 
 
 @application.route("/accept/<username>", methods=["GET", "POST"])
-def accept(username):
+def accept(username) -> object:
     """
     Accepts the connect request from another user on the network.
 
@@ -123,18 +123,32 @@ def accept(username):
 
 
 @application.route("/remove_connection/<username>")
-def remove_connection(username):
+def remove_connection(username: str) -> object:
+    """
+    Removes a connection with the given user.
+
+    Args:
+        username: The user they want to remove the connection with.
+
+    Returns:
+        Redirection to the previous page the user was on.
+    """
+    # Checks that the user isn't trying to remove a connection with
+    # themselves.
     if username != session['username']:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;",
                         (username,))
+
+            # Searches for the connection in the database.
             if cur.fetchone() is not None:
                 row = cur.execute(
                     "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
                     "(user1=? AND user2=?);",
                     (username, session["username"], session["username"],
                      username))
+                # Removes the connection from the database if it exists.
                 if row is not None:
                     cur.execute(
                         "DELETE FROM Connection WHERE (user1=? AND user2=?) "
@@ -142,12 +156,20 @@ def remove_connection(username):
                         (username, session["username"], session["username"],
                          username))
                     conn.commit()
+
     return redirect(session["prev-page"])
 
 
 @application.route("/requests", methods=["GET", "POST"])
-def show_requests():
+def show_requests() -> object:
+    """
+    Shows connect requests made to the user.
+
+    Returns:
+        The web page for viewing connect requests.
+    """
     with sqlite3.connect("database.db") as conn:
+        # Loads the list of connection requests and their avatars.
         requests = []
         avatars = []
         cur = conn.cursor()
@@ -164,6 +186,7 @@ def show_requests():
                 avatars.append(elem[1])
 
     session["prev-page"] = request.url
+
     return render_template("request.html", requests=requests, avatars=avatars)
 
 
@@ -253,18 +276,19 @@ def register_page():
     Returns:
         The web page for user registration.
     """
-    notifs = []
+    notifications = []
     errors = ""
 
-    if "notifs" in session:
-        notifs = session["notifs"]
+    if "notifications" in session:
+        notifications = session["notifications"]
     if "error" in session:
         errors = session["error"]
     session.pop("error", None)
-    session.pop("notifs", None)
+    session.pop("notifications", None)
     session["prev-page"] = request.url
 
-    return render_template("register.html", notifs=notifs, errors=errors)
+    return render_template("register.html", notifications=notifications,
+                           errors=errors)
 
 
 @application.route("/register", methods=["POST"])
@@ -304,7 +328,7 @@ def register_submit() -> object:
                     "Male",
                     "01/01/1970", "/static/images/default-pfp.jpg",))
             conn.commit()
-            session["notifs"] = ["register"]
+            session["notifications"] = ["register"]
             return redirect("/register")
         # Displays error message(s) stating why their details are invalid.
         else:
@@ -431,6 +455,8 @@ def profile(username):
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
     age = calculate_age(datetime_object)
+
+    # Gets the connection type with the user to show their relationship.
     conn_type = get_connection_type(username)
     session["prev-page"] = request.url
     print(conn_type)
@@ -480,13 +506,24 @@ def logout():
     return redirect("/")
 
 
-def get_connection_type(username):
+def get_connection_type(username: str):
+    """
+    Checks what type of connection the user has with the specified user.
+
+    Args:
+        username: The user to check the connection type with.
+
+    Returns:
+        The type of connection with the specified user.
+    """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT connection_type FROM Connection WHERE user1=? "
             "AND user2=?", (session["username"], username,))
         conn.commit()
+
+        # Checks if there is a connection between the two users.
         row = cur.fetchone()
         if row is not None:
             return row[0]
