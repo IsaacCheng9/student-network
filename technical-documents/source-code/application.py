@@ -408,11 +408,12 @@ def profile(username):
     if len(row) > 0:
         interests = row
 
-        cur.execute("SELECT email from ACCOUNTS WHERE username=?;",
-                    (username,))
-        row = cur.fetchall()
-        if len(row) > 0:
-            email = row[0][0]
+    cur.execute("SELECT email from ACCOUNTS WHERE username=?;",
+                (username,))
+    row = cur.fetchall()
+
+    if len(row) > 0:
+        email = row[0][0]
 
     # TODO: db search query in posts table for all the users posts
     # TODO: store all the users posts in a json file

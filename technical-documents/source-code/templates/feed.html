@@ -1,110 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
-  <meta charset="UTF-8" />
-  <head>
+<meta charset="UTF-8" />
+
+<head>
     <title>Student Network - Feed</title>
-  </head>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="{{ url_for('static', filename='styles/semantic.css') }}"
-  />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
-  />
+</head>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/semantic.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" />
 
-  <style>
+<style>
     .student-background {
-      background-image: url("{{ url_for('static', filename='images/background_blue.png') }}") !important;
+        background-image: url("{{ url_for('static', filename='images/background_blue.png') }}") !important;
 
-      height: 100%;
+        height: 100%;
 
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
 
-      position: fixed;
-      z-index: -1;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
+        position: fixed;
+        z-index: -1;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
     }
 
     .centered {
-      text-align: center;
+        text-align: center;
     }
 
     .sticky {
-        position: sticky; top: 5px;
+        position: sticky;
+        top: 5px;
         z-index: 99;
     }
 
-  </style>
+</style>
 
-  <body>
+<body>
     <div class="student-background"></div>
     <div class="ui container">
-      <!--<div class="ui segment basic">-->
+        <!--<div class="ui segment basic">-->
         <div class="sticky">
             <div class="ui menu">
-            {% if not "username" in session %}
-            <a href="/login" class="item">Login</a>
-            {%endif%}
-            <a href="/profile" class="item">Profile</a>
-            <a href="/requests" class="item">Connect Requests</a>
-            <a href="/feed" class="active item">Feed</a>
-            <div class="right menu">
-                <div class="ui item">
-                <div class="ui transparent icon input">
-                    <input
-                    class="prompt"
-                    type="text"
-                    id="search"
-                    placeholder="Search for a user"
-                    />
-                    <i class="search link icon"></i>
-                </div>
-                </div>
-                {% if session["username"] %}
-                <a class="ui item"> Logged in as {{session["username"]}} </a>
-                <a href="/logout" class="ui item">Logout</a>
+                {% if not "username" in session %}
+                <a href="/login" class="item">Login</a>
                 {%endif%}
-            </div>
+                <a href="/profile" class="item">Profile</a>
+                <a href="/requests" class="item">Connect Requests</a>
+                <a href="/feed" class="active item">Feed</a>
+                <div class="right menu">
+                    <div class="ui item">
+                        <div class="ui transparent icon input">
+                            <input class="prompt" type="text" id="search" placeholder="Search for a user" />
+                            <i class="search link icon"></i>
+                        </div>
+                    </div>
+                    {% if session["username"] %}
+                    <a class="ui item"> Logged in as {{session["username"]}} </a>
+                    <a href="/logout" class="ui item">Logout</a>
+                    {%endif%}
+                </div>
             </div>
         </div>
 
         <div class="ui segment">
-          <div class="ui grid">
-            <div class="two wide column">
-              <img
-                class="ui image centered rounded"
-                src="https://via.placeholder.com/500"
-                alt=""
-              />
+            <div class="ui segment basic">
+                <form action="" class="ui form">
+                    <div class="field">
+                        <textarea placeholder="What's on your mind?" name="" id="" cols="3" rows="5"></textarea>
+                    </div>
+                    <div class="field">
+                        <button class="ui button teal">Post</button>
+                    </div>
+                </form>
             </div>
-            <div class="fourteen wide column">
-              <h2>
-                <a href=""
-                  >Lorem ipsum dolor sit amet, consectetur adipisicing elit.</a
-                >
-                <div style="float: right">5 hours ago</div>
-              </h2>
-              <div class="ui label blue">
-                user123
-                <div class="detail">Student</div>
-              </div>
-              <div class="ui horizontal divider"></div>
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-              Reprehenderit alias unde repudiandae quod cumque ducimus qui
-              officia, odit cupiditate mollitia expedita inventore perspiciatis
-              ipsa. Inventore corrupti, suscipit expedita hic quod!
+            <div class="ui horizontal divider">Posts</div>
+            <div class="ui grid">
+                <div class="two wide column">
+                    <img class="ui image centered rounded" src="https://via.placeholder.com/500" alt="" />
+                </div>
+                <div class="fourteen wide column">
+                    <h2>
+                        <a href="">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</a>
+                        <div style="float: right">5 hours ago</div>
+                    </h2>
+                    <div class="ui label blue">
+                        user123
+                        <div class="detail">Student</div>
+                    </div>
+                    <div class="ui horizontal divider"></div>
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                    Reprehenderit alias unde repudiandae quod cumque ducimus qui
+                    officia, odit cupiditate mollitia expedita inventore perspiciatis
+                    ipsa. Inventore corrupti, suscipit expedita hic quod!
+                </div>
             </div>
-          </div>
         </div>
     </div>
-  </body>
-  <script type="text/javascript" src="static/searchbar.js"></script>
+</body>
+<script type="text/javascript" src="static/searchbar.js"></script>
+
 </html>
