@@ -335,14 +335,16 @@ def feed():
     Returns:
         Redirection to their feed if they're logged in.
     """
+    
     if "username" in session:
         session["prev-page"] = request.url
-
+        
+        # TODO: db search query in posts table for all the user's connections posts
         allPosts = {
             "AllPosts": []
         }
         plural = ""
-        for i in range(1, 50):
+        for i in range(1, 50):  # Load 50 most recent posts
             if i > 1:
                 plural = "s"
             allPosts["AllPosts"].append({
