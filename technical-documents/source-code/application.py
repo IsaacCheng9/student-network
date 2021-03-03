@@ -462,10 +462,14 @@ def edit_profile(username: str) -> object:
         # Gets the input data from the edit profile details form.
         bio = request.form.get("bio_input")
         gender = request.form.get("gender_input")
-        dob = request.form.get("dob_input")
+        dob_input = request.form.get("dob_input")
+        dob = datetime.strptime(dob_input, "%Y-%m-%d").date()
         profile_pic = request.form.get("profile_picture_input")
         hobbies = capwords(request.form.get("hobbies_input"))
         interests = capwords(request.form.get("interests_input"))
+
+        # TODO: Remove print statement (used for testing).
+        print(bio, gender, dob)
 
         # Connects to the database to perform validation.
         with sqlite3.connect("database.db") as conn:
@@ -475,19 +479,23 @@ def edit_profile(username: str) -> object:
             valid, message = validate_edit_profile(bio, gender, dob,
                                                    profile_pic, hobbies,
                                                    interests)
-
+            # TODO: Remove line (used for testing).
+            valid = True
             # Updates the user profile if details are valid.
             if valid is True:
+                """cur.execute(
+                    "UPDATE UserProfile SET bio=%s, gender=%s, birthday=%s "
+                    "WHERE username=%s" %
+                    (bio, gender, dob, username,),)"""
                 cur.execute(
-                    "UPDATE UserProfile SET (bio=?, gender=?, birthday) "
-                    "WHERE username=?",
-                    (bio, gender, dob, username,))
+                    "UPDATE UserProfile SET bio=bio, gender=gender, "
+                    "birthday=dob WHERE username=username")
                 conn.commit()
                 return redirect("/profile")
             # Displays error message(s) stating why their details are invalid.
             else:
                 session["error"] = message
-                return redirect("/profile/<>username>/edit")
+                return redirect("/profile/<username>/edit")
 
 
 @application.route("/logout", methods=["GET"])
