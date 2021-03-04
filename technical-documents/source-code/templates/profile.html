@@ -220,23 +220,23 @@
                 </div>
                 <div class="ui segment basic">
                     <div class="column">
-                        <h3 class="ui header">Posts</h3>
+                        <div class="ui horizontal divider">Posts</div>
                         {% for post in posts.UserPosts %}
-                        <div class="ui cards">
-                            <div class="ui fluid card">
-                                <div class="content">
-                                    <div class="header">
-                                        {{ post.title }}
-                                    </div>
-                                    <div class="right floated meta">
-                                        <a class="ui blue image label spaced basic">
-                                            <img src={{ post.profile_pic }} /> {{ post.author }}
-                                            <div class="detail">{{ post.account_type }}</div>
-                                        </a>
-                                    </div>
-                                    <div class="ui divider hidden"></div>
-                                    <div class="right floated meta">{{ post.time_elapsed }}</div>
+                        <div class="ui grid">
+                            <div class="two wide column">
+                                <img class="ui image centered rounded" src="https://via.placeholder.com/500" alt="" />
+                            </div>
+                            <div class="fourteen wide column">
+                                <h2>
+                                    <a href="">{{ post.title }}</a>
+                                    <div style="float: right">{{ post.date_posted }}</div>
+                                </h2>
+                                <div class="ui label blue">
+                                    {{ post.author }}
+                                    <div class="detail">{{ post.account_type }}</div>
                                 </div>
+                                <br>
+                                {{ post.body }}
                             </div>
                         </div>
                         {% endfor %}

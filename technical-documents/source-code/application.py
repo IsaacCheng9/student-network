@@ -336,31 +336,72 @@ def feed():
         Redirection to their feed if they're logged in.
     """
     
+
     if "username" in session:
         session["prev-page"] = request.url
-        
-        # TODO: db search query in posts table for all the user's connections posts
-        allPosts = {
-            "AllPosts": []
-        }
-        plural = ""
-        for i in range(1, 50):  # Load 50 most recent posts
-            if i > 1:
-                plural = "s"
-            allPosts["AllPosts"].append({
-                "title": "Post " + str(i),
+
+        username = session["username"]
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            #TODO: edit select statement to only include users connected to the current user when feature is built
+            cur.execute(
+            "SELECT postID, title, body, username, date FROM POSTS")
+            row = cur.fetchall()
+            i=0
+            allPosts = {
+                "AllPosts": []
+            }
+            #TODO: account type differentiation in posts db
+            for post in reversed(row):
+                if i == 20:
+                    break
+                allPosts["AllPosts"].append({
+                "title": post[1],
                 "profile_pic": "https://via.placeholder.com/600",
-                "author": "John Smith",
+                "author": post[3],
                 "account_type": "Student",
-                "time_elapsed": str(i) + " day" + plural + " ago",
-                "body": "Lorem ipsum dolor sit amet, consectetur adipisicing elit."
-                        "Reprehenderit alias unde repudiandae quod cumque ducimus qui"
-                        "officia, odit cupiditate mollitia expedita inventore perspiciatis"
-                        "ipsa. Inventore corrupti, suscipit expedita hic quod!"
-            })
+                "date_posted": post[4],
+                "body": (post[2])[:250] + "..."
+                })
+                i+=1
+                
+                
         return render_template("feed.html", posts = allPosts)
     else:
         return redirect("/login")
+
+@application.route("/submit_post", methods=["POST"])
+def submit_post():
+    """
+    Submit post on social wall to database.
+
+    Returns:
+        Updated feed with new post added
+    """
+    try:
+        postTitle = request.form["post_title"]
+        postBody = request.form["post_text"]
+
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute(
+            "SELECT MAX(postID) FROM POSTS")
+            row = cur.fetchone()
+            if row[0] is None:
+                nextID = 0
+            else:
+                nextID = row[0] + 1
+            #TODO: 6th value in table is privacy setting and 7th is account type. 
+            #Currently is default - public/student but no functionality
+            cur.execute("INSERT INTO POSTS (postID, title, body, username, date) "
+                "VALUES (?, ?, ?, ?, ?);", (nextID, postTitle, postBody, session["username"], date.today(),))
+
+        conn.commit()
+    except:
+        conn.rollback()
+        print("error in insert operation")
+    finally:
+        return redirect("/feed")
 
 
 @application.route("/profile", methods=["GET"])
@@ -434,23 +475,26 @@ def profile(username):
         if len(row) > 0:
             email = row[0][0]
 
-    # TODO: db search query in posts table for all the users posts
     # TODO: store all the users posts in a json file
-    posts = {
-        "UserPosts": [
-        ]
+    cur.execute(
+    "SELECT postID, title, body, username, date FROM "
+    "POSTS WHERE username=?;", (username,))
+    row = cur.fetchall()
+    i=0
+    userPosts = {
+        "UserPosts": []
     }
-    plural = ""
-    for i in range(1, 10):
-        if i > 1:
-            plural = "s"
-        posts["UserPosts"].append({
-            "title": "Post " + str(i),
-            "profile_pic": "https://via.placeholder.com/600",
-            "author": "John Smith",
-            "account_type": "Student",
-            "time_elapsed": str(i) + " day" + plural + " ago"
+    #TODO: account type differentiation in posts db
+    for post in reversed(row):
+        userPosts["UserPosts"].append({
+        "title": post[1],
+        "profile_pic": "https://via.placeholder.com/600",
+        "author": post[3],
+        "account_type": "Student",
+        "date_posted": post[4],
+        "body": (post[2])[:250] + "..."
         })
+        i+=1
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
@@ -463,7 +507,7 @@ def profile(username):
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, interests=interests,
-                           email=email, posts=posts, type=conn_type)
+                           email=email, posts=userPosts, type=conn_type)
 
 
 @application.route("/profile/<username>/edit", methods=["GET", "POST"])
