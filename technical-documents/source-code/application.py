@@ -631,7 +631,7 @@ def getLevel(username)->Tuple[str,str,str]:
         xp next level
     """
     level = ""
-    current_xp =""
+    current_xp = ""
     xp_next_level = ""
     message = []
     with sqlite3.connect("database.db") as conn:
@@ -650,13 +650,20 @@ def getLevel(username)->Tuple[str,str,str]:
             current_xp = data[0] 
             cur.execute(
             "SELECT level, experience FROM "
-            "Levels WHERE  experience < ?;", (current_xp,))
-            row = cur.fetchall()
-            data = row[0]
-            level, xp_next_level  = (data[0], data[1])
-            return [level, current_xp,level, xp_next_level]
-        
-
-
+            "Levels WHERE  experience > ?;", (current_xp,))
+            row = cur.fetchone()
+            if row is None:
+                cur.execute("INSERT INTO Levels"
+                "VALUES( (1+(SELECT MAX(level)FROM Levels)),"
+                "(50*(SELECT MAX(level)FROM Levels)"
+                    "+(SELECT MAX(experience)FROM Levels)))")
+                cur.execute(
+                "SELECT level, experience FROM "
+                "Levels WHERE  experience > ?;", (current_xp,))
+                row = cur.fetchone()
+            level  = row[0]
+            xp_next_level = row[1]
+            return [level, current_xp, xp_next_level]
+            
 if __name__ == "__main__":
     application.run(debug=True)
