@@ -80,11 +80,11 @@
           <div class="ui segment basic">
             <div class="content">
               <form action="{{ url_for('submit_post') }}" class="ui form", method="POST">
-                <div class="field">
-                  <input placeholder="Give your post a title" type="text" name="post_title"></input>
+                <div class="required field">
+                  <input placeholder="Your post needs a title" type="text" name="post_title"></input>
                 </div> 
                 <div class="field">
-                  <textarea placeholder="Write the body of your post here" name="post_text" id="" cols="3" rows="5"></textarea>
+                  <textarea placeholder="Write an optional body for your post here" name="post_text" id="" cols="3" rows="5"></textarea>
                 </div>
                 <input type="submit" value="Post" class="ui button teal"></button>
               </form>

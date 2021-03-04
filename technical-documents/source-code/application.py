@@ -381,21 +381,20 @@ def submit_post():
     try:
         postTitle = request.form["post_title"]
         postBody = request.form["post_text"]
-
-        with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-            cur.execute(
-            "SELECT MAX(postID) FROM POSTS")
-            row = cur.fetchone()
-            if row[0] is None:
-                nextID = 0
-            else:
-                nextID = row[0] + 1
-            #TODO: 6th value in table is privacy setting and 7th is account type. 
-            #Currently is default - public/student but no functionality
-            cur.execute("INSERT INTO POSTS (postID, title, body, username, date) "
-                "VALUES (?, ?, ?, ?, ?);", (nextID, postTitle, postBody, session["username"], date.today(),))
-
+        if postTitle != "":
+            with sqlite3.connect("database.db") as conn:
+                cur = conn.cursor()
+                cur.execute(
+                "SELECT MAX(postID) FROM POSTS")
+                row = cur.fetchone()
+                if row[0] is None:
+                    nextID = 0
+                else:
+                    nextID = row[0] + 1
+                #TODO: 6th value in table is privacy setting and 7th is account type. 
+                #Currently is default - public/student but no functionality
+                cur.execute("INSERT INTO POSTS (postID, title, body, username, date) "
+                    "VALUES (?, ?, ?, ?, ?);", (nextID, postTitle, postBody, session["username"], date.today(),))
         conn.commit()
     except:
         conn.rollback()
