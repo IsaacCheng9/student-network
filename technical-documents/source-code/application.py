@@ -371,6 +371,10 @@ def profile(username):
     birthday = ""
     profile_picture = ""
     email = ""
+    xp_next_level = ""
+    current_xp = ""
+    level =""
+    level_data = []
     hobbies = []
     interests = []
     message = []
@@ -435,11 +439,15 @@ def profile(username):
     session["prev-page"] = request.url
     print(conn_type)
 
+    level_data = getLevel(username)
+    level = level_data[0]
+    current_xp = level_data[1]
+    xp_next_level = level_data[2]
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, interests=interests,
-                           email=email, posts=posts, type=conn_type)
+                           email=email, level=level, current_xp = current_xp, xp_next_level = xp_next_level, posts=posts, type=conn_type)
 
 
 @application.route("/profile/<username>/edit", methods=["GET", "POST"])
@@ -607,6 +615,36 @@ def validate_edit_profile(username, bio, gender, dob, profile_pic,
     message = []
 
     return valid, message
+
+
+def getLevel(username)->Tuple[str,str,str]:
+
+    level = ""
+    current_xp =""
+    xp_next_level = ""
+    
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        #Get user experience
+        cur.execute(
+            "SELECT experience FROM "
+            "ACCOUNT WHERE username=?;", (username,))
+        row = cur.fetchall()
+        if len(row) == 0:
+            message.append("Problem with getting level")
+            session["prev-page"] = request.url
+            return render_template("error.html", message=message)        
+        else:
+            data = row[0]
+            current_xp = data[0] 
+            cur.execute(
+            "SELECT level, experience FROM "
+            "Levels WHERE  experience < ?;", (current_xp,))
+            row = cur.fetchall()
+            data = row[0]
+            level, xp_next_level  = (data[0], data[1])
+            return [level, current_xp,level, xp_next_level]
+        
 
 
 if __name__ == "__main__":
