@@ -466,10 +466,9 @@ def edit_profile(username):
 
         # Applies changes to the user's profile details on the database if
         # valid.
-        valid, messages = validate_edit_profile(username, bio, gender, dob,
+        validate_edit_profile(username, bio, gender, dob,
                                                 profile_pic, hobbies,
                                                 interests)
-
         return render_template("settings.html")
 
 
