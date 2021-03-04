@@ -618,17 +618,28 @@ def validate_edit_profile(username, bio, gender, dob, profile_pic,
 
 
 def getLevel(username)->Tuple[str,str,str]:
+    """
+    gets the current user experience points, the experience points
+    for the next level and the user's current level from the database
 
+    Args:
+        username: username of the user logged in
+
+    Returns:
+        level
+        current xp
+        xp next level
+    """
     level = ""
     current_xp =""
     xp_next_level = ""
-    
+    message = []
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         #Get user experience
         cur.execute(
             "SELECT experience FROM "
-            "ACCOUNT WHERE username=?;", (username,))
+            "UserLevel WHERE username=?;", (username,))
         row = cur.fetchall()
         if len(row) == 0:
             message.append("Problem with getting level")
