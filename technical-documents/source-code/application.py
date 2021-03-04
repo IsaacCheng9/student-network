@@ -303,6 +303,9 @@ def register_submit() -> object:
                     username, fullname, "Change your bio in the settings.",
                     "Male",
                     "01/01/1970", "/static/images/default-pfp.jpg",))
+            cur.execute(
+                "INSERT INTO Userlevel (username, experience) "
+                "VALUES (?, 0);", ( username,))
             conn.commit()
             session["notifs"] = ["register"]
             return redirect("/register")
@@ -447,7 +450,7 @@ def profile(username):
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, interests=interests,
-                           email=email, level=level, current_xp = current_xp, xp_next_level = xp_next_level, posts=posts, type=conn_type)
+                           email=email, level=level, current_xp =  int(current_xp), xp_next_level = int(xp_next_level), posts=posts, type=conn_type)
 
 
 @application.route("/profile/<username>/edit", methods=["GET", "POST"])
@@ -651,7 +654,7 @@ def getLevel(username)->Tuple[str,str,str]:
             "SELECT level, experience FROM "
             "Levels WHERE  experience > ?;", (current_xp,))
             row = cur.fetchone()
-            if row is None:
+            if row is None: 
                 cur.execute("INSERT INTO Levels"
                 "VALUES( (1+(SELECT MAX(level)FROM Levels)),"
                 "(50*(SELECT MAX(level)FROM Levels)"
