@@ -41,12 +41,16 @@ def login_page():
         The web page for user login.
     """
     errors = []
-    if "error" in session:
-        errors = session["error"]
-    session["prev-page"] = request.url
-    # Clear error session variables.
-    session.pop("error", None)
-    return render_template("login.html", errors=errors)
+    if "username" in session:
+        return redirect("/profile")
+    else:
+        if "error" in session:
+            errors = session["error"]
+        session["prev-page"] = request.url
+        # Clear error session variables.
+        session.pop("error", None)
+        return render_template("login.html", errors=errors)
+        
 
 
 @application.route("/connect/<username>", methods=["GET", "POST"])
@@ -278,17 +282,19 @@ def register_page():
     """
     notifications = []
     errors = ""
+    if "username" in session:
+        return redirect("/profile")
+    else:
+        if "notifications" in session:
+            notifications = session["notifications"]
+        if "error" in session:
+            errors = session["error"]
+        session.pop("error", None)
+        session.pop("notifications", None)
+        session["prev-page"] = request.url
 
-    if "notifications" in session:
-        notifications = session["notifications"]
-    if "error" in session:
-        errors = session["error"]
-    session.pop("error", None)
-    session.pop("notifications", None)
-    session["prev-page"] = request.url
-
-    return render_template("register.html", notifications=notifications,
-                           errors=errors)
+        return render_template("register.html", notifications=notifications,
+                            errors=errors)
 
 
 @application.route("/register", methods=["POST"])
