@@ -231,10 +231,11 @@
                                     <a href="/post_page/{{ post.postId }}">{{ post.title }}</a>
                                     <div style="float: right">{{ post.date_posted }}</div>
                                 </h2>
+                                <a href="/profile/{{ post.author }}">
                                 <div class="ui label blue">
                                     {{ post.author }}
                                     <div class="detail">{{ post.account_type }}</div>
-                                </div>
+                                </div></a>
                                 <br>
                                 {{ post.body }}
                             </div>
