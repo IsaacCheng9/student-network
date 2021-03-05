@@ -222,13 +222,13 @@
                     <div class="column">
                         <div class="ui horizontal divider">Posts</div>
                         {% for post in posts.UserPosts %}
-                        <div class="ui grid">
+                        <div class="ui grid" >
                             <div class="two wide column">
                                 <img class="ui image centered rounded" src="https://via.placeholder.com/500" alt="" />
                             </div>
                             <div class="fourteen wide column">
                                 <h2>
-                                    <a href="">{{ post.title }}</a>
+                                    <a href="/post_page/{{ post.postId }}">{{ post.title }}</a>
                                     <div style="float: right">{{ post.date_posted }}</div>
                                 </h2>
                                 <div class="ui label blue">

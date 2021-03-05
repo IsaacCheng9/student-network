@@ -315,16 +315,42 @@ def register_submit() -> object:
 @application.route("/post_page", methods=["GET"])
 def post_page():
     """
-    Checks the user is logged in before viewing their post page.
+    Redirects user to feed if the post id is missing.
 
     Returns:
-        The web page for their post if they're logged in.
+        The web page for their feed.
     """
-    if "username" in session:
-        session["prev-page"] = request.url
-        return render_template("post_page.html")
-    else:
-        return redirect("/login")
+    session["prev-page"] = request.url
+    return render_template("feed.html")
+
+
+@application.route("/post_page/<postId>", methods=["GET"])
+def post(postId):
+    """
+    Checks the user is logged in before viewing their profile page.
+
+    Returns:
+        Redirection to their profile if they're logged in.
+    """
+    message = []
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        # Gets user from database using username.
+        cur.execute(
+            "SELECT title, body, username, date "
+            "FROM POSTS WHERE postId=?;", (postId,))
+        row = cur.fetchall()
+        if len(row) == 0:
+            message.append("This post does note exist.")
+            message.append(" Please ensure you have entered the name correctly.")
+            session["prev-page"] = request.url
+            return render_template("error.html", message=message)
+        else:
+            data = row[0]
+            title, body, username, date = (
+                data[0], data[1], data[2], data[3])
+            return render_template("post_page.html", title=title, body=body, username=username, date=date)
+
 
 
 @application.route("/feed", methods=["GET"])
@@ -336,7 +362,6 @@ def feed():
         Redirection to their feed if they're logged in.
     """
     
-
     if "username" in session:
         session["prev-page"] = request.url
 
@@ -344,8 +369,7 @@ def feed():
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             #TODO: edit select statement to only include users connected to the current user when feature is built
-            cur.execute(
-            "SELECT postID, title, body, username, date FROM POSTS")
+            cur.execute("SELECT postId, title, body, username, date FROM POSTS")
             row = cur.fetchall()
             i=0
             allPosts = {
@@ -356,6 +380,7 @@ def feed():
                 if i == 20:
                     break
                 allPosts["AllPosts"].append({
+                "postId":post[0],
                 "title": post[1],
                 "profile_pic": "https://via.placeholder.com/600",
                 "author": post[3],
@@ -363,9 +388,7 @@ def feed():
                 "date_posted": post[4],
                 "body": (post[2])[:250] + "..."
                 })
-                i+=1
-                
-                
+                i+=1        
         return render_template("feed.html", posts = allPosts)
     else:
         return redirect("/login")
@@ -385,7 +408,7 @@ def submit_post():
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
                 cur.execute(
-                "SELECT MAX(postID) FROM POSTS")
+                "SELECT MAX(postId) FROM POSTS")
                 row = cur.fetchone()
                 if row[0] is None:
                     nextID = 0
@@ -393,7 +416,7 @@ def submit_post():
                     nextID = row[0] + 1
                 #TODO: 6th value in table is privacy setting and 7th is account type. 
                 #Currently is default - public/student but no functionality
-                cur.execute("INSERT INTO POSTS (postID, title, body, username, date) "
+                cur.execute("INSERT INTO POSTS (postId, title, body, username, date) "
                     "VALUES (?, ?, ?, ?, ?);", (nextID, postTitle, postBody, session["username"], date.today(),))
         conn.commit()
     except:
@@ -476,7 +499,7 @@ def profile(username):
 
     # TODO: store all the users posts in a json file
     cur.execute(
-    "SELECT postID, title, body, username, date FROM "
+    "SELECT postId, title, body, username, date FROM "
     "POSTS WHERE username=?;", (username,))
     row = cur.fetchall()
     i=0
@@ -486,6 +509,7 @@ def profile(username):
     #TODO: account type differentiation in posts db
     for post in reversed(row):
         userPosts["UserPosts"].append({
+        "postId":post[0],
         "title": post[1],
         "profile_pic": "https://via.placeholder.com/600",
         "author": post[3],
@@ -525,8 +549,7 @@ def edit_profile(username):
 
         # Applies changes to the user's profile details on the database if
         # valid.
-        valid, messages = validate_edit_profile(username, bio, gender, dob,
-                                                profile_pic, hobbies,
+        validate_edit_profile(username, bio, gender, dob, profile_pic, hobbies,
                                                 interests)
 
         return render_template("settings.html")
