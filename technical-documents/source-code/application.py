@@ -316,8 +316,8 @@ def register_submit() -> object:
     # Connects to the database to perform validation.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        valid, message = validate_registration(cur, username, password,
-                                               password_confirm,
+        valid, message = validate_registration(cur, username, fullname,
+                                               password, password_confirm,
                                                email, terms)
         # Registers the user if the details are valid.
         if valid is True:
@@ -561,7 +561,7 @@ def calculate_age(born):
 
 
 def validate_registration(
-        cur, username: str, password: str, password_confirm: str,
+        cur, username: str, fullname:str, password: str, password_confirm: str,
         email: str, terms: str) -> Tuple[bool, List[str]]:
     """
     Validates the registration details to ensure that the email address is
@@ -585,8 +585,8 @@ def validate_registration(
     message = []
 
     # Checks that there are no null inputs.
-    if (username == "" or password == "" or password_confirm == "" or
-            email == ""):
+    if (username == "" or fullname == "" or password == "" or 
+        password_confirm == "" or email == ""):
         message.append("Not all fields have been filled in!")
         valid = False
 
@@ -599,6 +599,12 @@ def validate_registration(
     cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
     if cur.fetchone() is not None:
         message.append("Username has already been registered!")
+        valid = False
+
+    # Checks that the fullname only contains valid characters.
+    if not all(x.isalpha() or x.isspace() for x in fullname):
+        message.append("Full Name must only contain letters, numbers and"
+        " spaces!")
         valid = False
 
     # Checks that the email address has the correct format, checks whether it
