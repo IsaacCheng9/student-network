@@ -52,6 +52,38 @@ def login_page():
         return render_template("login.html", errors=errors)
         
 
+@application.route("/close_connection/<username>", methods=["GET", "POST"])
+def close_connection(username):
+    """
+    Sends a connect request to another user on the network.
+
+    Args:
+        username: The username of the person to request a connection with.
+
+    Returns:
+        Redirection to the profile of the user they want to connect with.
+    """
+    if session["username"] != username:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM Accounts WHERE username=?;",
+                        (username,))
+            if cur.fetchone() is not None:
+                conn_type = get_connection_type(username)
+                if conn_type == "connected":
+                    cur.execute(
+                        "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
+                        (session["username"], username))
+                    if cur.fetchone() is None:
+                        # Gets user from database using username.
+                        cur.execute(
+                            "INSERT INTO CloseFriend (user1, user2) VALUES (?,?);",
+                            (session["username"], username,))
+                        conn.commit()
+                        session["add"] = True
+        session["add"] = "You can't connect with yourself!"
+    return redirect("/profile/" + username)
+
 
 @application.route("/connect/<username>", methods=["GET", "POST"])
 def connect_request(username):
@@ -123,6 +155,37 @@ def accept(username) -> object:
                     session["add"] = True
     else:
         session["add"] = "You can't connect with yourself!"
+    return redirect(session["prev-page"])
+
+
+@application.route("/remove_close/<username>")
+def remove_close(username: str) -> object:
+    """
+    Removes a connection with the given user.
+
+    Args:
+        username: The user they want to remove the connection with.
+
+    Returns:
+        Redirection to the previous page the user was on.
+    """
+    # Checks that the user isn't trying to remove a connection with
+    # themselves.
+    if username != session['username']:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM Accounts WHERE username=?;",
+                        (username,))
+            # Searches for the connection in the database.
+        if get_connection_type(username) == "connected":
+                cur.execute(
+                "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
+                (session["username"], username))
+                if cur.fetchone() is not None:
+                    cur.execute(
+                        "DELETE FROM CloseFriend WHERE (user1=? AND user2=?);",
+                        (session["username"], username))
+                    conn.commit()
     return redirect(session["prev-page"])
 
 
@@ -463,7 +526,13 @@ def profile(username):
     age = calculate_age(datetime_object)
 
     # Gets the connection type with the user to show their relationship.
-    conn_type = get_connection_type(username)
+    cur.execute(
+    "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
+    (session["username"], username))
+    if cur.fetchone() is None:
+        conn_type = get_connection_type(username)
+    else:
+        conn_type = "close"
     session["prev-page"] = request.url
     print(conn_type)
 
