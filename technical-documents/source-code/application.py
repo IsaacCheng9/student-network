@@ -431,7 +431,9 @@ def post(postId):
             message.append("This post does note exist.")
             message.append(" Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
-            return render_template("error.html", message=message)
+            return render_template("error.html", message=message, 
+                                requestCount=get_connection_request_count(),
+                               allUsernames=get_all_usernames())
         else:
             data = row[0]
             title, body, username, date, account_type = (data[0], data[1],
@@ -444,7 +446,7 @@ def post(postId):
             if len(row) == 0:
                 return render_template("post_page.html", postId=postId,title=title, 
                                         body=body, username=username, date=date, 
-                                        account_type = account_type, comments = None)
+                                        account_type = account_type, comments = None, )
             for comment in row:
                 if i == 20:
                     break
@@ -460,7 +462,6 @@ def post(postId):
             return render_template("post_page.html", author = author, postId=postId, title=title, body=body, username=username, date=date, comments = comments)
 
 
-
 @application.route("/feed", methods=["GET"])
 def feed():
     """
@@ -469,7 +470,6 @@ def feed():
     Returns:
         Redirection to their feed if they're logged in.
     """
-    
     if "username" in session:
         session["prev-page"] = request.url
 
@@ -497,7 +497,8 @@ def feed():
                 "body": (post[2])[:250] + "..."
                 })
                 i+=1        
-        return render_template("feed.html", posts = allPosts, requestCount=GetConnectionRequestCount(), allUsernames=GetAllUsernames())
+        return render_template("feed.html", posts = allPosts, requestCount=get_connection_request_count(),
+                               allUsernames=get_all_usernames())
     else:
         return redirect("/login")
 
@@ -940,6 +941,32 @@ def GetConnectionRequestCount():
         return len(list(cur.fetchall()))
 
     return 0
+
+
+
+def get_all_usernames():
+    """Returns a list of all usernames that are registered"""
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT username FROM Accounts")
+
+        row = cur.fetchall()
+
+        return row
+
+
+def get_connection_request_count():
+    """
+        Returns amount of pending connection requests for a logged in user
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM Connection WHERE user2=? AND connection_type='request';",
+            (session["username"],))
+
+        return len(list(cur.fetchall()))
+
 
 if __name__ == "__main__":
     application.run(debug=True)

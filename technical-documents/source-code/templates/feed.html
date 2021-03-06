@@ -3,46 +3,40 @@
 {% block content %}
 <div class="ui segment">
     <div class="ui grid">
-        <div class="two wide column">
-            <img class="ui image centered rounded" src="https://via.placeholder.com/500" alt="" />
-        </div>
-
-        <div class="ui segment">
-          <div class="ui segment basic">
-            <div class="content">
-              <form action="{{ url_for('submit_post') }}" class="ui form", method="POST">
-                <div class="required field">
-                  <input placeholder="Your post needs a title" type="text" name="post_title"></input>
-                </div> 
-                <div class="field">
-                  <textarea placeholder="Write an optional body for your post here" name="post_text" id="" cols="3" rows="5"></textarea>
-                </div>
-                <input type="submit" value="Post" class="ui button teal"></button>
-              </form>
-            </div>  
-        </div>
-            <div class="ui horizontal divider">Recent Posts</div>
-              {% for post in posts.AllPosts %}
-                <div class="ui grid">
-                    <div class="two wide column">
-                        <img class="ui image centered rounded" src="https://via.placeholder.com/500" alt="" />
-                    </div>
-                    <div class="fourteen wide column">
-                        <h2>
-                            <a href="/post_page/{{ post.postId }}">{{ post.title }}</a>
-                            <div style="float: right"><h3>{{ post.date_posted }}</h3></div>
-                        </h2>
-                        <a href="/profile/{{ post.author }}">
-                        <div class="ui label blue">
-                            {{ post.author }}
-                            <div class="detail">{{ post.account_type }}</div>
-                        </div></a>
-                        <br>
-                        {{ post.body }}
-                    </div>
-                </div>
-                {% endfor %}
+        <div class="fourteen wide column">
+          <form action="{{ url_for('submit_post') }}" class="ui form", method="POST">
+            <div class="required field">
+              <input placeholder="Your post needs a title" type="text" name="post_title"></input>
+            </div> 
+            <div class="field">
+              <textarea placeholder="Write an optional body for your post here" name="post_text" id="" cols="3" rows="5"></textarea>
             </div>
-  </body>
-  <script type="text/javascript" src="static/searchbar.js"></script>
-</html>
+            <input type="submit" value="Post" class="ui button teal"></button>
+          </form>
+
+      <div class="ui horizontal divider">Recent Posts</div>
+        {% for post in posts.AllPosts %}
+          <div class="ui grid">
+              <div class="two wide column">
+                  <img class="ui image centered rounded" src="https://via.placeholder.com/500" alt="" />
+              </div>
+              <div class="fourteen wide column">
+                  <h2>
+                      <a href="/post_page/{{ post.postId }}">{{ post.title }}</a>
+                      <div style="float: right"><h3>{{ post.date_posted }}</h3></div>
+                  </h2>
+                  <a href="/profile/{{ post.author }}">
+                  <div class="ui label blue">
+                      {{ post.author }}
+                      <div class="detail">{{ post.account_type }}</div>
+                  </div></a>
+                  <br>
+                  {{ post.body }}
+              </div>
+          </div>
+          {% endfor %}
+      </div>
+      </div>
+    </div>
+</div>
+{%endblock%}
