@@ -187,11 +187,13 @@
                       <i class="icon edit"></i> Add Reply
                     </div>
                   {% if session["username"] %}
-                  </form>
+                  </form> <!--TODO: Make red button display delete instead of submit!-->
                     <form action="{{ url_for('delete_post') }}" class="ui form", method="POST">
                       <input type="hidden" name="postId" value="{{postId}}">
                       <input type="submit" name = "bob" class="negative right floated ui button"></button>
+                      Warning red button is to delete the post!
                     </form>
+                    
                   {%endif%}
                 </div>
               </div>
