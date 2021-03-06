@@ -75,8 +75,14 @@
                     <div class="right menu">
                         <div class="ui item">
                             <div class="ui transparent icon input">
-                                <input class="prompt" type="text" id="search" placeholder="Search for a user">
+                                <input class="prompt" autocomplete="off" type="text" id="search" placeholder="Search for a user" list="usernames-list">
                                 <i class="search link icon"></i>
+                                
+                                <datalist id="usernames-list">
+                                    {%for username in allUsernames%}
+                                    <option value="{{username[0]}}">
+                                    {%endfor%}
+                                </datalist>
                             </div>
                         </div>
                         <a class="ui item">

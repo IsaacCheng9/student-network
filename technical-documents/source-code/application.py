@@ -254,7 +254,7 @@ def show_requests() -> object:
 
     session["prev-page"] = request.url
 
-    return render_template("request.html", requests=requests, avatars=avatars)
+    return render_template("request.html", requests=requests, avatars=avatars, allUsernames=GetAllUsernames())
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -540,7 +540,7 @@ def profile(username):
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, interests=interests,
-                           email=email, posts=posts, type=conn_type)
+                           email=email, posts=posts, type=conn_type, allUsernames=GetAllUsernames())
 
 
 @application.route("/profile/<username>/edit", methods=["GET", "POST"])
@@ -725,6 +725,19 @@ def validate_edit_profile(username, bio, gender, dob, profile_pic,
     message = []
 
     return valid, message
+
+def GetAllUsernames():
+    """Returns a list of all usernames that are registered"""
+    usernames = []
+    with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT username FROM Accounts")
+
+            row = cur.fetchall()
+            
+            return row
+        
+    return []
 
 
 if __name__ == "__main__":
