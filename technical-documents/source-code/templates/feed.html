@@ -92,26 +92,26 @@
         </div>
             <div class="ui horizontal divider">Recent Posts</div>
               {% for post in posts.AllPosts %}
-              <div class="ui grid">
-                  <div class="two wide column">
-                      <img class="ui image centered rounded" src="https://via.placeholder.com/500" alt="" />
-                  </div>
-                  <div class="fourteen wide column">
-                      <h2>
-                          <a href="/post_page/{{ post.postId }}">{{ post.title }}</a>
-                          <div style="float: right"><h3>{{ post.date_posted }}</h3></div>
-                      </h2>
-                      <a href="/profile/{{ post.author }}">
-                      <div class="ui label blue">
-                          {{ post.author }}
-                          <div class="detail">{{ post.account_type }}</div>
-                      </div></a>
-                      <br>
-                      {{ post.body }}
-                  </div>
-              </div>
-              {% endfor %}
-    </div>
+                <div class="ui grid">
+                    <div class="two wide column">
+                        <img class="ui image centered rounded" src="https://via.placeholder.com/500" alt="" />
+                    </div>
+                    <div class="fourteen wide column">
+                        <h2>
+                            <a href="/post_page/{{ post.postId }}">{{ post.title }}</a>
+                            <div style="float: right"><h3>{{ post.date_posted }}</h3></div>
+                        </h2>
+                        <a href="/profile/{{ post.author }}">
+                        <div class="ui label blue">
+                            {{ post.author }}
+                            <div class="detail">{{ post.account_type }}</div>
+                        </div></a>
+                        <br>
+                        {{ post.body }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
   </body>
   <script type="text/javascript" src="static/searchbar.js"></script>
 </html>

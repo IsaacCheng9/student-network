@@ -349,7 +349,7 @@ def post(postId):
             data = row[0]
             title, body, username, date = (
                 data[0], data[1], data[2], data[3])
-            return render_template("post_page.html", title=title, body=body, username=username, date=date)
+            return render_template("post_page.html", postId=postId,title=title, body=body, username=username, date=date)
 
 
 
@@ -416,12 +416,41 @@ def submit_post():
                     nextID = row[0] + 1
                 #TODO: 6th value in table is privacy setting and 7th is account type. 
                 #Currently is default - public/student but no functionality
-                cur.execute("INSERT INTO POSTS (postId, title, body, username, date) "
-                    "VALUES (?, ?, ?, ?, ?);", (nextID, postTitle, postBody, session["username"], date.today(),))
+                cur.execute("INSERT INTO POSTS (title, body, username) "
+                    "VALUES (?, ?, ?);", (postTitle, postBody, session["username"]))
         conn.commit()
     except:
         conn.rollback()
         print("error in insert operation")
+    finally:
+        return redirect("/feed")
+
+@application.route("/delete_post", methods=["POST"])
+def delete_post():
+    """
+    Delete post from database.
+
+    Returns:
+        Feed page
+    """
+    postId = request.form["postId"]
+
+    try:
+        
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute(
+            "SELECT postId FROM POSTS")
+            row = cur.fetchone()
+            #check the post exists in database
+            if row[0] is None:
+                message.append("Error: this post does not exist")
+            else:
+                cur.execute("DELETE FROM POSTS WHERE postId = ?", postId)
+        conn.commit()
+    except:
+        conn.rollback()
+        print("error in deleting")
     finally:
         return redirect("/feed")
 

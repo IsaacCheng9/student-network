@@ -183,10 +183,16 @@
                     <div class="field">
                       <textarea></textarea>
                     </div>
-                    <div class="ui blue labeled submit icon button">
+                    <div class="ui left floated blue labeled submit icon button">
                       <i class="icon edit"></i> Add Reply
                     </div>
+                  {% if session["username"] %}
                   </form>
+                    <form action="{{ url_for('delete_post') }}" class="ui form", method="POST">
+                      <input type="hidden" name="postId" value="{{postId}}">
+                      <input type="submit" name = "bob" class="negative right floated ui button"></button>
+                    </form>
+                  {%endif%}
                 </div>
               </div>
             </div>
