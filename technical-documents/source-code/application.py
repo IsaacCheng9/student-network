@@ -6,7 +6,6 @@ on their feed.
 import re
 import sqlite3
 from datetime import date, datetime
-from string import capwords
 from typing import Tuple, List
 
 from email_validator import validate_email, EmailNotValidError
@@ -51,7 +50,7 @@ def login_page():
         # Clear error session variables.
         session.pop("error", None)
         return render_template("login.html", errors=errors)
-
+        
 
 @application.route("/close_connection/<username>", methods=["GET", "POST"])
 def close_connection(username):
@@ -179,14 +178,14 @@ def remove_close(username: str) -> object:
                         (username,))
             # Searches for the connection in the database.
         if get_connection_type(username) == "connected":
-            cur.execute(
+                cur.execute(
                 "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
                 (session["username"], username))
-            if cur.fetchone() is not None:
-                cur.execute(
-                    "DELETE FROM CloseFriend WHERE (user1=? AND user2=?);",
-                    (session["username"], username))
-                conn.commit()
+                if cur.fetchone() is not None:
+                    cur.execute(
+                        "DELETE FROM CloseFriend WHERE (user1=? AND user2=?);",
+                        (session["username"], username))
+                    conn.commit()
     return redirect(session["prev-page"])
 
 
@@ -255,9 +254,8 @@ def show_requests() -> object:
 
     session["prev-page"] = request.url
 
-    return render_template("request.html", requests=requests, avatars=avatars,
-                           allUsernames=get_all_usernames(),
-                           requestCount=get_connection_request_count())
+    return render_template("request.html", requests=requests, avatars=avatars, allUsernames=GetAllUsernames(),
+                            requestCount=GetConnectionRequestCount())
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -360,13 +358,13 @@ def register_page():
         session["prev-page"] = request.url
 
         return render_template("register.html", notifications=notifications,
-                               errors=errors)
+                            errors=errors)
 
 
 @application.route("/register", methods=["POST"])
 def register_submit() -> object:
     """
-    Registers an account using the user's input from the registration form.
+    Validates the user's input submitted from the registration form.
 
     Returns:
         The updated web page based on whether the details provided were valid.
@@ -398,7 +396,7 @@ def register_submit() -> object:
                 "VALUES (?, ?, ?, ?, ?, ?);", (
                     username, fullname, "Change your bio in the settings.",
                     "Male",
-                    "01-01-1970", "/static/images/default-pfp.jpg",))
+                    "01/01/1970", "/static/images/default-pfp.jpg",))
             conn.commit()
             session["notifications"] = ["register"]
             return redirect("/register")
@@ -440,7 +438,7 @@ def post(postId):
             data = row[0]
             title, body, username, date, account_type = (data[0], data[1],
                                                          data[2], data[3], data[4])
-            # TODO: Implement acoount type
+            # TODO: Implement account type
             cur.execute(
             "SELECT *"
             "FROM Comments WHERE postId=?;", (postId,))
@@ -566,19 +564,22 @@ def delete_post():
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute(
-            "SELECT postId FROM POSTS")
+            "SELECT postId FROM POSTS WHERE postId=?", (postId,))
             row = cur.fetchone()
             #check the post exists in database
             if row[0] is None:
                 message.append("Error: this post does not exist")
             else:
-                cur.execute("DELETE FROM POSTS WHERE postId = ?", postId)
-        conn.commit()
+                cur.execute(
+                "DELETE FROM POSTS WHERE postId=?", (postId,))
+                conn.commit()
     except:
         conn.rollback()
-        print("error in deleting")
     finally:
-        return redirect("/feed")
+        message.append("Comment has been deleted successfully.")
+        return render_template("error.html", message=message, 
+                                requestCount=get_connection_request_count(),
+                                allUsernames=get_all_usernames())
 
 @application.route("/delete_comment", methods=["POST"])
 def delete_comment():
@@ -586,30 +587,33 @@ def delete_comment():
     Delete comment from database.
 
     Returns:
-        Feed page
+        post_page
     """
     message = []
-    postId = request.form["commentId"]
+    postId = request.form["postId"]
     commentId = request.form["commentId"]
     try:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute( "SELECT commentId FROM Comments"
-                "WHERE commentId = ?", commentId)
+            cur.execute( "SELECT * FROM Comments WHERE commentId=? ",(commentId,))
             row = cur.fetchone()
             #check the post exists in database
             if row[0] is None:
-                message.append("Error: this comment does not exist")
-                return render_template("error.html", message=message)
+                message.append("Comment Does not Exists")
+                return render_template("error.html", message=message, 
+                                    requestCount=get_connection_request_count(),
+                                allUsernames=get_all_usernames())
             else:
-                cur.execute("DELETE FROM Comments WHERE commentId = ?", commentId)
-        conn.commit()
+                cur.execute("DELETE FROM Comments WHERE commentId=? ", (commentId,))
+                conn.commit()
     except:
         conn.rollback()
-        message.append("Error while deleting comment")
-        return render_template("error.html", message=message)
+        message.append("The comment could not be deleted.")
+        return render_template("error.html", message=message, 
+                                requestCount=get_connection_request_count(),
+                                allUsernames=get_all_usernames())
     finally:
-        return redirect("/post_page/" + postId)
+        return redirect("post_page/" + postId)
 
 
 @application.route("/profile", methods=["GET"])
@@ -684,12 +688,11 @@ def profile(username):
     if len(row) > 0:
         interests = row
 
-    cur.execute("SELECT email from ACCOUNTS WHERE username=?;",
-                (username,))
-    row = cur.fetchall()
-
-    if len(row) > 0:
-        email = row[0][0]
+        cur.execute("SELECT email from ACCOUNTS WHERE username=?;",
+                    (username,))
+        row = cur.fetchall()
+        if len(row) > 0:
+            email = row[0][0]
 
     # TODO: store all the users posts in a json file
     cur.execute(
@@ -719,8 +722,8 @@ def profile(username):
 
     # Gets the connection type with the user to show their relationship.
     cur.execute(
-        "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
-        (session["username"], username))
+    "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
+    (session["username"], username))
     if cur.fetchone() is None:
         conn_type = get_connection_type(username)
     else:
@@ -736,53 +739,28 @@ def profile(username):
                            requestCount=get_connection_request_count())
 
 
-@application.route("/edit-profile", methods=["GET", "POST"])
-def edit_profile() -> object:
-    """
-    Updates the user's profile using info from the edit profile form.
 
-    Returns:
-        The updated profile page if the details provided were valid.
-    """
-    # Renders the edit profile form if they navigated to this page.
+@application.route("/profile/<username>/edit", methods=["GET", "POST"])
+def edit_profile(username):
     if request.method == "GET":
-        return render_template("settings.html",
-                               requestCount=get_connection_request_count())
+        return render_template("settings.html")
 
-    # Processes the form if they updated their profile using the form.
     if request.method == "POST":
-        # Ensures that users can only edit their own profile.
-        username = session["username"]
-
         # Gets the input data from the edit profile details form.
         bio = request.form.get("bio_input")
         gender = request.form.get("gender_input")
-        dob_input = request.form.get("dob_input")
-        dob = datetime.strptime(dob_input, "%Y-%m-%d").strftime("%Y-%m-%d")
+        dob = request.form.get("dob_input")
         profile_pic = request.form.get("profile_picture_input")
-        hobbies = capwords(request.form.get("hobbies_input"))
-        interests = capwords(request.form.get("interests_input"))
+        hobbies = request.form.get("hobbies_input")
+        interests = request.form.get("interests_input")
 
-        # Connects to the database to perform validation.
-        with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-            # Applies changes to the user's profile details on the
-            # database if valid.
-            valid, message = validate_edit_profile(bio, gender, dob,
-                                                   profile_pic, hobbies,
-                                                   interests)
-            # Updates the user profile if details are valid.
-            if valid is True:
-                cur.execute(
-                    "UPDATE UserProfile SET bio=?, gender=?, birthday=? "
-                    "WHERE username=?;",
-                    (bio, gender, dob, username,))
-                conn.commit()
-                return redirect("/profile")
-            # Displays error message(s) stating why their details are invalid.
-            else:
-                session["error"] = message
-                return redirect("/edit-profile/")
+        # Applies changes to the user's profile details on the database if
+        # valid.
+        validate_edit_profile(username, bio, gender, dob,
+                                                profile_pic, hobbies,
+                                                interests)
+
+        return render_template("settings.html")
 
 
 @application.route("/logout", methods=["GET"])
@@ -837,8 +815,6 @@ def get_connection_type(username: str):
 
 def calculate_age(born):
     """
-    Calculates the user's current age based on their date of birth.
-
     Args:
         born: The user's date of birth.
 
@@ -851,8 +827,7 @@ def calculate_age(born):
 
 
 def validate_registration(
-        cur, username: str, full_name: str, password: str,
-        password_confirm: str,
+        cur, username: str, fullname:str, password: str, password_confirm: str,
         email: str, terms: str) -> Tuple[bool, List[str]]:
     """
     Validates the registration details to ensure that the email address is
@@ -861,7 +836,6 @@ def validate_registration(
     Args:
         cur: Cursor for the SQLite database.
         username: The username input by the user in the form.
-        full_name: The full name input by the user in the form.
         password: The password input by the user in the form.
         password_confirm: The password confirmation input by the user in the
             form.
@@ -877,8 +851,8 @@ def validate_registration(
     message = []
 
     # Checks that there are no null inputs.
-    if (username == "" or full_name == "" or password == "" or
-            password_confirm == "" or email == ""):
+    if (username == "" or fullname == "" or password == "" or 
+        password_confirm == "" or email == ""):
         message.append("Not all fields have been filled in!")
         valid = False
 
@@ -894,9 +868,9 @@ def validate_registration(
         valid = False
 
     # Checks that the fullname only contains valid characters.
-    if not all(x.isalpha() or x.isspace() for x in full_name):
+    if not all(x.isalpha() or x.isspace() for x in fullname):
         message.append("Full Name must only contain letters, numbers and"
-                       " spaces!")
+        " spaces!")
         valid = False
 
     # Checks that the email address has the correct format, checks whether it
@@ -940,89 +914,39 @@ def validate_registration(
     return valid, message
 
 
-def validate_edit_profile(bio, gender, dob, profile_pic,
+def validate_edit_profile(username, bio, gender, dob, profile_pic,
                           hobbies, interests) -> Tuple[bool, List[str]]:
-    """
-    Validates the details in the profile editing form.
-
-    Args:
-        bio: The bio input by the user in the form.
-        gender: The gender input selected by the user in the form.
-        dob: The date of birth input selected by the user in the form.
-        profile_pic: The profile picture uploaded by the user in the form.
-        hobbies: The hobby input by the user in the form.
-        interests: The interest input by the user in the form.
-
-    Returns:
-        Whether profile editing was valid, and the error message(s) if not.
-    """
     # Editing profile remains valid as long as it isn't caught by any checks.
     # If not, error messages will be provided to the user.
     valid = True
     message = []
 
-    # Checks that the gender is male, female, or other.
-    if gender not in ["Male", "Female", "Other"]:
-        valid = False
-        message.append("Gender must be male, female, or other!")
-
-    # Converts date string to datetime.
-    dob = datetime.strptime(dob, "%Y-%m-%d")
-    # Checks that date of birth is a past date.
-    if datetime.today() < dob:
-        valid = False
-        message.append("Date of birth must be a past date!")
-
-    # Checks that the bio has a maximum of 160 characters.
-    if len(bio) > 160:
-        valid = False
-        message.append("Bio must not exceed 160 characters!")
-
-    """"# Checks that the hobby has a maximum of 24 characters.
-    if len(hobbies) > 24:
-        valid = False
-        message.append("Hobbies must not exceed 24 characters!")"""
-
-    """# Checks that the interest has a maximum of 24 characters.
-    if len(interests) > 24:
-        valid = False
-        message.append("Interests must not exceed 24 characters!")"""
-
     return valid, message
 
+def GetAllUsernames():
+    """Returns a list of all usernames that are registered"""
+    with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT username FROM Accounts")
 
-def get_all_usernames() -> list:
+            row = cur.fetchall()
+            
+            return row
+        
+    return []
+
+def GetConnectionRequestCount():
     """
-    Gets a list of all usernames that are registered.
-
-    Returns:
-        A list of all usernames that have been registered.
+        Returns amount of pending connection requests for a logged in user
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT username FROM Accounts")
-
-        row = cur.fetchall()
-
-        return row
-
-
-def get_connection_request_count() -> int:
-    """
-    Counts number of pending connection requests for a user.
-
-    Returns:
-        The number of pending connection requests for a user.
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT * FROM Connection WHERE user2=? AND "
-            "connection_type='request';",
-            (session["username"],))
-
+        cur.execute("SELECT * FROM Connection WHERE user2=? AND connection_type='request'", (session["username"],))
+         
+         
         return len(list(cur.fetchall()))
 
+    return 0
 
 
 
