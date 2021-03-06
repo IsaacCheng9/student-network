@@ -303,7 +303,7 @@ def register_submit() -> object:
                 "VALUES (?, ?, ?, ?, ?, ?);", (
                     username, fullname, "Change your bio in the settings.",
                     "Male",
-                    "01/01/1970", "/static/images/default-pfp.jpg",))
+                    "01-01-1970", "/static/images/default-pfp.jpg",))
             conn.commit()
             session["notifs"] = ["register"]
             return redirect("/register")
@@ -431,7 +431,7 @@ def profile(username):
         })
 
     # Calculates the user's age based on their date of birth.
-    datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
+    datetime_object = datetime.strptime(birthday, "%d-%m-%Y")
     age = calculate_age(datetime_object)
     conn_type = get_connection_type(username)
     session["prev-page"] = request.url
@@ -444,13 +444,11 @@ def profile(username):
                            email=email, posts=posts, type=conn_type)
 
 
-@application.route("/profile/<username>/edit", methods=["GET", "POST"])
-def edit_profile(username: str) -> object:
+@application.route("/edit-profile", methods=["GET", "POST"])
+def edit_profile() -> object:
     """
     Updates the user's profile using info from the edit profile form.
 
-    Args:
-        username: The username of the profile to edit.
     Returns:
         The updated profile page if the details provided were valid.
     """
@@ -460,43 +458,38 @@ def edit_profile(username: str) -> object:
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
+        # Ensures that users can only edit their own profile.
+        username = session["username"]
+
         # Gets the input data from the edit profile details form.
         bio = request.form.get("bio_input")
         gender = request.form.get("gender_input")
         dob_input = request.form.get("dob_input")
-        dob = datetime.strptime(dob_input, "%Y-%m-%d").date()
+        dob = datetime.strptime(dob_input, "%Y-%m-%d").strftime("%d-%m-%Y")
         profile_pic = request.form.get("profile_picture_input")
         hobbies = capwords(request.form.get("hobbies_input"))
         interests = capwords(request.form.get("interests_input"))
 
-        # TODO: Remove print statement (used for testing).
-        print(bio, gender, dob)
-
         # Connects to the database to perform validation.
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            # Applies changes to the user's profile details on the database if
-            # valid.
+            # Applies changes to the user's profile details on the
+            # database if valid.
             valid, message = validate_edit_profile(bio, gender, dob,
                                                    profile_pic, hobbies,
                                                    interests)
-            # TODO: Remove line (used for testing).
-            valid = True
             # Updates the user profile if details are valid.
             if valid is True:
-                """cur.execute(
-                    "UPDATE UserProfile SET bio=%s, gender=%s, birthday=%s "
-                    "WHERE username=%s" %
-                    (bio, gender, dob, username,),)"""
                 cur.execute(
-                    "UPDATE UserProfile SET bio=bio, gender=gender, "
-                    "birthday=dob WHERE username=username")
+                    "UPDATE UserProfile SET bio=?, gender=?, birthday=? "
+                    "WHERE username=?;",
+                    (bio, gender, dob, username,))
                 conn.commit()
                 return redirect("/profile")
             # Displays error message(s) stating why their details are invalid.
             else:
                 session["error"] = message
-                return redirect("/profile/<username>/edit")
+                return redirect("/edit-profile/")
 
 
 @application.route("/logout", methods=["GET"])
@@ -659,8 +652,10 @@ def validate_edit_profile(bio, gender, dob, profile_pic,
         valid = False
         message.append("Gender must be male, female, or other!")
 
+    # Converts date string to datetime.
+    dob = datetime.strptime(dob, "%d-%m-%Y")
     # Checks that date of birth is a past date.
-    if date.today() < dob:
+    if datetime.today() < dob:
         valid = False
         message.append("Date of birth must be a past date!")
 
@@ -669,15 +664,15 @@ def validate_edit_profile(bio, gender, dob, profile_pic,
         valid = False
         message.append("Bio must not exceed 160 characters!")
 
-    # Checks that the hobby has a maximum of 24 characters.
+    """"# Checks that the hobby has a maximum of 24 characters.
     if len(hobbies) > 24:
         valid = False
-        message.append("Hobbies must not exceed 24 characters!")
+        message.append("Hobbies must not exceed 24 characters!")"""
 
-    # Checks that the interest has a maximum of 24 characters.
+    """# Checks that the interest has a maximum of 24 characters.
     if len(interests) > 24:
         valid = False
-        message.append("Interests must not exceed 24 characters!")
+        message.append("Interests must not exceed 24 characters!")"""
 
     return valid, message
 
