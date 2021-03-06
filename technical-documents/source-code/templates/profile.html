@@ -58,6 +58,22 @@
                     </form>
                     {% endif %}
                     {% if type == "connected" %}
+                    <form action="{{ url_for('close_connection', username=username) }}" method="GET">
+                        <button class="ui blue button tiny">
+                            <i class="handshake outline icon"></i>
+                            Mark as close friend
+                        </button>
+                    </form>
+                    {% endif %}
+                    {% if type == "close" %}
+                    <form action="{{ url_for('remove_close', username=username) }}" method="GET">
+                        <button class="ui green button tiny">
+                            <i class="handshake outline icon"></i>
+                            Close Friends
+                        </button>
+                    </form>
+                    {% endif %}              
+                    {% if type == "connected" or type == "close" %}
                     <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
                         <button class="ui green button tiny">
                             <i class="user icon"></i>
