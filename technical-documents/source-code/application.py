@@ -710,7 +710,7 @@ def profile(username):
         i+=1
 
     # Calculates the user's age based on their date of birth.
-    datetime_object = datetime.strptime(birthday, "%Y-%d-%m")
+    datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
     age = calculate_age(datetime_object)
 
     # Gets the connection type with the user to show their relationship.
@@ -748,7 +748,8 @@ def edit_profile(username):
 
         # Applies changes to the user's profile details on the database if
         # valid.
-        validate_edit_profile(username, bio, gender, dob, profile_pic, hobbies,
+        validate_edit_profile(username, bio, gender, dob,
+                                                profile_pic, hobbies,
                                                 interests)
 
         return render_template("settings.html")
