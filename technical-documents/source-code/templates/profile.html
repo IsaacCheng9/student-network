@@ -1,178 +1,98 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<meta charset="UTF-8" />
-<title>Student Network - Profile</title>
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<!--
-  <link rel="stylesheet" href={{ url_for('static',
-  filename='styles/semantic.css') }}>
--->
-<link rel=stylesheet href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" type="text/css">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles/semantic.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/icon.min.css">
-  <head>
-    <title>Student Network - Profile</title>
-    <!-- Standard Meta -->
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-
-    <style type="text/css">
-        .student-background {
-            background-image: url("{{ url_for('static', filename='images/background_blue.png') }}") !important;
-
-            height: 100%;
-
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-
-            position: fixed;
-            z-index: -1;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-        }
-
-        .centered {
-            text-align: center;
-        }
-
-        .sticky {
-            position: sticky; top: 5px;
-            z-index: 99;
-        }
-
-    </style>
-</head>
-
-<body>
-    <!-- Page Contents -->
-    <div class="pusher">
-        <div class="ui container">
-            <div class="student-background"></div>
-                <div class="sticky">
-                    <div class="ui menu">
-                        {% if not "username" in session %}
-                        <a href="/login" class="item">Login</a>
-                        {%endif%}
-                        <a href="/profile" class="active item">Profile</a>
-                        <a href="/requests" class="item">Connect Requests</a>
-                        <a href="/feed" class="item">Feed</a>
-                        <div class="right menu">
-                            <div class="ui item">
-                                <div class="ui transparent icon input">
-                                    <input class="prompt" type="text" id="search" placeholder="Search for a user">
-                                    <i class="search link icon"></i>
-                                </div>
-                            </div>
-                        {% if session["username"] %}
-                            <a class="ui item">
-                                Logged in as {{session["username"]}}
-                            </a>
-                            <a href="/logout" class="ui item">Logout</a>
-                            {%endif%}
-                        </div>
-                    </div>
-                </div>
-                <div class="ui segment">
-                <div class="ui grid container">
-                    
-                    <div class="row">
-                        <div class="five wide column">
-                            <img class="fluid rounded" src="{{profile_picture}}" />
-                        </div>
-                        <div class="eleven wide column">
-                            <div class="ui list">
-                                <div class="item">
-                                    <h1>{{name}}</h1>
-                                    <span class="right floated content">
-<!--
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="ui segment">
+    <div class="ui grid container">
+        <div class="row">
+            <div class="five wide column">
+                <img class="fluid rounded" src="{{profile_picture}}" />
+            </div>
+            <div class="eleven wide column">
+                <div class="ui list">
+                    <div class="item">
+                        <h1>{{name}}</h1>
+                        <span class="right floated content">
+                            <!--
                                         <a href="">
                                             <i class="exclamation triangle icon"></i>
                                             Report user
                                         </a>
--->
-                                    </span>
-                                </div>
-                                <div class="item">
-                                    <h5><div class="ui label basic medium blue">@{{username}} <div class="detail">Student</div></div></h5>
-                                </div>
+                            -->
+                        </span>
+                    </div>
+                    <div class="item">
+                        <h5>
+                            <div class="ui label basic medium blue">@{{username}} <div class="detail">Student</div>
                             </div>
-                            <div class="ui list">
-                                <div class="item"><b>Studying Biology at University of Bristol</b></div>
-                            </div>
-
-                            <p>{{bio}}</p>
-                            {% if username != session["username"] and session["username"] %}
-                            <div class="ui buttons right floated">
-                                {% if type == None %}
-                                <form action="{{ url_for('connect_request', username=username) }}" method="POST">
-                                    <button class="ui blue button tiny">
-                                        <i class="user icon"></i>
-                                        Connect
-                                    </button>
-                                </form>
-                                {% endif %}
-                                {% if type == "request" %}
-                                <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
-                                    <button class="ui grey button tiny">
-                                        <i class="bell slash icon"></i>
-                                        Pending
-                                    </button>
-                                </form>
-                                {% endif %}
-                                {% if type == "incoming" %}
-                                <form action="{{ url_for('accept', username=username) }}" method="GET">
-                                    <button class="ui green button tiny">
-                                        <i class="user icon"></i>
-                                        Accept Request
-                                    </button>
-                                </form>
-                                {% endif %}
-                                {% if type == "connected" %}
-                                <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
-                                    <button class="ui green button tiny">
-                                        <i class="user icon"></i>
-                                        Connected
-                                    </button>
-                                </form>
-                                {% endif %}
-                                <button class="ui red button tiny">
-                                    <i class="bell slash icon"></i>
-                                    Block
-                                </button>
-                            </div>
-                            {%endif%}
+                        </h5>
+                    </div>
+                </div>
+                <div class="ui list">
+                    <div class="item"><b>Studying Biology at University of Bristol</b></div>
+                </div>
+                <p>{{bio}}</p>
+                {% if username != session["username"] and session["username"] %}
+                <div class="ui buttons right floated">
+                    {% if type == None %}
+                    <form action="{{ url_for('connect_request', username=username) }}" method="POST">
+                        <button class="ui blue button tiny">
+                            <i class="user icon"></i>
+                            Connect
+                        </button>
+                    </form>
+                    {% endif %}
+                    {% if type == "request" %}
+                    <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
+                        <button class="ui grey button tiny">
+                            <i class="bell slash icon"></i>
+                            Pending
+                        </button>
+                    </form>
+                    {% endif %}
+                    {% if type == "incoming" %}
+                    <form action="{{ url_for('accept', username=username) }}" method="GET">
+                        <button class="ui green button tiny">
+                            <i class="user icon"></i>
+                            Accept Request
+                        </button>
+                    </form>
+                    {% endif %}
+                    {% if type == "connected" %}
+                    <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
+                        <button class="ui green button tiny">
+                            <i class="user icon"></i>
+                            Connected
+                        </button>
+                    </form>
+                    {% endif %}
+                    <button class="ui red button tiny">
+                        <i class="bell slash icon"></i>
+                        Block
+                    </button>
+                </div>
+                {%endif%}
+            </div>
+            <div class="five wide column">
+                <div class="ui list">
+                    <div class="item">
+                        <div class="ui label basic">
+                            <i class="male icon"></i>
+                            {{gender}}
                         </div>
-                        <div class="five wide column">
-                            <div class="ui list">
-                                <div class="item">
-                                    <div class="ui label basic">
-                                        <i class="male icon"></i>
-                                        {{gender}}
-                                    </div>
-                                </div>
-                                <div class="item">
-                                    <div class="ui label basic">
-                                        <i class="birthday cake icon"></i>
-                                        {{birthday}} ({{age}} years old)
-                                    </div>
-                                </div>
-                                <div class="item">
-                                    <div class="ui label blue basic">
-                                        <i class="envelope open outline icon"></i>
-                                        {{email}}
-                                    </div>
-                                </div>
-                                
-<!--
+                    </div>
+                    <div class="item">
+                        <div class="ui label basic">
+                            <i class="birthday cake icon"></i>
+                            {{birthday}} ({{age}} years old)
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="ui label blue basic">
+                            <i class="envelope open outline icon"></i>
+                            {{email}}
+                        </div>
+                    </div>
+                    <!--
                                 <div class="ui progress blue">
                                     <div class="bar" style="width: 22%;">
                                         <div class="progress">22 / 100</div>
@@ -180,73 +100,71 @@
                                     <div class="label">Level 5</div>
                                 </div>
                                 <div class="ui divider hidden"></div>
--->
-                            </div>
-                            <div class="ui divider horizontal">Hobbies</div>
-                            <div class="ui medium teal labels">
-                            {% for hobby in hobbies %}
-                                <a class="ui label">{{hobby[0]}}</a>
-                                {%endfor%}
-                            </div>
-                            <div class="ui divider horizontal">Interests</div>
-                            <div class="ui medium orange labels">
-                            {% for interest in interests %}
-                                <a class="ui label">{{interest[0]}}</a>
-                                {% endfor %}
-                            </div>
-                            <div class="ui horizontal divider">Socials</div>
-                            <div class="ui grid two column container stackable">
-                                <div class="column">
-                                    <button class="ui button facebook icon fluid mini"><i class="facebook icon"></i> Facebook</button>
-                                </div>
-                                <div class="column">
-                                    <button class="ui button google plus icon fluid mini"><i class="google icon"></i> Google</button>
-                                </div>
-                                <div class="column">
-                                    <button class="ui button linkedin icon fluid mini"><i class="linkedin icon"></i> LinkedIn</button>
-                                </div>
-                                <div class="column">
-                                    <button class="ui button twitter icon fluid mini"><i class="twitter icon"></i> Twitter</button>
-                                </div>
-                                <div class="column">
-                                    <button class="ui button instagram icon fluid mini"><i class="instagram icon"></i> Instagram</button>
-                                </div>
-                                <div class="column">
-                                    <button class="ui button youtube icon fluid mini"><i class="youtube icon"></i> YouTube</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    -->
                 </div>
-                <div class="ui segment basic">
+                <div class="ui divider horizontal">Hobbies</div>
+                <div class="ui medium teal labels">
+                    {% for hobby in hobbies %}
+                    <a class="ui label">{{hobby[0]}}</a>
+                    {%endfor%}
+                </div>
+                <div class="ui divider horizontal">Interests</div>
+                <div class="ui medium orange labels">
+                    {% for interest in interests %}
+                    <a class="ui label">{{interest[0]}}</a>
+                    {% endfor %}
+                </div>
+                <div class="ui horizontal divider">Socials</div>
+                <div class="ui grid two column container stackable">
                     <div class="column">
-                        <h3 class="ui header">Posts</h3>
-                        {% for post in posts.UserPosts %}
-                        <div class="ui cards">
-                            <div class="ui fluid card">
-                                <div class="content">
-                                    <div class="header">
-                                        {{ post.title }}
-                                    </div>
-                                    <div class="right floated meta">
-                                        <a class="ui blue image label spaced basic">
-                                            <img src={{ post.profile_pic }} /> {{ post.author }}
-                                            <div class="detail">{{ post.account_type }}</div>
-                                        </a>
-                                    </div>
-                                    <div class="ui divider hidden"></div>
-                                    <div class="right floated meta">{{ post.time_elapsed }}</div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
+                        <button class="ui button facebook icon fluid mini"><i class="facebook icon"></i>
+                            Facebook</button>
+                    </div>
+                    <div class="column">
+                        <button class="ui button google plus icon fluid mini"><i class="google icon"></i>
+                            Google</button>
+                    </div>
+                    <div class="column">
+                        <button class="ui button linkedin icon fluid mini"><i class="linkedin icon"></i>
+                            LinkedIn</button>
+                    </div>
+                    <div class="column">
+                        <button class="ui button twitter icon fluid mini"><i class="twitter icon"></i> Twitter</button>
+                    </div>
+                    <div class="column">
+                        <button class="ui button instagram icon fluid mini"><i class="instagram icon"></i>
+                            Instagram</button>
+                    </div>
+                    <div class="column">
+                        <button class="ui button youtube icon fluid mini"><i class="youtube icon"></i> YouTube</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</body>
-
-<script type="text/javascript" src="../static/searchbar.js"></script>
-
-</html>
+    <div class="ui segment basic">
+        <div class="column">
+            <h3 class="ui header">Posts</h3>
+            {% for post in posts.UserPosts %}
+            <div class="ui cards">
+                <div class="ui fluid card">
+                    <div class="content">
+                        <div class="header">
+                            {{ post.title }}
+                        </div>
+                        <div class="right floated meta">
+                            <a class="ui blue image label spaced basic">
+                                <img src={{ post.profile_pic }} /> {{ post.author }}
+                                <div class="detail">{{ post.account_type }}</div>
+                            </a>
+                        </div>
+                        <div class="ui divider hidden"></div>
+                        <div class="right floated meta">{{ post.time_elapsed }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{%endblock%}
