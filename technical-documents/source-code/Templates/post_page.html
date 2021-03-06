@@ -90,7 +90,7 @@
                 <a href="/profile/{{username}}" class="ui blue image label spaced basic">
                     <img src="https://via.placeholder.com/600" />
                     {{username}}
-                    <div class="detail">Student</div>
+                    <div class="detail">{{account_type}}</div>
                   </a>
                 </div>
                 <div class="ui divider hidden"></div>
@@ -115,16 +115,24 @@
                         <a class="author">{{comment.username}}</a>
                         <div class="metadata">
                           <span class="date">{{comment.date}}</span>
+                          
                         </div>
+                        <form action="{{ url_for('delete_comment') }}" class="ui reply form" id="deleteComment", method="POST">
+                          <input type="hidden" name="postId" value="{{postId}}">
+                          <input type="hidden" name="commentId" value="{{comment.commentId}}">
+                        </form>
+                        <!--TODO: ensure the delete button is available only for the user's comments-->
+                        <button type="submit" form="deleteComment" class="ui red right floated mini button">
+                          <i class="small trash alternate outline icon"></i>
+                        </button>
                         <div class="text">
                           {{comment.body}}
                         </div>
-                        <div class="actions">
-                          <a class="reply">Reply</a>
-                        </div>
-                      
+                      </div>
+                        <div>
+                          
+                        </div> 
                       </div> 
-                    </div>
                   {% endfor %}
                 </div>
                   <div class="hidden content">
@@ -134,13 +142,13 @@
                       <div class="field" >
                         <textarea placeholder="Comment here" name="comment_text"></textarea>
                     </form>
-                    <form action="{{ url_for('delete_post') }}" class="ui form" id="delete", method="POST">
+                    <form action="{{ url_for('delete_post') }}" class="ui form" id="deletePost", method="POST">
                       <input type="hidden" name="postId" value="{{postId}}">
                     </form>
                     <input type="submit" value = "Post comment" form="comment" class="ui left floated blue button"></button>
-                    <input type="submit" value = "Delete Post" form="delete" class="negative right floated ui button"></button>
+                    <!--TODO: ensure the delete button is available only for the user's posts-->
+                    <input type="submit" value = "Delete Post" form="deletePost" class="negative right floated ui button"></button>
                   </div>     
-                
               </div>
             </div>
           </div>

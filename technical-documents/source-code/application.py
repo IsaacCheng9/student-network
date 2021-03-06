@@ -330,7 +330,7 @@ def post(postId):
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
-            "SELECT title, body, username, date "
+            "SELECT title, body, username, date, account_type "
             "FROM POSTS WHERE postId=?;", (postId,))
         row = cur.fetchall()
         if len(row) == 0:
@@ -340,14 +340,17 @@ def post(postId):
             return render_template("error.html", message=message)
         else:
             data = row[0]
-            title, body, username, date = (data[0], data[1], data[2], data[3])
+            title, body, username, date, account_type = (data[0], data[1],
+                                                         data[2], data[3], data[4])
             # TODO: Implement acoount type
             cur.execute(
             "SELECT *"
             "FROM Comments WHERE postId=?;", (postId,))
             row = cur.fetchall()
             if len(row) == 0:
-                return render_template("post_page.html", postId=postId,title=title, body=body, username=username, date=date, comments = None)
+                return render_template("post_page.html", postId=postId,title=title, 
+                                        body=body, username=username, date=date, 
+                                        account_type = account_type, comments = None)
             for comment in row:
                 if i == 20:
                     break
@@ -380,7 +383,7 @@ def feed():
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             #TODO: edit select statement to only include users connected to the current user when feature is built
-            cur.execute("SELECT postId, title, body, username, date FROM POSTS")
+            cur.execute("SELECT postId, title, body, username, account_type, date FROM POSTS")
             row = cur.fetchall()
             i=0
             allPosts = {
@@ -395,8 +398,8 @@ def feed():
                 "title": post[1],
                 "profile_pic": "https://via.placeholder.com/600",
                 "author": post[3],
-                "account_type": "Student",
-                "date_posted": post[4],
+                "account_type": post[4],
+                "date_posted": post[5],
                 "body": (post[2])[:250] + "..."
                 })
                 i+=1        
@@ -463,7 +466,6 @@ def delete_post():
     postId = request.form["postId"]
 
     try:
-        
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute(
@@ -480,6 +482,37 @@ def delete_post():
         print("error in deleting")
     finally:
         return redirect("/feed")
+
+@application.route("/delete_comment", methods=["POST"])
+def delete_comment():
+    """
+    Delete comment from database.
+
+    Returns:
+        Feed page
+    """
+    message = []
+    postId = request.form["commentId"]
+    commentId = request.form["commentId"]
+    try:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute( "SELECT commentId FROM Comments"
+                "WHERE commentId = ?", commentId)
+            row = cur.fetchone()
+            #check the post exists in database
+            if row[0] is None:
+                message.append("Error: this comment does not exist")
+                return render_template("error.html", message=message)
+            else:
+                cur.execute("DELETE FROM Comments WHERE commentId = ?", commentId)
+        conn.commit()
+    except:
+        conn.rollback()
+        message.append("Error while deleting comment")
+        return render_template("error.html", message=message)
+    finally:
+        return redirect("/post_page/" + postId)
 
 
 @application.route("/profile", methods=["GET"])
@@ -513,6 +546,7 @@ def profile(username):
     email = ""
     hobbies = []
     interests = []
+    account_type = ""
     message = []
 
     with sqlite3.connect("database.db") as conn:
@@ -532,6 +566,12 @@ def profile(username):
             data = row[0]
             name, bio, gender, birthday, profile_picture = (
                 data[0], data[1], data[2], data[3], data[4])
+    # Gets account type.
+    cur.execute(
+        "SELECT type FROM "
+        "ACCOUNTS WHERE username=?;", (username,))
+    row = cur.fetchall()
+    account_type = row[0][0]
 
     # Gets the user's hobbies.
     cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
@@ -555,28 +595,28 @@ def profile(username):
 
     # TODO: store all the users posts in a json file
     cur.execute(
-    "SELECT postId, title, body, username, date FROM "
+    "SELECT postId, title, body, username, account_type, date FROM "
     "POSTS WHERE username=?;", (username,))
     row = cur.fetchall()
     i=0
     userPosts = {
         "UserPosts": []
     }
-    #TODO: account type differentiation in posts db
+
     for post in reversed(row):
         userPosts["UserPosts"].append({
         "postId":post[0],
         "title": post[1],
         "profile_pic": "https://via.placeholder.com/600",
         "author": post[3],
-        "account_type": "Student",
-        "date_posted": post[4],
+        "account_type": post[4],
+        "date_posted": post[5],
         "body": (post[2])[:250] + "..."
         })
         i+=1
 
     # Calculates the user's age based on their date of birth.
-    datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
+    datetime_object = datetime.strptime(birthday, "%Y-%d-%m")
     age = calculate_age(datetime_object)
     conn_type = get_connection_type(username)
     session["prev-page"] = request.url
@@ -585,7 +625,7 @@ def profile(username):
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
-                           age=age, hobbies=hobbies, interests=interests,
+                           age=age, hobbies=hobbies, account_type = account_type, interests=interests,
                            email=email, posts=userPosts, type=conn_type)
 
 
