@@ -6,11 +6,10 @@ on their feed.
 import re
 import sqlite3
 from datetime import date, datetime
-from string import capwords
 from typing import Tuple, List
 
 from email_validator import validate_email, EmailNotValidError
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, url_for
 from passlib.hash import sha256_crypt
 
 application = Flask(__name__)
@@ -51,7 +50,7 @@ def login_page():
         # Clear error session variables.
         session.pop("error", None)
         return render_template("login.html", errors=errors)
-
+        
 
 @application.route("/close_connection/<username>", methods=["GET", "POST"])
 def close_connection(username):
@@ -179,14 +178,14 @@ def remove_close(username: str) -> object:
                         (username,))
             # Searches for the connection in the database.
         if get_connection_type(username) == "connected":
-            cur.execute(
+                cur.execute(
                 "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
                 (session["username"], username))
-            if cur.fetchone() is not None:
-                cur.execute(
-                    "DELETE FROM CloseFriend WHERE (user1=? AND user2=?);",
-                    (session["username"], username))
-                conn.commit()
+                if cur.fetchone() is not None:
+                    cur.execute(
+                        "DELETE FROM CloseFriend WHERE (user1=? AND user2=?);",
+                        (session["username"], username))
+                    conn.commit()
     return redirect(session["prev-page"])
 
 
@@ -255,9 +254,8 @@ def show_requests() -> object:
 
     session["prev-page"] = request.url
 
-    return render_template("request.html", requests=requests, avatars=avatars,
-                           allUsernames=get_all_usernames(),
-                           requestCount=get_connection_request_count())
+    return render_template("request.html", requests=requests, avatars=avatars, allUsernames=GetAllUsernames(),
+                            requestCount=GetConnectionRequestCount())
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -360,13 +358,13 @@ def register_page():
         session["prev-page"] = request.url
 
         return render_template("register.html", notifications=notifications,
-                               errors=errors)
+                            errors=errors)
 
 
 @application.route("/register", methods=["POST"])
 def register_submit() -> object:
     """
-    Registers an account using the user's input from the registration form.
+    Validates the user's input submitted from the registration form.
 
     Returns:
         The updated web page based on whether the details provided were valid.
@@ -398,7 +396,7 @@ def register_submit() -> object:
                 "VALUES (?, ?, ?, ?, ?, ?);", (
                     username, fullname, "Change your bio in the settings.",
                     "Male",
-                    "01-01-1970", "/static/images/default-pfp.jpg",))
+                    "01/01/1970", "/static/images/default-pfp.jpg",))
             conn.commit()
             session["notifications"] = ["register"]
             return redirect("/register")
@@ -407,20 +405,61 @@ def register_submit() -> object:
             session["error"] = message
             return redirect("/register")
 
-
-@application.route("/post_page", methods=["GET"])
-def post_page():
+@application.route("/post_page/<postId>", methods=["GET"])
+def post(postId):
     """
-    Checks the user is logged in before viewing their post page.
+    Loads a post and it's comments
 
     Returns:
-        The web page for their post if they're logged in.
+        Redirection to their profile if they're logged in.
     """
-    if "username" in session:
-        session["prev-page"] = request.url
-        return render_template("post_page.html")
-    else:
-        return redirect("/login")
+    comments = { "comments": [] }
+    message = []
+    author = ""
+    i = 0
+
+    session["prev-page"] = request.url
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        # Gets user from database using username.
+        cur.execute(
+            "SELECT title, body, username, date, account_type "
+            "FROM POSTS WHERE postId=?;", (postId,))
+        row = cur.fetchall()
+        if len(row) == 0:
+            message.append("This post does note exist.")
+            message.append(" Please ensure you have entered the name correctly.")
+            session["prev-page"] = request.url
+            return render_template("error.html", message=message, 
+                                requestCount=get_connection_request_count(),
+                               allUsernames=get_all_usernames())
+        else:
+            data = row[0]
+            title, body, username, date, account_type = (data[0], data[1],
+                                                         data[2], data[3], data[4])
+            # TODO: Implement acoount type
+            cur.execute(
+            "SELECT *"
+            "FROM Comments WHERE postId=?;", (postId,))
+            row = cur.fetchall()
+            if len(row) == 0:
+                return render_template("post_page.html", postId=postId,title=title, 
+                                        body=body, username=username, date=date, 
+                                        account_type = account_type, comments = None, )
+            for comment in row:
+                if i == 20:
+                    break
+                comments["comments"].append({
+                "commentId":comment[0],
+                "username": comment[1],
+                "body": comment[2],
+                "account_type": "Student",
+                "date": comment[3],
+                })
+                i+=1
+            #TODO: the person viewing the post is the author of the post ( othervise hide delete button)
+            return render_template("post_page.html", author = author, postId=postId, title=title, body=body, username=username, date=date, comments = comments)
 
 
 @application.route("/feed", methods=["GET"])
@@ -433,11 +472,142 @@ def feed():
     """
     if "username" in session:
         session["prev-page"] = request.url
-        return render_template("feed.html",
-                               requestCount=get_connection_request_count(),
+
+        username = session["username"]
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            #TODO: edit select statement to only include users connected to the current user when feature is built
+            cur.execute("SELECT postId, title, body, username, account_type, date FROM POSTS")
+            row = cur.fetchall()
+            i=0
+            allPosts = {
+                "AllPosts": []
+            }
+            #TODO: account type differentiation in posts db
+            for post in reversed(row):
+                if i == 20:
+                    break
+                allPosts["AllPosts"].append({
+                "postId":post[0],
+                "title": post[1],
+                "profile_pic": "https://via.placeholder.com/600",
+                "author": post[3],
+                "account_type": post[4],
+                "date_posted": post[5],
+                "body": (post[2])[:250] + "..."
+                })
+                i+=1        
+        return render_template("feed.html", posts = allPosts, requestCount=get_connection_request_count(),
                                allUsernames=get_all_usernames())
     else:
         return redirect("/login")
+
+@application.route("/submit_post", methods=["POST"])
+def submit_post():
+    """
+    Submit post on social wall to database.
+
+    Returns:
+        Updated feed with new post added
+    """
+    try:
+        postTitle = request.form["post_title"]
+        postBody = request.form["post_text"]
+        if postTitle != "":
+            with sqlite3.connect("database.db") as conn:
+                cur = conn.cursor()
+                #TODO: 6th value in table is privacy setting and 7th is account type. 
+                #Currently is default - public/student but no functionality
+                cur.execute("INSERT INTO POSTS (title, body, username) "
+                    "VALUES (?, ?, ?);", (postTitle, postBody, session["username"]))
+        conn.commit()
+        #TODO: Prints error message missing title on top of page
+    except:
+        conn.rollback()
+        print("error in insert operation")
+    finally:
+        return redirect("/feed")
+
+
+@application.route("/submit_comment", methods=["POST"])
+def submit_comment():
+    """
+    Submit comment on post page to database.
+
+    Returns:
+        Updated post with new comment added
+    """
+    postId = request.form["postId"]
+    commentBody = request.form["comment_text"]
+    if commentBody != "":
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            #TODO: 6th value in table is privacy setting and 7th is account type. 
+            #Currently is default - public/student but no functionality
+            cur.execute("INSERT INTO Comments (postId, body, username) "
+                "VALUES (?, ?, ?);", (postId, commentBody, session["username"]))
+            conn.commit()
+    session["postId"] = postId
+    return redirect("/post_page/" + postId)
+
+@application.route("/delete_post", methods=["POST"])
+def delete_post():
+    """
+    Delete post from database.
+
+    Returns:
+        Feed page
+    """
+    postId = request.form["postId"]
+
+    try:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute(
+            "SELECT postId FROM POSTS")
+            row = cur.fetchone()
+            #check the post exists in database
+            if row[0] is None:
+                message.append("Error: this post does not exist")
+            else:
+                cur.execute("DELETE FROM POSTS WHERE postId = ?", postId)
+        conn.commit()
+    except:
+        conn.rollback()
+        print("error in deleting")
+    finally:
+        return redirect("/feed")
+
+@application.route("/delete_comment", methods=["POST"])
+def delete_comment():
+    """
+    Delete comment from database.
+
+    Returns:
+        Feed page
+    """
+    message = []
+    postId = request.form["commentId"]
+    commentId = request.form["commentId"]
+    try:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute( "SELECT commentId FROM Comments"
+                "WHERE commentId = ?", commentId)
+            row = cur.fetchone()
+            #check the post exists in database
+            if row[0] is None:
+                message.append("Error: this comment does not exist")
+                return render_template("error.html", message=message)
+            else:
+                cur.execute("DELETE FROM Comments WHERE commentId = ?", commentId)
+        conn.commit()
+    except:
+        conn.rollback()
+        message.append("Error while deleting comment")
+        return render_template("error.html", message=message)
+    finally:
+        return redirect("/post_page/" + postId)
 
 
 @application.route("/profile", methods=["GET"])
@@ -471,6 +641,7 @@ def profile(username):
     email = ""
     hobbies = []
     interests = []
+    account_type = ""
     message = []
 
     with sqlite3.connect("database.db") as conn:
@@ -490,6 +661,12 @@ def profile(username):
             data = row[0]
             name, bio, gender, birthday, profile_picture = (
                 data[0], data[1], data[2], data[3], data[4])
+    # Gets account type.
+    cur.execute(
+        "SELECT type FROM "
+        "ACCOUNTS WHERE username=?;", (username,))
+    row = cur.fetchall()
+    account_type = row[0][0]
 
     # Gets the user's hobbies.
     cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
@@ -505,27 +682,33 @@ def profile(username):
     if len(row) > 0:
         interests = row
 
-    cur.execute("SELECT email from ACCOUNTS WHERE username=?;",
-                (username,))
-    row = cur.fetchall()
+        cur.execute("SELECT email from ACCOUNTS WHERE username=?;",
+                    (username,))
+        row = cur.fetchall()
+        if len(row) > 0:
+            email = row[0][0]
 
-    if len(row) > 0:
-        email = row[0][0]
-
-    # TODO: db search query in posts table for all the users posts
     # TODO: store all the users posts in a json file
-    posts = {
-        "UserPosts": [
-        ]
+    cur.execute(
+    "SELECT postId, title, body, username, account_type, date FROM "
+    "POSTS WHERE username=?;", (username,))
+    row = cur.fetchall()
+    i=0
+    userPosts = {
+        "UserPosts": []
     }
-    for i in range(1, 10):
-        posts["UserPosts"].append({
-            "title": "Post " + str(i),
-            "profile_pic": "https://via.placeholder.com/600",
-            "author": "John Smith",
-            "account_type": "Student",
-            "time_elapsed": str(i) + " days"
+
+    for post in reversed(row):
+        userPosts["UserPosts"].append({
+        "postId":post[0],
+        "title": post[1],
+        "profile_pic": "https://via.placeholder.com/600",
+        "author": post[3],
+        "account_type": post[4],
+        "date_posted": post[5],
+        "body": (post[2])[:250] + "..."
         })
+        i+=1
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
@@ -533,8 +716,8 @@ def profile(username):
 
     # Gets the connection type with the user to show their relationship.
     cur.execute(
-        "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
-        (session["username"], username))
+    "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
+    (session["username"], username))
     if cur.fetchone() is None:
         conn_type = get_connection_type(username)
     else:
@@ -545,59 +728,32 @@ def profile(username):
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
-                           age=age, hobbies=hobbies, interests=interests,
-                           email=email, posts=posts, type=conn_type,
-                           allUsernames=get_all_usernames(),
-                           requestCount=get_connection_request_count())
+                           age=age, hobbies=hobbies,  account_type = account_type, interests=interests,
+                           email=email, posts=userPosts, type=conn_type, allUsernames=GetAllUsernames(),
+                           requestCount=GetConnectionRequestCount())
 
 
-@application.route("/edit-profile", methods=["GET", "POST"])
-def edit_profile() -> object:
-    """
-    Updates the user's profile using info from the edit profile form.
-
-    Returns:
-        The updated profile page if the details provided were valid.
-    """
-    # Renders the edit profile form if they navigated to this page.
+@application.route("/profile/<username>/edit", methods=["GET", "POST"])
+def edit_profile(username):
     if request.method == "GET":
-        return render_template("settings.html",
-                               requestCount=get_connection_request_count())
+        return render_template("settings.html")
 
-    # Processes the form if they updated their profile using the form.
     if request.method == "POST":
-        # Ensures that users can only edit their own profile.
-        username = session["username"]
-
         # Gets the input data from the edit profile details form.
         bio = request.form.get("bio_input")
         gender = request.form.get("gender_input")
-        dob_input = request.form.get("dob_input")
-        dob = datetime.strptime(dob_input, "%Y-%m-%d").strftime("%Y-%m-%d")
+        dob = request.form.get("dob_input")
         profile_pic = request.form.get("profile_picture_input")
-        hobbies = capwords(request.form.get("hobbies_input"))
-        interests = capwords(request.form.get("interests_input"))
+        hobbies = request.form.get("hobbies_input")
+        interests = request.form.get("interests_input")
 
-        # Connects to the database to perform validation.
-        with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-            # Applies changes to the user's profile details on the
-            # database if valid.
-            valid, message = validate_edit_profile(bio, gender, dob,
-                                                   profile_pic, hobbies,
-                                                   interests)
-            # Updates the user profile if details are valid.
-            if valid is True:
-                cur.execute(
-                    "UPDATE UserProfile SET bio=?, gender=?, birthday=? "
-                    "WHERE username=?;",
-                    (bio, gender, dob, username,))
-                conn.commit()
-                return redirect("/profile")
-            # Displays error message(s) stating why their details are invalid.
-            else:
-                session["error"] = message
-                return redirect("/edit-profile/")
+        # Applies changes to the user's profile details on the database if
+        # valid.
+        validate_edit_profile(username, bio, gender, dob,
+                                                profile_pic, hobbies,
+                                                interests)
+
+        return render_template("settings.html")
 
 
 @application.route("/logout", methods=["GET"])
@@ -652,8 +808,6 @@ def get_connection_type(username: str):
 
 def calculate_age(born):
     """
-    Calculates the user's current age based on their date of birth.
-
     Args:
         born: The user's date of birth.
 
@@ -666,8 +820,7 @@ def calculate_age(born):
 
 
 def validate_registration(
-        cur, username: str, full_name: str, password: str,
-        password_confirm: str,
+        cur, username: str, fullname:str, password: str, password_confirm: str,
         email: str, terms: str) -> Tuple[bool, List[str]]:
     """
     Validates the registration details to ensure that the email address is
@@ -676,7 +829,6 @@ def validate_registration(
     Args:
         cur: Cursor for the SQLite database.
         username: The username input by the user in the form.
-        full_name: The full name input by the user in the form.
         password: The password input by the user in the form.
         password_confirm: The password confirmation input by the user in the
             form.
@@ -692,8 +844,8 @@ def validate_registration(
     message = []
 
     # Checks that there are no null inputs.
-    if (username == "" or full_name == "" or password == "" or
-            password_confirm == "" or email == ""):
+    if (username == "" or fullname == "" or password == "" or 
+        password_confirm == "" or email == ""):
         message.append("Not all fields have been filled in!")
         valid = False
 
@@ -709,9 +861,9 @@ def validate_registration(
         valid = False
 
     # Checks that the fullname only contains valid characters.
-    if not all(x.isalpha() or x.isspace() for x in full_name):
+    if not all(x.isalpha() or x.isspace() for x in fullname):
         message.append("Full Name must only contain letters, numbers and"
-                       " spaces!")
+        " spaces!")
         valid = False
 
     # Checks that the email address has the correct format, checks whether it
@@ -755,64 +907,45 @@ def validate_registration(
     return valid, message
 
 
-def validate_edit_profile(bio, gender, dob, profile_pic,
+def validate_edit_profile(username, bio, gender, dob, profile_pic,
                           hobbies, interests) -> Tuple[bool, List[str]]:
-    """
-    Validates the details in the profile editing form.
-
-    Args:
-        bio: The bio input by the user in the form.
-        gender: The gender input selected by the user in the form.
-        dob: The date of birth input selected by the user in the form.
-        profile_pic: The profile picture uploaded by the user in the form.
-        hobbies: The hobby input by the user in the form.
-        interests: The interest input by the user in the form.
-
-    Returns:
-        Whether profile editing was valid, and the error message(s) if not.
-    """
     # Editing profile remains valid as long as it isn't caught by any checks.
     # If not, error messages will be provided to the user.
     valid = True
     message = []
 
-    # Checks that the gender is male, female, or other.
-    if gender not in ["Male", "Female", "Other"]:
-        valid = False
-        message.append("Gender must be male, female, or other!")
-
-    # Converts date string to datetime.
-    dob = datetime.strptime(dob, "%Y-%m-%d")
-    # Checks that date of birth is a past date.
-    if datetime.today() < dob:
-        valid = False
-        message.append("Date of birth must be a past date!")
-
-    # Checks that the bio has a maximum of 160 characters.
-    if len(bio) > 160:
-        valid = False
-        message.append("Bio must not exceed 160 characters!")
-
-    """"# Checks that the hobby has a maximum of 24 characters.
-    if len(hobbies) > 24:
-        valid = False
-        message.append("Hobbies must not exceed 24 characters!")"""
-
-    """# Checks that the interest has a maximum of 24 characters.
-    if len(interests) > 24:
-        valid = False
-        message.append("Interests must not exceed 24 characters!")"""
-
     return valid, message
 
+def GetAllUsernames():
+    """Returns a list of all usernames that are registered"""
+    usernames = []
+    with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT username FROM Accounts")
 
-def get_all_usernames() -> list:
-    """
-    Gets a list of all usernames that are registered.
+            row = cur.fetchall()
+            
+            return row
+        
+    return []
 
-    Returns:
-        A list of all usernames that have been registered.
+def GetConnectionRequestCount():
     """
+        Returns amount of pending connection requests for a logged in user
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM Connection WHERE user2=? AND connection_type='request'", (session["username"],))
+         
+         
+        return len(list(cur.fetchall()))
+
+    return 0
+
+
+
+def get_all_usernames():
+    """Returns a list of all usernames that are registered"""
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute("SELECT username FROM Accounts")
@@ -822,18 +955,14 @@ def get_all_usernames() -> list:
         return row
 
 
-def get_connection_request_count() -> int:
+def get_connection_request_count():
     """
-    Counts number of pending connection requests for a user.
-
-    Returns:
-        The number of pending connection requests for a user.
+        Returns amount of pending connection requests for a logged in user
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT * FROM Connection WHERE user2=? AND "
-            "connection_type='request';",
+            "SELECT * FROM Connection WHERE user2=? AND connection_type='request';",
             (session["username"],))
 
         return len(list(cur.fetchall()))
