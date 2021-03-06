@@ -528,7 +528,7 @@ def profile(username):
         })
 
     # Calculates the user's age based on their date of birth.
-    datetime_object = datetime.strptime(birthday, "%d-%m-%Y")
+    datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
     age = calculate_age(datetime_object)
 
     # Gets the connection type with the user to show their relationship.
@@ -573,7 +573,7 @@ def edit_profile() -> object:
         bio = request.form.get("bio_input")
         gender = request.form.get("gender_input")
         dob_input = request.form.get("dob_input")
-        dob = datetime.strptime(dob_input, "%Y-%m-%d").strftime("%d-%m-%Y")
+        dob = datetime.strptime(dob_input, "%Y-%m-%d").strftime("%Y-%m-%d")
         profile_pic = request.form.get("profile_picture_input")
         hobbies = capwords(request.form.get("hobbies_input"))
         interests = capwords(request.form.get("interests_input"))
@@ -652,6 +652,8 @@ def get_connection_type(username: str):
 
 def calculate_age(born):
     """
+    Calculates the user's current age based on their date of birth.
+
     Args:
         born: The user's date of birth.
 
@@ -664,7 +666,7 @@ def calculate_age(born):
 
 
 def validate_registration(
-        cur, username: str, fullname: str, password: str,
+        cur, username: str, full_name: str, password: str,
         password_confirm: str,
         email: str, terms: str) -> Tuple[bool, List[str]]:
     """
@@ -674,6 +676,7 @@ def validate_registration(
     Args:
         cur: Cursor for the SQLite database.
         username: The username input by the user in the form.
+        full_name: The full name input by the user in the form.
         password: The password input by the user in the form.
         password_confirm: The password confirmation input by the user in the
             form.
@@ -689,7 +692,7 @@ def validate_registration(
     message = []
 
     # Checks that there are no null inputs.
-    if (username == "" or fullname == "" or password == "" or
+    if (username == "" or full_name == "" or password == "" or
             password_confirm == "" or email == ""):
         message.append("Not all fields have been filled in!")
         valid = False
@@ -706,7 +709,7 @@ def validate_registration(
         valid = False
 
     # Checks that the fullname only contains valid characters.
-    if not all(x.isalpha() or x.isspace() for x in fullname):
+    if not all(x.isalpha() or x.isspace() for x in full_name):
         message.append("Full Name must only contain letters, numbers and"
                        " spaces!")
         valid = False
@@ -779,7 +782,7 @@ def validate_edit_profile(bio, gender, dob, profile_pic,
         message.append("Gender must be male, female, or other!")
 
     # Converts date string to datetime.
-    dob = datetime.strptime(dob, "%d-%m-%Y")
+    dob = datetime.strptime(dob, "%Y-%m-%d")
     # Checks that date of birth is a past date.
     if datetime.today() < dob:
         valid = False
@@ -803,8 +806,13 @@ def validate_edit_profile(bio, gender, dob, profile_pic,
     return valid, message
 
 
-def get_all_usernames():
-    """Returns a list of all usernames that are registered"""
+def get_all_usernames() -> list:
+    """
+    Gets a list of all usernames that are registered.
+
+    Returns:
+        A list of all usernames that have been registered.
+    """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute("SELECT username FROM Accounts")
@@ -814,14 +822,18 @@ def get_all_usernames():
         return row
 
 
-def get_connection_request_count():
+def get_connection_request_count() -> int:
     """
-        Returns amount of pending connection requests for a logged in user
+    Counts number of pending connection requests for a user.
+
+    Returns:
+        The number of pending connection requests for a user.
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT * FROM Connection WHERE user2=? AND connection_type='request';",
+            "SELECT * FROM Connection WHERE user2=? AND "
+            "connection_type='request';",
             (session["username"],))
 
         return len(list(cur.fetchall()))
