@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel=stylesheet href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" type="text/css">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/semantic.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/icon.min.css">
+    <title>Student Network - {%block title%}{%endblock%}</title>
+    <!-- Standard Meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <style type="text/css">
+        .student-background {
+            background-image: url("{{ url_for('static', filename='images/background_blue.png') }}") !important;
+
+            height: 100%;
+
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+
+            position: fixed;
+            z-index: -1;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
+
+        .sticky {
+            position: sticky;
+            top: 5px;
+            z-index: 99;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Page Contents -->
+    <div class="pusher">
+        <div class="ui container">
+            <div class="student-background"></div>
+            <div class="sticky">
+                <div class="ui menu">
+                    {% if not "username" in session %}
+                    <a href="/login" {% if request.path=='/login' %}class="active item" {% else %}class="item" {% endif
+                        %}>Login</a>
+                    {%endif%}
+                    {% set register_paths = ["/login", "/register",
+                    "/privacy_policy", "/terms", "/logout"]%}
+                    {% for path in register_paths %}
+                        {% if request.path == path%}
+                        <a href="/register" {% if request.path=='/register' %}class="active item" {% else %}class="item" {%
+                            endif %}>Register</a>
+                        {%endif%}
+                    {%endfor%}
+                    {% if session["username"] %}
+                    <a href="/profile" {% if request.path=='/profile' %}class="active item" {% else %}class="item" {%
+                        endif %}>Profile</a>
+                    <a href="/requests" {% if request.path=='/requests' %}class="active item" {% else %}class="item" {%
+                        endif %}class="item">
+                        Connect Requests
+                        {%if requestCount > 0%}
+                        <div class="ui label red mini">{{requestCount}}</div>
+                        {%endif%}
+                    </a>
+                    <a href="/feed" {% if request.path=='/feed' %}class="active item" {% else %}class="item" {% endif
+                        %}>Feed</a>
+                    <div class="right menu">
+                        <div class="ui item">
+                            <div class="ui transparent icon input">
+                                <input class="prompt" autocomplete="off" type="text" id="search" placeholder="Search for a user" list="usernames-list">
+                                <i class="search link icon"></i>
+                                
+                                <datalist id="usernames-list">
+                                    {%for username in allUsernames%}
+                                    <option value="{{username[0]}}">
+                                    {%endfor%}
+                                </datalist>
+                            </div>
+                        </div>
+                        <a class="ui item">
+                            Logged in as {{session["username"]}}
+                        </a>
+                        <a href="/logout" class="ui item">Logout</a>
+                    </div>
+                    {%endif%}
+                </div>
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+
+<script type="text/javascript" src="../static/searchbar.js"></script>
+
+</html>

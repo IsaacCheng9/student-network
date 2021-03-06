@@ -1,96 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-  <meta charset="UTF-8" />
-  <head>
-    <title>Student Network - Login</title>
-  </head>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="{{ url_for('static', filename='styles/semantic.css') }}"
-  />
-
-  <style>
-    .student-background {
-      background-image: url("{{ url_for('static', filename='images/background_blue.png') }}") !important;
-
-      height: 100%;
-
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover;
-
-      position: fixed;
-      z-index: -1;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-    }
-
-    .sticky {
-        position: sticky; top: 5px;
-        z-index: 99;
-    }
-
-  </style>
-
-  <!--CSS blur: filter: saturate(1.5) blur(20px);-->
-  <body>
-    <div class="student-background"></div>
-    <div class="ui container">
-      <div class="sticky">
-        <div class="ui menu">
-          <a href="/login" class="item active">Login</a>
-          <a href="/register" class="item">Register</a>
-        </div>
-      </div>  
-      <div class="ui segment basic">  
-        <form action="/login" method="POST">
-          <div class="ui card centered" style="min-width: 600px">
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="ui segment basic">
+    <form action="/login" method="POST">
+        <div class="ui card centered" style="min-width: 600px">
             <div class="content">
-              <div class="header">Login</div>
+                <div class="header">Login</div>
             </div>
             <div class="content">
-              {% if 'login' in errors %}
-              <div class="ui message red">
-                <div class="header">Incorrect Credentials</div>
-                <p>Username and/or password is incorrect.</p>
-              </div>
-              {% endif %}
-              <div class="ui form">
-                <div class="required field">
-                  <label>Username</label>
-                  <input
-                    name="username_input"
-                    type="text"
-                    placeholder="Username"
-                  />
+                {% if 'login' in errors %}
+                <div class="ui message red">
+                    <div class="header">Incorrect Credentials</div>
+                    <p>Username and/or password is incorrect.</p>
                 </div>
-                <div class="required field">
-                  <label>Password</label>
-                  <input
-                    name="psw_input"
-                    type="password"
-                    placeholder="Password"
-                  />
+                {% endif %}
+                <div class="ui form">
+                    <div class="required field">
+                        <label>Username</label>
+                        <input name="username_input" type="text" placeholder="Username" />
+                    </div>
+                    <div class="required field">
+                        <label>Password</label>
+                        <input name="psw_input" type="password" placeholder="Password" />
+                    </div>
+                    <p>
+                        <a href="" style="color: #0077cc">Forgot your password?</a>
+                    </p>
                 </div>
-                <p>
-                  <a href="" style="color: #0077cc">Forgot your password?</a>
-                </p>
-              </div>
             </div>
             <div class="extra content">
-              <p>
-                Don't have an account?
-                <a href="/register" style="color: #0077cc">Register here</a>.
-              </p>
+                <p>
+                    Don't have an account?
+                    <a href="/register" style="color: #0077cc">Register here</a>.
+                </p>
             </div>
             <input type="submit" value="Login" class="ui button submit" />
-          </div>
-        </form>
-      </div>
-    </div>
-  </body>
-</html>
+        </div>
+    </form>
+</div>
+{%endblock%}
