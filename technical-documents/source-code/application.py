@@ -430,7 +430,7 @@ def post(postId):
             "FROM POSTS WHERE postId=?;", (postId,))
         row = cur.fetchall()
         if len(row) == 0:
-            message.append("This post does note exist.")
+            message.append("This post does not exist.")
             message.append(" Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
@@ -732,8 +732,8 @@ def profile(username):
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies,  account_type = account_type, interests=interests,
-                           email=email, posts=userPosts, type=conn_type, allUsernames=GetAllUsernames(),
-                           requestCount=GetConnectionRequestCount())
+                           email=email, posts=userPosts, type=conn_type, allUsernames=get_all_usernames(),
+                           requestCount=get_connection_request_count())
 
 
 @application.route("/edit-profile", methods=["GET", "POST"])
