@@ -118,28 +118,18 @@ filename='styles/semantic.css') }}>
                                     </label>
                                 </div>
                                 <div class="ui divider"></div>
-                                <div class="field">
+                                <div class="field" name="field">
                                     <label>Hobbies</label>
                                     <input name="hobbies_input" type="text" />
                                     <div class="ui divider hidden"></div>
-                                    <div class="ui labels teal">
-                                        <div class="ui label">
-                                            Programming
-                                            <i class="close icon"></i>
-                                        </div>
-                                    </div>
+                                    <div class="ui grid container" name="hobby-div"></div>
                                 </div>
                                 <div class="ui divider"></div>
                                 <div class="field">
                                     <label>Interests</label>
                                     <input name="interests_input" type="text" />
                                     <div class="ui divider hidden"></div>
-                                    <div class="ui labels orange">
-                                        <div class="ui label">
-                                            Artificial Intelligence
-                                            <i class="close icon"></i>
-                                        </div>
-                                    </div>
+                                    <div class="ui grid container" name="interest-div"></div>
                                 </div>
 
                                 <button class="ui button submit">Save Changes</button>
@@ -151,5 +141,8 @@ filename='styles/semantic.css') }}>
         </div>
     </div>
 </body>
+<script src="../static/hobbies.js"></script>
+<script src="../static/interests.js"></script>
+
 
 </html>
