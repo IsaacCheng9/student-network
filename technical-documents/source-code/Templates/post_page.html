@@ -104,41 +104,43 @@
 
               <div class="content">
                 <div class="ui comments">
-                  <h3 class="ui dividing header">Comments (4)</h3>
-                  {% for comment in comments.comments %}
-                  <div class="comment">
-                    <a class="avatar">
-                      <img src="https://via.placeholder.com/500" />
-                    </a>
-                    <div class="content">
-                      <a class="author">{{username}}</a>
-                      <div class="metadata">
-                        <span class="date">{{date}}</span>
-                      </div>
-                      <div class="text">
-                        {{body}}
-                      </div>
-                      <div class="actions">
-                        <a class="reply">Reply</a>
-                      </div>
-                    {% endfor %}
+                  
+                  <h3 class="ui dividing header">Comments:</h3>
+                  {% for comment in comments["comments"] %}
+                    <div class="comment">
+                      <a class="avatar">
+                        <img src="https://via.placeholder.com/500" />
+                      </a>
+                      <div class="content">
+                        <a class="author">{{comment.username}}</a>
+                        <div class="metadata">
+                          <span class="date">{{comment.date}}</span>
+                        </div>
+                        <div class="text">
+                          {{comment.body}}
+                        </div>
+                        <div class="actions">
+                          <a class="reply">Reply</a>
+                        </div>
+                      
+                      </div> 
                     </div>
-                  </div>
-                  <form class="ui reply form">
-                    <div class="field">
-                      <textarea></textarea>
-                    </div>
-                    <div class="ui left floated blue labeled submit icon button">
-                      <i class="icon edit"></i> Add Reply
-                    </div>
-                  {% if session["username"] %}
-                  </form>
-                    <form action="{{ url_for('delete_post') }}" class="ui form", method="POST">
-                      <input type="hidden" name="postId" value="{{postId}}">
-                      <input type="submit" value = "Delete Post" class="negative right floated ui button"></button>
-                    </form>
-                  {%endif%}
+                  {% endfor %}
                 </div>
+                  <div class="hidden content">
+                  <div>
+                    <form action="{{ url_for('submit_comment') }}" class="ui reply form" id="comment", method="POST">
+                      <input type="hidden" name="postId" value="{{postId}}">
+                      <div class="field" >
+                        <textarea placeholder="Comment here" name="comment_text"></textarea>
+                    </form>
+                    <form action="{{ url_for('delete_post') }}" class="ui form" id="delete", method="POST">
+                      <input type="hidden" name="postId" value="{{postId}}">
+                    </form>
+                    <input type="submit" value = "Post comment" form="comment" class="ui left floated blue button"></button>
+                    <input type="submit" value = "Delete Post" form="delete" class="negative right floated ui button"></button>
+                  </div>     
+                
               </div>
             </div>
           </div>

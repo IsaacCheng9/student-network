@@ -9,7 +9,7 @@ from datetime import date, datetime
 from typing import Tuple, List
 
 from email_validator import validate_email, EmailNotValidError
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, url_for
 from passlib.hash import sha256_crypt
 
 application = Flask(__name__)
@@ -311,30 +311,21 @@ def register_submit() -> object:
             session["error"] = message
             return redirect("/register")
 
-
-@application.route("/post_page", methods=["GET"])
-def post_page():
-    """
-    Redirects user to feed if the post id is missing.
-
-    Returns:
-        The web page for their feed.
-    """
-    session["prev-page"] = request.url
-    return render_template("feed.html")
-
-
 @application.route("/post_page/<postId>", methods=["GET"])
 def post(postId):
     """
-    Checks the user is logged in before viewing their profile page.
+    Loads a post and it's comments
 
     Returns:
         Redirection to their profile if they're logged in.
     """
     comments = { "comments": [] }
     message = []
+    author = ""
     i = 0
+
+    session["prev-page"] = request.url
+
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets user from database using username.
@@ -352,23 +343,24 @@ def post(postId):
             title, body, username, date = (data[0], data[1], data[2], data[3])
             # TODO: Implement acoount type
             cur.execute(
-            "SELECT * "
+            "SELECT *"
             "FROM Comments WHERE postId=?;", (postId,))
             row = cur.fetchall()
             if len(row) == 0:
                 return render_template("post_page.html", postId=postId,title=title, body=body, username=username, date=date, comments = None)
-            for comment in reversed(row):
+            for comment in row:
                 if i == 20:
                     break
                 comments["comments"].append({
                 "commentId":comment[0],
                 "username": comment[1],
-                "body": comment[3],
+                "body": comment[2],
                 "account_type": "Student",
-                "date": comment[4],
+                "date": comment[3],
                 })
-                i+=1        
-            return render_template("post_page.html", postId=postId, title=title, body=body, username=username, date=date, comments = comments)
+                i+=1
+            #TODO: the person viewing the post is the author of the post ( othervise hide delete button)
+            return render_template("post_page.html", author = author, postId=postId, title=title, body=body, username=username, date=date, comments = comments)
 
 
 
@@ -426,19 +418,39 @@ def submit_post():
         if postTitle != "":
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
-                cur.execute(
-                "SELECT MAX(postId) FROM POSTS")
-                row = cur.fetchone()
                 #TODO: 6th value in table is privacy setting and 7th is account type. 
                 #Currently is default - public/student but no functionality
                 cur.execute("INSERT INTO POSTS (title, body, username) "
                     "VALUES (?, ?, ?);", (postTitle, postBody, session["username"]))
         conn.commit()
+        #TODO: Prints error message missing title on top of page
     except:
         conn.rollback()
         print("error in insert operation")
     finally:
         return redirect("/feed")
+
+
+@application.route("/submit_comment", methods=["POST"])
+def submit_comment():
+    """
+    Submit comment on post page to database.
+
+    Returns:
+        Updated post with new comment added
+    """
+    postId = request.form["postId"]
+    commentBody = request.form["comment_text"]
+    if commentBody != "":
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            #TODO: 6th value in table is privacy setting and 7th is account type. 
+            #Currently is default - public/student but no functionality
+            cur.execute("INSERT INTO Comments (postId, body, username) "
+                "VALUES (?, ?, ?);", (postId, commentBody, session["username"]))
+            conn.commit()
+    session["postId"] = postId
+    return redirect("/post_page/" + postId)
 
 @application.route("/delete_post", methods=["POST"])
 def delete_post():
