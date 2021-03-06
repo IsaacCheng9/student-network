@@ -254,7 +254,8 @@ def show_requests() -> object:
 
     session["prev-page"] = request.url
 
-    return render_template("request.html", requests=requests, avatars=avatars, allUsernames=GetAllUsernames())
+    return render_template("request.html", requests=requests, avatars=avatars, allUsernames=GetAllUsernames(),
+                            requestCount=GetConnectionRequestCount())
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -430,7 +431,7 @@ def feed():
     """
     if "username" in session:
         session["prev-page"] = request.url
-        return render_template("feed.html")
+        return render_template("feed.html", requestCount=GetConnectionRequestCount(), allUsernames=GetAllUsernames())
     else:
         return redirect("/login")
 
@@ -540,7 +541,8 @@ def profile(username):
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, interests=interests,
-                           email=email, posts=posts, type=conn_type, allUsernames=GetAllUsernames())
+                           email=email, posts=posts, type=conn_type, allUsernames=GetAllUsernames(),
+                           requestCount=GetConnectionRequestCount())
 
 
 @application.route("/profile/<username>/edit", methods=["GET", "POST"])
@@ -739,6 +741,18 @@ def GetAllUsernames():
         
     return []
 
+def GetConnectionRequestCount():
+    """
+        Returns amount of pending connection requests for a logged in user
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM Connection WHERE user2=? AND connection_type='request'", (session["username"],))
+         
+         
+        return len(list(cur.fetchall()))
+
+    return 0
 
 if __name__ == "__main__":
     application.run(debug=True)

@@ -69,7 +69,12 @@
                     <a href="/profile" {% if request.path=='/profile' %}class="active item" {% else %}class="item" {%
                         endif %}>Profile</a>
                     <a href="/requests" {% if request.path=='/requests' %}class="active item" {% else %}class="item" {%
-                        endif %}class="item">Connect Requests</a>
+                        endif %}class="item">
+                        Connect Requests
+                        {%if requestCount > 0%}
+                        <div class="ui label red mini">{{requestCount}}</div>
+                        {%endif%}
+                    </a>
                     <a href="/feed" {% if request.path=='/feed' %}class="active item" {% else %}class="item" {% endif
                         %}>Feed</a>
                     <div class="right menu">
