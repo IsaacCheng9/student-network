@@ -332,7 +332,9 @@ def post(postId):
     Returns:
         Redirection to their profile if they're logged in.
     """
+    comments = { "comments": [] }
     message = []
+    i = 0
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets user from database using username.
@@ -347,9 +349,26 @@ def post(postId):
             return render_template("error.html", message=message)
         else:
             data = row[0]
-            title, body, username, date = (
-                data[0], data[1], data[2], data[3])
-            return render_template("post_page.html", postId=postId,title=title, body=body, username=username, date=date)
+            title, body, username, date = (data[0], data[1], data[2], data[3])
+            # TODO: Implement acoount type
+            cur.execute(
+            "SELECT * "
+            "FROM Comments WHERE postId=?;", (postId,))
+            row = cur.fetchall()
+            if len(row) == 0:
+                return render_template("post_page.html", postId=postId,title=title, body=body, username=username, date=date, comments = None)
+            for comment in reversed(row):
+                if i == 20:
+                    break
+                comments["comments"].append({
+                "commentId":comment[0],
+                "username": comment[1],
+                "body": comment[3],
+                "account_type": "Student",
+                "date": comment[4],
+                })
+                i+=1        
+            return render_template("post_page.html", postId=postId, title=title, body=body, username=username, date=date, comments = comments)
 
 
 
@@ -410,10 +429,6 @@ def submit_post():
                 cur.execute(
                 "SELECT MAX(postId) FROM POSTS")
                 row = cur.fetchone()
-                if row[0] is None:
-                    nextID = 0
-                else:
-                    nextID = row[0] + 1
                 #TODO: 6th value in table is privacy setting and 7th is account type. 
                 #Currently is default - public/student but no functionality
                 cur.execute("INSERT INTO POSTS (title, body, username) "

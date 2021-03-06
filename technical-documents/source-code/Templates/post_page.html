@@ -105,78 +105,23 @@
               <div class="content">
                 <div class="ui comments">
                   <h3 class="ui dividing header">Comments (4)</h3>
+                  {% for comment in comments.comments %}
                   <div class="comment">
                     <a class="avatar">
                       <img src="https://via.placeholder.com/500" />
                     </a>
                     <div class="content">
-                      <a class="author">Matt</a>
+                      <a class="author">{{username}}</a>
                       <div class="metadata">
-                        <span class="date">Today at 5:42PM</span>
+                        <span class="date">{{date}}</span>
                       </div>
                       <div class="text">
-                        Wow, I'm surprised such an old game still holds up.
+                        {{body}}
                       </div>
                       <div class="actions">
                         <a class="reply">Reply</a>
                       </div>
-                    </div>
-                  </div>
-                  <div class="comment">
-                    <a class="avatar">
-                      <img src="https://via.placeholder.com/500" />
-                    </a>
-                    <div class="content">
-                      <a class="author">Elliot Fu</a>
-                      <div class="metadata">
-                        <span class="date">Yesterday at 12:30AM</span>
-                      </div>
-                      <div class="text">
-                        <p>
-                          Yes! I was looking for this game for a long time! How
-                          do you upgrade your castle again?
-                        </p>
-                      </div>
-                      <div class="actions">
-                        <a class="reply">Reply</a>
-                      </div>
-                    </div>
-                    <div class="comments">
-                      <div class="comment">
-                        <a class="avatar">
-                          <img src="https://via.placeholder.com/500" />
-                        </a>
-                        <div class="content">
-                          <a class="author">Jenny Hess</a>
-                          <div class="metadata">
-                            <span class="date">Just now</span>
-                          </div>
-                          <div class="text">
-                            Under menu there should be a construction building,
-                            you need to be level 5 though.
-                          </div>
-                          <div class="actions">
-                            <a class="reply">Reply</a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="comment">
-                    <a class="avatar">
-                      <img src="https://via.placeholder.com/500" />
-                    </a>
-                    <div class="content">
-                      <a class="author">Joe Henderson</a>
-                      <div class="metadata">
-                        <span class="date">5 days ago</span>
-                      </div>
-                      <div class="text">
-                        Dude, this is awesome. Thanks so much
-                      </div>
-                      <div class="actions">
-                        <a class="reply">Reply</a>
-                      </div>
+                    {% endfor %}
                     </div>
                   </div>
                   <form class="ui reply form">
@@ -190,9 +135,8 @@
                   </form>
                     <form action="{{ url_for('delete_post') }}" class="ui form", method="POST">
                       <input type="hidden" name="postId" value="{{postId}}">
-                      <input type="submit" value = "Delete Post" name = "bob" class="negative right floated ui button"></button>
+                      <input type="submit" value = "Delete Post" class="negative right floated ui button"></button>
                     </form>
-                    
                   {%endif%}
                 </div>
               </div>
