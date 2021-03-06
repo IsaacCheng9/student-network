@@ -51,7 +51,7 @@ def login_page():
         # Clear error session variables.
         session.pop("error", None)
         return render_template("login.html", errors=errors)
-        
+
 
 @application.route("/close_connection/<username>", methods=["GET", "POST"])
 def close_connection(username):
@@ -179,14 +179,14 @@ def remove_close(username: str) -> object:
                         (username,))
             # Searches for the connection in the database.
         if get_connection_type(username) == "connected":
-                cur.execute(
+            cur.execute(
                 "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
                 (session["username"], username))
-                if cur.fetchone() is not None:
-                    cur.execute(
-                        "DELETE FROM CloseFriend WHERE (user1=? AND user2=?);",
-                        (session["username"], username))
-                    conn.commit()
+            if cur.fetchone() is not None:
+                cur.execute(
+                    "DELETE FROM CloseFriend WHERE (user1=? AND user2=?);",
+                    (session["username"], username))
+                conn.commit()
     return redirect(session["prev-page"])
 
 
@@ -255,8 +255,9 @@ def show_requests() -> object:
 
     session["prev-page"] = request.url
 
-    return render_template("request.html", requests=requests, avatars=avatars, allUsernames=GetAllUsernames(),
-                            requestCount=GetConnectionRequestCount())
+    return render_template("request.html", requests=requests, avatars=avatars,
+                           allUsernames=get_all_usernames(),
+                           requestCount=get_connection_request_count())
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -359,7 +360,7 @@ def register_page():
         session["prev-page"] = request.url
 
         return render_template("register.html", notifications=notifications,
-                            errors=errors)
+                               errors=errors)
 
 
 @application.route("/register", methods=["POST"])
@@ -432,7 +433,9 @@ def feed():
     """
     if "username" in session:
         session["prev-page"] = request.url
-        return render_template("feed.html", requestCount=GetConnectionRequestCount(), allUsernames=GetAllUsernames())
+        return render_template("feed.html",
+                               requestCount=get_connection_request_count(),
+                               allUsernames=get_all_usernames())
     else:
         return redirect("/login")
 
@@ -530,8 +533,8 @@ def profile(username):
 
     # Gets the connection type with the user to show their relationship.
     cur.execute(
-    "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
-    (session["username"], username))
+        "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
+        (session["username"], username))
     if cur.fetchone() is None:
         conn_type = get_connection_type(username)
     else:
@@ -543,8 +546,9 @@ def profile(username):
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, interests=interests,
-                           email=email, posts=posts, type=conn_type, allUsernames=GetAllUsernames(),
-                           requestCount=GetConnectionRequestCount())
+                           email=email, posts=posts, type=conn_type,
+                           allUsernames=get_all_usernames(),
+                           requestCount=get_connection_request_count())
 
 
 @application.route("/edit-profile", methods=["GET", "POST"])
@@ -557,7 +561,8 @@ def edit_profile() -> object:
     """
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
-        return render_template("settings.html")
+        return render_template("settings.html",
+                               requestCount=get_connection_request_count())
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -659,7 +664,8 @@ def calculate_age(born):
 
 
 def validate_registration(
-        cur, username: str, fullname:str, password: str, password_confirm: str,
+        cur, username: str, fullname: str, password: str,
+        password_confirm: str,
         email: str, terms: str) -> Tuple[bool, List[str]]:
     """
     Validates the registration details to ensure that the email address is
@@ -683,8 +689,8 @@ def validate_registration(
     message = []
 
     # Checks that there are no null inputs.
-    if (username == "" or fullname == "" or password == "" or 
-        password_confirm == "" or email == ""):
+    if (username == "" or fullname == "" or password == "" or
+            password_confirm == "" or email == ""):
         message.append("Not all fields have been filled in!")
         valid = False
 
@@ -702,7 +708,7 @@ def validate_registration(
     # Checks that the fullname only contains valid characters.
     if not all(x.isalpha() or x.isspace() for x in fullname):
         message.append("Full Name must only contain letters, numbers and"
-        " spaces!")
+                       " spaces!")
         valid = False
 
     # Checks that the email address has the correct format, checks whether it
@@ -796,31 +802,30 @@ def validate_edit_profile(bio, gender, dob, profile_pic,
 
     return valid, message
 
-def GetAllUsernames():
+
+def get_all_usernames():
     """Returns a list of all usernames that are registered"""
-    usernames = []
     with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-            cur.execute("SELECT username FROM Accounts")
+        cur = conn.cursor()
+        cur.execute("SELECT username FROM Accounts")
 
-            row = cur.fetchall()
-            
-            return row
-        
-    return []
+        row = cur.fetchall()
 
-def GetConnectionRequestCount():
+        return row
+
+
+def get_connection_request_count():
     """
         Returns amount of pending connection requests for a logged in user
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM Connection WHERE user2=? AND connection_type='request'", (session["username"],))
-         
-         
+        cur.execute(
+            "SELECT * FROM Connection WHERE user2=? AND connection_type='request'",
+            (session["username"],))
+
         return len(list(cur.fetchall()))
 
-    return 0
 
 if __name__ == "__main__":
     application.run(debug=True)
