@@ -10,7 +10,7 @@ from string import capwords
 from typing import Tuple, List
 
 from email_validator import validate_email, EmailNotValidError
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, url_for
 from passlib.hash import sha256_crypt
 
 application = Flask(__name__)
@@ -407,20 +407,61 @@ def register_submit() -> object:
             session["error"] = message
             return redirect("/register")
 
-
-@application.route("/post_page", methods=["GET"])
-def post_page():
+@application.route("/post_page/<postId>", methods=["GET"])
+def post(postId):
     """
-    Checks the user is logged in before viewing their post page.
+    Loads a post and it's comments
 
     Returns:
-        The web page for their post if they're logged in.
+        Redirection to their profile if they're logged in.
     """
-    if "username" in session:
-        session["prev-page"] = request.url
-        return render_template("post_page.html")
-    else:
-        return redirect("/login")
+    comments = { "comments": [] }
+    message = []
+    author = ""
+    i = 0
+
+    session["prev-page"] = request.url
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        # Gets user from database using username.
+        cur.execute(
+            "SELECT title, body, username, date, account_type "
+            "FROM POSTS WHERE postId=?;", (postId,))
+        row = cur.fetchall()
+        if len(row) == 0:
+            message.append("This post does note exist.")
+            message.append(" Please ensure you have entered the name correctly.")
+            session["prev-page"] = request.url
+            return render_template("error.html", message=message,
+                                requestCount=get_connection_request_count(),
+                               allUsernames=get_all_usernames())
+        else:
+            data = row[0]
+            title, body, username, date, account_type = (data[0], data[1],
+                                                         data[2], data[3], data[4])
+            # TODO: Implement acoount type
+            cur.execute(
+            "SELECT *"
+            "FROM Comments WHERE postId=?;", (postId,))
+            row = cur.fetchall()
+            if len(row) == 0:
+                return render_template("post_page.html", postId=postId,title=title,
+                                        body=body, username=username, date=date,
+                                        account_type = account_type, comments = None, )
+            for comment in row:
+                if i == 20:
+                    break
+                comments["comments"].append({
+                "commentId":comment[0],
+                "username": comment[1],
+                "body": comment[2],
+                "account_type": "Student",
+                "date": comment[3],
+                })
+                i+=1
+            #TODO: the person viewing the post is the author of the post ( othervise hide delete button)
+            return render_template("post_page.html", author = author, postId=postId, title=title, body=body, username=username, date=date, comments = comments)
 
 
 @application.route("/feed", methods=["GET"])
@@ -433,11 +474,142 @@ def feed():
     """
     if "username" in session:
         session["prev-page"] = request.url
-        return render_template("feed.html",
-                               requestCount=get_connection_request_count(),
+
+        username = session["username"]
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            #TODO: edit select statement to only include users connected to the current user when feature is built
+            cur.execute("SELECT postId, title, body, username, account_type, date FROM POSTS")
+            row = cur.fetchall()
+            i=0
+            allPosts = {
+                "AllPosts": []
+            }
+            #TODO: account type differentiation in posts db
+            for post in reversed(row):
+                if i == 20:
+                    break
+                allPosts["AllPosts"].append({
+                "postId":post[0],
+                "title": post[1],
+                "profile_pic": "https://via.placeholder.com/600",
+                "author": post[3],
+                "account_type": post[4],
+                "date_posted": post[5],
+                "body": (post[2])[:250] + "..."
+                })
+                i+=1
+        return render_template("feed.html", posts = allPosts, requestCount=get_connection_request_count(),
                                allUsernames=get_all_usernames())
     else:
         return redirect("/login")
+
+@application.route("/submit_post", methods=["POST"])
+def submit_post():
+    """
+    Submit post on social wall to database.
+
+    Returns:
+        Updated feed with new post added
+    """
+    try:
+        postTitle = request.form["post_title"]
+        postBody = request.form["post_text"]
+        if postTitle != "":
+            with sqlite3.connect("database.db") as conn:
+                cur = conn.cursor()
+                #TODO: 6th value in table is privacy setting and 7th is account type.
+                #Currently is default - public/student but no functionality
+                cur.execute("INSERT INTO POSTS (title, body, username) "
+                    "VALUES (?, ?, ?);", (postTitle, postBody, session["username"]))
+        conn.commit()
+        #TODO: Prints error message missing title on top of page
+    except:
+        conn.rollback()
+        print("error in insert operation")
+    finally:
+        return redirect("/feed")
+
+
+@application.route("/submit_comment", methods=["POST"])
+def submit_comment():
+    """
+    Submit comment on post page to database.
+
+    Returns:
+        Updated post with new comment added
+    """
+    postId = request.form["postId"]
+    commentBody = request.form["comment_text"]
+    if commentBody != "":
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            #TODO: 6th value in table is privacy setting and 7th is account type.
+            #Currently is default - public/student but no functionality
+            cur.execute("INSERT INTO Comments (postId, body, username) "
+                "VALUES (?, ?, ?);", (postId, commentBody, session["username"]))
+            conn.commit()
+    session["postId"] = postId
+    return redirect("/post_page/" + postId)
+
+@application.route("/delete_post", methods=["POST"])
+def delete_post():
+    """
+    Delete post from database.
+
+    Returns:
+        Feed page
+    """
+    postId = request.form["postId"]
+
+    try:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute(
+            "SELECT postId FROM POSTS")
+            row = cur.fetchone()
+            #check the post exists in database
+            if row[0] is None:
+                message.append("Error: this post does not exist")
+            else:
+                cur.execute("DELETE FROM POSTS WHERE postId = ?", postId)
+        conn.commit()
+    except:
+        conn.rollback()
+        print("error in deleting")
+    finally:
+        return redirect("/feed")
+
+@application.route("/delete_comment", methods=["POST"])
+def delete_comment():
+    """
+    Delete comment from database.
+
+    Returns:
+        Feed page
+    """
+    message = []
+    postId = request.form["commentId"]
+    commentId = request.form["commentId"]
+    try:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute( "SELECT commentId FROM Comments"
+                "WHERE commentId = ?", commentId)
+            row = cur.fetchone()
+            #check the post exists in database
+            if row[0] is None:
+                message.append("Error: this comment does not exist")
+                return render_template("error.html", message=message)
+            else:
+                cur.execute("DELETE FROM Comments WHERE commentId = ?", commentId)
+        conn.commit()
+    except:
+        conn.rollback()
+        message.append("Error while deleting comment")
+        return render_template("error.html", message=message)
+    finally:
+        return redirect("/post_page/" + postId)
 
 
 @application.route("/profile", methods=["GET"])
@@ -471,6 +643,7 @@ def profile(username):
     email = ""
     hobbies = []
     interests = []
+    account_type = ""
     message = []
 
     with sqlite3.connect("database.db") as conn:
@@ -490,6 +663,12 @@ def profile(username):
             data = row[0]
             name, bio, gender, birthday, profile_picture = (
                 data[0], data[1], data[2], data[3], data[4])
+    # Gets account type.
+    cur.execute(
+        "SELECT type FROM "
+        "ACCOUNTS WHERE username=?;", (username,))
+    row = cur.fetchall()
+    account_type = row[0][0]
 
     # Gets the user's hobbies.
     cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
@@ -512,20 +691,27 @@ def profile(username):
     if len(row) > 0:
         email = row[0][0]
 
-    # TODO: db search query in posts table for all the users posts
     # TODO: store all the users posts in a json file
-    posts = {
-        "UserPosts": [
-        ]
+    cur.execute(
+    "SELECT postId, title, body, username, account_type, date FROM "
+    "POSTS WHERE username=?;", (username,))
+    row = cur.fetchall()
+    i=0
+    userPosts = {
+        "UserPosts": []
     }
-    for i in range(1, 10):
-        posts["UserPosts"].append({
-            "title": "Post " + str(i),
-            "profile_pic": "https://via.placeholder.com/600",
-            "author": "John Smith",
-            "account_type": "Student",
-            "time_elapsed": str(i) + " days"
+
+    for post in reversed(row):
+        userPosts["UserPosts"].append({
+        "postId":post[0],
+        "title": post[1],
+        "profile_pic": "https://via.placeholder.com/600",
+        "author": post[3],
+        "account_type": post[4],
+        "date_posted": post[5],
+        "body": (post[2])[:250] + "..."
         })
+        i+=1
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
@@ -545,10 +731,9 @@ def profile(username):
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
-                           age=age, hobbies=hobbies, interests=interests,
-                           email=email, posts=posts, type=conn_type,
-                           allUsernames=get_all_usernames(),
-                           requestCount=get_connection_request_count())
+                           age=age, hobbies=hobbies,  account_type = account_type, interests=interests,
+                           email=email, posts=userPosts, type=conn_type, allUsernames=GetAllUsernames(),
+                           requestCount=GetConnectionRequestCount())
 
 
 @application.route("/edit-profile", methods=["GET", "POST"])
@@ -834,6 +1019,32 @@ def get_connection_request_count() -> int:
         cur.execute(
             "SELECT * FROM Connection WHERE user2=? AND "
             "connection_type='request';",
+            (session["username"],))
+
+        return len(list(cur.fetchall()))
+
+
+
+
+def get_all_usernames():
+    """Returns a list of all usernames that are registered"""
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT username FROM Accounts")
+
+        row = cur.fetchall()
+
+        return row
+
+
+def get_connection_request_count():
+    """
+        Returns amount of pending connection requests for a logged in user
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM Connection WHERE user2=? AND connection_type='request';",
             (session["username"],))
 
         return len(list(cur.fetchall()))
