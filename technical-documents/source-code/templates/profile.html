@@ -10,7 +10,19 @@
             <div class="eleven wide column">
                 <div class="ui list">
                     <div class="item">
-                        <h1>{{name}}</h1>
+                        <h1>
+                            {{name}}
+                            {% if session and session["username"] == username%}
+                            <div class="right floated content">
+                                <a href="../edit-profile">
+                                    <button class="ui button icon green">
+                                        <i class="icon pencil"></i>
+                                        Edit Profile
+                                    </button>
+                                </a>
+                            </div>
+                            {%endif%}
+                        </h1>
                         <span class="right floated content">
                             <!--
                                         <a href="">
@@ -72,7 +84,7 @@
                             Close Friends
                         </button>
                     </form>
-                    {% endif %}              
+                    {% endif %}
                     {% if type == "connected" or type == "close" %}
                     <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
                         <button class="ui green button tiny">
