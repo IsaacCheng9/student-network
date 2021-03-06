@@ -821,7 +821,7 @@ def get_connection_request_count():
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT * FROM Connection WHERE user2=? AND connection_type='request'",
+            "SELECT * FROM Connection WHERE user2=? AND connection_type='request';",
             (session["username"],))
 
         return len(list(cur.fetchall()))
