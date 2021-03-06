@@ -472,8 +472,6 @@ def feed():
     """
     if "username" in session:
         session["prev-page"] = request.url
-
-        username = session["username"]
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             #TODO: edit select statement to only include users connected to the current user when feature is built
@@ -559,7 +557,7 @@ def delete_post():
         Feed page
     """
     postId = request.form["postId"]
-
+    message = []
     try:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
