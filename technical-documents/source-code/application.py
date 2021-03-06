@@ -523,7 +523,7 @@ def profile(username):
         })
 
     # Calculates the user's age based on their date of birth.
-    datetime_object = datetime.strptime(birthday, "%d/%m/%Y")
+    datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
     age = calculate_age(datetime_object)
 
     # Gets the connection type with the user to show their relationship.
