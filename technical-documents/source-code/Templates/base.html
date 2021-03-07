@@ -62,8 +62,11 @@
                         {%endif%}
                     {%endfor%}
                     {% if session["username"] %}
-                    <a href="/profile" {% if request.path=='/profile' %}class="active item" {% else %}class="item" {%
-                        endif %}>Profile</a>
+                        {% if session["username"] == username %}
+                        <a href="{{url_for('user_profile')}}" class="active item">Profile</a>
+                        {% else %}
+                        <a href="{{url_for('user_profile')}}" class="item">Profile</a>
+                        {% endif %}
                     <a href="/requests" {% if request.path=='/requests' %}class="active item" {% else %}class="item" {%
                         endif %}class="item">
                         Connect Requests

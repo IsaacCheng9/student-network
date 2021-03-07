@@ -492,7 +492,7 @@ def register_submit() -> object:
                 "VALUES (?, ?, ?, ?, ?, ?);", (
                     username, fullname, "Change your bio in the settings.",
                     "Male",
-                    "01-01-1970", "/static/images/default-pfp.jpg",))
+                    date.today(), "/static/images/default-pfp.jpg",))
             conn.commit()
             session["notifications"] = ["register"]
             return redirect("/register")
@@ -543,11 +543,11 @@ def post(postId):
                 "FROM Comments WHERE postId=?;", (postId,))
             row = cur.fetchall()
             if len(row) == 0:
-                return render_template("post_page.html", postId=postId,
-                                       title=title,
-                                       body=body, username=username, date=date,
-                                       account_type=account_type,
-                                       comments=None, )
+                return render_template("post_page.html", author=author,
+                                        postId=postId, title=title, body=body,
+                                        username=username, date=date,
+                                        comments=None,requestCount=get_connection_request_count(),
+                                        allUsernames=get_all_usernames())
             for comment in row:
                 if i == 20:
                     break
@@ -628,7 +628,59 @@ def submit_post():
                 cur.execute("INSERT INTO POSTS (title, body, username) "
                             "VALUES (?, ?, ?);",
                             (postTitle, postBody, session["username"]))
-        conn.commit()
+                conn.commit()
+
+                #Award achievement ID 7 - Express yourself if necessary
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 7))
+                if cur.fetchone() is None:
+                    cur.execute(
+                        "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
+                        (session["username"], 7, date.today()))
+                    conn.commit()
+                    cur.execute(
+                        "SELECT xp_value FROM Achievements WHERE achievement_ID=7;")
+                    xp = cur.fetchone()[0]
+                    #TODO: xp allocation to user for complete achievement
+
+                #Award achievement ID 8 - 5 posts if necessary
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 8))
+                if cur.fetchone() is None:
+                    cur.execute(
+                        "SELECT * FROM POSTS WHERE username=?;", (session["username"],))
+                    results = cur.fetchall()
+                    print(results)
+                    print(len(results))
+                    if len(results) >= 5:
+                        cur.execute(
+                            "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
+                            (session["username"], 8, date.today()))
+                        conn.commit()
+                        cur.execute(
+                            "SELECT xp_value FROM Achievements WHERE achievement_ID=8;")
+                        xp = cur.fetchone()[0]
+                        #TODO: xp allocation to user for complete achievement
+
+                #Award achievement ID 9 - 20 posts if necessary
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 9))
+                if cur.fetchone() is None:
+                    cur.execute(
+                        "SELECT * FROM POSTS WHERE username=?;", (session["username"],))
+                    results = cur.fetchall()
+                    print(results)
+                    print(len(results))
+                    if len(results) >= 20:
+                        cur.execute(
+                            "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
+                            (session["username"], 9, date.today()))
+                        conn.commit()
+                        cur.execute(
+                            "SELECT xp_value FROM Achievements WHERE achievement_ID=9;")
+                        xp = cur.fetchone()[0]
+                        #TODO: xp allocation to user for complete achievement
+
         # TODO: Prints error message missing title on top of page
     except:
         conn.rollback()
@@ -674,7 +726,7 @@ def delete_post():
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute(
-                "SELECT postId FROM POSTS WHERE postId=?", (postId,))
+                "SELECT postId FROM POSTS WHERE postId=?;", (postId,))
             row = cur.fetchone()
             # check the post exists in database
             if row[0] is None:
@@ -685,7 +737,7 @@ def delete_post():
     except:
         conn.rollback()
     finally:
-        message.append("Comment has been deleted successfully.")
+        message.append("Post has been deleted successfully.")
         return render_template("error.html", message=message,
                                requestCount=get_connection_request_count(),
                                allUsernames=get_all_usernames())
