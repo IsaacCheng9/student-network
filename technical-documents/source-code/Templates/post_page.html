@@ -84,114 +84,71 @@
             <div class="ui card fluid">
               <div class="content">
                 <div class="header">
-                  Look at this cool browser game I found!
+                  {{title}}
                 </div>
                 <div class="right floated meta">
-                  <a class="ui blue image label spaced basic">
+                <a href="/profile/{{username}}" class="ui blue image label spaced basic">
                     <img src="https://via.placeholder.com/600" />
-                    Elliot
-                    <div class="detail">Student</div>
+                    {{username}}
+                    <div class="detail">{{account}}</div>
                   </a>
                 </div>
                 <div class="ui divider hidden"></div>
-                <div class="right floated meta">6 days ago</div>
+                <div class="right floated meta">{{date}}</div>
               </div>
               <div class="content">
                 <div class="centered">
-                  <img
-                    class="ui image centered rounded"
-                    src="https://via.placeholder.com/500"
-                    alt=""
-                  />
+                  {{body}}
                 </div>
               </div>
 
               <div class="content">
                 <div class="ui comments">
-                  <h3 class="ui dividing header">Comments (4)</h3>
-                  <div class="comment">
-                    <a class="avatar">
-                      <img src="https://via.placeholder.com/500" />
-                    </a>
-                    <div class="content">
-                      <a class="author">Matt</a>
-                      <div class="metadata">
-                        <span class="date">Today at 5:42PM</span>
-                      </div>
-                      <div class="text">
-                        Wow, I'm surprised such an old game still holds up.
-                      </div>
-                      <div class="actions">
-                        <a class="reply">Reply</a>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="comment">
-                    <a class="avatar">
-                      <img src="https://via.placeholder.com/500" />
-                    </a>
-                    <div class="content">
-                      <a class="author">Elliot Fu</a>
-                      <div class="metadata">
-                        <span class="date">Yesterday at 12:30AM</span>
-                      </div>
-                      <div class="text">
-                        <p>
-                          Yes! I was looking for this game for a long time! How
-                          do you upgrade your castle again?
-                        </p>
-                      </div>
-                      <div class="actions">
-                        <a class="reply">Reply</a>
-                      </div>
-                    </div>
-                    <div class="comments">
-                      <div class="comment">
-                        <a class="avatar">
-                          <img src="https://via.placeholder.com/500" />
-                        </a>
-                        <div class="content">
-                          <a class="author">Jenny Hess</a>
-                          <div class="metadata">
-                            <span class="date">Just now</span>
-                          </div>
-                          <div class="text">
-                            Under menu there should be a construction building,
-                            you need to be level 5 though.
-                          </div>
-                          <div class="actions">
-                            <a class="reply">Reply</a>
-                          </div>
+                  
+                  <h3 class="ui dividing header">Comments:</h3>
+                  {% for comment in comments["comments"] %}
+                    <div class="comment">
+                      <a class="avatar">
+                        <img src="https://via.placeholder.com/500" />
+                      </a>
+                      <div class="content">
+                        <a class="author">{{comment.username}}</a>
+                        <div class="metadata">
+                          <span class="date">{{comment.date}}</span>
+                          
+                        </div>
+                        <form action="{{ url_for('delete_comment') }}" class="ui reply form" id="deleteComment", method="POST">
+                          <input type="hidden" name="postId" value="{{postId}}">
+                          <input type="hidden" name="commentId" value="{{comment.commentId}}">
+                        </form>
+                        <!--TODO: ensure the delete button is available only for the user's comments-->
+                        <button type="submit" form="deleteComment" class="ui red right floated mini button">
+                          <i class="small trash alternate outline icon"></i>
+                        </button>
+                        <div class="text">
+                          {{comment.body}}
                         </div>
                       </div>
-                    </div>
-                  </div>
-                  <div class="comment">
-                    <a class="avatar">
-                      <img src="https://via.placeholder.com/500" />
-                    </a>
-                    <div class="content">
-                      <a class="author">Joe Henderson</a>
-                      <div class="metadata">
-                        <span class="date">5 days ago</span>
-                      </div>
-                      <div class="text">
-                        Dude, this is awesome. Thanks so much
-                      </div>
-                      <div class="actions">
-                        <a class="reply">Reply</a>
-                      </div>
-                    </div>
-                  </div>
-                  <form class="ui reply form">
-                    <div class="field">
-                      <textarea></textarea>
-                    </div>
-                    <div class="ui blue labeled submit icon button">
-                      <i class="icon edit"></i> Add Reply
-                    </div>
-                  </form>
+                        <div>
+                          
+                        </div> 
+                      </div> 
+                  {% endfor %}
                 </div>
+                  <div class="hidden content">
+                  <div>
+                    <form action="{{ url_for('submit_comment') }}" class="ui reply form" id="comment", method="POST">
+                      <input type="hidden" name="postId" value="{{postId}}">
+                      <div class="field" >
+                        <textarea placeholder="Comment here" name="comment_text"></textarea>
+                    </form>
+                    <form action="{{ url_for('delete_post') }}" class="ui form" id="deletePost", method="POST">
+                      <input type="hidden" name="postId" value="{{postId}}">
+                    </form>
+                    <input type="submit" value = "Post comment" form="comment" class="ui left floated blue button"></button>
+                    <!--TODO: ensure the delete button is available only for the user's posts-->
+                    <input type="submit" value = "Delete Post" form="deletePost" class="negative right floated ui button"></button>
+                  </div>     
               </div>
             </div>
           </div>
