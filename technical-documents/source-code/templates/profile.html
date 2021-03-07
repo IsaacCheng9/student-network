@@ -5,7 +5,7 @@
     <div class="ui grid container">
         <div class="row">
             <div class="five wide column">
-                <img class="fluid rounded" src="{{profile_picture}}" />
+                <img class="fluid rounded" src="{{profile_picture}}"/>
             </div>
             <div class="eleven wide column">
                 <div class="ui list">
@@ -34,19 +34,24 @@
                     </div>
                     <div class="item">
                         <h5>
-                            <div class="ui label basic medium blue">@{{username}} <div class="detail">Student</div>
+                            <div class="ui label basic medium blue">
+                                @{{username}}
+                                <div class="detail">{{account_type}}</div>
                             </div>
                         </h5>
                     </div>
                 </div>
                 <div class="ui list">
-                    <div class="item"><b>Studying Biology at University of Bristol</b></div>
+                    <div class="item"><b>Studying Biology at University of
+                        Bristol</b></div>
                 </div>
                 <p>{{bio}}</p>
-                {% if username != session["username"] and session["username"] %}
+                {% if username != session["username"] and session["username"]
+                %}
                 <div class="ui buttons right floated">
                     {% if type == None %}
-                    <form action="{{ url_for('connect_request', username=username) }}" method="POST">
+                    <form action="{{ url_for('connect_request', username=username) }}"
+                          method="POST">
                         <button class="ui blue button tiny">
                             <i class="user icon"></i>
                             Connect
@@ -54,7 +59,8 @@
                     </form>
                     {% endif %}
                     {% if type == "request" %}
-                    <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
+                    <form action="{{ url_for('remove_connection', username=username) }}"
+                          method="GET">
                         <button class="ui grey button tiny">
                             <i class="bell slash icon"></i>
                             Pending
@@ -62,7 +68,8 @@
                     </form>
                     {% endif %}
                     {% if type == "incoming" %}
-                    <form action="{{ url_for('accept', username=username) }}" method="GET">
+                    <form action="{{ url_for('accept', username=username) }}"
+                          method="GET">
                         <button class="ui green button tiny">
                             <i class="user icon"></i>
                             Accept Request
@@ -70,7 +77,8 @@
                     </form>
                     {% endif %}
                     {% if type == "connected" %}
-                    <form action="{{ url_for('close_connection', username=username) }}" method="GET">
+                    <form action="{{ url_for('close_connection', username=username) }}"
+                          method="GET">
                         <button class="ui blue button tiny">
                             <i class="handshake outline icon"></i>
                             Mark as close friend
@@ -78,7 +86,8 @@
                     </form>
                     {% endif %}
                     {% if type == "close" %}
-                    <form action="{{ url_for('remove_close', username=username) }}" method="GET">
+                    <form action="{{ url_for('remove_close', username=username) }}"
+                          method="GET">
                         <button class="ui green button tiny">
                             <i class="handshake outline icon"></i>
                             Close Friends
@@ -86,7 +95,8 @@
                     </form>
                     {% endif %}
                     {% if type == "connected" or type == "close" %}
-                    <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
+                    <form action="{{ url_for('remove_connection', username=username) }}"
+                          method="GET">
                         <button class="ui green button tiny">
                             <i class="user icon"></i>
                             Connected
@@ -145,26 +155,38 @@
                 <div class="ui horizontal divider">Socials</div>
                 <div class="ui grid two column container stackable">
                     <div class="column">
-                        <button class="ui button facebook icon fluid mini"><i class="facebook icon"></i>
-                            Facebook</button>
+                        <button class="ui button facebook icon fluid mini"><i
+                                class="facebook icon"></i>
+                            Facebook
+                        </button>
                     </div>
                     <div class="column">
-                        <button class="ui button google plus icon fluid mini"><i class="google icon"></i>
-                            Google</button>
+                        <button class="ui button google plus icon fluid mini">
+                            <i class="google icon"></i>
+                            Google
+                        </button>
                     </div>
                     <div class="column">
-                        <button class="ui button linkedin icon fluid mini"><i class="linkedin icon"></i>
-                            LinkedIn</button>
+                        <button class="ui button linkedin icon fluid mini"><i
+                                class="linkedin icon"></i>
+                            LinkedIn
+                        </button>
                     </div>
                     <div class="column">
-                        <button class="ui button twitter icon fluid mini"><i class="twitter icon"></i> Twitter</button>
+                        <button class="ui button twitter icon fluid mini"><i
+                                class="twitter icon"></i> Twitter
+                        </button>
                     </div>
                     <div class="column">
-                        <button class="ui button instagram icon fluid mini"><i class="instagram icon"></i>
-                            Instagram</button>
+                        <button class="ui button instagram icon fluid mini"><i
+                                class="instagram icon"></i>
+                            Instagram
+                        </button>
                     </div>
                     <div class="column">
-                        <button class="ui button youtube icon fluid mini"><i class="youtube icon"></i> YouTube</button>
+                        <button class="ui button youtube icon fluid mini"><i
+                                class="youtube icon"></i> YouTube
+                        </button>
                     </div>
                 </div>
             </div>
@@ -172,23 +194,27 @@
     </div>
     <div class="ui segment basic">
         <div class="column">
-            <h3 class="ui header">Posts</h3>
+            <div class="ui horizontal divider">Posts</div>
             {% for post in posts.UserPosts %}
-            <div class="ui cards">
-                <div class="ui fluid card">
-                    <div class="content">
-                        <div class="header">
-                            {{ post.title }}
+            <div class="ui grid">
+                <div class="two wide column">
+                    <img class="ui image centered rounded"
+                         src="https://via.placeholder.com/500" alt=""/>
+                </div>
+                <div class="fourteen wide column">
+                    <h2>
+                        <a href="/post_page/{{ post.postId }}">{{ post.title
+                            }}</a>
+                        <div style="float: right">{{ post.date_posted }}</div>
+                    </h2>
+                    <a href="/profile/{{ post.author }}">
+                        <div class="ui label blue">
+                            {{ post.author }}
+                            <div class="detail">{{ post.account_type }}</div>
                         </div>
-                        <div class="right floated meta">
-                            <a class="ui blue image label spaced basic">
-                                <img src={{ post.profile_pic }} /> {{ post.author }}
-                                <div class="detail">{{ post.account_type }}</div>
-                            </a>
-                        </div>
-                        <div class="ui divider hidden"></div>
-                        <div class="right floated meta">{{ post.time_elapsed }}</div>
-                    </div>
+                    </a>
+                    <br>
+                    {{ post.body }}
                 </div>
             </div>
             {% endfor %}
