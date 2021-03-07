@@ -56,6 +56,7 @@ def login_page():
 def close_connection(username):
     """
     Sends a connect request to another user on the network.
+
     Args:
         username: The username of the person to request a connection with.
     Returns:
@@ -70,12 +71,14 @@ def close_connection(username):
                 conn_type = get_connection_type(username)
                 if conn_type == "connected":
                     cur.execute(
-                        "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
+                        "SELECT * FROM CloseFriend WHERE "
+                        "(user1=? AND user2=?);",
                         (session["username"], username))
                     if cur.fetchone() is None:
                         # Gets user from database using username.
                         cur.execute(
-                            "INSERT INTO CloseFriend (user1, user2) VALUES (?,?);",
+                            "INSERT INTO CloseFriend (user1, user2) "
+                            "VALUES (?,?);",
                             (session["username"], username,))
                         conn.commit()
                         session["add"] = True
@@ -158,6 +161,7 @@ def accept(username) -> object:
 def remove_close(username: str) -> object:
     """
     Removes a connection with the given user.
+
     Args:
         username: The user they want to remove the connection with.
     Returns:
@@ -187,6 +191,7 @@ def remove_close(username: str) -> object:
 def remove_connection(username: str) -> object:
     """
     Removes a connection with the given user.
+
     Args:
         username: The user they want to remove the connection with.
     Returns:
@@ -223,6 +228,7 @@ def remove_connection(username: str) -> object:
 def show_requests() -> object:
     """
     Shows connect requests made to the user.
+
     Returns:
         The web page for viewing connect requests.
     """
@@ -357,6 +363,7 @@ def register_page():
 def register_submit() -> object:
     """
     Registers an account using the user's input from the registration form.
+
     Returns:
         The updated web page based on whether the details provided were valid.
     """
@@ -401,6 +408,7 @@ def register_submit() -> object:
 def post(postId):
     """
     Loads a post and it's comments
+
     Returns:
         Redirection to their profile if they're logged in.
     """
@@ -464,6 +472,7 @@ def post(postId):
 def feed():
     """
     Checks user is logged in before viewing their feed page.
+
     Returns:
         Redirection to their feed if they're logged in.
     """
@@ -506,6 +515,7 @@ def feed():
 def submit_post():
     """
     Submit post on social wall to database.
+
     Returns:
         Updated feed with new post added
     """
@@ -533,6 +543,7 @@ def submit_post():
 def submit_comment():
     """
     Submit comment on post page to database.
+
     Returns:
         Updated post with new comment added
     """
@@ -555,6 +566,7 @@ def submit_comment():
 def delete_post():
     """
     Delete post from database.
+
     Returns:
         Feed page
     """
@@ -583,6 +595,7 @@ def delete_post():
 def delete_comment():
     """
     Delete comment from database.
+
     Returns:
         Feed page
     """
@@ -741,6 +754,7 @@ def profile(username):
 def edit_profile() -> object:
     """
     Updates the user's profile using info from the edit profile form.
+
     Returns:
         The updated profile page if the details provided were valid.
     """
@@ -814,6 +828,7 @@ def edit_profile() -> object:
 def logout():
     """
     Clears the user's session if they are logged in.
+
     Returns:
         The web page for logging in if the user logged out of an account.
     """
@@ -827,6 +842,7 @@ def logout():
 def get_connection_type(username: str):
     """
     Checks what type of connection the user has with the specified user.
+
     Args:
         username: The user to check the connection type with.
     Returns:
@@ -860,6 +876,7 @@ def get_connection_type(username: str):
 def calculate_age(born):
     """
     Calculates the user's current age based on their date of birth.
+
     Args:
         born: The user's date of birth.
     Returns:
@@ -877,6 +894,7 @@ def validate_registration(
     """
     Validates the registration details to ensure that the email address is
     valid, and that the passwords in the form match.
+
     Args:
         cur: Cursor for the SQLite database.
         username: The username input by the user in the form.
@@ -963,6 +981,7 @@ def validate_edit_profile(bio: str, gender: str, dob: str, profile_pic,
                                                                    List[str]]:
     """
     Validates the details in the profile editing form.
+
     Args:
         bio: The bio input by the user in the form.
         gender: The gender input selected by the user in the form.
@@ -1015,6 +1034,7 @@ def validate_edit_profile(bio: str, gender: str, dob: str, profile_pic,
 def get_all_usernames() -> list:
     """
     Gets a list of all usernames that are registered.
+
     Returns:
         A list of all usernames that have been registered.
     """
@@ -1030,6 +1050,7 @@ def get_all_usernames() -> list:
 def get_connection_request_count() -> int:
     """
     Counts number of pending connection requests for a user.
+
     Returns:
         The number of pending connection requests for a user.
     """
@@ -1061,7 +1082,8 @@ def get_connection_request_count():
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT * FROM Connection WHERE user2=? AND connection_type='request';",
+            "SELECT * FROM Connection WHERE user2=? AND "
+            "connection_type='request';",
             (session["username"],))
 
         return len(list(cur.fetchall()))
