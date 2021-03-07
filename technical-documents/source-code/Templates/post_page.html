@@ -117,14 +117,15 @@
                           <span class="date">{{comment.date}}</span>
                           
                         </div>
-                        <form action="{{ url_for('delete_comment') }}" class="ui reply form" id="deleteComment", method="POST">
+                        <form action="{{ url_for('delete_comment') }}" class="ui reply form" id="deleteComment{{comment.commentId}}", method="POST">
                           <input type="hidden" name="postId" value="{{postId}}">
                           <input type="hidden" name="commentId" value="{{comment.commentId}}">
                         </form>
                         <!--TODO: ensure the delete button is available only for the user's comments-->
-                        <button type="submit" form="deleteComment" class="ui red right floated mini button">
+                        <div class="right floated content">
+                        <button type="submit" form="deleteComment{{comment.commentId}}" class="ui mini red button icon">
                           <i class="small trash alternate outline icon"></i>
-                        </button>
+                        </button></div>
                         <div class="text">
                           {{comment.body}}
                         </div>

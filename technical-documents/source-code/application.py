@@ -457,7 +457,6 @@ def post(postId):
                     "commentId": comment[0],
                     "username": comment[1],
                     "body": comment[2],
-                    "account_type": "Student",
                     "date": comment[3],
                 })
                 i += 1
@@ -607,8 +606,7 @@ def delete_comment():
     try:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM Comments WHERE commentId=? ",
-                        (commentId,))
+            cur.execute("SELECT * FROM Comments WHERE commentId=? ",(commentId,))
             row = cur.fetchone()
             # check the post exists in database
             if row[0] is None:
@@ -617,7 +615,7 @@ def delete_comment():
                                        requestCount=get_connection_request_count(),
                                        allUsernames=get_all_usernames())
             else:
-                cur.execute("DELETE FROM Comments WHERE commentId=? ",
+                cur.execute("DELETE FROM Comments WHERE commentId =? ",
                             (commentId,))
                 conn.commit()
     except:
