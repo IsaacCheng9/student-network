@@ -394,7 +394,7 @@ def register_submit() -> object:
                 "VALUES (?, ?, ?, ?, ?, ?);", (
                     username, fullname, "Change your bio in the settings.",
                     "Male",
-                    "01-01-1970", "/static/images/default-pfp.jpg",))
+                    date.today(), "/static/images/default-pfp.jpg",))
             conn.commit()
             session["notifications"] = ["register"]
             return redirect("/register")
