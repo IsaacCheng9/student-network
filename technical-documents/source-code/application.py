@@ -464,7 +464,8 @@ def post(postId):
             return render_template("post_page.html", author=author,
                                    postId=postId, title=title, body=body,
                                    username=username, date=date,
-                                   comments=comments)
+                                   comments=comments,requestCount=get_connection_request_count(),
+                                       allUsernames=get_all_usernames())
 
 
 @application.route("/feed", methods=["GET"])
