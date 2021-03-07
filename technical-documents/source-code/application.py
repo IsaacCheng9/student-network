@@ -571,24 +571,26 @@ def delete_post():
         Feed page
     """
     postId = request.form["postId"]
-
+    message = []
     try:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute(
-                "SELECT postId FROM POSTS")
+                "SELECT postId FROM POSTS WHERE postId=?", (postId,))
             row = cur.fetchone()
             # check the post exists in database
             if row[0] is None:
                 message.append("Error: this post does not exist")
             else:
-                cur.execute("DELETE FROM POSTS WHERE postId = ?", postId)
-        conn.commit()
+                cur.execute("DELETE FROM POSTS WHERE postId=?", (postId,))
+                conn.commit()
     except:
         conn.rollback()
-        print("error in deleting")
     finally:
-        return redirect("/feed")
+        message.append("Comment has been deleted successfully.")
+        return render_template("error.html", message=message,
+                               requestCount=get_connection_request_count(),
+                               allUsernames=get_all_usernames())
 
 
 @application.route("/delete_comment", methods=["POST"])
@@ -597,31 +599,35 @@ def delete_comment():
     Delete comment from database.
 
     Returns:
-        Feed page
+        post_page
     """
     message = []
-    postId = request.form["commentId"]
+    postId = request.form["postId"]
     commentId = request.form["commentId"]
     try:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("SELECT commentId FROM Comments"
-                        "WHERE commentId = ?", commentId)
+            cur.execute("SELECT * FROM Comments WHERE commentId=? ",
+                        (commentId,))
             row = cur.fetchone()
             # check the post exists in database
             if row[0] is None:
-                message.append("Error: this comment does not exist")
-                return render_template("error.html", message=message)
+                message.append("Comment Does not Exists")
+                return render_template("error.html", message=message,
+                                       requestCount=get_connection_request_count(),
+                                       allUsernames=get_all_usernames())
             else:
-                cur.execute("DELETE FROM Comments WHERE commentId = ?",
-                            commentId)
-        conn.commit()
+                cur.execute("DELETE FROM Comments WHERE commentId=? ",
+                            (commentId,))
+                conn.commit()
     except:
         conn.rollback()
-        message.append("Error while deleting comment")
-        return render_template("error.html", message=message)
+        message.append("The comment could not be deleted.")
+        return render_template("error.html", message=message,
+                               requestCount=get_connection_request_count(),
+                               allUsernames=get_all_usernames())
     finally:
-        return redirect("/post_page/" + postId)
+        return redirect("post_page/" + postId)
 
 
 @application.route("/profile", methods=["GET"])
