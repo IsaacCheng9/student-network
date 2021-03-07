@@ -397,7 +397,7 @@ def register_submit() -> object:
                     "01-01-1970", "/static/images/default-pfp.jpg",))
             cur.execute(
                 "INSERT INTO Userlevel (username, experience) "
-                "VALUES (?, 0);", ( username,))
+                "VALUES (?, 0);", (username,))
             conn.commit()
             session["notifications"] = ["register"]
             return redirect("/register")
@@ -658,7 +658,7 @@ def profile(username):
     email = ""
     xp_next_level = ""
     current_xp = ""
-    level =""
+    level = ""
     level_data = []
     hobbies = []
     interests = []
@@ -759,8 +759,8 @@ def profile(username):
                            email=email, posts=userPosts, type=conn_type,
                            allUsernames=get_all_usernames(),
                            requestCount=get_connection_request_count(),
-                           level=level, current_xp =  int(current_xp),
-                           xp_next_level = int(xp_next_level))
+                           level=level, current_xp=int(current_xp),
+                           xp_next_level=int(xp_next_level))
 
 
 @application.route("/edit-profile", methods=["GET", "POST"])
@@ -1044,7 +1044,7 @@ def validate_edit_profile(bio: str, gender: str, dob: str, profile_pic,
     return valid, message
 
 
-def getLevel(username)->Tuple[str,str,str]:
+def getLevel(username) -> Tuple[str, str, str]:
     """
     gets the current user experience points, the experience points
     for the next level and the user's current level from the database
@@ -1063,7 +1063,7 @@ def getLevel(username)->Tuple[str,str,str]:
     message = []
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        #Get user experience
+        # Get user experience
         cur.execute(
             "SELECT experience FROM "
             "UserLevel WHERE username=?;", (username,))
@@ -1076,21 +1076,22 @@ def getLevel(username)->Tuple[str,str,str]:
             data = row[0]
             current_xp = data[0]
             cur.execute(
-            "SELECT level, experience FROM "
-            "Levels WHERE  experience > ?;", (current_xp,))
+                "SELECT level, experience FROM "
+                "Levels WHERE  experience > ?;", (current_xp,))
             row = cur.fetchone()
             if row is None:
                 cur.execute("INSERT INTO Levels"
-                "VALUES( (1+(SELECT MAX(level)FROM Levels)),"
-                "(50*(SELECT MAX(level)FROM Levels)"
-                    "+(SELECT MAX(experience)FROM Levels)))")
+                            "VALUES( (1+(SELECT MAX(level)FROM Levels)),"
+                            "(50*(SELECT MAX(level)FROM Levels)"
+                            "+(SELECT MAX(experience)FROM Levels)))")
                 cur.execute(
-                "SELECT level, experience FROM "
-                "Levels WHERE  experience > ?;", (current_xp,))
+                    "SELECT level, experience FROM "
+                    "Levels WHERE  experience > ?;", (current_xp,))
                 row = cur.fetchone()
-            level  = row[0]
+            level = row[0]
             xp_next_level = row[1]
             return [level, current_xp, xp_next_level]
+
 
 def get_all_usernames() -> list:
     """
