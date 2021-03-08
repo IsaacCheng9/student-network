@@ -465,8 +465,9 @@ def post(postId):
             return render_template("post_page.html", author=author,
                                    postId=postId, title=title, body=body,
                                    username=username, date=date,
-                                   comments=comments,requestCount=get_connection_request_count(),
-                                       allUsernames=get_all_usernames())
+                                   comments=comments,
+                                   requestCount=get_connection_request_count(),
+                                   allUsernames=get_all_usernames())
 
 
 @application.route("/feed", methods=["GET"])
@@ -485,7 +486,8 @@ def feed():
             cur = conn.cursor()
             # TODO: edit select statement to only include users connected to the current user when feature is built
             cur.execute(
-                "SELECT postId, title, body, username, account_type, date FROM POSTS")
+                "SELECT postId, title, body, username, account_type, date "
+                "FROM POSTS")
             row = cur.fetchall()
             i = 0
             allPosts = {
@@ -608,14 +610,16 @@ def delete_comment():
     try:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM Comments WHERE commentId=? ",(commentId,))
+            cur.execute("SELECT * FROM Comments WHERE commentId=? ",
+                        (commentId,))
             row = cur.fetchone()
             # check the post exists in database
             if row[0] is None:
                 message.append("Comment Does not Exists")
-                return render_template("error.html", message=message,
-                                       requestCount=get_connection_request_count(),
-                                       allUsernames=get_all_usernames())
+                return render_template(
+                    "error.html", message=message,
+                    requestCount=get_connection_request_count(),
+                    allUsernames=get_all_usernames())
             else:
                 cur.execute("DELETE FROM Comments WHERE commentId =? ",
                             (commentId,))
