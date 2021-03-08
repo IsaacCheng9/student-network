@@ -493,8 +493,12 @@ def register_submit() -> object:
                 "birthday, profilepicture) "
                 "VALUES (?, ?, ?, ?, ?, ?);", (
                     username, full_name, "Change your bio in the settings.",
-                    "Male",
-                    date.today(), "/static/images/default-pfp.jpg",))
+                    "Male", date.today(), "/static/images/default-pfp.jpg",))
+            
+            cur.execute(
+                "INSERT INTO Userlevel (username, experience) "
+                "VALUES (?, 0);", (username,))
+
             conn.commit()
             session["notifications"] = ["register"]
             return redirect("/register")
@@ -845,6 +849,10 @@ def profile(username):
     birthday = ""
     profile_picture = ""
     email = ""
+    xp_next_level = ""
+    current_xp = ""
+    level = ""
+    level_data = []
     hobbies = []
     interests = []
     account_type = ""
@@ -978,6 +986,10 @@ def profile(username):
         if cur.fetchone() is None:
             apply_achievement(session["username"], 2)
 
+    level_data = getLevel(username)
+    level = level_data[0]
+    current_xp = level_data[1]
+    xp_next_level = level_data[2]
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
@@ -985,7 +997,9 @@ def profile(username):
                            interests=interests,
                            email=email, posts=userPosts, type=conn_type,
                            allUsernames=get_all_usernames(),
-                           requestCount=get_connection_request_count())
+                           requestCount=get_connection_request_count(),
+                           level=level, current_xp=int(current_xp),
+                           xp_next_level=int(xp_next_level))
 
 
 @application.route("/edit-profile", methods=["GET", "POST"])
@@ -1304,6 +1318,55 @@ def am_close_friend(username) -> bool:
         if row is not None:
             return True
         return False
+
+
+def getLevel(username) -> Tuple[str, str, str]:
+    """
+    gets the current user experience points, the experience points
+    for the next level and the user's current level from the database
+
+    Args:
+        username: username of the user logged in
+
+    Returns:
+        level
+        current xp
+        xp next level
+    """
+    level = ""
+    current_xp = ""
+    xp_next_level = ""
+    message = []
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        # Get user experience
+        cur.execute(
+            "SELECT experience FROM "
+            "UserLevel WHERE username=?;", (username,))
+        row = cur.fetchall()
+        if len(row) == 0:
+            message.append("Problem with getting level")
+            session["prev-page"] = request.url
+            return render_template("error.html", message=message)
+        else:
+            data = row[0]
+            current_xp = data[0]
+            cur.execute(
+                "SELECT level, experience FROM "
+                "Levels WHERE  experience > ?;", (current_xp,))
+            row = cur.fetchone()
+            if row is None:
+                cur.execute("INSERT INTO Levels"
+                            "VALUES( (1+(SELECT MAX(level)FROM Levels)),"
+                            "(50*(SELECT MAX(level)FROM Levels)"
+                            "+(SELECT MAX(experience)FROM Levels)))")
+                cur.execute(
+                    "SELECT level, experience FROM "
+                    "Levels WHERE  experience > ?;", (current_xp,))
+                row = cur.fetchone()
+            level = row[0]
+            xp_next_level = row[1]
+            return [level, current_xp, xp_next_level]
 
 
 def get_all_usernames() -> list:
