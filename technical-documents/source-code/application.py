@@ -424,7 +424,7 @@ def post(postId):
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
-            "SELECT title, body, username, date, account_type "
+            "SELECT title, body, username, date, account_type, likes "
             "FROM POSTS WHERE postId=?;", (postId,))
         row = cur.fetchall()
         if len(row) == 0:
@@ -437,10 +437,9 @@ def post(postId):
                                    allUsernames=get_all_usernames())
         else:
             data = row[0]
-            title, body, username, date, account_type = (data[0], data[1],
+            title, body, username, date, account_type, likes = (data[0], data[1],
                                                          data[2], data[3],
-                                                         data[4])
-            # TODO: Implement acoount type
+                                                         data[4], data[5])
             cur.execute(
                 "SELECT *"
                 "FROM Comments WHERE postId=?;", (postId,))
@@ -449,8 +448,9 @@ def post(postId):
                 return render_template("post_page.html", postId=postId,
                                        title=title,
                                        body=body, username=username, date=date,
-                                       account_type=account_type,
-                                       comments=None, )
+                                       account_type=account_type, likes = likes,
+                                       comments=None, requestCount=get_connection_request_count(),
+                                   allUsernames=get_all_usernames())
             for comment in row:
                 if i == 20:
                     break
@@ -540,6 +540,42 @@ def submit_post():
         print("error in insert operation")
     finally:
         return redirect("/feed")
+
+
+@application.route("/like_post", methods=["POST"])
+def like_post():
+    """
+    Add post like  to database.
+
+    Returns:
+        Updated post with like added
+    """
+    likes = 0
+    row = []
+    postId = request.form["postId"]
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        #check user hasn't liked post already
+        cur.execute("SELECT username, postId FROM UserLikes"
+                    " WHERE postId=? AND username=? ;",
+                    (postId, session["username"]))
+        row = cur.fetchone()
+        if row is None:
+            cur.execute("INSERT INTO UserLikes (postId,username)"
+                        "VALUES (?, ?);",(postId, session["username"]))
+           
+            #get current total number of  current likes
+            cur.execute("SELECT likes FROM POSTS"
+                   " WHERE postId=?;",(postId,))
+            row = cur.fetchone()
+
+            likes=row[0]+1
+            cur.execute("UPDATE POSTS SET likes=? "
+                "WHERE postId=? ;",(likes,postId,))
+            conn.commit()
+
+    return redirect("/post_page/" + postId)
+
 
 
 @application.route("/submit_comment", methods=["POST"])

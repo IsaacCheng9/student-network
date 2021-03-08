@@ -7,6 +7,11 @@
         <div class="eight wide column">
           <div class="ui cards">
             <div class="ui card fluid">
+              {% if message %}
+                <div class="ui message red">
+                  {{ message }}      
+                </div>
+              {% endif %}
               <div class="content">
                 <div class="header">
                   {{title}}
@@ -28,9 +33,20 @@
               </div>
 
               <div class="content">
+                <form action="{{ url_for('like_post') }}" class="ui form" id="like", method="POST">
+                  <input type="hidden" name="postId" value="{{postId}}">
+                </form>
+                <div class="right floated ui mini labeled button"">
+                  <button type="submit" form="like" class="ui mini red button"  tabindex="0">
+                      <i class="heart icon"></i>
+                  </button>
+                  <a class="ui  basic red left pointing label">
+                    {{likes}}
+                  </a>
+                </div>
                 <div class="ui comments">
-                  
-                  <h3 class="ui dividing header">Comments:</h3>
+                  <h3 class="ui  dividing header">Comments:</h3>
+
                   {% for comment in comments["comments"] %}
                     <div class="comment">
                       <a class="avatar">
