@@ -960,7 +960,7 @@ def validate_registration(
             message.append(
                 "Email address does not belong to University of Exeter!")
 
-    # Checks that the password has a minimum length of 6 characters, and at
+    # Checks that the password has a minimum length of 8 characters, and at
     # least one number.
     if (len(password) <= 7 or any(
             char.isdigit() for char in password) is False):
