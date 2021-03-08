@@ -3,12 +3,11 @@ import sqlite3
 import application
 
 
-def test_validate_registration():
-    """Tests that registration validation is performed correctly."""
+def test_invalid_registration():
+    """Tests that invalid registration details are rejected."""
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
 
-        # Tests invalid details.
         username = ["goodname", "goodname", "goodname", "goodname", "goodname",
                     "goodname", "goodname", "b@dname"]
         full_name = ["Good Name", "Good Name", "Good Name", "Good Name",
@@ -29,13 +28,23 @@ def test_validate_registration():
                 password_confirm[num], email[num], terms[num])
             assert valid is False
 
-        # Tests valid details.
+
+def test_valid_registration():
+    """Tests that valid registration details are accepted."""
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+
         valid, message = application.validate_registration(
             cur, "goodname", "Good Name", "goodpw123", "goodpw123",
             "goodname@exeter.ac.uk", "")
         assert valid is True
 
-        # Tests null details.
+
+def test_null_registration():
+    """Tests that null registration details are rejected."""
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+
         valid, message = application.validate_registration(
             cur, "", "", "", "", "", "")
         assert valid is False
