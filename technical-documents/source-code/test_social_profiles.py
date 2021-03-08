@@ -3,11 +3,16 @@ import application
 
 def test_invalid_edit_profile():
     """Tests that invalid profile editing details are rejected."""
-    bio = ["good bio"]
-    gender = ["bad"]
-    dob = ["2001-05-31"]
-    hobbies = [["hobby"]]
-    interests = [["interest"]]
+    bio = ["bio", "bio", "bio", "biobiobiobiobiobiobiobiobiobiobiobiobiobiobio"
+                                "biobiobiobiobiobiobiobiobiobiobiobiobiobiobio"
+                                "biobiobiobiobiobiobiobiobiobiobiobiobiobiobio"
+                                "biobiobiobiobiobiobiobiobi"]
+    gender = ["Male", "Male", "bad", "Male"]
+    dob = ["2001-05-31", "2001-05-31", "2001-05-31", "2001-05-31"]
+    hobbies = [["hobby"], ["badhobbybadhobbybadhobbybadhobby"], ["hobby"],
+               ["hobby"]]
+    interests = [["badinterestbadinterestbadinterest"], ["interest"],
+                 ["interest"], ["interest"]]
     for num in range(len(bio)):
         valid, message = application.validate_edit_profile(
             bio[num], gender[num], dob[num], "", hobbies[num], interests[num])
@@ -22,7 +27,7 @@ def test_valid_edit_profile():
 
 
 def test_null_edit_profile():
-    """Tests that null profile editing details are rejected."""
+    """Tests that null profile editing details are accepted."""
     valid, message = application.validate_edit_profile(
-        "", "", "", "", [], [])
-    assert valid is False
+        "", "Male", "2001-01-31", "", [], [])
+    assert valid is True
