@@ -581,26 +581,38 @@ def feed():
         username = session["username"]
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            # TODO: edit select statement to only include users connected to the current user when feature is built
-            cur.execute(
-                "SELECT postId, title, body, username, account_type, date FROM POSTS")
-            row = cur.fetchall()
+
+            set = get_all_connections(session["username"])
+            set.append((session["username"],))
+            row = []
+            for user in set:
+                cur.execute(
+                    "SELECT * FROM POSTS "
+                    "WHERE username=? "
+                    "AND privacy!='private' AND privacy!='close';",(user[0],))
+                row += cur.fetchall()
+            # Sort reverse chronologically
+            row = sorted(row, key=lambda x: x[0], reverse=True)
             i = 0
             allPosts = {
                 "AllPosts": []
             }
-            # TODO: account type differentiation in posts db
-            for post in reversed(row):
-                if i == 20:
+
+            for post in row:
+                if i == 100:
                     break
+                add = ""
+                if len(post[2]) > 250:
+                    add = "..."
+                time = datetime.strptime(post[4],'%Y-%m-%d').strftime('%d-%m-%y')
                 allPosts["AllPosts"].append({
                     "postId": post[0],
                     "title": post[1],
                     "profile_pic": "https://via.placeholder.com/600",
                     "author": post[3],
-                    "account_type": post[4],
-                    "date_posted": post[5],
-                    "body": (post[2])[:250] + "..."
+                    "account_type": post[6],
+                    "date_posted": time,
+                    "body": (post[2])[:250] + add
                 })
                 i += 1
         return render_template("feed.html", posts=allPosts,
@@ -608,7 +620,6 @@ def feed():
                                allUsernames=get_all_usernames())
     else:
         return redirect("/login")
-
 
 @application.route("/submit_post", methods=["POST"])
 def submit_post():
@@ -845,27 +856,59 @@ def profile(username):
     if len(row) > 0:
         email = row[0][0]
 
-    # TODO: store all the users posts in a json file
-    cur.execute(
-        "SELECT postId, title, body, username, account_type, date FROM "
-        "POSTS WHERE username=?;", (username,))
-    row = cur.fetchall()
-    i = 0
+    set = []
+    if username == session["username"]:
+        # TODO: store all the users posts in a json file
+        cur.execute(
+            "SELECT * "
+            "FROM POSTS WHERE username=?", (username,))
+        set = cur.fetchall()
+    else:
+        conecs = get_all_connections(username)
+        count = 0
+        for conec in conecs:
+            conecs[count] = conec[0]
+            count += 1
+        if session["username"] in conecs:
+            close = am_close_friend(username)
+            if close == True:
+                cur.execute(
+                    "SELECT * "
+                    "FROM POSTS WHERE username=? AND privacy!='private'", (username,))
+                set = cur.fetchall()
+            else:
+                cur.execute(
+                    "SELECT * "
+                    "FROM POSTS WHERE username=? "
+                    "AND privacy!='private' AND privacy!='close'", (username,))
+                set = cur.fetchall()
+        else:
+            cur.execute(
+                "SELECT * "
+                "FROM POSTS WHERE username=? AND privacy='public'", (username,))
+            set = cur.fetchall()
+    
+    # Sort reverse chronologically
+    set = sorted(set, key=lambda x: x[0], reverse=True)     
+
     userPosts = {
         "UserPosts": []
     }
 
-    for post in reversed(row):
+    for post in set:
+        add = ""
+        if len(post[2]) > 250:
+            add = "..."
+        time = datetime.strptime(post[4],'%Y-%m-%d').strftime('%d-%m-%y')
         userPosts["UserPosts"].append({
             "postId": post[0],
             "title": post[1],
             "profile_pic": "https://via.placeholder.com/600",
             "author": post[3],
-            "account_type": post[4],
-            "date_posted": post[5],
-            "body": (post[2])[:250] + "..."
+            "account_type": post[6],
+            "date_posted": time,
+            "body": (post[2])[:250] + add
         })
-        i += 1
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
@@ -1186,6 +1229,43 @@ def validate_edit_profile(bio: str, gender: str, dob: str, profile_pic,
 
     return valid, message
 
+def get_all_connections(username) -> list:
+    """
+    Gets a list of all usernames that are connected to the logged in user.
+
+    Returns:
+        A list of all usernames that are connected to the logged in user.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT user2 FROM Connection WHERE user1=? AND connection_type='connected'"
+            "UNION ALL "
+            "SELECT user1 FROM Connection WHERE user2=? AND connection_type='connected'",
+            (username, username)
+        )
+        set = cur.fetchall()
+
+        return set
+
+def am_close_friend(username) -> bool:
+    """
+    Gets whether the selected user has the logged in as a close friend
+
+    Returns:
+        True if logged in is a close friend, false if not
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
+            (username, session["username"])
+        )
+        row = cur.fetchone()
+        if row is not None:
+            return True
+        return False
+
 
 def get_all_usernames() -> list:
     """
@@ -1201,7 +1281,6 @@ def get_all_usernames() -> list:
         row = cur.fetchall()
 
         return row
-
 
 def get_connection_request_count() -> int:
     """
