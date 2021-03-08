@@ -478,12 +478,18 @@ def feed():
     if "username" in session:
         session["prev-page"] = request.url
 
-        username = session["username"]
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             # TODO: edit select statement to only include users connected to the current user when feature is built
             cur.execute(
-                "SELECT postId, title, body, username, account_type, date FROM POSTS")
+                "SELECT * "
+                "FROM POSTS "
+                "WHERE username IN (SELECT user1 FROM CONNECTION "
+                      "WHERE user2 = ", session["username"], " "
+                      "AND connection_type=''"
+                      "UNION ALL "
+                      "SELECT user2 FROM RELATIONSHIP "
+                      "WHERE user1 = ", session["username"], ") "
             row = cur.fetchall()
             i = 0
             allPosts = {
@@ -521,14 +527,16 @@ def submit_post():
     try:
         postTitle = request.form["post_title"]
         postBody = request.form["post_text"]
+        postPrivacy = request.form["privacy"]
         if postTitle != "":
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
                 # TODO: 6th value in table is privacy setting and 7th is account type.
                 # Currently is default - public/student but no functionality
-                cur.execute("INSERT INTO POSTS (title, body, username) "
+                cur.execute("INSERT INTO POSTS (title, body, username, privacy) "
                             "VALUES (?, ?, ?);",
-                            (postTitle, postBody, session["username"]))
+                            (postTitle, postBody, session["username"]), 
+                            postPrivacy)
         conn.commit()
         # TODO: Prints error message missing title on top of page
     except:
