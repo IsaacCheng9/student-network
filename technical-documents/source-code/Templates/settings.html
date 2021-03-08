@@ -16,10 +16,7 @@ filename='styles/semantic.css') }}>
     <!-- Standard Meta -->
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 
     <style type="text/css">
         input[type="file"] {
@@ -41,122 +38,91 @@ filename='styles/semantic.css') }}>
             top: 5px;
             z-index: 99;
         }
+
     </style>
 </head>
 
 <body>
-<!-- Page Contents -->
-<div class="pusher">
-    <div class="ui container">
-        <div class="ui segment basic">
-            <div class="ui grid">
-                <div class="four wide column">
-                    <div class="ui vertical fluid menu" id="menu">
-                        <a
-                                class="item active"
-                                onclick='OpenTab("profile", this);'
-                        >Profile</a
-                        >
-                        <a
-                                class="item"
-                                onclick='OpenTab("socials", this);'
-                        >Socials</a
-                        >
-                        <a
-                                class="item"
-                                onclick='OpenTab("notifications", this);'
-                        >Notifications</a
-                        >
-                        <a
-                                class="item"
-                                onclick='OpenTab("privacy", this);'
-                        >Privacy</a
-                        >
+    <!-- Page Contents -->
+    <div class="pusher">
+        <div class="ui container">
+            <div class="ui segment basic">
+                <div class="ui grid">
+                    <div class="four wide column">
+                        <div class="ui vertical fluid menu" id="menu">
+                            <a class="item active" onclick='OpenTab("profile", this);'>Profile</a>
+                            <a class="item" onclick='OpenTab("socials", this);'>Socials</a>
+                            <a class="item" onclick='OpenTab("notifications", this);'>Notifications</a>
+                            <a class="item" onclick='OpenTab("privacy", this);'>Privacy</a>
+                        </div>
                     </div>
-                </div>
-                <div class="twelve wide stretched column">
-                    <div class="ui segment" id="profile">
-                        <!-- name bio gender birthday profile_picture hobbies interests -->
-                        <form
-                                action="/edit-profile"
-                                method="POST"
-                                class="ui form"
-                        >
-                            <div class="field">
-                                <label>Bio</label>
-                                <textarea
-                                        name="bio_input"
-                                        rows="2"
-                                        maxlength="160"
-                                >
-                                        </textarea>
-                            </div>
-                            <div class="field">
-                                <label>Gender</label>
-                                <select name="gender_input" id="">
-                                    <option value="Male">Male</option>
-                                    <option value="Female">
-                                        Female
-                                    </option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div class="field">
-                                <label>Birthday</label>
-                                <input name="dob_input" type="date" />
-                            </div>
-                            <div class="field">
-                                <label>Profile Picture</label>
-                                <input
-                                        name="profile_picture_input"
-                                        type="file"
-                                        id="profile-picture-upload"
-                                />
-                                <label
-                                        for="profile-picture-upload"
-                                        class="custom-file-upload ui label"
-                                >
-                                    <i class="upload icon"></i>
-                                    Upload
-                                    <div class="detail">
-                                        profile_pic.png
-                                    </div>
-                                </label>
-                            </div>
-                            <div class="ui divider"></div>
-                            <div class="field" name="field">
-                                <label>Hobbies</label>
-                                <input name="hobbies_input" type="text" />
-                                <div class="ui divider hidden"></div>
-                                <div class="ui grid container" name="hobby-div"></div>
-                            </div>
-                            <div class="ui divider"></div>
-                            <div class="field">
-                                <label>Interests</label>
-                                <input name="interests_input" type="text" />
-                                <div class="ui divider hidden"></div>
-                                <div class="ui grid container" name="interest-div"></div>
-                            </div>
+                    <div class="twelve wide stretched column">
+                        <div class="ui segment" id="profile">
+                            <!-- name bio gender birthday profile_picture hobbies interests -->
+                            <form action="/edit-profile" method="POST" class="ui form">
+                                <div class="field">
+                                    <label>Bio</label>
+                                    <textarea name="bio_input" rows="2" maxlength="160">{{bio}}</textarea>
+                                </div>
+                                <div class="field">
+                                    <label>Gender</label>
+                                    <select name="gender_input" id="">
+                                        <option value="Male">Male</option>
+                                        <option value="Female">
+                                            Female
+                                        </option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Birthday</label>
+                                    <input name="dob_input" type="date" value="{{date}}" />
+                                </div>
+                                <div class="field">
+                                    <label>Profile Picture</label>
+                                    <input name="profile_picture_input" type="file" id="profile-picture-upload" />
+                                    <label for="profile-picture-upload" class="custom-file-upload ui label">
+                                        <i class="upload icon"></i>
+                                        Upload
+                                        <div class="detail">
+                                            profile_pic.png
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="ui divider"></div>
+                                <div class="field" name="field">
+                                    <label>Hobbies</label>
+                                    <input name="hobbies_input" type="text" />
+                                    <div class="ui divider hidden"></div>
+                                    <div class="ui grid container" name="hobby-div"></div>
+                                </div>
+                                <div class="ui divider"></div>
+                                <div class="field">
+                                    <label>Interests</label>
+                                    <input name="interests_input" type="text" />
+                                    <div class="ui divider hidden"></div>
+                                    <div class="ui grid container" name="interest-div"></div>
+                                </div>
 
-                            <button class="ui button submit">
-                                Save Changes
-                            </button>
-                        </form>
+                                <button class="ui button submit">
+                                    Save Changes
+                                </button>
+                            </form>
+                        </div>
+                        <div class="ui segment" id="socials">Socials</div>
+
+                        <div class="ui segment" id="notifications">
+                            Notif
+                        </div>
+
+                        <div class="ui segment" id="privacy">Privacy</div>
+
+                        <!-- Save button here? -->
                     </div>
-                    <div class="ui segment" id="socials">Socials</div>
-
-                    <div class="ui segment" id="notifications">
-                        Notif
-                    </div>
-
-                    <div class="ui segment" id="privacy">Privacy</div>
-
-                    <!-- Save button here? -->
                 </div>
             </div>
         </div>
     </div>
-</div>
 </body>
 
 <script>
@@ -165,20 +131,22 @@ filename='styles/semantic.css') }}>
 
         var menuItems = document.querySelectorAll("#menu a");
 
-        menuItems.forEach(function (elem) {
+        menuItems.forEach(function(elem) {
             elem.classList.remove("active");
         });
 
         for (var tab of tabs) {
-            document.getElementById(tab).style.display =
-                tab == tabName ? "block" : "none";
-            curElem.classList.add("active");
+            document.getElementById(tab).style.display = tab == tabName ? "block" : "none";
+            if (curElem){
+                curElem.classList.add("active");
+            }
         }
     }
 
-    document.onload = function () {
+    document.addEventListener("DOMContentLoaded", function(){
         OpenTab("profile");
-    };
+    })
+
 </script>
 
 <script src="../static/hobbies.js"></script>

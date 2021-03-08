@@ -768,10 +768,28 @@ def edit_profile() -> object:
     Returns:
         The updated profile page if the details provided were valid.
     """
+
+    date = "01-01-1970"
+    bio = "Default bio"
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT birthday FROM UserProfile WHERE username=?",
+            (session["username"],))
+
+        date = cur.fetchall()[0][0]
+
+        cur.execute(
+            "SELECT bio FROM UserProfile WHERE username=?",
+            (session["username"],))
+
+        bio = cur.fetchall()[0][0]
+
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
         return render_template("settings.html",
-                               requestCount=get_connection_request_count())
+                               requestCount=get_connection_request_count(), date=date, bio=bio)
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
