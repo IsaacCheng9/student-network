@@ -6,6 +6,7 @@ on their feed.
 import re
 import sqlite3
 from datetime import date, datetime
+from string import capwords
 from typing import Tuple, List
 
 from email_validator import validate_email, EmailNotValidError
@@ -369,7 +370,7 @@ def register_submit() -> object:
     """
     # Obtains user input from the account registration form.
     username = request.form["username_input"].lower()
-    fullname = request.form["fullname_input"]
+    full_name = capwords(request.form["fullname_input"])
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
@@ -378,7 +379,7 @@ def register_submit() -> object:
     # Connects to the database to perform validation.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        valid, message = validate_registration(cur, username, fullname,
+        valid, message = validate_registration(cur, username, full_name,
                                                password, password_confirm,
                                                email, terms)
         # Registers the user if the details are valid.
@@ -392,7 +393,7 @@ def register_submit() -> object:
                 "INSERT INTO UserProfile (username, name, bio, gender, "
                 "birthday, profilepicture) "
                 "VALUES (?, ?, ?, ?, ?, ?);", (
-                    username, fullname, "Change your bio in the settings.",
+                    username, full_name, "Change your bio in the settings.",
                     "Male",
                     date.today(), "/static/images/default-pfp.jpg",))
             conn.commit()
@@ -934,10 +935,10 @@ def validate_registration(
         message.append("Username has already been registered!")
         valid = False
 
-    # Checks that the fullname only contains valid characters.
+    # Checks that the full name only contains valid characters.
     if not all(x.isalpha() or x.isspace() for x in full_name):
-        message.append("Full Name must only contain letters, numbers and"
-                       " spaces!")
+        message.append("Full name must only contain letters, numbers and "
+                       "spaces!")
         valid = False
 
     # Checks that the email address has the correct format, checks whether it
