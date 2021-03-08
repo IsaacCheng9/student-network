@@ -82,6 +82,23 @@ def close_connection(username):
                             (session["username"], username,))
                         conn.commit()
                         session["add"] = True
+
+                        #Award achievement ID 12 - Friends if necessary
+                        cur.execute(
+                            "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 12))
+                        if cur.fetchone() is None:
+                            apply_achievement(session["username"], 12)
+
+                        #Award achievement ID 13 - Friend Group if necessary
+                        cur.execute(
+                            "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 13))
+                        if cur.fetchone() is None:
+                            cur.execute(
+                                "SELECT * FROM CloseFriend WHERE user1=?;", (session["username"],))
+                            if len(cur.fetchall()) >= 10:
+                                apply_achievement(session["username"], 13)
+
+
         session["add"] = "You can't connect with yourself!"
     return redirect("/profile/" + username)
 
@@ -167,27 +184,13 @@ def accept(username) -> object:
                     cur.execute(
                         "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 4))
                     if cur.fetchone() is None:
-                        cur.execute(
-                            "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
-                            (session["username"], 4, date.today()))
-                        conn.commit()
-                        cur.execute(
-                            "SELECT xp_value FROM Achievements WHERE achievement_ID=4;")
-                        xp = cur.fetchone()[0]
-                        #TODO: xp allocation to user for complete achievement
+                        apply_achievement(session["username"], 4)
 
                     #Award achievement ID 4 to connected user
                     cur.execute(
                         "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (username, 4))
                     if cur.fetchone() is None:
-                        cur.execute(
-                            "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
-                            (username, 4, date.today()))
-                        conn.commit()
-                        cur.execute(
-                            "SELECT xp_value FROM Achievements WHERE achievement_ID=4;")
-                        xp = cur.fetchone()[0]
-                        #TODO: xp allocation to user for complete achievement
+                        apply_achievement(username, 4)
 
                     #Award achievement ID 5 - Popular if necessary
                     cur.execute(
@@ -196,27 +199,16 @@ def accept(username) -> object:
                         cur.execute(
                             "SELECT * FROM Connection WHERE (user1=? OR user2=?);", (session["username"], session["username"]))
                         if len(cur.fetchall()) >= 10:
-                            cur.execute(
-                                "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
-                                (session["username"], 5, date.today()))
-                            conn.commit()
-                            cur.execute(
-                                "SELECT xp_value FROM Achievements WHERE achievement_ID=5;")
-                            xp = cur.fetchone()[0]
-                            #TODO: xp allocation to user for complete achievement
+                            apply_achievement(session["username"], 5)
 
                     #Award achievement ID 5 to connected user
                     cur.execute(
-                        "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (username, 5))
+                        "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 5))
                     if cur.fetchone() is None:
                         cur.execute(
-                            "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
-                            (username, 5, date.today()))
-                        conn.commit()
-                        cur.execute(
-                            "SELECT xp_value FROM Achievements WHERE achievement_ID=5;")
-                        xp = cur.fetchone()[0]
-                        #TODO: xp allocation to user for complete achievement
+                            "SELECT * FROM Connection WHERE (user1=? OR user2=?);", (username, username))
+                        if len(cur.fetchall()) >= 10:
+                            apply_achievement(username, 5)
 
                     #Award achievement ID 6 - Centre of Attention if necessary
                     cur.execute(
@@ -225,14 +217,7 @@ def accept(username) -> object:
                         cur.execute(
                             "SELECT * FROM Connection WHERE (user1=? OR user2=?);", (session["username"], session["username"]))
                         if len(cur.fetchall()) >= 100:
-                            cur.execute(
-                                "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
-                                (session["username"], 6, date.today()))
-                            conn.commit()
-                            cur.execute(
-                                "SELECT xp_value FROM Achievements WHERE achievement_ID=6;")
-                            xp = cur.fetchone()[0]
-                            #TODO: xp allocation to user for complete achievement
+                            apply_achievement(session["username"], 6)
                     
                     #Award achievement ID 6 to connected user
                     cur.execute(
@@ -241,19 +226,35 @@ def accept(username) -> object:
                         cur.execute(
                             "SELECT * FROM Connection WHERE (user1=? OR user2=?);", (username, username))
                         if len(cur.fetchall()) >= 100:
-                            cur.execute(
-                                "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
-                                (username, 6, date.today()))
-                            conn.commit()
-                            cur.execute(
-                                "SELECT xp_value FROM Achievements WHERE achievement_ID=6;")
-                            xp = cur.fetchone()[0]
-                            #TODO: xp allocation to user for complete achievement
+                            apply_achievement(username, 6)
 
     else:
         session["add"] = "You can't connect with yourself!"
     return redirect(session["prev-page"])
 
+def apply_achievement(username: str, achievement_ID: int):
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
+            (username, achievement_ID, date.today()))
+        conn.commit()
+        cur.execute(
+            "SELECT xp_value FROM Achievements WHERE achievement_ID=?;", (achievement_ID,))
+        xp = cur.fetchone()[0]
+        cur.execute(
+            "SELECT * FROM UserLevel WHERE username=?;", (username,))
+        if cur.fetchone() is None:
+            cur.execute(
+            "INSERT INTO UserLevel (username, experience) VALUES (?,?);",
+            (username, 0))
+        conn.commit()
+        cur.execute(
+            "UPDATE UserLevel "
+            "SET experience = experience + ? "
+            "WHERE username=?;",
+            (xp, username))
+        conn.commit()
 
 @application.route("/remove_close/<username>")
 def remove_close(username: str) -> object:
@@ -634,14 +635,7 @@ def submit_post():
                 cur.execute(
                     "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 7))
                 if cur.fetchone() is None:
-                    cur.execute(
-                        "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
-                        (session["username"], 7, date.today()))
-                    conn.commit()
-                    cur.execute(
-                        "SELECT xp_value FROM Achievements WHERE achievement_ID=7;")
-                    xp = cur.fetchone()[0]
-                    #TODO: xp allocation to user for complete achievement
+                    apply_achievement(session["username"], 7)
 
                 #Award achievement ID 8 - 5 posts if necessary
                 cur.execute(
@@ -653,14 +647,7 @@ def submit_post():
                     print(results)
                     print(len(results))
                     if len(results) >= 5:
-                        cur.execute(
-                            "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
-                            (session["username"], 8, date.today()))
-                        conn.commit()
-                        cur.execute(
-                            "SELECT xp_value FROM Achievements WHERE achievement_ID=8;")
-                        xp = cur.fetchone()[0]
-                        #TODO: xp allocation to user for complete achievement
+                        apply_achievement(session["username"], 8)
 
                 #Award achievement ID 9 - 20 posts if necessary
                 cur.execute(
@@ -672,14 +659,7 @@ def submit_post():
                     print(results)
                     print(len(results))
                     if len(results) >= 20:
-                        cur.execute(
-                            "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
-                            (session["username"], 9, date.today()))
-                        conn.commit()
-                        cur.execute(
-                            "SELECT xp_value FROM Achievements WHERE achievement_ID=9;")
-                        xp = cur.fetchone()[0]
-                        #TODO: xp allocation to user for complete achievement
+                        apply_achievement(session["username"], 9)
 
         # TODO: Prints error message missing title on top of page
     except:
@@ -708,6 +688,13 @@ def submit_comment():
                         "VALUES (?, ?, ?);",
                         (postId, commentBody, session["username"]))
             conn.commit()
+
+            #Award achievement ID 10 - Commentary if necessary
+            cur.execute(
+                "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 10))
+            if cur.fetchone() is None:
+                apply_achievement(session["username"], 10)
+
     session["postId"] = postId
     return redirect("/post_page/" + postId)
 
@@ -900,20 +887,14 @@ def profile(username):
         cur.execute(
             "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 1))
         if cur.fetchone() is None:
-            cur.execute(
-                "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
-                (session["username"], 1, date.today()))
-            conn.commit()
+            apply_achievement(session["username"], 1)
 
     #Award achievement ID 2 - Looking good if necessary
     if username != session["username"] and session["username"]:
         cur.execute(
             "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 2))
         if cur.fetchone() is None:
-            cur.execute(
-                "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
-                (session["username"], 2, date.today()))
-            conn.commit()
+            apply_achievement(session["username"], 2)
 
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
