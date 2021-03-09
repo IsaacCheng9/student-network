@@ -110,7 +110,7 @@ def close_connection(username):
     return redirect("/profile/" + username)
 
 
-@application.route("/connect/<username>", methods=["GET", "POST"])
+@application.route("/connect_request/<username>", methods=["GET", "POST"])
 def connect_request(username):
     """
     Sends a connect request to another user on the network.
@@ -183,7 +183,7 @@ def achievements() -> object:
 
 
 
-@application.route("/accept/<username>", methods=["GET", "POST"])
+@application.route("/accept_connection_request/<username>", methods=["GET", "POST"])
 def accept_connection_request(username) -> object:
     """
     Accepts the connect request from another user on the network.
@@ -305,7 +305,7 @@ def apply_achievement(username: str, achievement_ID: int):
         conn.commit()
 
 
-@application.route("/remove_close/<username>")
+@application.route("/remove_close_friend/<username>")
 def remove_close_friend(username: str) -> object:
     """
     Removes a connection with the given user.
@@ -367,7 +367,18 @@ def remove_connection(username: str) -> object:
                         "OR (user1=? AND user2=?);",
                         (username, session["username"], session["username"],
                          username))
-                    conn.commit()
+                    row = cur.execute(
+                        "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
+                        "(user1=? AND user2=?);",
+                        (username, session["username"], session["username"],
+                        username))
+                    if row is not None:
+                        cur.execute(
+                            "DELETE FROM CloseFriend WHERE (user1=? AND user2=?) "
+                            "OR (user1=? AND user2=?);",
+                            (username, session["username"], session["username"],
+                            username))  
+                    conn.commit()                     
 
     return redirect(session["prev-page"])
 
@@ -1090,7 +1101,7 @@ def profile(username):
     if perc_of_level < 25: progress_color = "yellow"
     if perc_of_level < 50: progress_color = "orange"
     if perc_of_level < 75: progress_color = "red"
-
+    print(conn_type)
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
