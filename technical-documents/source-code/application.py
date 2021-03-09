@@ -297,17 +297,17 @@ def accept_connection_request(username) -> object:
     return redirect(session["prev-page"])
 
 
-def apply_achievement(username: str, achievement_ID: int):
+def apply_achievement(username: str, achievement_id: int):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO CompleteAchievements "
             "(username, achievement_ID, date_completed) VALUES (?, ?, ?);",
-            (username, achievement_ID, date.today()))
+            (username, achievement_id, date.today()))
         conn.commit()
         cur.execute(
             "SELECT xp_value FROM Achievements WHERE achievement_ID=?;",
-            (achievement_ID,))
+            (achievement_id,))
         xp = cur.fetchone()[0]
         cur.execute(
             "SELECT * FROM UserLevel WHERE username=?;", (username,))
@@ -1051,13 +1051,13 @@ def profile(username):
     unlocked_achievements, locked_achievements = get_achievements(username)
     first_six = unlocked_achievements[0:min(6, len(unlocked_achievements))]
 
-    set = []
+    # Gets the user's posts.
     if username == session["username"]:
         # TODO: store all the users posts in a json file
         cur.execute(
             "SELECT * "
             "FROM POSTS WHERE username=?", (username,))
-        set = cur.fetchall()
+        user_posts = cur.fetchall()
     else:
         connections = get_all_connections(username)
         count = 0
@@ -1071,28 +1071,28 @@ def profile(username):
                     "SELECT * "
                     "FROM POSTS WHERE username=? AND privacy!='private'",
                     (username,))
-                set = cur.fetchall()
+                user_posts = cur.fetchall()
             else:
                 cur.execute(
                     "SELECT * "
                     "FROM POSTS WHERE username=? "
                     "AND privacy!='private' AND privacy!='close'", (username,))
-                set = cur.fetchall()
+                user_posts = cur.fetchall()
         else:
             cur.execute(
                 "SELECT * "
                 "FROM POSTS WHERE username=? AND privacy='public'",
                 (username,))
-            set = cur.fetchall()
+            user_posts = cur.fetchall()
 
     # Sort reverse chronologically
-    set = sorted(set, key=lambda x: x[0], reverse=True)
+    user_posts = sorted(user_posts, key=lambda x: x[0], reverse=True)
 
     user_posts = {
         "UserPosts": []
     }
 
-    for post in set:
+    for post in user_posts:
         add = ""
         if len(post[2]) > 250:
             add = "..."
@@ -1427,7 +1427,6 @@ def validate_edit_profile(
         bio: The bio input by the user in the form.
         gender: The gender input selected by the user in the form.
         dob: The date of birth input selected by the user in the form.
-        profile_pic: The profile picture uploaded by the user in the form.
         hobbies: The list of hobbies from the form.
         interests: The list of interests from the form.
     Returns:
@@ -1472,16 +1471,16 @@ def validate_edit_profile(
             message.append("Interests must not exceed 24 characters!")
             break
 
+    # Uploads profile picture.
     if valid is True:
-        file = request.files['file']
-        print(file.filename)
+        file = request.files["file"]
         # if user does not select file, browser also
         # submit an empty part without filename
         if allowed_file(file.filename):
             secure_filename(file.filename)
             file_name_hashed = str(uuid.uuid4())
 
-            filepath = os.path.join("." + application.config['UPLOAD_FOLDER'],
+            filepath = os.path.join("." + application.config["UPLOAD_FOLDER"],
                                     file_name_hashed)
 
             im = Image.open(file)
