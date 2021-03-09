@@ -643,13 +643,12 @@ def post(post_id):
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames())
             for comment in row:
-                if i == 20:
-                    break
+                time = datetime.strptime(comment[3],'%Y-%m-%d %H:%M:%S').strftime('%d-%m-%y %H:%M')
                 comments["comments"].append({
                     "commentId": comment[0],
                     "username": comment[1],
                     "body": comment[2],
-                    "date": comment[3],
+                    "date": time,
                 })
                 i += 1
             # TODO: the person viewing the post is the author of the post ( othervise hide delete button)
@@ -1057,7 +1056,7 @@ def profile(username):
         cur.execute(
             "SELECT * "
             "FROM POSTS WHERE username=?", (username,))
-        user_posts = cur.fetchall()
+        sort_posts = cur.fetchall()
     else:
         connections = get_all_connections(username)
         count = 0
@@ -1071,28 +1070,28 @@ def profile(username):
                     "SELECT * "
                     "FROM POSTS WHERE username=? AND privacy!='private'",
                     (username,))
-                user_posts = cur.fetchall()
+                sort_posts = cur.fetchall()
             else:
                 cur.execute(
                     "SELECT * "
                     "FROM POSTS WHERE username=? "
                     "AND privacy!='private' AND privacy!='close'", (username,))
-                user_posts = cur.fetchall()
+                sort_posts = cur.fetchall()
         else:
             cur.execute(
                 "SELECT * "
                 "FROM POSTS WHERE username=? AND privacy='public'",
                 (username,))
-            user_posts = cur.fetchall()
+            sort_posts = cur.fetchall()
 
     # Sort reverse chronologically
-    user_posts = sorted(user_posts, key=lambda x: x[0], reverse=True)
+    sort_posts = sorted(sort_posts, key=lambda x: x[0], reverse=True)
 
     user_posts = {
         "UserPosts": []
     }
 
-    for post in user_posts:
+    for post in sort_posts:
         add = ""
         if len(post[2]) > 250:
             add = "..."
@@ -1510,9 +1509,9 @@ def get_all_connections(username) -> list:
             "WHERE user2=? AND connection_type='connected'",
             (username, username)
         )
-        set = cur.fetchall()
+        cons = cur.fetchall()
 
-        return set
+        return cons
 
 
 def get_achievements(username: str) -> Tuple[object, object]:
