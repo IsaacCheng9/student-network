@@ -962,6 +962,7 @@ def profile(username):
     gender = ""
     birthday = ""
     profile_picture = ""
+    degree = ""
     email = ""
     hobbies = []
     interests = []
@@ -1011,6 +1012,14 @@ def profile(username):
         "ACCOUNTS WHERE username=?;", (username,))
     row = cur.fetchall()
     account_type = row[0][0]
+
+    # Gets users degree.
+    cur.execute(
+        "SELECT degree FROM  "
+        "Degree WHERE degreeId = (SELECT degree "
+        "FROM UserProfile WHERE username='student1');")
+    row = cur.fetchone()
+    degree = row[0]
 
     # Gets the user's hobbies.
     cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
@@ -1144,7 +1153,7 @@ def profile(username):
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, account_type=account_type,
-                           interests=interests,
+                           interests=interests, degree=degree,
                            email=email, posts=user_posts, type=conn_type,
                            unlocked_achievements=first_six,
                            allUsernames=get_all_usernames(),
