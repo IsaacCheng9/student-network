@@ -1656,7 +1656,6 @@ def get_connection_request_count() -> int:
             "SELECT * FROM Connection WHERE user2=? AND "
             "connection_type='request';",
             (session["username"],))
-
         return len(list(cur.fetchall()))
 
 
