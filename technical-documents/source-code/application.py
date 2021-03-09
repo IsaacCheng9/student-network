@@ -957,6 +957,22 @@ def profile(username):
             name, bio, gender, birthday, profile_picture = (
                 data[0], data[1], data[2], data[3], data[4])
 
+    # Award achievement ID 1 - Look at you if necessary
+    if username == session["username"]:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 1))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 1)
+
+    # Award achievement ID 2 - Looking good if necessary
+    if username != session["username"] and session["username"]:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 2))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 2)
+
     # Gets account type.
     cur.execute(
         "SELECT type FROM "
@@ -1058,22 +1074,6 @@ def profile(username):
     else:
         conn_type = "close"
     session["prev-page"] = request.url
-
-    # Award achievement ID 1 - Look at you if necessary
-    if username == session["username"]:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 1))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 1)
-
-    # Award achievement ID 2 - Looking good if necessary
-    if username != session["username"] and session["username"]:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 2))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 2)
 
     level_data = getLevel(username)
     level = level_data[0]
