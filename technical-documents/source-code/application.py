@@ -617,7 +617,7 @@ def post(post_id):
         if len(row) == 0:
             message.append("This post does not exist.")
             message.append(
-                " Please ensure you have entered the name correctly.")
+                "Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
