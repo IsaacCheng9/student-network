@@ -55,7 +55,7 @@ def login_page():
         session["prev-page"] = request.url
         # Clear error session variables.
         session.pop("error", None)
-        return render_template("login.html", errors=errors)
+        return render_template("new-templates/login.html", errors=errors)
 
 
 @application.route("/close_connection/<username>", methods=["GET", "POST"])
@@ -181,7 +181,7 @@ def achievements() -> object:
     if percentage < 33:
         percentage_color = "red"
 
-    return render_template("achievements.html",
+    return render_template("new-templates/achievements.html",
                            unlocked_achievements=unlocked_achievements,
                            locked_achievements=locked_achievements,
                            requestCount=get_connection_request_count(),
@@ -437,7 +437,7 @@ def show_connect_requests() -> object:
 
     session["prev-page"] = request.url
 
-    return render_template("request.html", requests=requests, avatars=avatars,
+    return render_template("new-templates/request.html", requests=requests, avatars=avatars,
                            allUsernames=get_all_usernames(),
                            requestCount=get_connection_request_count())
 
@@ -452,7 +452,7 @@ def terms_page():
     """
     if request.method == "GET":
         session["prev-page"] = request.url
-        return render_template("terms.html",
+        return render_template("new-templates/terms.html",
                                requestCount=get_connection_request_count())
     else:
         return redirect("/register")
@@ -468,7 +468,7 @@ def privacy_policy_page():
     """
     if request.method == "GET":
         session["prev-page"] = request.url
-        return render_template("privacy_policy.html",
+        return render_template("new-templates/privacy_policy.html",
                                requestCount=get_connection_request_count())
     else:
         return redirect("/terms")
@@ -543,7 +543,7 @@ def register_page():
         session.pop("notifications", None)
         session["prev-page"] = request.url
 
-        return render_template("register.html", notifications=notifications,
+        return render_template("new-templates/register.html", notifications=notifications,
                                errors=errors,
                                requestCount=get_connection_request_count())
 
@@ -623,7 +623,7 @@ def post(post_id):
             message.append(
                 "Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
-            return render_template("error.html", message=message,
+            return render_template("new-templates/error.html", message=message,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames())
         else:
@@ -638,7 +638,7 @@ def post(post_id):
             row = cur.fetchall()
             if len(row) == 0:
                 return render_template(
-                    "post_page.html", author=author, postId=post_id,
+                    "new-templates/post_page.html", author=author, postId=post_id,
                     title=title, body=body, username=username, date=date,
                     likes=likes, accountType=account_type, comments=None,
                     requestCount=get_connection_request_count(),
@@ -654,7 +654,7 @@ def post(post_id):
                 })
 
             return render_template(
-                "post_page.html", author=author, postId=post_id, title=title,
+                "new-templates/post_page.html", author=author, postId=post_id, title=title,
                 body=body, username=username, date=date, likes=likes,
                 accountType=account_type, comments=comments,
                 requestCount=get_connection_request_count(),
@@ -721,12 +721,12 @@ def feed():
             errors = session["error"]
             session.pop("error", None)
 
-            return render_template("feed.html", posts=all_posts,
+            return render_template("new-templates/feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
                                    errors=errors)
         else:
-            return render_template("feed.html", posts=all_posts,
+            return render_template("new-templates/feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(), )
     else:
@@ -922,7 +922,7 @@ def delete_post():
         conn.rollback()
     finally:
         message.append("Post has been deleted successfully.")
-        return render_template("error.html", message=message,
+        return render_template("new-templates/error.html", message=message,
                                requestCount=get_connection_request_count(),
                                allUsernames=get_all_usernames())
 
@@ -948,7 +948,7 @@ def delete_comment():
             if row[0] is None:
                 message.append("Comment does not exist.")
                 return render_template(
-                    "error.html", message=message,
+                    "new-templates/error.html", message=message,
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames())
             else:
@@ -958,7 +958,7 @@ def delete_comment():
     except:
         conn.rollback()
         message.append("The comment could not be deleted.")
-        return render_template("error.html", message=message,
+        return render_template("new-templates/error.html", message=message,
                                requestCount=get_connection_request_count(),
                                allUsernames=get_all_usernames())
     finally:
@@ -1016,7 +1016,7 @@ def profile(username):
                 " Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
             return render_template(
-                "error.html", message=message,
+                "new-templates/error.html", message=message,
                 requestCount=get_connection_request_count())
         else:
             data = row[0]
@@ -1174,7 +1174,7 @@ def profile(username):
     if percentage_level < 25: progress_color = "red"
     print(conn_type)
 
-    return render_template("profile.html", username=username,
+    return render_template("new-templates/profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, account_type=account_type,
@@ -1209,7 +1209,7 @@ def edit_profile() -> object:
 
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
-        return render_template("settings.html",
+        return render_template("new-templates/settings.html",
                                requestCount=get_connection_request_count(),
                                date=date, bio=bio, errors=[])
 
@@ -1282,7 +1282,7 @@ def edit_profile() -> object:
             else:
                 session["error"] = message
                 return render_template(
-                    "settings.html", errors=message,
+                    "new-templates/settings.html", errors=message,
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(), date=date, bio=bio)
 
@@ -1298,7 +1298,7 @@ def logout():
     if "username" in session:
         session.clear()
         session["prev-page"] = request.url
-        return render_template("login.html")
+        return render_template("new-templates/login.html")
     return redirect("/")
 
 
