@@ -1367,7 +1367,7 @@ def validate_registration(
 
     # Checks that the full name only contains valid characters.
     if not all(x.isalpha() or x.isspace() for x in full_name):
-        message.append("Full Name must only contain letters and spaces!")
+        message.append("Full name must only contain letters and spaces!")
         valid = False
 
     # Checks that the email hasn't already been registered.
