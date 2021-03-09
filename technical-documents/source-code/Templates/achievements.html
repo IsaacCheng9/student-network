@@ -1,13 +1,140 @@
 {% extends "base.html" %}
 {% block title %}Achievements{% endblock %}
 {% block content %}
-{% for achievement in achievements %}
-    <div>
-        <i class="icon {{ achievement[1] }} big"></i>
+
+<style>
+    .overlay {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        vertical-align: middle;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        background: linear-gradient(rgba(110, 129, 160, 0.1), rgba(110, 129, 160, 0.2));
+        border: 1px solid #eaeaea;
+        border-radius: 0.5em;
+    }
+
+    .gold {
+        background: conic-gradient(#edc800, #e3b600, #f3cf00, #ffe800,
+                #edc800, #e3b600, #f3cf00, #ffe800,
+                #edc800, #e3b600, #f3cf00, #ffe800,
+                #edc800, #e3b600, #f3cf00, #ffe800);
+    }
+
+    .silver {
+        background: conic-gradient(#d7d7d7, #c3c3c3, #cccccc, #c6c6c6,
+                #d7d7d7, #c3c3c3, #cccccc, #c6c6c6,
+                #d7d7d7, #c3c3c3, #cccccc, #c6c6c6,
+                #d7d7d7, #c3c3c3, #cccccc, #c6c6c6);
+    }
+
+    .bronze {
+        background: conic-gradient(#d95641, #b14439, #b2453a, #d25645,
+                #d95641, #b14439, #b2453a, #d25645,
+                #d95641, #b14439, #b2453a, #d25645,
+                #d95641, #b14439, #b2453a, #d25645);
+    }
+
+    .platinum {
+        background: conic-gradient(#e6e9bf, #d2b5aa, #cbaea3, #d4b5ab,
+                #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab,
+                #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab,
+                #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab);
+    }
+    
+    .achievement-icon {
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         
+        background-clip: text;
+        text-fill-color: transparent;
+    }
+    
+    .achievement:hover .achievement-icon {
+        animation-duration: 300ms;
+        animation-name: achievement-hover;
+    }
+    
+    @keyframes achievement-hover {
+        0% {
+            transform: scaleX(1) scaleY(1);
+        }
+        20% {
+            transform: scaleX(0.8) scaleY(1.1);
+        }
+        50% {
+            transform: scaleX(1.2) scaleY(0.9);
+        }
+        100% {
+            transform: scaleX(1) scaleY(1);
+        }
+    }
+    
+
+</style>
+
+<!--
+
+WHOEVER IS DOING:
+BACKEND -> DISPLAYING ACHIEVEMENTS
+
+PLEASE READ:
+
+
+the for loops below are completely different for LOCKED achievements and COMPLETED achievements,
+please make sure to use the correct ones otherwise things can break (including the animations)
+
+just change the "bronze" colour on the icon to one of these: "bronze" "silver" "gold" "platinum"
+according to achievement level
+
+-->
+
+<div class="ui segment padded">
+
+    <div class="ui grid">
+
+        <div class="ui sixteen wide column" style="text-align: center;">
+            <div class="ui statistic {{percentage_color}}">
+                <div class="value">{{percentage}}%</div>
+                <div class="label">achievements completed</div>
+            </div>
+
+            <div class="ui horizontal divider"><i class="icon check"></i> Completed ({{unlocked_achievements|length}})</div>
+        </div>
+
+        {% for achievement in unlocked_achievements %}
+        <div class="ui one wide column achievement" data-title="{{achievement[4]}}" data-content='{{achievement[0]}} | {{achievement[3]}} XP' style="text-align: center;">
+            <i class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon"></i>
+        </div>
+        {% endfor %}
+
+        <div class="ui sixteen wide column">
+            <div class="ui horizontal divider"><i class="icon lock"></i>Locked ({{locked_achievements|length}})</div>
+        </div>
+
+        {% for achievement in locked_achievements %}
+        <div class="ui one wide column" data-title="{{achievement[4]}}" data-content="{{achievement[0]}}" style="text-align: center;">
+            <div class="overlay achievement"><i class="icon lock big"></i></div>
+            <i class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon"></i>
+        </div>
+        {% endfor %}
+
     </div>
-    <div>
-        {{ achievement[0] }}
-    </div>
-{% endfor %}
+
+</div>
+
+<!-- Use static/local versions instead of this cdnjs link -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+
+<script>
+    $('[data-title]').popup();
+</script>
+
 {%endblock%}
