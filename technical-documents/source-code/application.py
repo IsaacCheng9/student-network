@@ -8,6 +8,7 @@ import re
 import sqlite3
 import uuid
 from datetime import date, datetime
+from string import capwords
 from typing import Tuple, List
 
 from PIL import Image
@@ -552,7 +553,7 @@ def register_submit() -> object:
     """
     # Obtains user input from the account registration form.
     username = request.form["username_input"].lower()
-    fullname = request.form["fullname_input"]
+    full_name = capwords(request.form["fullname_input"])
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
@@ -561,7 +562,7 @@ def register_submit() -> object:
     # Connects to the database to perform validation.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        valid, message = validate_registration(cur, username, fullname,
+        valid, message = validate_registration(cur, username, full_name,
                                                password, password_confirm,
                                                email, terms)
         # Registers the user if the details are valid.
@@ -575,7 +576,7 @@ def register_submit() -> object:
                 "INSERT INTO UserProfile (username, name, bio, gender, "
                 "birthday, profilepicture) "
                 "VALUES (?, ?, ?, ?, ?, ?);", (
-                    username, fullname, "Change your bio in the settings.",
+                    username, full_name, "Change your bio in the settings.",
                     "Male", date.today(), "/static/images/default-pfp.jpg",))
 
             cur.execute(
@@ -727,7 +728,6 @@ def feed():
                                    allUsernames=get_all_usernames(), )
     else:
         return redirect("/login")
-
 
 @application.route("/submit_post", methods=["POST"])
 def submit_post():
@@ -909,7 +909,7 @@ def delete_post():
     except:
         conn.rollback()
     finally:
-        message.append("Comment has been deleted successfully.")
+        message.append("Post has been deleted successfully.")
         return render_template("error.html", message=message,
                                requestCount=get_connection_request_count(),
                                allUsernames=get_all_usernames())
@@ -982,6 +982,10 @@ def profile(username):
     birthday = ""
     profile_picture = ""
     email = ""
+    xp_next_level = ""
+    current_xp = ""
+    level = ""
+    level_data = []
     hobbies = []
     interests = []
     account_type = ""
@@ -1120,7 +1124,6 @@ def profile(username):
             "body": (post[2])[:250] + add,
             "privacy": privacy
         })
-        i += 1
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
@@ -1147,6 +1150,7 @@ def profile(username):
     if percentage_level < 50: progress_color = "yellow"
     if percentage_level < 25: progress_color = "red"
     print(conn_type)
+
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
@@ -1400,7 +1404,7 @@ def validate_registration(
             message.append(
                 "Email address does not belong to University of Exeter!")
 
-    # Checks that the password has a minimum length of 6 characters, and at
+    # Checks that the password has a minimum length of 8 characters, and at
     # least one number.
     if (len(password) <= 7 or any(
             char.isdigit() for char in password) is False):
@@ -1608,7 +1612,7 @@ def get_level(username) -> List[int]:
 
         #current_xp = xp % 100
         #level = 1 + int(xp/100)
-        
+
         while xp > xp_next_level:
             level += 1
             xp -= xp_next_level
@@ -1631,7 +1635,6 @@ def get_all_usernames() -> list:
         row = cur.fetchall()
 
         return row
-
 
 def get_connection_request_count() -> int:
     """
