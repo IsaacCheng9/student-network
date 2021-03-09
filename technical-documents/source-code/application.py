@@ -649,7 +649,7 @@ def post(post_id):
                     "date": comment[3],
                 })
                 i += 1
-            # TODO: the person viewing the post is the author of the post ( othervise hide delete button)
+            
             return render_template(
                 "post_page.html", author=author, postId=post_id, title=title,
                 body=body, username=username, date=date, likes=likes,
@@ -686,7 +686,7 @@ def feed():
             all_posts = {
                 "AllPosts": []
             }
-            # TODO: account type differentiation in posts db
+            #account type differentiation in posts db
             for post in reversed(row):
                 if i == 20:
                     break
@@ -712,9 +712,20 @@ def feed():
                     "body": (post[2])[:250] + add
                 })
                 i += 1
-        return render_template("feed.html", posts=all_posts,
-                               requestCount=get_connection_request_count(),
-                               allUsernames=get_all_usernames())
+        
+
+        if "error" in session:
+            errors = []
+            errors = session["error"]
+            session.pop("error", None)
+
+            return render_template("feed.html", posts=all_posts,
+                    requestCount=get_connection_request_count(),
+                    allUsernames=get_all_usernames(),errors = errors)
+        else: 
+            return render_template("feed.html", posts=all_posts,
+                                requestCount=get_connection_request_count(),
+                                allUsernames=get_all_usernames(),)
     else:
         return redirect("/login")
 
@@ -778,10 +789,12 @@ def submit_post():
                     if len(results) >= 20:
                         apply_achievement(session["username"], 9)
 
-        # TODO: Prints error message missing title on top of page
+        #Prints error message missing title on top of page
+        session["error"]=["Missing Title!"]
     except:
         conn.rollback()
-        print("error in insert operation")
+        #Prints error message in case post couldnt be created
+        session["error"].append(["Post could not be created"])
     finally:
         return redirect("/feed")
 
@@ -859,8 +872,6 @@ def submit_comment():
     if comment_body != "":
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            # TODO: 6th value in table is privacy setting and 7th is account type.
-            # Currently is default - public/student but no functionality
             cur.execute("INSERT INTO Comments (postId, body, username) "
                         "VALUES (?, ?, ?);",
                         (post_id, comment_body, session["username"]))
