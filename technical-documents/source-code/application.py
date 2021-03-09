@@ -309,19 +309,24 @@ def apply_achievement(username: str, achievement_id: int):
             "SELECT xp_value FROM Achievements WHERE achievement_ID=?;",
             (achievement_id,))
         xp = cur.fetchone()[0]
-        cur.execute(
-            "SELECT * FROM UserLevel WHERE username=?;", (username,))
-        if cur.fetchone() is None:
-            cur.execute(
-                "INSERT INTO UserLevel (username, experience) VALUES (?,?);",
-                (username, 0))
-        conn.commit()
+        check_level_exists(username)
         cur.execute(
             "UPDATE UserLevel "
             "SET experience = experience + ? "
             "WHERE username=?;",
             (xp, username))
         conn.commit()
+
+def check_level_exists(username: str):
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM UserLevel WHERE username=?;", (username,))
+        if cur.fetchone() is None:
+            cur.execute(
+                "INSERT INTO UserLevel (username, experience) VALUES (?,?);",
+                (username, 0))
+            conn.commit()
 
 
 @application.route("/remove_close_friend/<username>")
@@ -822,6 +827,15 @@ def like_post():
             row = cur.fetchone()
 
             likes = row[0] + 1
+            
+            # Award achievement ID 22 - Everyone loves you if necessary
+            if likes >= 50:    
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (session["username"], 22))
+                if cur.fetchone() is None:
+                    apply_achievement(session["username"], 22)
             cur.execute("UPDATE POSTS SET likes=? "
                         " WHERE postId=? ;", (likes, post_id,))
             conn.commit()
@@ -1147,6 +1161,8 @@ def profile(username):
     else:
         conn_type = "close"
     session["prev-page"] = request.url
+
+    check_level_exists(username)
 
     level_data = get_level(username)
     level = level_data[0]
