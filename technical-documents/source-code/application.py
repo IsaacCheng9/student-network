@@ -1538,7 +1538,7 @@ def getLevel(username) -> Tuple[int, int, int]:
             "UserLevel WHERE username=?;", (username,))
         row = cur.fetchone()
 
-        current_xp = int(row[0])
+        current_xp = int(row[0]) % 100
         level = 1 + int(current_xp/100)
 
         return [level, current_xp, xp_next_level]
