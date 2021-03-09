@@ -79,10 +79,10 @@
                                     <input type="hidden" name="postId" value="{{postId}}">
                                 </form>
                                 <br>
-                                <input type="submit" value="Post comment" form="comment" class="ui left floated blue button"></button>
                                 {% if session["username"] == username %}
-                                <input type="submit" value="Delete Post" form="deletePost" class="negative right floated ui button"></button>
+                                <input type="submit" value="Delete Post" form="deletePost" class="negative left floated ui button"></button>
                                 {% endif %}
+                                <input type="submit" value="Post comment" form="comment" class="ui right floated blue button"></button>
                             </div>
                         </div>
                     </div>
