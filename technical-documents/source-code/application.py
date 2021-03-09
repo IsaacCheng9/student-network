@@ -552,7 +552,7 @@ def post(postId):
                                    allUsernames=get_all_usernames())
         else:
             data = row[0]
-            title, body, username, date, account_type, likes = (data[0], data[1],
+            title, body, username, date, accountType, likes = (data[0], data[1],
                                                          data[2], data[3],
                                                          data[4], data[5])
             cur.execute(
@@ -562,7 +562,8 @@ def post(postId):
             if len(row) == 0:
                 return render_template("post_page.html", author=author,
                                         postId=postId, title=title, body=body,
-                                        username=username, date=date, likes = likes,
+                                        username=username, date=date, likes = likes, 
+                                        accountType = accountType,
                                         comments=None,requestCount=get_connection_request_count(),
                                         allUsernames=get_all_usernames())
             for comment in row:
@@ -578,8 +579,8 @@ def post(postId):
             # TODO: the person viewing the post is the author of the post ( othervise hide delete button)
             return render_template("post_page.html", author=author,
                                    postId=postId, title=title, body=body,
-                                   username=username, date=date,
-                                   comments=comments,
+                                   username=username, date=date, likes = likes,
+                                   accountType=accountType, comments=comments, 
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames())
 
@@ -726,9 +727,28 @@ def like_post():
 
             likes=row[0]+1
             cur.execute("UPDATE POSTS SET likes=? "
-                "WHERE postId=? ;",(likes,postId,))
+                " WHERE postId=? ;",(likes,postId,))
             conn.commit()
 
+            #Check how many posts user has liked 
+            cur.execute("SELECT COUNT(postId) FROM UserLikes"
+                   " WHERE username=? ;", (session["username"],))
+            row = cur.fetchone()
+            if row == 1: 
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 20))
+                if cur.fetchone() is None:
+                    apply_achievement(session["username"], 20)
+            elif row == 5:
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 23))
+                if cur.fetchone() is None:
+                    apply_achievement(session["username"], 23)
+            elif row == 100 :
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);", (session["username"], 24))
+                if cur.fetchone() is None:
+                    apply_achievement(session["username"], 24)
     return redirect("/post_page/" + postId)
 
 
