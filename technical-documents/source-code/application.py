@@ -715,7 +715,6 @@ def submit_post():
         if post_title != "":
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
-                # Currently is default - public/student but no functionality
                 cur.execute("INSERT INTO POSTS (title, body, username) "
                             "VALUES (?, ?, ?);",
                             (post_title, post_body, session["username"]))
