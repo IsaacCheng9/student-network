@@ -1080,7 +1080,9 @@ def profile(username):
     current_xp = level_data[1]
     xp_next_level = level_data[2]
 
-    perc_of_level = 100 * current_xp / xp_next_level
+    print(current_xp, xp_next_level)
+
+    perc_of_level = 100 * float(current_xp) / float(xp_next_level)
 
     progress_color = "green"
     if perc_of_level < 25: progress_color = "yellow"
@@ -1124,7 +1126,7 @@ def edit_profile() -> object:
     if request.method == "GET":
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
-                               date=date, bio=bio)
+                               date=date, bio=bio, errors=[])
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -1156,12 +1158,19 @@ def edit_profile() -> object:
             # Updates the user profile if details are valid.
             if valid is True:
                 # Updates the bio, gender, and birthday.
-                cur.execute(
-                    "UPDATE UserProfile SET bio=?, gender=?, birthday=?, profilepicture=?"
-                    "WHERE username=?;",
-                    (bio, gender, dob,
-                     application.config['UPLOAD_FOLDER'] + "\\" + filename,
-                     username,))
+                if filename:
+                    cur.execute(
+                        "UPDATE UserProfile SET bio=?, gender=?, birthday=?, profilepicture=?"
+                        "WHERE username=?;",
+                        (bio, gender, dob,
+                        application.config['UPLOAD_FOLDER'] + "\\" + filename,
+                        username,))
+                else:
+                    cur.execute(
+                        "UPDATE UserProfile SET bio=?, gender=?, birthday=?"
+                        "WHERE username=?;",
+                        (bio, gender, dob,
+                        username,))                    
                 # Inserts new hobbies and interests into the database if the
                 # user made a new input.
                 if hobbies != [""]:
@@ -1187,7 +1196,11 @@ def edit_profile() -> object:
             # Displays error message(s) stating why their details are invalid.
             else:
                 session["error"] = message
-                return redirect("/edit-profile/")
+                print(message)
+                return render_template("settings.html", errors=message,
+                                requestCount=get_connection_request_count(),
+                                   allUsernames=get_all_usernames(),
+                                   date=date, bio=bio)
 
 
 @application.route("/logout", methods=["GET"])
@@ -1374,6 +1387,7 @@ def validate_edit_profile(bio: str, gender: str, dob: str,
     valid = True
     message = []
     filename = ''
+    new_filename = ''
     # Checks that the gender is male, female, or other.
     if gender not in ["Male", "Female", "Other"]:
         valid = False
@@ -1413,26 +1427,20 @@ def validate_edit_profile(bio: str, gender: str, dob: str,
             break
 
     if valid == True:
-        if 'file' not in request.files:
+        file = request.files['file']
+        print(file.filename)
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            new_filename = str(uuid.uuid4())
+            file.save(
+                os.path.join("." + application.config['UPLOAD_FOLDER'],
+                                new_filename))
+        elif file:
             valid = False
-            print("file" + valid)
-            message.append("No file uploaded")
-        else:
-            file = request.files['file']
-            print(file.filename)
-            # if user does not select file, browser also
-            # submit an empty part without filename
-            if file.filename == '':
-                message.append("No file uploaded")
-                valid = False
+            message.append("Your file needs to be an image")
 
-            else:
-                if file and allowed_file(file.filename):
-                    filename = secure_filename(file.filename)
-                    new_filename = str(uuid.uuid4())
-                    file.save(
-                        os.path.join("." + application.config['UPLOAD_FOLDER'],
-                                     new_filename))
     print(valid)
     return valid, message, new_filename
 
@@ -1505,7 +1513,7 @@ def am_close_friend(username) -> bool:
         return False
 
 
-def getLevel(username) -> Tuple[str, str, str]:
+def getLevel(username) -> Tuple[int, int, int]:
     """
     gets the current user experience points, the experience points
     for the next level and the user's current level from the database
@@ -1518,41 +1526,22 @@ def getLevel(username) -> Tuple[str, str, str]:
         current xp
         xp next level
     """
-    level = ""
-    current_xp = ""
-    xp_next_level = ""
-    message = []
+    level = 1
+    current_xp = 0
+    xp_next_level = 100
+
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Get user experience
         cur.execute(
             "SELECT experience FROM "
             "UserLevel WHERE username=?;", (username,))
-        row = cur.fetchall()
-        if len(row) == 0:
-            message.append("Problem with getting level")
-            session["prev-page"] = request.url
-            return render_template("error.html", message=message,requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames())
-        else:
-            data = row[0]
-            current_xp = data[0]
-            cur.execute(
-                "SELECT level, experience FROM "
-                "Levels WHERE  experience > ?;", (current_xp,))
-            row = cur.fetchone()
-            if row is None:
-                cur.execute("INSERT INTO Levels"
-                            "VALUES( (1+(SELECT MAX(level)FROM Levels)),"
-                            "(50*(SELECT MAX(level)FROM Levels)"
-                            "+(SELECT MAX(experience)FROM Levels)))")
-                cur.execute(
-                    "SELECT level, experience FROM "
-                    "Levels WHERE  experience > ?;", (current_xp,))
-                row = cur.fetchone()
-            level = row[0]
-            xp_next_level = row[1]
-            return [level, current_xp, xp_next_level]
+        row = cur.fetchone()
+
+        current_xp = int(row[0])
+        level = 1 + int(current_xp/100)
+
+        return [level, current_xp, xp_next_level]
 
 
 def get_all_usernames() -> list:
