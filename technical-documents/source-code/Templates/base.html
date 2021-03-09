@@ -50,6 +50,9 @@
             <div class="student-background"></div>
             <div class="sticky">
                 <div class="ui menu stackable">
+                  <div class="item">
+                   <img src="../static/images/logo/chatboxes_stretch_png.png" alt="">
+                   </div>
                     {% if not "username" in session %}
                     <a href="/login" {% if request.path=='/login' %}class="active item" {% else %}class="item" {% endif
                         %}>Login</a>

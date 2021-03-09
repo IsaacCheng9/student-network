@@ -13,135 +13,67 @@ content %}
         justify-content: center;
         align-items: center;
 
-        background: linear-gradient(
-            rgba(110, 129, 160, 0.1),
-            rgba(110, 129, 160, 0.2)
-        );
+        background: linear-gradient(rgba(110, 129, 160, 0.1),
+                rgba(110, 129, 160, 0.2));
         border: 1px solid #eaeaea;
         border-radius: 0.5em;
     }
 
     .gold {
-        background: conic-gradient(
-            #edc800,
-            #e3b600,
-            #f3cf00,
-            #ffe800,
-            #edc800,
-            #e3b600,
-            #f3cf00,
-            #ffe800,
-            #edc800,
-            #e3b600,
-            #f3cf00,
-            #ffe800,
-            #edc800,
-            #e3b600,
-            #f3cf00,
-            #ffe800
-        );
+        background: conic-gradient(#edc800, #e3b600, #f3cf00, #ffe800,
+            #edc800, #e3b600, #f3cf00, #ffe800,
+            #edc800, #e3b600, #f3cf00, #ffe800,
+            #edc800, #e3b600, #f3cf00, #ffe800);
     }
 
     .silver {
-        background: conic-gradient(
-            #d7d7d7,
-            #c3c3c3,
-            #cccccc,
-            #c6c6c6,
-            #d7d7d7,
-            #c3c3c3,
-            #cccccc,
-            #c6c6c6,
-            #d7d7d7,
-            #c3c3c3,
-            #cccccc,
-            #c6c6c6,
-            #d7d7d7,
-            #c3c3c3,
-            #cccccc,
-            #c6c6c6
-        );
+        background: conic-gradient(#d7d7d7, #c3c3c3, #cccccc, #c6c6c6,
+            #d7d7d7, #c3c3c3, #cccccc, #c6c6c6,
+            #d7d7d7, #c3c3c3, #cccccc, #c6c6c6,
+            #d7d7d7, #c3c3c3, #cccccc, #c6c6c6);
     }
 
     .bronze {
-        background: conic-gradient(
-            #d95641,
-            #b14439,
-            #b2453a,
-            #d25645,
-            #d95641,
-            #b14439,
-            #b2453a,
-            #d25645,
-            #d95641,
-            #b14439,
-            #b2453a,
-            #d25645,
-            #d95641,
-            #b14439,
-            #b2453a,
-            #d25645
-        );
+        background: conic-gradient(#d95641, #b14439, #b2453a, #d25645,
+            #d95641, #b14439, #b2453a, #d25645,
+            #d95641, #b14439, #b2453a, #d25645,
+            #d95641, #b14439, #b2453a, #d25645);
     }
 
     .platinum {
-        background: conic-gradient(
-            #e6e9bf,
-            #d2b5aa,
-            #cbaea3,
-            #d4b5ab,
-            #e6e9bf,
-            #d2b5aa,
-            #cbaea3,
-            #d4b5ab,
-            #e6e9bf,
-            #d2b5aa,
-            #cbaea3,
-            #d4b5ab,
-            #e6e9bf,
-            #d2b5aa,
-            #cbaea3,
-            #d4b5ab
-        );
+        background: conic-gradient(#e6e9bf, #d2b5aa, #cbaea3, #d4b5ab,
+            #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab,
+            #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab,
+            #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab);
     }
 
     .diamond {
-        background: conic-gradient(
-            #85c1e9,
-            #d6eaf8,
-            #2980b9,
-            #3498db,
-            #85c1e9,
-            #d6eaf8,
-            #2980b9,
-            #3498db,
-            #85c1e9,
-            #d6eaf8,
-            #2980b9,
-            #3498db,
-            #85c1e9,
-            #d6eaf8,
-            #2980b9,
-            #3498db
-        );
+        background: conic-gradient(#85c1e9, #d6eaf8, #2980b9, #3498db,
+            #85c1e9, #d6eaf8, #2980b9, #3498db,
+            #85c1e9, #d6eaf8, #2980b9, #3498db,
+            #85c1e9, #d6eaf8, #2980b9, #3498db);
     }
 
     .bronze-glow {
         text-shadow: 0 0 5px #b2453a;
         color: #b2453a !important;
     }
+
     .silver-glow {
         text-shadow: 0 0 5px #c3c3c3;
         color: #c3c3c3 !important;
     }
+
     .gold-glow {
         text-shadow: 0 0 5px #e3b600;
         color: #e3b600 !important;
     }
+
     .platinum-glow {
         text-shadow: 0 0 5px #d2b5aa;
         color: #d2b5aa !important;
     }
+
     .diamond-glow {
         text-shadow: 0 0 5px #85c1e9;
         color: #85c1e9 !important;
@@ -164,16 +96,20 @@ content %}
         0% {
             transform: scaleX(1) scaleY(1);
         }
+
         20% {
             transform: scaleX(0.8) scaleY(1.1);
         }
+
         50% {
             transform: scaleX(1.2) scaleY(0.9);
         }
+
         100% {
             transform: scaleX(1) scaleY(1);
         }
     }
+
 </style>
 
 <!--
@@ -207,14 +143,8 @@ according to achievement level
         </div>
 
         {% for achievement in unlocked_achievements %}
-        <div
-            class="ui one wide column achievement"
-            data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[2]}}-glow">{{achievement[2]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>'
-            style="text-align: center"
-        >
-            <i
-                class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon"
-            ></i>
+        <div class="ui one wide column achievement" data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[2]}}-glow">{{achievement[2]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>' style="text-align: center">
+            <i class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon"></i>
         </div>
         {% endfor %}
 
@@ -226,17 +156,11 @@ according to achievement level
         </div>
 
         {% for achievement in locked_achievements %}
-        <div
-            class="ui one wide column"
-            data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[2]}}-glow">{{achievement[2]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>'
-            style="text-align: center"
-        >
+        <div class="ui one wide column" data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[2]}}-glow">{{achievement[2]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>' style="text-align: center">
             <div class="overlay achievement">
                 <i class="icon lock big"></i>
             </div>
-            <i
-                class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon"
-            ></i>
+            <i class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon"></i>
         </div>
         {% endfor %}
     </div>
@@ -249,6 +173,7 @@ according to achievement level
 
 <script>
     $("[data-html]").popup();
+
 </script>
 
 {%endblock%}
