@@ -1,17 +1,87 @@
-{% extends "base.html" %}
-{% block title %}Post{% endblock %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+  <meta charset="UTF-8" />
+  <head>
+    <title>Student Network - Login</title>
+  </head>
+
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="{{ url_for('static', filename='styles/semantic.css') }}"
+  />
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
+  />
+
+  <style>
+    .student-background {
+      background-image: url("{{ url_for('static', filename='images/background_blue.png') }}") !important;
+
+      height: 100%;
+
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+
+      position: fixed;
+      z-index: -1;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+    }
+
+    .centered {
+      text-align: center;
+    }
+
+    .sticky {
+        position: sticky; top: 5px;
+        z-index: 99;
+    }
+
+  </style>
+
+  <body>
+    <div class="student-background"></div>
+    <div class="ui container">
+        <div class="sticky">
+            <div class="ui menu">
+                {% if not "username" in session %}
+                <a href="/login" class="item">Login</a>
+                {%endif%}
+                <a href="/profile" class="item">Profile</a>
+                <a href="/requests" class="item">Connect Requests</a>
+                <a href="/feed" class="item">Feed</a>
+                <div class="right menu">
+                <div class="ui item">
+                    <div class="ui transparent icon input">
+                    <input
+                        class="prompt"
+                        type="text"
+                        id="search"
+                        placeholder="Search for a user"
+                    />
+                    <i class="search link icon"></i>
+                    </div>
+                </div>
+                {% if session["username"] %}
+                <a class="ui item"> Logged in as {{session["username"]}} </a>
+                <a href="/logout" class="ui item">Logout</a>
+                {%endif%}
+                </div>
+            </div>
+        </div>
     <div class="ui segment basic">
       <div class="ui grid">
         <div class="four wide column"></div>
         <div class="eight wide column">
           <div class="ui cards">
             <div class="ui card fluid">
-              {% if message %}
-                <div class="ui message red">
-                  {{ message }}      
-                </div>
-              {% endif %}
               <div class="content">
                 <div class="header">
                   {{title}}
@@ -33,20 +103,9 @@
               </div>
 
               <div class="content">
-                <form action="{{ url_for('like_post') }}" class="ui form" id="like", method="POST">
-                  <input type="hidden" name="postId" value="{{postId}}">
-                </form>
-                <div class="right floated ui mini labeled button"">
-                  <button type="submit" form="like" class="ui mini red button"  tabindex="0">
-                      <i class="heart icon"></i>
-                  </button>
-                  <a class="ui  basic red left pointing label">
-                    {{likes}}
-                  </a>
-                </div>
                 <div class="ui comments">
-                  <h3 class="ui  dividing header">Comments:</h3>
-
+                  
+                  <h3 class="ui dividing header">Comments:</h3>
                   {% for comment in comments["comments"] %}
                     <div class="comment">
                       <a class="avatar">
@@ -62,13 +121,11 @@
                           <input type="hidden" name="postId" value="{{postId}}">
                           <input type="hidden" name="commentId" value="{{comment.commentId}}">
                         </form>
-                        {% if session["username"] == comment.username %}
-                          <div class="right floated content">
-                            <button type="submit" form="deleteComment{{comment.commentId}}" class="ui mini red button icon">
-                              <i class="small trash alternate outline icon"></i>
-                            </button>
-                          </div>
-                        {% endif %}
+                        <!--TODO: ensure the delete button is available only for the user's comments-->
+                        <div class="right floated content">
+                        <button type="submit" form="deleteComment{{comment.commentId}}" class="ui mini red button icon">
+                          <i class="small trash alternate outline icon"></i>
+                        </button></div>
                         <div class="text">
                           {{comment.body}}
                         </div>
@@ -89,11 +146,9 @@
                     <form action="{{ url_for('delete_post') }}" class="ui form" id="deletePost", method="POST">
                       <input type="hidden" name="postId" value="{{postId}}">
                     </form>
-                    <br>
                     <input type="submit" value = "Post comment" form="comment" class="ui left floated blue button"></button>
-                    {% if session["username"] == username %}
-                      <input type="submit" value = "Delete Post" form="deletePost" class="negative right floated ui button"></button>
-                    {% endif %}
+                    <!--TODO: ensure the delete button is available only for the user's posts-->
+                    <input type="submit" value = "Delete Post" form="deletePost" class="negative right floated ui button"></button>
                   </div>     
               </div>
             </div>
@@ -102,4 +157,8 @@
         <div class="four wide column"></div>
       </div>
     </div>
-{%endblock%}
+    </div>
+  </body>
+
+  <script type="text/javascript" src="../static/searchbar.js"></script>
+</html>
