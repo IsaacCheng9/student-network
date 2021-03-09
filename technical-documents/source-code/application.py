@@ -8,6 +8,7 @@ import re
 import sqlite3
 import uuid
 from datetime import date, datetime
+from string import capwords
 from typing import Tuple, List
 
 from PIL import Image
@@ -296,33 +297,6 @@ def accept_connection_request(username) -> object:
     return redirect(session["prev-page"])
 
 
-def apply_achievement(username: str, achievement_id: int):
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO CompleteAchievements "
-            "(username, achievement_ID, date_completed) VALUES (?, ?, ?);",
-            (username, achievement_id, date.today()))
-        conn.commit()
-        cur.execute(
-            "SELECT xp_value FROM Achievements WHERE achievement_ID=?;",
-            (achievement_id,))
-        xp = cur.fetchone()[0]
-        cur.execute(
-            "SELECT * FROM UserLevel WHERE username=?;", (username,))
-        if cur.fetchone() is None:
-            cur.execute(
-                "INSERT INTO UserLevel (username, experience) VALUES (?,?);",
-                (username, 0))
-        conn.commit()
-        cur.execute(
-            "UPDATE UserLevel "
-            "SET experience = experience + ? "
-            "WHERE username=?;",
-            (xp, username))
-        conn.commit()
-
-
 @application.route("/remove_close_friend/<username>")
 def remove_close_friend(username: str) -> object:
     """
@@ -552,7 +526,7 @@ def register_submit() -> object:
     """
     # Obtains user input from the account registration form.
     username = request.form["username_input"].lower()
-    fullname = request.form["fullname_input"]
+    full_name = capwords(request.form["fullname_input"])
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
@@ -561,7 +535,7 @@ def register_submit() -> object:
     # Connects to the database to perform validation.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        valid, message = validate_registration(cur, username, fullname,
+        valid, message = validate_registration(cur, username, full_name,
                                                password, password_confirm,
                                                email, terms)
         # Registers the user if the details are valid.
@@ -575,12 +549,10 @@ def register_submit() -> object:
                 "INSERT INTO UserProfile (username, name, bio, gender, "
                 "birthday, profilepicture) "
                 "VALUES (?, ?, ?, ?, ?, ?);", (
-                    username, fullname, "Change your bio in the settings.",
+                    username, full_name, "Change your bio in the settings.",
                     "Male", date.today(), "/static/images/default-pfp.jpg",))
 
-            cur.execute(
-                "INSERT INTO Userlevel (username, experience) "
-                "VALUES (?, 0);", (username,))
+            check_level_exists(username)
 
             conn.commit()
 
@@ -822,6 +794,15 @@ def like_post():
             row = cur.fetchone()
 
             likes = row[0] + 1
+
+            # Award achievement ID 22 - Everyone loves you if necessary
+            if likes >= 50:
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (session["username"], 22))
+                if cur.fetchone() is None:
+                    apply_achievement(session["username"], 22)
             cur.execute("UPDATE POSTS SET likes=? "
                         " WHERE postId=? ;", (likes, post_id,))
             conn.commit()
@@ -909,7 +890,7 @@ def delete_post():
     except:
         conn.rollback()
     finally:
-        message.append("Comment has been deleted successfully.")
+        message.append("Post has been deleted successfully.")
         return render_template("error.html", message=message,
                                requestCount=get_connection_request_count(),
                                allUsernames=get_all_usernames())
@@ -982,6 +963,10 @@ def profile(username):
     birthday = ""
     profile_picture = ""
     email = ""
+    xp_next_level = ""
+    current_xp = ""
+    level = ""
+    level_data = []
     hobbies = []
     interests = []
     account_type = ""
@@ -1071,7 +1056,7 @@ def profile(username):
             connections[count] = connection[0]
             count += 1
         if session["username"] in connections:
-            close = am_close_friend(username)
+            close = is_close_friend(username)
             if close is True:
                 cur.execute(
                     "SELECT * "
@@ -1116,7 +1101,7 @@ def profile(username):
         else:
             privacy = str(post[5]).capitalize()
             icon = "users"
-        
+
         time = datetime.strptime(post[4], '%Y-%m-%d').strftime('%d-%m-%y')
         user_posts["UserPosts"].append({
             "postId": post[0],
@@ -1129,7 +1114,6 @@ def profile(username):
             "privacy": privacy,
             "icon": icon
         })
-        i += 1
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
@@ -1145,6 +1129,8 @@ def profile(username):
         conn_type = "close"
     session["prev-page"] = request.url
 
+    check_level_exists(username)
+
     level_data = get_level(username)
     level = level_data[0]
     current_xp = level_data[1]
@@ -1152,10 +1138,14 @@ def profile(username):
 
     percentage_level = 100 * float(current_xp) / float(xp_next_level)
     progress_color = "green"
-    if percentage_level < 75: progress_color = "orange"
-    if percentage_level < 50: progress_color = "yellow"
-    if percentage_level < 25: progress_color = "red"
+    if percentage_level < 75:
+        progress_color = "orange"
+    if percentage_level < 50:
+        progress_color = "yellow"
+    if percentage_level < 25:
+        progress_color = "red"
     print(conn_type)
+
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
@@ -1284,6 +1274,156 @@ def logout():
     return redirect("/")
 
 
+def allowed_file(filename):
+    """
+    Checks if the file is an allowed type.
+
+    Args:
+        filename: The name of the file uploaded by the user.
+
+    Returns:
+        Whether the file is allowed or not (True/False).
+    """
+    return "." in filename and \
+           filename.rsplit(".", 1)[1].lower() in {"png", "jpg", "jpeg", "gif"}
+
+
+def apply_achievement(username: str, achievement_id: int):
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO CompleteAchievements "
+            "(username, achievement_ID, date_completed) VALUES (?, ?, ?);",
+            (username, achievement_id, date.today()))
+        conn.commit()
+        cur.execute(
+            "SELECT xp_value FROM Achievements WHERE achievement_ID=?;",
+            (achievement_id,))
+        xp = cur.fetchone()[0]
+        check_level_exists(username)
+        cur.execute(
+            "UPDATE UserLevel "
+            "SET experience = experience + ? "
+            "WHERE username=?;",
+            (xp, username))
+        conn.commit()
+
+
+def calculate_age(born):
+    """
+    Calculates the user's current age based on their date of birth.
+
+    Args:
+        born: The user's date of birth.
+    Returns:
+        The age of the user in years.
+    """
+    today = date.today()
+    return today.year - born.year - (
+            (today.month, today.day) < (born.month, born.day))
+
+
+def check_level_exists(username: str):
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM UserLevel WHERE username=?;", (username,))
+        if cur.fetchone() is None:
+            cur.execute(
+                "INSERT INTO UserLevel (username, experience) VALUES (?, ?);",
+                (username, 0))
+            conn.commit()
+
+
+def get_achievements(username: str) -> Tuple[object, object]:
+    """
+    Gets unlocked and locked achievements for the user.
+
+    Returns:
+        A list of unlocked and locked achievements and their details.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        # Gets unlocked achievements, sorted by XP descending.
+        cur.execute(
+            "SELECT description, icon, rarity, xp_value, achievement_name "
+            "FROM CompleteAchievements "
+            "INNER JOIN Achievements ON CompleteAchievements"
+            ".achievement_ID = Achievements.achievement_ID "
+            "WHERE username=?;",
+            (username,))
+        unlocked_achievements = cur.fetchall()
+        unlocked_achievements.sort(key=lambda x: x[3], reverse=True)
+
+        # Get locked achievements, sorted by XP ascending.
+        cur.execute(
+            "SELECT description, icon, rarity, xp_value, achievement_name "
+            "FROM Achievements")
+        all_achievements = cur.fetchall()
+        locked_achievements = list(
+            set(all_achievements) - set(unlocked_achievements))
+        locked_achievements.sort(key=lambda x: x[3])
+
+    return unlocked_achievements, locked_achievements
+
+
+def get_all_connections(username) -> list:
+    """
+    Gets a list of all usernames that are connected to the logged in user.
+
+    Returns:
+        A list of all usernames that are connected to the logged in user.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT user2 FROM Connection "
+            "WHERE user1=? AND connection_type='connected' UNION ALL "
+            "SELECT user1 FROM Connection "
+            "WHERE user2=? AND connection_type='connected'",
+            (username, username)
+        )
+        cons = cur.fetchall()
+
+        return cons
+
+
+def get_all_usernames() -> list:
+    """
+    Gets a list of all usernames that are registered.
+
+    Returns:
+        A list of all usernames that have been registered.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT username FROM Accounts")
+
+        row = cur.fetchall()
+
+        return row
+
+
+def get_connection_request_count() -> int:
+    """
+    Counts number of pending connection requests for a user.
+
+    Returns:
+        The number of pending connection requests for a user.
+    """
+
+    if "username" not in session:
+        return 0
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM Connection WHERE user2=? AND "
+            "connection_type='request';",
+            (session["username"],))
+        return len(list(cur.fetchall()))
+
+
 def get_connection_type(username: str):
     """
     Checks what type of connection the user has with the specified user.
@@ -1318,122 +1458,56 @@ def get_connection_type(username: str):
                 return None
 
 
-def calculate_age(born):
+def get_level(username) -> List[int]:
     """
-    Calculates the user's current age based on their date of birth.
+    gets the current user experience points, the experience points
+    for the next level and the user's current level from the database
 
     Args:
-        born: The user's date of birth.
+        username: username of the user logged in
+
     Returns:
-        The age of the user in years.
+        level
+        current xp
+        xp next level
     """
-    today = date.today()
-    return today.year - born.year - (
-            (today.month, today.day) < (born.month, born.day))
+    level = 1
+    xp_next_level = 100
+    xp_increase_per_level = 15
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        # Get user experience
+        cur.execute(
+            "SELECT experience FROM "
+            "UserLevel WHERE username=?;", (username,))
+        row = cur.fetchone()
+
+        xp = int(row[0])
+        while xp > xp_next_level:
+            level += 1
+            xp -= xp_next_level
+            xp_next_level += xp_increase_per_level
+
+        return [level, xp, xp_next_level]
 
 
-def validate_registration(
-        cur, username: str, full_name: str, password: str,
-        password_confirm: str,
-        email: str, terms: str) -> Tuple[bool, List[str]]:
+def is_close_friend(username) -> bool:
     """
-    Validates the registration details to ensure that the email address is
-    valid, and that the passwords in the form match.
+    Gets whether the selected user has the logged in as a close friend.
 
-    Args:
-        cur: Cursor for the SQLite database.
-        username: The username input by the user in the form.
-        full_name: The full name input by the user in the form.
-        password: The password input by the user in the form.
-        password_confirm: The password confirmation input by the user in the
-            form.
-        email: The email address input by the user in the form.
-        terms: The terms and conditions input checkbox.
     Returns:
-        Whether the registration was valid, and the error message(s) if not.
+        True if logged in is a close friend, false if not
     """
-    # Registration remains valid as long as it isn't caught by any checks. If
-    # not, error messages will be provided to the user.
-    valid = True
-    message = []
-
-    # Checks that there are no null inputs.
-    if (username == "" or full_name == "" or password == "" or
-            password_confirm == "" or email == ""):
-        message.append("Not all fields have been filled in!")
-        valid = False
-
-    # Checks that the username only contains valid characters.
-    if username.isalnum() is False:
-        message.append("Username must only contain letters and numbers!")
-        valid = False
-
-    # Checks that the username hasn't already been registered.
-    cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
-    if cur.fetchone() is not None:
-        message.append("Username has already been registered!")
-        valid = False
-
-    # Checks that the full name doesn't exceed 40 characters.
-    if len(full_name) > 40:
-        message.append("Full name exceeds 40 characters!")
-        valid = False
-
-    # Checks that the full name only contains valid characters.
-    if not all(x.isalpha() or x.isspace() for x in full_name):
-        message.append("Full name must only contain letters and spaces!")
-        valid = False
-
-    # Checks that the email hasn't already been registered.
-    cur.execute("SELECT * FROM Accounts WHERE email=?;", (email,))
-    if cur.fetchone() is not None:
-        message.append("Email has already been registered!")
-        valid = False
-
-    # Checks that the email address has the correct format, checks whether it
-    # exists, and isn't a blacklist email.
-    try:
-        valid_email = validate_email(email)
-        # Updates with the normalised form of the email address.
-        email = valid_email.email
-    except EmailNotValidError:
-        message.append("Email is invalid!")
-        valid = False
-
-    # If the format is valid, checks that the email address has the
-    # University of Exeter domain.
-    if re.search("@.*", email) is not None:
-        domain = re.search("@.*", email).group()
-        if domain != "@exeter.ac.uk":
-            valid = False
-            message.append(
-                "Email address does not belong to University of Exeter!")
-
-    # Checks that the password has a minimum length of 6 characters, and at
-    # least one number.
-    if (len(password) <= 7 or any(
-            char.isdigit() for char in password) is False):
-        message.append("Password does not meet requirements! It must contain "
-                       "at least eight characters, including at least one "
-                       "number.")
-        valid = False
-
-    # Checks that the passwords match.
-    if password != password_confirm:
-        message.append("Passwords do not match!")
-        valid = False
-
-    # Checks that the terms of service has been ticked.
-    if terms is None:
-        message.append("You must accept the terms of service!")
-        valid = False
-
-    return valid, message
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
+            (username, session["username"])
+        )
+        row = cur.fetchone()
+        if row is not None:
+            return True
 
 
 def validate_edit_profile(
@@ -1513,154 +1587,103 @@ def validate_edit_profile(
     return valid, message, file_name_hashed
 
 
-def get_all_connections(username) -> list:
+def validate_registration(
+        cur, username: str, full_name: str, password: str,
+        password_confirm: str,
+        email: str, terms: str) -> Tuple[bool, List[str]]:
     """
-    Gets a list of all usernames that are connected to the logged in user.
-
-    Returns:
-        A list of all usernames that are connected to the logged in user.
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT user2 FROM Connection "
-            "WHERE user1=? AND connection_type='connected' UNION ALL "
-            "SELECT user1 FROM Connection "
-            "WHERE user2=? AND connection_type='connected'",
-            (username, username)
-        )
-        cons = cur.fetchall()
-
-        return cons
-
-
-def get_achievements(username: str) -> Tuple[object, object]:
-    """
-    Gets unlocked and locked achievements for the user.
-
-    Returns:
-        A list of unlocked and locked achievements and their details.
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        # Gets unlocked achievements, sorted by XP descending.
-        cur.execute(
-            "SELECT description, icon, rarity, xp_value, achievement_name "
-            "FROM CompleteAchievements "
-            "INNER JOIN Achievements ON CompleteAchievements"
-            ".achievement_ID = Achievements.achievement_ID "
-            "WHERE username=?;",
-            (username,))
-        unlocked_achievements = cur.fetchall()
-        unlocked_achievements.sort(key=lambda x: x[3], reverse=True)
-
-        # Get locked achievements, sorted by XP ascending.
-        cur.execute(
-            "SELECT description, icon, rarity, xp_value, achievement_name "
-            "FROM Achievements")
-        all_achievements = cur.fetchall()
-        locked_achievements = list(
-            set(all_achievements) - set(unlocked_achievements))
-        locked_achievements.sort(key=lambda x: x[3])
-
-    return unlocked_achievements, locked_achievements
-
-
-def am_close_friend(username) -> bool:
-    """
-    Gets whether the selected user has the logged in as a close friend
-
-    Returns:
-        True if logged in is a close friend, false if not
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
-            (username, session["username"])
-        )
-        row = cur.fetchone()
-        if row is not None:
-            return True
-        return False
-
-
-def get_level(username) -> List[int]:
-    """
-    gets the current user experience points, the experience points
-    for the next level and the user's current level from the database
+    Validates the registration details to ensure that the email address is
+    valid, and that the passwords in the form match.
 
     Args:
-        username: username of the user logged in
-
+        cur: Cursor for the SQLite database.
+        username: The username input by the user in the form.
+        full_name: The full name input by the user in the form.
+        password: The password input by the user in the form.
+        password_confirm: The password confirmation input by the user in the
+            form.
+        email: The email address input by the user in the form.
+        terms: The terms and conditions input checkbox.
     Returns:
-        level
-        current xp
-        xp next level
+        Whether the registration was valid, and the error message(s) if not.
     """
-    level = 1
-    current_xp = 0
-    xp_next_level = 100
+    # Registration remains valid as long as it isn't caught by any checks. If
+    # not, error messages will be provided to the user.
+    valid = True
     message = []
 
-    xp_increase_per_level = 15
+    # Checks that there are no null inputs.
+    if (username == "" or full_name == "" or password == "" or
+            password_confirm == "" or email == ""):
+        message.append("Not all fields have been filled in!")
+        valid = False
 
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        # Get user experience
-        cur.execute(
-            "SELECT experience FROM "
-            "UserLevel WHERE username=?;", (username,))
-        row = cur.fetchone()
+    # Checks that the username only contains valid characters.
+    if username.isalnum() is False:
+        message.append("Username must only contain letters and numbers!")
+        valid = False
 
-        xp = int(row[0])
+    # Checks that the username hasn't already been registered.
+    cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
+    if cur.fetchone() is not None:
+        message.append("Username has already been registered!")
+        valid = False
 
-        #current_xp = xp % 100
-        #level = 1 + int(xp/100)
-        
-        while xp > xp_next_level:
-            level += 1
-            xp -= xp_next_level
-            xp_next_level += xp_increase_per_level
+    # Checks that the full name doesn't exceed 40 characters.
+    if len(full_name) > 40:
+        message.append("Full name exceeds 40 characters!")
+        valid = False
 
-        return [level, xp, xp_next_level]
+    # Checks that the full name only contains valid characters.
+    if not all(x.isalpha() or x.isspace() for x in full_name):
+        message.append("Full name must only contain letters and spaces!")
+        valid = False
 
+    # Checks that the email hasn't already been registered.
+    cur.execute("SELECT * FROM Accounts WHERE email=?;", (email,))
+    if cur.fetchone() is not None:
+        message.append("Email has already been registered!")
+        valid = False
 
-def get_all_usernames() -> list:
-    """
-    Gets a list of all usernames that are registered.
+    # Checks that the email address has the correct format, checks whether it
+    # exists, and isn't a blacklist email.
+    try:
+        valid_email = validate_email(email)
+        # Updates with the normalised form of the email address.
+        email = valid_email.email
+    except EmailNotValidError:
+        message.append("Email is invalid!")
+        valid = False
 
-    Returns:
-        A list of all usernames that have been registered.
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT username FROM Accounts")
+    # If the format is valid, checks that the email address has the
+    # University of Exeter domain.
+    if re.search("@.*", email) is not None:
+        domain = re.search("@.*", email).group()
+        if domain != "@exeter.ac.uk":
+            valid = False
+            message.append(
+                "Email address does not belong to University of Exeter!")
 
-        row = cur.fetchall()
+    # Checks that the password has a minimum length of 8 characters, and at
+    # least one number.
+    if (len(password) <= 7 or any(
+            char.isdigit() for char in password) is False):
+        message.append("Password does not meet requirements! It must contain "
+                       "at least eight characters, including at least one "
+                       "number.")
+        valid = False
 
-        return row
+    # Checks that the passwords match.
+    if password != password_confirm:
+        message.append("Passwords do not match!")
+        valid = False
 
+    # Checks that the terms of service has been ticked.
+    if terms is None:
+        message.append("You must accept the terms of service!")
+        valid = False
 
-def get_connection_request_count() -> int:
-    """
-    Counts number of pending connection requests for a user.
-
-    Returns:
-        The number of pending connection requests for a user.
-    """
-
-    if "username" not in session:
-        return 0
-
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT * FROM Connection WHERE user2=? AND "
-            "connection_type='request';",
-            (session["username"],))
-
-        return len(list(cur.fetchall()))
+    return valid, message
 
 
 if __name__ == "__main__":
