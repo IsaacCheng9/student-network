@@ -1532,7 +1532,8 @@ def getLevel(username) -> Tuple[str, str, str]:
         if len(row) == 0:
             message.append("Problem with getting level")
             session["prev-page"] = request.url
-            return render_template("error.html", message=message)
+            return render_template("error.html", message=message,requestCount=get_connection_request_count(),
+                                   allUsernames=get_all_usernames())
         else:
             data = row[0]
             current_xp = data[0]
