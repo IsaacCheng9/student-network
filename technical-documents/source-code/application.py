@@ -1650,6 +1650,9 @@ def get_connection_request_count() -> int:
         The number of pending connection requests for a user.
     """
 
+    if "username" not in session:
+        return 0
+
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
