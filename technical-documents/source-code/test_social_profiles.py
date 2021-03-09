@@ -29,5 +29,5 @@ def test_valid_edit_profile():
 def test_null_edit_profile():
     """Tests that null profile editing details are accepted."""
     valid, message = application.validate_edit_profile(
-        "", "Male", "2001-01-31", "", [], [])
+        "", "Male", "", "", [], [])
     assert valid is True
