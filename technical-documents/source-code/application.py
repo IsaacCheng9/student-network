@@ -447,7 +447,8 @@ def terms_page():
     """
     if request.method == "GET":
         session["prev-page"] = request.url
-        return render_template("terms.html",requestCount=get_connection_request_count())
+        return render_template("terms.html",
+                               requestCount=get_connection_request_count())
     else:
         return redirect("/register")
 
@@ -463,7 +464,7 @@ def privacy_policy_page():
     if request.method == "GET":
         session["prev-page"] = request.url
         return render_template("privacy_policy.html",
-                                requestCount=get_connection_request_count())
+                               requestCount=get_connection_request_count())
     else:
         return redirect("/terms")
 
@@ -538,7 +539,8 @@ def register_page():
         session["prev-page"] = request.url
 
         return render_template("register.html", notifications=notifications,
-                               errors=errors, requestCount=get_connection_request_count())
+                               errors=errors,
+                               requestCount=get_connection_request_count())
 
 
 @application.route("/register", methods=["POST"])
@@ -991,8 +993,9 @@ def profile(username):
             message.append(
                 " Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
-            return render_template("error.html", message=message,
-                                    requestCount=get_connection_request_count())
+            return render_template(
+                "error.html", message=message,
+                requestCount=get_connection_request_count())
         else:
             data = row[0]
             name, bio, gender, birthday, profile_picture = (
@@ -1047,7 +1050,7 @@ def profile(username):
     # Gets the user's six rarest achievements.
     unlocked_achievements, locked_achievements = get_achievements(username)
     first_six = unlocked_achievements[0:min(6, len(unlocked_achievements))]
-    
+
     set = []
     if username == session["username"]:
         # TODO: store all the users posts in a json file
@@ -1175,7 +1178,6 @@ def edit_profile() -> object:
     if request.method == "POST":
         # Ensures that users can only edit their own profile.
         username = session["username"]
-
         # Gets the input data from the edit profile details form.
         bio = request.form.get("bio_input")
         gender = request.form.get("gender_input")
@@ -1183,13 +1185,12 @@ def edit_profile() -> object:
         dob = datetime.strptime(dob_input, "%Y-%m-%d").strftime("%Y-%m-%d")
         hobbies_input = request.form.get("hobbies")
         interests_input = request.form.get("interests")
-
-        # Gets the individual hobbies, and formats them.
+        # Gets the individual hobbies and interests, then formats them.
         hobbies_unformatted = hobbies_input.split(",")
         hobbies = [hobby.lower() for hobby in hobbies_unformatted]
-        # Gets the individual interests, and formats them.
         interests_unformatted = interests_input.split(",")
         interests = [interest.lower() for interest in interests_unformatted]
+
         # Connects to the database to perform validation.
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
@@ -1214,6 +1215,7 @@ def edit_profile() -> object:
                         "WHERE username=?;",
                         (bio, gender, dob,
                          username,))
+
                 # Inserts new hobbies and interests into the database if the
                 # user made a new input.
                 if hobbies != [""]:
@@ -1234,6 +1236,7 @@ def edit_profile() -> object:
                             cur.execute("INSERT INTO UserInterests "
                                         "(username, interest) VALUES (?, ?);",
                                         (username, interest,))
+
                 conn.commit()
                 return redirect("/profile")
             # Displays error message(s) stating why their details are invalid.
@@ -1257,7 +1260,7 @@ def logout():
     if "username" in session:
         session.clear()
         session["prev-page"] = request.url
-        return render_template("login.html",)
+        return render_template("login.html")
     return redirect("/")
 
 
@@ -1434,11 +1437,11 @@ def validate_edit_profile(
     # If not, error messages will be provided to the user.
     valid = True
     message = []
-    new_filename = ''
+    file_name_hashed = ""
+
     # Checks that the gender is male, female, or other.
     if gender not in ["Male", "Female", "Other"]:
         valid = False
-
         message.append("Gender must be male, female, or other!")
 
     # Only performs check if a new date of birth was entered.
@@ -1448,20 +1451,17 @@ def validate_edit_profile(
         # Checks that date of birth is a past date.
         if datetime.today() < dob:
             valid = False
-
             message.append("Date of birth must be a past date!")
 
     # Checks that the bio has a maximum of 160 characters.
     if len(bio) > 160:
         valid = False
-
         message.append("Bio must not exceed 160 characters!")
 
     # Checks that each hobby has a maximum of 24 characters.
     for hobby in hobbies:
         if len(hobby) > 24:
             valid = False
-
             message.append("Hobbies must not exceed 24 characters!")
             break
 
@@ -1469,7 +1469,6 @@ def validate_edit_profile(
     for interest in interests:
         if len(interest) > 24:
             valid = False
-
             message.append("Interests must not exceed 24 characters!")
             break
 
@@ -1480,22 +1479,20 @@ def validate_edit_profile(
         # submit an empty part without filename
         if allowed_file(file.filename):
             secure_filename(file.filename)
-            new_filename = str(uuid.uuid4())
+            file_name_hashed = str(uuid.uuid4())
 
             filepath = os.path.join("." + application.config['UPLOAD_FOLDER'],
-                                    new_filename)
+                                    file_name_hashed)
 
             im = Image.open(file)
             im = im.resize((400, 400))
             im = im.convert("RGB")
             im.save(filepath + ".jpg")
-
         elif file:
             valid = False
             message.append("Your file needs to be an image")
 
-    print(valid)
-    return valid, message, new_filename
+    return valid, message, file_name_hashed
 
 
 def get_all_connections(username) -> list:
@@ -1598,8 +1595,8 @@ def get_level(username) -> List[int]:
         if len(row) == 0:
             message.append("Problem with getting level")
             session["prev-page"] = request.url
-            return render_template("error.html", message=message, 
-                                    requestCount=get_connection_request_count())
+            return render_template("error.html", message=message,
+                                   requestCount=get_connection_request_count())
         else:
             data = row[0]
             current_xp = data[0]
