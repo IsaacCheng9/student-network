@@ -688,26 +688,31 @@ def feed():
                 "AllPosts": []
             }
             #account type differentiation in posts db
-            for post in reversed(row):
+            for post in row:
                 if i == 20:
                     break
                 add = ""
                 if len(post[2]) > 250:
                     add = "..."
-                time = datetime.strptime(post[4], '%Y-%m-%d').strftime(
-                    '%d-%m-%y')
+                time = datetime.strptime(post[4], '%Y-%m-%d').strftime('%d-%m-%y')
+                
+                #Get account type 
+                cur.execute( "SELECT type "
+                            "FROM ACCOUNTS WHERE username=? ",
+                            (post[3],))
+                accounts = cur.fetchone()
+                account_type = accounts[0]
                 all_posts["AllPosts"].append({
                     "postId": post[0],
                     "title": post[1],
                     "profile_pic": "https://via.placeholder.com/600",
                     "author": post[3],
-                    "account_type": post[6],
+                    "account_type": account_type,
                     "date_posted": time,
                     "body": (post[2])[:250] + add
                 })
                 i += 1
         
-
         if "error" in session:
             errors = []
             errors = session["error"]
