@@ -1107,12 +1107,20 @@ def profile(username):
         add = ""
         if len(post[2]) > 250:
             add = "..."
+
         if post[5] == "protected":
             privacy = "Friends only"
+            icon = "user plus"
         elif post[5] == "close":
             privacy = "Close friends only"
+            icon = "handshake outline"
+        elif post[5] == "private":
+            privacy = "Private"
+            icon = "lock"
         else:
             privacy = str(post[5]).capitalize()
+            icon = "users"
+        
         time = datetime.strptime(post[4], '%Y-%m-%d').strftime('%d-%m-%y')
         user_posts["UserPosts"].append({
             "postId": post[0],
@@ -1122,7 +1130,8 @@ def profile(username):
             "account_type": post[6],
             "date_posted": time,
             "body": (post[2])[:250] + add,
-            "privacy": privacy
+            "privacy": privacy,
+            "icon": icon
         })
 
     # Calculates the user's age based on their date of birth.
@@ -1643,13 +1652,16 @@ def get_connection_request_count() -> int:
     Returns:
         The number of pending connection requests for a user.
     """
+
+    if "username" not in session:
+        return 0
+
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM Connection WHERE user2=? AND "
             "connection_type='request';",
             (session["username"],))
-
         return len(list(cur.fetchall()))
 
 

@@ -308,7 +308,14 @@
                             </h2>
                             <div class="ui divider horizontal hidden"></div>
                             {{ post.body }}
-                            <div style="float: right" class="text-muted">{{ post.privacy }}</div>
+                            <div style="float: right" class="text-muted">
+                            <div class="ui label icon basic">
+                            {{ post.privacy }}
+                            <div class="detail">
+                            <i class="icon {{post.icon}}"></i>
+                            </div>
+                            </div>
+                            </div>
                         </div>
                     </div>
                     <div class="ui divider"></div>
