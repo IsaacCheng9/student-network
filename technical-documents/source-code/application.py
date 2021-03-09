@@ -12,7 +12,6 @@ from string import capwords
 from typing import Tuple, List
 
 from PIL import Image
-
 from email_validator import validate_email, EmailNotValidError
 from flask import Flask, render_template, request, redirect, session
 from passlib.hash import sha256_crypt
@@ -166,26 +165,27 @@ def achievements() -> object:
         The web page for viewing achievements.
     """
 
-    unlocked_achievements, locked_achievements = get_achievements(session["username"])
+    unlocked_achievements, locked_achievements = get_achievements(
+        session["username"])
 
     percentage = int(100 * len(unlocked_achievements) /
-                 (len(unlocked_achievements) + len(locked_achievements)))
+                     (len(unlocked_achievements) + len(locked_achievements)))
 
     percentage_color = "green"
     if percentage < 66: percentage_color = "orange"
     if percentage < 33: percentage_color = "red"
 
     return render_template("achievements.html",
-                            unlocked_achievements=unlocked_achievements,
-                            locked_achievements=locked_achievements,
-                            requestCount=get_connection_request_count(),
-                            allUsernames=get_all_usernames(),
-                            percentage=percentage,
-                            percentage_color=percentage_color)
+                           unlocked_achievements=unlocked_achievements,
+                           locked_achievements=locked_achievements,
+                           requestCount=get_connection_request_count(),
+                           allUsernames=get_all_usernames(),
+                           percentage=percentage,
+                           percentage_color=percentage_color)
 
 
-
-@application.route("/accept_connection_request/<username>", methods=["GET", "POST"])
+@application.route("/accept_connection_request/<username>",
+                   methods=["GET", "POST"])
 def accept_connection_request(username) -> object:
     """
     Accepts the connect request from another user on the network.
@@ -373,14 +373,15 @@ def remove_connection(username: str) -> object:
                         "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
                         "(user1=? AND user2=?);",
                         (username, session["username"], session["username"],
-                        username))
+                         username))
                     if row is not None:
                         cur.execute(
                             "DELETE FROM CloseFriend WHERE (user1=? AND user2=?) "
                             "OR (user1=? AND user2=?);",
-                            (username, session["username"], session["username"],
-                            username))  
-                    conn.commit()                     
+                            (
+                            username, session["username"], session["username"],
+                            username))
+                    conn.commit()
 
     return redirect(session["prev-page"])
 
@@ -968,7 +969,7 @@ def profile(username):
                 " Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
-                                    requestCount=get_connection_request_count(),
+                                   requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames())
         else:
             data = row[0]
@@ -1181,15 +1182,16 @@ def edit_profile() -> object:
                         "UPDATE UserProfile SET bio=?, gender=?, birthday=?, profilepicture=?"
                         "WHERE username=?;",
                         (bio, gender, dob,
-                        application.config['UPLOAD_FOLDER'] + "\\" + filename+".jpg",
-                        username,))
+                         application.config[
+                             'UPLOAD_FOLDER'] + "\\" + filename + ".jpg",
+                         username,))
                 else:
                     cur.execute(
                         "UPDATE UserProfile SET bio=?, gender=?, birthday=?"
                         "WHERE username=?;",
                         (bio, gender, dob,
-                        username,))                    
-                # Inserts new hobbies and interests into the database if the
+                         username,))
+                    # Inserts new hobbies and interests into the database if the
                 # user made a new input.
                 if hobbies != [""]:
                     for hobby in hobbies:
@@ -1216,9 +1218,9 @@ def edit_profile() -> object:
                 session["error"] = message
                 print(message)
                 return render_template("settings.html", errors=message,
-                                requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames(),
-                                   date=date, bio=bio)
+                                       requestCount=get_connection_request_count(),
+                                       allUsernames=get_all_usernames(),
+                                       date=date, bio=bio)
 
 
 @application.route("/logout", methods=["GET"])
@@ -1324,6 +1326,11 @@ def validate_registration(
     cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
     if cur.fetchone() is not None:
         message.append("Username has already been registered!")
+        valid = False
+
+    # Checks that the full name doesn't exceed 40 characters.
+    if len(full_name) > 40:
+        message.append("Full name exceeds 40 characters!")
         valid = False
 
     # Checks that the full name only contains valid characters.
@@ -1453,12 +1460,13 @@ def validate_edit_profile(bio: str, gender: str, dob: str,
             filename = secure_filename(file.filename)
             new_filename = str(uuid.uuid4())
 
-            filepath = os.path.join("." + application.config['UPLOAD_FOLDER'],new_filename)
+            filepath = os.path.join("." + application.config['UPLOAD_FOLDER'],
+                                    new_filename)
 
             im = Image.open(file)
-            im = im.resize((400,400))
+            im = im.resize((400, 400))
             im = im.convert("RGB")
-            im.save(filepath+".jpg")
+            im.save(filepath + ".jpg")
 
         elif file:
             valid = False
@@ -1488,7 +1496,7 @@ def get_all_connections(username) -> list:
         return set
 
 
-def get_achievements(username : str) -> Tuple[object, object]:
+def get_achievements(username: str) -> Tuple[object, object]:
     """
     Gets unlocked and locked achievements for the user.
 
@@ -1498,17 +1506,19 @@ def get_achievements(username : str) -> Tuple[object, object]:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets unlocked achievements, sorted by XP descending.
-        cur.execute("SELECT description, icon, rarity, xp_value, achievement_name "
-                    "FROM CompleteAchievements "
-                    "INNER JOIN Achievements ON CompleteAchievements"
-                    ".achievement_ID = Achievements.achievement_ID "
-                    "WHERE username=?;",
-                    (username,))
+        cur.execute(
+            "SELECT description, icon, rarity, xp_value, achievement_name "
+            "FROM CompleteAchievements "
+            "INNER JOIN Achievements ON CompleteAchievements"
+            ".achievement_ID = Achievements.achievement_ID "
+            "WHERE username=?;",
+            (username,))
         unlocked_achievements = cur.fetchall()
         unlocked_achievements.sort(key=lambda x: x[3], reverse=True)
 
         # Get locked achievements, sorted by XP ascending.
-        cur.execute("SELECT description, icon, rarity, xp_value, achievement_name FROM Achievements")
+        cur.execute(
+            "SELECT description, icon, rarity, xp_value, achievement_name FROM Achievements")
         all_achievements = cur.fetchall()
         locked_achievements = list(
             set(all_achievements) - set(unlocked_achievements))
@@ -1564,7 +1574,7 @@ def getLevel(username) -> Tuple[int, int, int]:
         xp = int(row[0])
 
         current_xp = xp % 100
-        level = 1 + int(xp/100)
+        level = 1 + int(xp / 100)
 
         return [level, current_xp, xp_next_level]
 
