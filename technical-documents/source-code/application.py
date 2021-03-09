@@ -605,8 +605,6 @@ def post(post_id):
     comments = {"comments": []}
     message = []
     author = ""
-    i = 0
-
     session["prev-page"] = request.url
 
     with sqlite3.connect("database.db") as conn:
@@ -642,15 +640,15 @@ def post(post_id):
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames())
             for comment in row:
-                time = datetime.strptime(comment[3],'%Y-%m-%d %H:%M:%S').strftime('%d-%m-%y %H:%M')
+                time = datetime.strptime(
+                    comment[3], "%Y-%m-%d %H:%M:%S").strftime("%d-%m-%y %H:%M")
                 comments["comments"].append({
                     "commentId": comment[0],
                     "username": comment[1],
                     "body": comment[2],
                     "date": time,
                 })
-                i += 1
-            
+
             return render_template(
                 "post_page.html", author=author, postId=post_id, title=title,
                 body=body, username=username, date=date, likes=likes,
@@ -687,17 +685,18 @@ def feed():
             all_posts = {
                 "AllPosts": []
             }
-            #account type differentiation in posts db
+            # account type differentiation in posts db
             for post in row:
                 if i == 20:
                     break
                 add = ""
                 if len(post[2]) > 250:
                     add = "..."
-                time = datetime.strptime(post[4], '%Y-%m-%d').strftime('%d-%m-%y')
-                
-                #Get account type 
-                cur.execute( "SELECT type "
+                time = datetime.strptime(post[4], '%Y-%m-%d').strftime(
+                    '%d-%m-%y')
+
+                # Get account type
+                cur.execute("SELECT type "
                             "FROM ACCOUNTS WHERE username=? ",
                             (post[3],))
                 accounts = cur.fetchone()
@@ -712,19 +711,20 @@ def feed():
                     "body": (post[2])[:250] + add
                 })
                 i += 1
-        
+
         if "error" in session:
             errors = []
             errors = session["error"]
             session.pop("error", None)
 
             return render_template("feed.html", posts=all_posts,
-                    requestCount=get_connection_request_count(),
-                    allUsernames=get_all_usernames(),errors = errors)
-        else: 
+                                   requestCount=get_connection_request_count(),
+                                   allUsernames=get_all_usernames(),
+                                   errors=errors)
+        else:
             return render_template("feed.html", posts=all_posts,
-                                requestCount=get_connection_request_count(),
-                                allUsernames=get_all_usernames(),)
+                                   requestCount=get_connection_request_count(),
+                                   allUsernames=get_all_usernames(), )
     else:
         return redirect("/login")
 
@@ -784,11 +784,11 @@ def submit_post():
                     if len(results) >= 20:
                         apply_achievement(session["username"], 9)
         else:
-            #Prints error message missing title on top of page
-            session["error"]=["Missing Title!"]
+            # Prints error message missing title on top of page
+            session["error"] = ["Missing Title!"]
     except:
         conn.rollback()
-        #Prints error message in case post couldnt be created
+        # Prints error message in case post couldnt be created
         session["error"].append(["Post could not be created"])
     finally:
         return redirect("/feed")
@@ -1097,7 +1097,7 @@ def profile(username):
     user_posts = {
         "UserPosts": []
     }
-    i=0
+    i = 0
 
     for post in sort_posts:
         add = ""
