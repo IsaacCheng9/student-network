@@ -47,17 +47,16 @@
                                     <div class="metadata">
                                         <span class="date">{{comment.date}}</span>
                                     </div>
+                                    {% if session["username"] == comment.username %}
+                                    &nbsp
+                                    <button type="submit" form="deleteComment{{comment.commentId}}" class="ui mini red button icon">
+                                        <i class="small trash alternate outline icon"></i>
+                                    </button>
+                                    {% endif %}
                                     <form action="{{ url_for('delete_comment') }}" class="ui reply form" id="deleteComment{{comment.commentId}}" , method="POST">
                                         <input type="hidden" name="postId" value="{{postId}}">
                                         <input type="hidden" name="commentId" value="{{comment.commentId}}">
                                     </form>
-                                    {% if session["username"] == comment.username %}
-                                    <div class="right floated content">
-                                        <button type="submit" form="deleteComment{{comment.commentId}}" class="ui mini red button icon">
-                                            <i class="small trash alternate outline icon"></i>
-                                        </button>
-                                    </div>
-                                    {% endif %}
                                     <div class="text">
                                         {{comment.body}}
                                     </div>
