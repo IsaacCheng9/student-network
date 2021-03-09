@@ -1091,6 +1091,7 @@ def profile(username):
     user_posts = {
         "UserPosts": []
     }
+    i=0
 
     for post in set:
         add = ""
