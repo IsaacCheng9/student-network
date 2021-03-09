@@ -59,7 +59,7 @@ filename='styles/semantic.css') }}>
                     <div class="twelve wide stretched column">
                         <div class="ui segment" id="profile">
                             <!-- name bio gender birthday profile_picture hobbies interests -->
-                            <form action="/edit-profile" method="POST" class="ui form">
+                            <form action="/edit-profile" method="POST" class="ui form" enctype="multipart/form-data">
                                 <div class="field">
                                     <label>Bio</label>
                                     <textarea name="bio_input" rows="2" maxlength="160">{{bio}}</textarea>
@@ -80,7 +80,7 @@ filename='styles/semantic.css') }}>
                                 </div>
                                 <div class="field">
                                     <label>Profile Picture</label>
-                                    <input name="profile_picture_input" type="file" id="profile-picture-upload" />
+                                    <input name="file" type="file" id="profile-picture-upload" accept="image/*" />
                                     <label for="profile-picture-upload" class="custom-file-upload ui label">
                                         <i class="upload icon"></i>
                                         Upload

@@ -5,10 +5,11 @@ on their feed.
 """
 import re
 import sqlite3
+import os
 from datetime import date, datetime
 from string import capwords
 from typing import Tuple, List
-
+from werkzeug.utils import secure_filename
 from email_validator import validate_email, EmailNotValidError
 from flask import Flask, render_template, request, redirect, session
 from passlib.hash import sha256_crypt
@@ -17,7 +18,7 @@ application = Flask(__name__)
 application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
                           "xa2\xa0\x9fR\xa1\xa8")
 application.url_map.strict_slashes = False
-
+application.config['UPLOAD_FOLDER'] = '\static\images\\avatars'
 
 @application.route("/", methods=["GET"])
 def index_page():
@@ -795,7 +796,6 @@ def edit_profile() -> object:
         gender = request.form.get("gender_input")
         dob_input = request.form.get("dob_input")
         dob = datetime.strptime(dob_input, "%Y-%m-%d").strftime("%Y-%m-%d")
-        profile_pic = request.form.get("profile_picture_input")
         hobbies_input = request.form.get("hobbies")
         interests_input = request.form.get("interests")
 
@@ -805,22 +805,21 @@ def edit_profile() -> object:
         # Gets the individual interests, and formats them.
         interests_unformatted = interests_input.split(",")
         interests = [interest.lower() for interest in interests_unformatted]
-
         # Connects to the database to perform validation.
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             # Applies changes to the user's profile details on the
             # database if valid.
-            valid, message = validate_edit_profile(bio, gender, dob,
-                                                   profile_pic, hobbies,
+            valid, message, filename = validate_edit_profile(bio, gender, dob,
+                                                   hobbies,
                                                    interests)
             # Updates the user profile if details are valid.
             if valid is True:
                 # Updates the bio, gender, and birthday.
                 cur.execute(
-                    "UPDATE UserProfile SET bio=?, gender=?, birthday=? "
+                    "UPDATE UserProfile SET bio=?, gender=?, birthday=?, profilepicture=?"
                     "WHERE username=?;",
-                    (bio, gender, dob, username,))
+                    (bio, gender, dob, application.config['UPLOAD_FOLDER'] + "\\" + filename, username,))
                 # Inserts new hobbies and interests into the database if the
                 # user made a new input.
                 if hobbies != [""]:
@@ -1007,7 +1006,12 @@ def validate_registration(
     return valid, message
 
 
-def validate_edit_profile(bio: str, gender: str, dob: str, profile_pic,
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
+
+
+def validate_edit_profile(bio: str, gender: str, dob: str,
                           hobbies: list, interests: list) -> Tuple[bool,
                                                                    List[str]]:
     """
@@ -1027,10 +1031,11 @@ def validate_edit_profile(bio: str, gender: str, dob: str, profile_pic,
     # If not, error messages will be provided to the user.
     valid = True
     message = []
-
+    filename = ''
     # Checks that the gender is male, female, or other.
     if gender not in ["Male", "Female", "Other"]:
         valid = False
+
         message.append("Gender must be male, female, or other!")
 
     # Only performs check if a new date of birth was entered.
@@ -1040,17 +1045,20 @@ def validate_edit_profile(bio: str, gender: str, dob: str, profile_pic,
         # Checks that date of birth is a past date.
         if datetime.today() < dob:
             valid = False
+
             message.append("Date of birth must be a past date!")
 
     # Checks that the bio has a maximum of 160 characters.
     if len(bio) > 160:
         valid = False
+
         message.append("Bio must not exceed 160 characters!")
 
     # Checks that each hobby has a maximum of 24 characters.
     for hobby in hobbies:
         if len(hobby) > 24:
             valid = False
+
             message.append("Hobbies must not exceed 24 characters!")
             break
 
@@ -1058,10 +1066,32 @@ def validate_edit_profile(bio: str, gender: str, dob: str, profile_pic,
     for interest in interests:
         if len(interest) > 24:
             valid = False
+
             message.append("Interests must not exceed 24 characters!")
             break
 
-    return valid, message
+    if valid == True:
+        if 'file' not in request.files:
+            valid = False
+            print("file" + valid)
+            message.append("No file uploaded")
+        else:
+            file = request.files['file']
+            print(file.filename)
+            # if user does not select file, browser also
+            # submit an empty part without filename
+            if file.filename == '':
+                message.append("No file uploaded")
+                valid = False
+
+            else:
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    print(filename)
+                    print(application.config['UPLOAD_FOLDER'])
+                    file.save(os.path.join("." + application.config['UPLOAD_FOLDER'], filename))
+    print(valid)
+    return valid, message, filename
 
 
 def get_all_usernames() -> list:
