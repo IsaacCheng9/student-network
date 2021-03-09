@@ -754,8 +754,6 @@ def submit_post():
                         "SELECT * FROM POSTS WHERE username=?;",
                         (session["username"],))
                     results = cur.fetchall()
-                    print(results)
-                    print(len(results))
                     if len(results) >= 5:
                         apply_achievement(session["username"], 8)
 
@@ -769,8 +767,6 @@ def submit_post():
                         "SELECT * FROM POSTS WHERE username=?;",
                         (session["username"],))
                     results = cur.fetchall()
-                    print(results)
-                    print(len(results))
                     if len(results) >= 20:
                         apply_achievement(session["username"], 9)
 
@@ -1134,7 +1130,7 @@ def profile(username):
         progress_color = "orange"
     if percentage_level < 75:
         progress_color = "red"
-    print(conn_type)
+
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
@@ -1242,7 +1238,6 @@ def edit_profile() -> object:
             # Displays error message(s) stating why their details are invalid.
             else:
                 session["error"] = message
-                print(message)
                 return render_template(
                     "settings.html", errors=message,
                     requestCount=get_connection_request_count(),
