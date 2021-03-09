@@ -617,7 +617,7 @@ def post(post_id):
         if len(row) == 0:
             message.append("This post does not exist.")
             message.append(
-                " Please ensure you have entered the name correctly.")
+                "Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
@@ -834,9 +834,9 @@ def like_post():
                 cur.execute(
                     "SELECT * FROM CompleteAchievements "
                     "WHERE (username=? AND achievement_ID=?);",
-                    (session["username"], 20))
+                    (session["username"], 19))
                 if cur.fetchone() is None:
-                    apply_achievement(session["username"], 20)
+                    apply_achievement(session["username"], 19)
             elif row == 5:
                 cur.execute(
                     "SELECT * FROM CompleteAchievements "
