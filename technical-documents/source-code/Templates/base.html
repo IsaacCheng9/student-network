@@ -61,13 +61,13 @@
                             endif %}>Register</a>
                         {%endif%}
                     {%endfor%}
-                    {% if session["username"]: %}
-                    <a href="{{url_for('user_profile')}}" {% if request.path== url_for('profile', username=session["username"]) %}class="active item" {% else %}class="item" {%
+                    {% if session["username"] %}
+                    <a href="/profile" {% if request.path=='/profile' %}class="active item" {% else %}class="item" {%
                         endif %}>Profile</a>
                     <a href="/requests" {% if request.path=='/requests' %}class="active item" {% else %}class="item" {%
                         endif %}class="item">
                         Connect Requests
-                        {%if requestCount > 0: %}
+                        {%if requestCount > 0%}
                         <div class="ui label red mini">{{requestCount}}</div>
                         {%endif%}
                     </a>
@@ -80,7 +80,7 @@
                                 <i class="search link icon"></i>
                                 
                                 <datalist id="usernames-list">
-                                    {%for username in allUsernames: %}
+                                    {%for username in allUsernames%}
                                     <option value="{{username[0]}}">
                                     {%endfor%}
                                 </datalist>
