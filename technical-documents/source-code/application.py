@@ -1027,10 +1027,10 @@ def profile(username):
 
     perc_of_level = 100 * current_xp / xp_next_level
 
-    progress_color = "red"
-    if perc_of_level < 25: progress_color = "orange"
-    if perc_of_level < 50: progress_color = "yellow"
-    if perc_of_level < 75: progress_color = "green"
+    progress_color = "green"
+    if perc_of_level < 25: progress_color = "yellow"
+    if perc_of_level < 50: progress_color = "orange"
+    if perc_of_level < 75: progress_color = "red"
 
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
