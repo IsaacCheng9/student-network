@@ -1103,9 +1103,9 @@ def profile(username):
     perc_of_level = 100 * float(current_xp) / float(xp_next_level)
 
     progress_color = "green"
-    if perc_of_level < 25: progress_color = "yellow"
-    if perc_of_level < 50: progress_color = "orange"
-    if perc_of_level < 75: progress_color = "red"
+    if perc_of_level < 75: progress_color = "orange"
+    if perc_of_level < 50: progress_color = "yellow"
+    if perc_of_level < 25: progress_color = "red"
     print(conn_type)
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
@@ -1553,6 +1553,8 @@ def getLevel(username) -> Tuple[int, int, int]:
     current_xp = 0
     xp_next_level = 100
 
+    xp_increase_per_level = 15
+
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Get user experience
@@ -1563,10 +1565,15 @@ def getLevel(username) -> Tuple[int, int, int]:
 
         xp = int(row[0])
 
-        current_xp = xp % 100
-        level = 1 + int(xp/100)
+        #current_xp = xp % 100
+        #level = 1 + int(xp/100)
+        
+        while xp > xp_next_level:
+            level += 1
+            xp -= xp_next_level
+            xp_next_level += xp_increase_per_level
 
-        return [level, current_xp, xp_next_level]
+        return [level, xp, xp_next_level]
 
 
 def get_all_usernames() -> list:
