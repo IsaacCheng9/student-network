@@ -39,6 +39,7 @@
             top: 5px;
             z-index: 99;
         }
+
     </style>
 </head>
 
@@ -48,7 +49,10 @@
         <div class="ui container">
             <div class="student-background"></div>
             <div class="sticky">
-                <div class="ui menu">
+                <div class="ui menu stackable">
+                  <div class="item">
+                   <img src="../static/images/logo/chatboxes_stretch_png.png" alt="">
+                   </div>
                     {% if not "username" in session %}
                     <a href="/login" {% if request.path=='/login' %}class="active item" {% else %}class="item" {% endif
                         %}>Login</a>
@@ -56,14 +60,17 @@
                     {% set register_paths = ["/login", "/register",
                     "/privacy_policy", "/terms", "/logout"]%}
                     {% for path in register_paths %}
-                        {% if request.path == path%}
-                        <a href="/register" {% if request.path=='/register' %}class="active item" {% else %}class="item" {%
+                    {% if request.path == path%}
+                    <a href="/register" {% if request.path=='/register' %}class="active item" {% else %}class="item" {%
                             endif %}>Register</a>
-                        {%endif%}
+                    {%endif%}
                     {%endfor%}
                     {% if session["username"] %}
-                    <a href="/profile" {% if request.path=='/profile' %}class="active item" {% else %}class="item" {%
-                        endif %}>Profile</a>
+                    {% if request.path == ("/profile/" + session["username"])  %}
+                    <a href="{{url_for('user_profile')}}" class="active item">Profile</a>
+                    {% else %}
+                    <a href="{{url_for('user_profile')}}" class="item">Profile</a>
+                    {% endif %}
                     <a href="/requests" {% if request.path=='/requests' %}class="active item" {% else %}class="item" {%
                         endif %}class="item">
                         Connect Requests
@@ -73,16 +80,18 @@
                     </a>
                     <a href="/feed" {% if request.path=='/feed' %}class="active item" {% else %}class="item" {% endif
                         %}>Feed</a>
+                    <a href="/achievements" {% if request.path=='/achievements' %}class="active item" {% else %}class="item" {% endif
+                        %}>Achievements</a>
                     <div class="right menu">
                         <div class="ui item">
                             <div class="ui transparent icon input">
                                 <input class="prompt" autocomplete="off" type="text" id="search" placeholder="Search for a user" list="usernames-list">
                                 <i class="search link icon"></i>
-                                
+
                                 <datalist id="usernames-list">
                                     {%for username in allUsernames%}
                                     <option value="{{username[0]}}">
-                                    {%endfor%}
+                                        {%endfor%}
                                 </datalist>
                             </div>
                         </div>
@@ -97,7 +106,6 @@
                 {% endblock %}
             </div>
         </div>
-    </div>
     </div>
 </body>
 

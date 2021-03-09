@@ -1,20 +1,25 @@
-{% extends "base.html" %}
-{% block title %}Request{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Request{% endblock %} {% block
+content %}
 <div class="ui segment">
     <div class="ui horizontal divider">Your connection requests</div>
     <div class="ui middle aligned divided list">
         {% for i in range(requests|length) %}
         <div class="item">
             <div class="ui mini buttons right floated">
-                <form action="{{ url_for('accept', username=requests[i]) }}" method="GET">
+                <form
+                    action="{{ url_for('accept_connection_request', username=requests[i]) }}"
+                    method="GET"
+                >
                     <button class="ui green button tiny">
                         <i class="user icon"></i>
                         Accept
                     </button>
                 </form>
                 <div class="or"></div>
-                <form action="{{ url_for('remove_connection', username=requests[i]) }}" method="GET">
+                <form
+                    action="{{ url_for('remove_connection', username=requests[i]) }}"
+                    method="GET"
+                >
                     <button class="ui red button tiny">
                         <i class="user icon"></i>
                         Deny
@@ -23,7 +28,9 @@
             </div>
             <img class="ui avatar image" src="{{ avatars[i] }}" />
             <div class="content">
-                <a href="{{ url_for('profile', username=requests[i]) }}">{{ requests[i] }}</a>
+                <a href="{{ url_for('profile', username=requests[i]) }}"
+                    >{{ requests[i] }}</a
+                >
             </div>
         </div>
         {% endfor %}

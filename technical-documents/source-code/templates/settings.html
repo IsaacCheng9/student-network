@@ -1,0 +1,209 @@
+{% extends "base.html" %} {% block title %}Settings{% endblock %} {% block
+content %}
+
+<html lang="en">
+<meta charset="UTF-8" />
+
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<!--
+<link rel="stylesheet" href={{ url_for('static',
+filename='styles/semantic.css') }}>
+-->
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" type="text/css" /> -->
+
+<head>
+    <title>Student Network - Profile</title>
+    <!-- Standard Meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+    <style type="text/css">
+        input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-upload {
+            background-color: #e0e1e2;
+            padding: 10px;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #cacbcd;
+            cursor: pointer;
+        }
+
+        .sticky {
+            position: sticky;
+            top: 5px;
+            z-index: 99;
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- Page Contents -->
+    <div class="pusher">
+        <div class="ui container">
+            <div class="ui segment basic">
+                <div class="ui grid">
+                    <div class="four wide column">
+                        <div class="ui vertical fluid menu" id="menu">
+                            <a class="item active" onclick='OpenTab("profile", this);'>Profile</a>
+                            <a class="item" onclick='OpenTab("socials", this);'>Socials</a>
+                            <a class="item" onclick='OpenTab("notifications", this);'>Notifications</a>
+                            <a class="item" onclick='OpenTab("privacy", this);'>Privacy</a>
+                        </div>
+                    </div>
+                    <div class="twelve wide stretched column">
+                        {%if errors|length > 0%}
+                        <div class="ui red message">
+                            {% for error in errors %}
+                            <div class="ui list">
+                                <div class="item">{{error}}</div>
+                            </div>
+                            {%endfor%}
+                        </div>
+                        {%endif%}
+                        <div class="ui segment" id="profile">
+                            <!-- name bio gender birthday profile_picture hobbies interests -->
+                            <form action="/edit-profile" method="POST" class="ui form" enctype="multipart/form-data">
+                                <div class="field">
+                                    <label>Bio</label>
+                                    <textarea name="bio_input" rows="2" maxlength="160">{{bio}}</textarea>
+                                </div>
+                                <div class="field">
+                                    <label>Gender</label>
+                                    <select name="gender_input" id="">
+                                        <option value="Male">Male</option>
+                                        <option value="Female">
+                                            Female
+                                        </option>
+                                        <option value="Other">
+                                            Other
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Birthday</label>
+                                    <input name="dob_input" type="date" value="{{date}}" />
+                                </div>
+                                <div class="field">
+                                    <label>Profile Picture</label>
+                                    <input name="file" type="file" id="profile-picture-upload" accept="image/*" />
+                                    <label for="profile-picture-upload" class="custom-file-upload ui label">
+                                        <i class="upload icon"></i>
+                                        Upload
+                                        <div class="detail">
+                                            profile_pic.png
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="ui divider"></div>
+                                <div class="field" name="field">
+                                    <label>Hobbies</label>
+                                    <div style="color: grey">
+                                        Use comma to separate the hobbies
+                                    </div>
+                                    <input name="hobbies_input" type="text" maxlength="24">
+                                    <div class="ui divider hidden"></div>
+                                    <div class="ui grid container" name="hobby-div"></div>
+                                </div>
+                                <div class="ui divider"></div>
+                                <div class="field">
+                                    <label>Interests</label>
+                                    <div style="color: grey">
+                                        Use comma to separate the interests
+                                    </div>
+                                    <input name="interests_input" type="text" maxlength="24">
+                                    <div class="ui divider hidden"></div>
+                                    <div class="ui grid container" name="interest-div"></div>
+                                </div>
+
+                                <button class="ui button submit">Save Changes</button>
+                            </form>
+                        </div>
+                        <div class="ui segment" id="socials">
+                            <div class="ui form">
+                                <div class="ui message green">
+                                    Only fill in your username, don't use full links.
+                                </div>
+                                <div class="two fields">
+                                    <div class="field">
+                                        <label><i class="icon facebook"></i> Facebook</label>
+                                        <input type="text" placeholder="Username">
+                                    </div>
+                                    <div class="field">
+                                        <label><i class="icon google"></i> Google</label>
+                                        <input type="text" placeholder="Username">
+                                    </div>
+                                </div>
+                                <div class="two fields">
+                                    <div class="field">
+                                        <label><i class="icon linkedin"></i> LinkedIn</label>
+                                        <input type="text" placeholder="Username">
+                                    </div>
+                                    <div class="field">
+                                        <label><i class="icon twitter"></i> Twitter</label>
+                                        <input type="text" placeholder="@Username">
+                                    </div>
+                                </div>
+                                <div class="two fields">
+                                    <div class="field">
+                                        <label><i class="icon instagram"></i> Instagram</label>
+                                        <input type="text" placeholder="Username">
+                                    </div>
+                                    <div class="field">
+                                        <label><i class="icon youtube"></i> YouTube</label>
+                                        <input type="text" placeholder="Username">
+                                    </div>
+                                </div>
+                                
+                                <div class="ui button submit">Save Changes</div>
+                            </div>
+                        </div>
+
+                        <div class="ui segment" id="notifications">
+                            Notif
+                        </div>
+
+                        <div class="ui segment" id="privacy">Privacy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    function OpenTab(tabName, curElem) {
+        var tabs = ["profile", "socials", "notifications", "privacy"];
+
+        var menuItems = document.querySelectorAll("#menu a");
+
+        menuItems.forEach(function(elem) {
+            elem.classList.remove("active");
+        });
+
+        for (var tab of tabs) {
+            document.getElementById(tab).style.display =
+                tab == tabName ? "block" : "none";
+            if (curElem) {
+                curElem.classList.add("active");
+            }
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        OpenTab("profile");
+    });
+
+</script>
+
+<script src="../static/hobbies.js"></script>
+<script src="../static/interests.js"></script>
+
+</html>
+
+{%endblock%}
