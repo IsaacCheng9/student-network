@@ -624,7 +624,7 @@ def post(post_id):
                                    allUsernames=get_all_usernames())
         else:
             data = row[0]
-            title, body, username, date, accountType, likes = (
+            title, body, username, date, account_type, likes = (
                 data[0], data[1],
                 data[2], data[3],
                 data[4], data[5])
@@ -636,7 +636,7 @@ def post(post_id):
                 return render_template(
                     "post_page.html", author=author, postId=post_id,
                     title=title, body=body, username=username, date=date,
-                    likes=likes, accountType=accountType, comments=None,
+                    likes=likes, accountType=account_type, comments=None,
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames())
             for comment in row:
@@ -653,7 +653,7 @@ def post(post_id):
             return render_template(
                 "post_page.html", author=author, postId=post_id, title=title,
                 body=body, username=username, date=date, likes=likes,
-                accountType=accountType, comments=comments,
+                accountType=account_type, comments=comments,
                 requestCount=get_connection_request_count(),
                 allUsernames=get_all_usernames())
 
@@ -737,14 +737,16 @@ def submit_post():
 
                 # Award achievement ID 7 - Express yourself if necessary
                 cur.execute(
-                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
                     (session["username"], 7))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 7)
 
                 # Award achievement ID 8 - 5 posts if necessary
                 cur.execute(
-                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
                     (session["username"], 8))
                 if cur.fetchone() is None:
                     cur.execute(
@@ -758,7 +760,8 @@ def submit_post():
 
                 # Award achievement ID 9 - 20 posts if necessary
                 cur.execute(
-                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
                     (session["username"], 9))
                 if cur.fetchone() is None:
                     cur.execute(
@@ -816,19 +819,22 @@ def like_post():
             row = cur.fetchone()
             if row == 1:
                 cur.execute(
-                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
                     (session["username"], 20))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 20)
             elif row == 5:
                 cur.execute(
-                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
                     (session["username"], 23))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 23)
             elif row == 100:
                 cur.execute(
-                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
                     (session["username"], 24))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 24)
@@ -857,7 +863,8 @@ def submit_comment():
 
             # Award achievement ID 10 - Commentary if necessary
             cur.execute(
-                "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                "SELECT * FROM CompleteAchievements "
+                "WHERE (username=? AND achievement_ID=?);",
                 (session["username"], 10))
             if cur.fetchone() is None:
                 apply_achievement(session["username"], 10)
@@ -996,7 +1003,8 @@ def profile(username):
     # Award achievement ID 1 - Look at you if necessary
     if username == session["username"]:
         cur.execute(
-            "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
             (session["username"], 1))
         if cur.fetchone() is None:
             apply_achievement(session["username"], 1)
@@ -1004,7 +1012,8 @@ def profile(username):
     # Award achievement ID 2 - Looking good if necessary
     if username != session["username"] and session["username"]:
         cur.execute(
-            "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
             (session["username"], 2))
         if cur.fetchone() is None:
             apply_achievement(session["username"], 2)
@@ -1051,12 +1060,12 @@ def profile(username):
     else:
         connections = get_all_connections(username)
         count = 0
-        for conec in connections:
-            connections[count] = conec[0]
+        for connection in connections:
+            connections[count] = connection[0]
             count += 1
         if session["username"] in connections:
             close = am_close_friend(username)
-            if close == True:
+            if close is True:
                 cur.execute(
                     "SELECT * "
                     "FROM POSTS WHERE username=? AND privacy!='private'",
@@ -1078,7 +1087,7 @@ def profile(username):
     # Sort reverse chronologically
     set = sorted(set, key=lambda x: x[0], reverse=True)
 
-    userPosts = {
+    user_posts = {
         "UserPosts": []
     }
 
@@ -1087,7 +1096,7 @@ def profile(username):
         if len(post[2]) > 250:
             add = "..."
         time = datetime.strptime(post[4], '%Y-%m-%d').strftime('%d-%m-%y')
-        userPosts["UserPosts"].append({
+        user_posts["UserPosts"].append({
             "postId": post[0],
             "title": post[1],
             "profile_pic": "https://via.placeholder.com/600",
@@ -1116,13 +1125,13 @@ def profile(username):
     current_xp = level_data[1]
     xp_next_level = level_data[2]
 
-    perc_of_level = 100 * float(current_xp) / float(xp_next_level)
+    percentage_level = 100 * float(current_xp) / float(xp_next_level)
     progress_color = "green"
-    if perc_of_level < 25:
+    if percentage_level < 25:
         progress_color = "yellow"
-    if perc_of_level < 50:
+    if percentage_level < 50:
         progress_color = "orange"
-    if perc_of_level < 75:
+    if percentage_level < 75:
         progress_color = "red"
     print(conn_type)
     return render_template("profile.html", username=username,
@@ -1130,7 +1139,7 @@ def profile(username):
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, account_type=account_type,
                            interests=interests,
-                           email=email, posts=userPosts, type=conn_type,
+                           email=email, posts=user_posts, type=conn_type,
                            unlocked_achievements=first_six,
                            allUsernames=get_all_usernames(),
                            requestCount=get_connection_request_count(),
@@ -1233,10 +1242,10 @@ def edit_profile() -> object:
             else:
                 session["error"] = message
                 print(message)
-                return render_template("settings.html", errors=message,
-                                       requestCount=get_connection_request_count(),
-                                       allUsernames=get_all_usernames(),
-                                       date=date, bio=bio)
+                return render_template(
+                    "settings.html", errors=message,
+                    requestCount=get_connection_request_count(),
+                    allUsernames=get_all_usernames(), date=date, bio=bio)
 
 
 @application.route("/logout", methods=["GET"])
@@ -1407,9 +1416,9 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
 
-def validate_edit_profile(bio: str, gender: str, dob: str,
-                          hobbies: list, interests: list) -> Tuple[bool,
-                                                                   List[str]]:
+def validate_edit_profile(
+        bio: str, gender: str, dob: str,
+        hobbies: list, interests: list) -> Tuple[bool, List[str], str]:
     """
     Validates the details in the profile editing form.
 
