@@ -303,12 +303,12 @@
                     <div class="ui grid stackable">
                         <div class="sixteen wide column">
                             <h2>
-                                <a href="/post_page/{{ post.postId }}">{{ post.title
-                            }}</a>
+                                <a href="/post_page/{{ post.postId }}">{{ post.title}}</a>
                                 <div style="float: right">{{ post.date_posted }}</div>
                             </h2>
                             <div class="ui divider horizontal hidden"></div>
                             {{ post.body }}
+                            <div style="float: right" class="text-muted">{{ post.privacy }}</div>
                         </div>
                     </div>
                     <div class="ui divider"></div>
