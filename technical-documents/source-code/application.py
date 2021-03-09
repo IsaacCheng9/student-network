@@ -142,7 +142,7 @@ def connect_request(username):
                     conn.commit()
                     session["add"] = True
 
-                    # Award achievement ID 17 if necessary
+                    # Award achievement ID 17 - Getting social if necessary
                     cur.execute(
                         "SELECT * FROM CompleteAchievements "
                         "WHERE (username=? AND achievement_ID=?);",
