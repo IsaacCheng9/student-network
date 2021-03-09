@@ -11,6 +11,8 @@ from datetime import date, datetime
 from string import capwords
 from typing import Tuple, List
 
+from PIL import Image
+
 from email_validator import validate_email, EmailNotValidError
 from flask import Flask, render_template, request, redirect, session
 from passlib.hash import sha256_crypt
@@ -1176,7 +1178,7 @@ def edit_profile() -> object:
                         "UPDATE UserProfile SET bio=?, gender=?, birthday=?, profilepicture=?"
                         "WHERE username=?;",
                         (bio, gender, dob,
-                        application.config['UPLOAD_FOLDER'] + "\\" + filename,
+                        application.config['UPLOAD_FOLDER'] + "\\" + filename+".jpg",
                         username,))
                 else:
                     cur.execute(
@@ -1447,9 +1449,14 @@ def validate_edit_profile(bio: str, gender: str, dob: str,
         if allowed_file(file.filename):
             filename = secure_filename(file.filename)
             new_filename = str(uuid.uuid4())
-            file.save(
-                os.path.join("." + application.config['UPLOAD_FOLDER'],
-                                new_filename))
+
+            filepath = os.path.join("." + application.config['UPLOAD_FOLDER'],new_filename)
+
+            im = Image.open(file)
+            im = im.resize((400,400))
+            im = im.convert("RGB")
+            im.save(filepath+".jpg")
+
         elif file:
             valid = False
             message.append("Your file needs to be an image")
@@ -1488,7 +1495,7 @@ def get_achievements(username : str) -> Tuple[object, object]:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets unlocked achievements, sorted by XP descending.
-        cur.execute("SELECT description, icon, rarity, xp_value, achievement_name "
+        cur.execute("SELECT description, icon, rarity, xp_value, achievement_name, rarity "
                     "FROM CompleteAchievements "
                     "INNER JOIN Achievements ON CompleteAchievements"
                     ".achievement_ID = Achievements.achievement_ID "

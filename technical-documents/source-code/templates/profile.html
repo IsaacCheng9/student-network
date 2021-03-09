@@ -31,133 +31,60 @@
                 #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab);
     }
     
+    .diamond {
+        background: conic-gradient(#85C1E9, #D6EAF8, #2980B9, #3498DB,
+                #85C1E9, #D6EAF8, #2980B9, #3498DB,
+                #85C1E9, #D6EAF8, #2980B9, #3498DB,
+                #85C1E9, #D6EAF8, #2980B9, #3498DB);
+    }
+
     .achievement-icon {
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        
+
         background-clip: text;
         text-fill-color: transparent;
     }
-    
+
     .achievement:hover .achievement-icon {
         animation-duration: 300ms;
         animation-name: achievement-hover;
+        animation-timing-function: ease-in-out;
     }
-    
+
     @keyframes achievement-hover {
         0% {
             transform: scaleX(1) scaleY(1);
         }
+
         20% {
             transform: scaleX(0.8) scaleY(1.1);
         }
+
         50% {
             transform: scaleX(1.2) scaleY(0.9);
         }
+
         100% {
             transform: scaleX(1) scaleY(1);
         }
     }
+
+    .scrolling {
+        overflow-y: auto;
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+        max-height: 800px;
+    }
+
 </style>
 
 <div class="ui segment">
-    <div class="ui grid container">
+    <div class="ui grid container stackable">
         <div class="row">
-            <div class="five wide column">
-                <img class="fluid rounded" src="{{profile_picture}}" />
-            </div>
-            <div class="eleven wide column">
-                <div class="ui list">
-                    <div class="item">
-                        <h1>
-                            {{name}}
-                            {% if session and session["username"] == username%}
-                            <div class="right floated content">
-                                <a href="../edit-profile">
-                                    <button class="ui button icon green">
-                                        <i class="icon pencil"></i>
-                                        Edit Profile
-                                    </button>
-                                </a>
-                            </div>
-                            {%endif%}
-                        </h1>
-                        <span class="right floated content">
-                            
-                                        <a href="">
-                                            <i class="exclamation triangle icon"></i>
-                                            Report user
-                                        </a>
-                            
-                        </span>
-                    </div>
-                    <div class="item">
-                        <h5>
-                            <div class="ui label basic medium blue">
-                                @{{username}}
-                                <div class="detail">{{account_type}}</div>
-                            </div>
-                        </h5>
-                    </div>
-                </div>
-                <div class="ui list">
-                    <div class="item"><b>Studying Biology at University of
-                            Bristol</b></div>
-                </div>
-                <p style="overflow-wrap: anywhere;">{{bio}}</p>
-                {% if username != session["username"] and session["username"]
-                %}
-                <div class="ui buttons right floated">
-                    {% if type == None %}
-                    <button class="ui blue button tiny" form="connect-request">
-                            <i class="user icon"></i>
-                            Connect
-                        </button>
-                    <form action="{{ url_for('connect_request', username=username) }}" method="POST" id="connect-request"></form>
-                    {% endif %}
-                    {% if type == "request" %}
-                    <button class="ui grey button tiny" form="pending-remove-connection">
-                            <i class="bell slash icon"></i>
-                            Pending
-                    </button>
-                    <form action="{{ url_for('remove_connection', username=username) }}" method="GET" id="pending-remove-connection"></form>
-                    {% endif %}
-                    {% if type == "incoming" %}
-                    <button class="ui green button tiny" form="accept">
-                            <i class="user icon"></i>
-                            Accept Request
-                    </button>
-                    <form action="{{ url_for('accept_connection_request', username=username) }}" method="GET" id="accept"></form>
-                    {% endif %}
-                    {% if type == "connected" %}
-                    <button class="ui blue button tiny" form="close-connection">
-                            <i class="handshake outline icon"></i>
-                            Mark as Close Friend
-                        </button>
-                    <form action="{{ url_for('close_connection', username=username) }}" method="GET" id="close-connection"></form>
-                    {% endif %}
-                    {% if type == "close" %}
-                    <button class="ui purple button tiny" form="remove-close">
-                            <i class="handshake outline icon"></i>
-                            Close Friends
-                    </button>
-                    <form action="{{ url_for('remove_close_friend', username=username) }}" method="GET" id="remove-close"></form>
-                    {% endif %}
-                    {% if type == "connected" or type == "close" %}
-                    <button class="ui green button tiny" form="connected-remove-connection">
-                            <i class="user icon"></i>
-                            Connected
-                        </button>
-                    <form action="{{ url_for('remove_connection', username=username) }}" method="GET" id="connected-remove-connection"></form>
-                    {% endif %}
-                    <button class="ui red button tiny">
-                        <i class="bell slash icon"></i>
-                        Block
-                    </button>
-                </div>
-                {%endif%}
-            </div>
-            <div class="five wide column">
+            <div class="five wide column" id="left-column">
+                <img style="margin-bottom: 1em; border-radius: 1em;" class="ui image fluid rounded" src="{{profile_picture}}" />
+
                 <div class="ui list">
                     <div class="item">
                         <div class="ui label basic">
@@ -191,7 +118,7 @@
                     {% for hobby in hobbies %}
                     <a class="ui label teal" style="text-transform: capitalize;">{{hobby[0]}}</a>
                     {%endfor%}
-                    
+
                     {% if hobbies|length == 0%}
                     <p>No Hobbies</p>
                     {%endif%}
@@ -201,26 +128,26 @@
                     {% for interest in interests %}
                     <a class="ui label purple" style="text-transform: capitalize;">{{interest[0]}}</a>
                     {% endfor %}
-                    
+
                     {% if interests|length == 0%}
                     <p>No Interests</p>
                     {%endif%}
                 </div>
-                
+
                 <div class="ui horizontal divider">Top Achievements</div>
-                
+
                 <div class="ui icons" style="text-align: center;">
-                   {% for achievement in unlocked_achievements %}
+                    {% for achievement in unlocked_achievements %}
                     <div class="achievement" style="display: inline-block;">
                         <i class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon" data-title="{{achievement[4]}}" data-content='{{achievement[0]}} | {{achievement[3]}} XP'></i>
                     </div>
                     {% endfor %}
-                    
+
                     {% if unlocked_achievements|length == 0%}
                     <p>No Unlocked Achievements</p>
                     {%endif%}
                 </div>
-                
+
                 <div class="ui horizontal divider">Socials</div>
                 <div class="ui grid two column container stackable">
                     <div class="column">
@@ -254,25 +181,115 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="ui segment basic">
-        <div class="column">
-            <div class="ui horizontal divider">Posts</div>
-            {% for post in posts.UserPosts %}
-            <div class="ui grid">
-                <div class="sixteen wide column">
-                    <h2>
-                        <a href="/post_page/{{ post.postId }}">{{ post.title
+            <div class="eleven wide column">
+                <div class="ui list">
+                    <div class="item">
+                        <h1>
+                            {{name}}
+                            {% if session and session["username"] == username%}
+                            <div class="right floated content">
+                                <a href="../edit-profile">
+                                    <button class="ui button icon green">
+                                        <i class="icon pencil"></i>
+                                        Edit Profile
+                                    </button>
+                                </a>
+                            </div>
+                            {%endif%}
+                        </h1>
+                        <span class="right floated content">
+
+                            <a href="">
+                                <i class="exclamation triangle icon"></i>
+                                Report user
+                            </a>
+
+                        </span>
+                    </div>
+                    <div class="item">
+                        <h5>
+                            <div class="ui label basic medium blue">
+                                @{{username}}
+                                <div class="detail">{{account_type}}</div>
+                            </div>
+                        </h5>
+                    </div>
+                </div>
+                <div class="ui list">
+                    <div class="item"><b>Studying Biology at University of
+                            Bristol</b></div>
+                </div>
+                <p style="overflow-wrap: anywhere;">{{bio}}</p>
+                {% if username != session["username"] and session["username"]
+                %}
+                <div class="ui buttons right floated">
+                    {% if type == None %}
+                    <button class="ui blue button tiny" form="connect-request">
+                        <i class="user icon"></i>
+                        Connect
+                    </button>
+                    <form action="{{ url_for('connect_request', username=username) }}" method="POST" id="connect-request"></form>
+                    {% endif %}
+                    {% if type == "request" %}
+                    <button class="ui grey button tiny" form="pending-remove-connection">
+                        <i class="bell slash icon"></i>
+                        Pending
+                    </button>
+                    <form action="{{ url_for('remove_connection', username=username) }}" method="GET" id="pending-remove-connection"></form>
+                    {% endif %}
+                    {% if type == "incoming" %}
+                    <button class="ui green button tiny" form="accept">
+                        <i class="user icon"></i>
+                        Accept Request
+                    </button>
+                    <form action="{{ url_for('accept_connection_request', username=username) }}" method="GET" id="accept"></form>
+                    {% endif %}
+                    {% if type == "connected" %}
+                    <button class="ui blue button tiny" form="close-connection">
+                        <i class="handshake outline icon"></i>
+                        Mark as Close Friend
+                    </button>
+                    <form action="{{ url_for('close_connection', username=username) }}" method="GET" id="close-connection"></form>
+                    {% endif %}
+                    {% if type == "close" %}
+                    <button class="ui purple button tiny" form="remove-close">
+                        <i class="handshake outline icon"></i>
+                        Close Friends
+                    </button>
+                    <form action="{{ url_for('remove_close_friend', username=username) }}" method="GET" id="remove-close"></form>
+                    {% endif %}
+                    {% if type == "connected" or type == "close" %}
+                    <button class="ui green button tiny" form="connected-remove-connection">
+                        <i class="user icon"></i>
+                        Connected
+                    </button>
+                    <form action="{{ url_for('remove_connection', username=username) }}" method="GET" id="connected-remove-connection"></form>
+                    {% endif %}
+                    <button class="ui red button tiny">
+                        <i class="bell slash icon"></i>
+                        Block
+                    </button>
+                </div>
+                {%endif%}
+
+                <div class="scrolling" id="posts-container" style="padding: 1em;">
+                    <div class="ui horizontal divider">Posts</div>
+                    {% for post in posts.UserPosts %}
+                    <div class="ui grid stackable">
+                        <div class="sixteen wide column">
+                            <h2>
+                                <a href="/post_page/{{ post.postId }}">{{ post.title
                             }}</a>
-                        <div style="float: right">{{ post.date_posted }}</div>
-                    </h2>
-                    <div class="ui divider horizontal hidden"></div>
-                    {{ post.body }}
+                                <div style="float: right">{{ post.date_posted }}</div>
+                            </h2>
+                            <div class="ui divider horizontal hidden"></div>
+                            {{ post.body }}
+                        </div>
+                    </div>
+                    <div class="ui divider"></div>
+                    {% endfor %}
                 </div>
             </div>
-            <div class="ui divider"></div>
-            {% endfor %}
         </div>
     </div>
 </div>
@@ -284,6 +301,14 @@
 
 <script>
     $('[data-title]').popup();
+
+    /*document.addEventListener("DOMContentLoaded", function() {
+        var height = document.getElementById("left-column").clientHeight;
+        document.getElementById("posts-container").style.setProperty("max-height", height+"px", "important");
+        
+        console.log(height);
+    })*/
+
 </script>
 
 {%endblock%}
