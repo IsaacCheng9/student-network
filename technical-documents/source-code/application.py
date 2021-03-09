@@ -1023,6 +1023,14 @@ def profile(username):
     level = level_data[0]
     current_xp = level_data[1]
     xp_next_level = level_data[2]
+
+    perc_of_level = 100 * current_xp / xp_next_level
+
+    progress_color = "red"
+    if perc_of_level < 25: progress_color = "orange"
+    if perc_of_level < 50: progress_color = "yellow"
+    if perc_of_level < 75: progress_color = "green"
+
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
@@ -1032,7 +1040,8 @@ def profile(username):
                            allUsernames=get_all_usernames(),
                            requestCount=get_connection_request_count(),
                            level=level, current_xp=int(current_xp),
-                           xp_next_level=int(xp_next_level))
+                           xp_next_level=int(xp_next_level),
+                           progress_color=progress_color)
 
 
 @application.route("/edit-profile", methods=["GET", "POST"])
