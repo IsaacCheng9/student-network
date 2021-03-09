@@ -156,7 +156,7 @@ def achievements() -> object:
         The web page for viewing achievements.
     """
 
-    unlocked_achievements, locked_achievements = get_achievements()
+    unlocked_achievements, locked_achievements = get_achievements(session["username"])
 
     percentage = int(100 * len(unlocked_achievements) /
                  (len(unlocked_achievements) + len(locked_achievements)))
@@ -851,7 +851,9 @@ def profile(username):
             message.append(
                 " Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
-            return render_template("error.html", message=message)
+            return render_template("error.html", message=message,
+                                    requestCount=get_connection_request_count(),
+                                   allUsernames=get_all_usernames())
         else:
             data = row[0]
             name, bio, gender, birthday, profile_picture = (
@@ -886,7 +888,7 @@ def profile(username):
         email = row[0][0]
 
     # Gets the user's six rarest achievements.
-    unlocked_achievements, locked_achievements = get_achievements()
+    unlocked_achievements, locked_achievements = get_achievements(username)
     first_six = unlocked_achievements[0:min(6, len(unlocked_achievements))]
 
     set = []
@@ -1282,7 +1284,7 @@ def get_all_connections(username) -> list:
         return set
 
 
-def get_achievements() -> Tuple[object, object]:
+def get_achievements(username : str) -> Tuple[object, object]:
     """
     Gets unlocked and locked achievements for the user.
 
@@ -1297,7 +1299,7 @@ def get_achievements() -> Tuple[object, object]:
                     "INNER JOIN Achievements ON CompleteAchievements"
                     ".achievement_ID = Achievements.achievement_ID "
                     "WHERE username=?;",
-                    (session["username"],))
+                    (username,))
         unlocked_achievements = cur.fetchall()
         unlocked_achievements.sort(key=lambda x: x[3], reverse=True)
 

@@ -1,89 +1,82 @@
 {% extends "base.html" %}
 {% block title %}Post{% endblock %}
 {% block content %}
-    <div class="ui segment basic">
-      <div class="ui grid">
-        <div class="four wide column"></div>
-        <div class="eight wide column">
-          <div class="ui cards">
-            <div class="ui card fluid">
-              <div class="content">
-                <div class="header">
-                  {{title}}
-                </div>
-                <div class="right floated meta">
-                <a href="/profile/{{username}}" class="ui blue image label spaced basic">
-                    <img src="https://via.placeholder.com/600" />
-                    {{username}}
-                    <div class="detail">{{account}}</div>
-                  </a>
-                </div>
-                <div class="ui divider hidden"></div>
-                <div class="right floated meta">{{date}}</div>
-              </div>
-              <div class="content">
-                <div class="centered">
-                  {{body}}
-                </div>
-              </div>
+<div class="ui segment basic">
+    <div class="ui grid">
+        <div class="sixteen wide column">
+            <div class="ui cards">
+                <div class="ui card fluid">
+                    <div class="content">
+                        <div class="header">
+                            {{title}}
+                        </div>
+                        <a href="/profile/{{username}}" class="ui blue image label spaced basic">
+                            <img src="https://via.placeholder.com/600" />
+                            {{username}}
+                            <div class="detail">{{account}}</div>
+                        </a>
+                        <div class="ui divider hidden"></div>
+                        <div class="right floated meta">{{date}}</div>
+                    </div>
+                    <div class="content">
+                        <div class="centered">{{body}}</div>
+                    </div>
 
-              <div class="content">
-                <div class="ui comments">
-                  
-                  <h3 class="ui dividing header">Comments:</h3>
-                  {% for comment in comments["comments"] %}
-                    <div class="comment">
-                      <a class="avatar">
-                        <img src="https://via.placeholder.com/500" />
-                      </a>
-                      <div class="content">
-                        <a class="author">{{comment.username}}</a>
-                        <div class="metadata">
-                          <span class="date">{{comment.date}}</span>
-                          
+                    <div class="content">
+                        <div class="ui comments">
+                            <h3>Comments</h3>
+                            
+                            {% for comment in comments["comments"] %}
+                            <div class="comment">
+                                <a class="avatar">
+                                    <img src="https://via.placeholder.com/500" />
+                                </a>
+                                <div class="content">
+                                    <a class="author">{{comment.username}}</a>
+                                    <div class="metadata">
+                                        <span class="date">{{comment.date}}</span>
+                                    </div>
+                                    <form action="{{ url_for('delete_comment') }}" class="ui reply form" id="deleteComment{{comment.commentId}}" , method="POST">
+                                        <input type="hidden" name="postId" value="{{postId}}">
+                                        <input type="hidden" name="commentId" value="{{comment.commentId}}">
+                                    </form>
+                                    {% if session["username"] == comment.username %}
+                                    <div class="right floated content">
+                                        <button type="submit" form="deleteComment{{comment.commentId}}" class="ui mini red button icon">
+                                            <i class="small trash alternate outline icon"></i>
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                    <div class="text">
+                                        {{comment.body}}
+                                    </div>
+                                </div>
+                                <div>
+
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
-                        <form action="{{ url_for('delete_comment') }}" class="ui reply form" id="deleteComment{{comment.commentId}}", method="POST">
-                          <input type="hidden" name="postId" value="{{postId}}">
-                          <input type="hidden" name="commentId" value="{{comment.commentId}}">
-                        </form>
-                        {% if session["username"] == comment.username %}
-                          <div class="right floated content">
-                            <button type="submit" form="deleteComment{{comment.commentId}}" class="ui mini red button icon">
-                              <i class="small trash alternate outline icon"></i>
-                            </button>
-                          </div>
-                        {% endif %}
-                        <div class="text">
-                          {{comment.body}}
+                        <div class="hidden content">
+                            <div>
+                                <form action="{{ url_for('submit_comment') }}" class="ui reply form" id="comment" , method="POST">
+                                    <input type="hidden" name="postId" value="{{postId}}">
+                                    <div class="field">
+                                        <textarea placeholder="Comment here" name="comment_text"></textarea>
+                                </form>
+                                <form action="{{ url_for('delete_post') }}" class="ui form" id="deletePost" , method="POST">
+                                    <input type="hidden" name="postId" value="{{postId}}">
+                                </form>
+                                <br>
+                                <input type="submit" value="Post comment" form="comment" class="ui left floated blue button"></button>
+                                {% if session["username"] == username %}
+                                <input type="submit" value="Delete Post" form="deletePost" class="negative right floated ui button"></button>
+                                {% endif %}
+                            </div>
                         </div>
-                      </div>
-                        <div>
-                          
-                        </div> 
-                      </div> 
-                  {% endfor %}
+                    </div>
                 </div>
-                  <div class="hidden content">
-                  <div>
-                    <form action="{{ url_for('submit_comment') }}" class="ui reply form" id="comment", method="POST">
-                      <input type="hidden" name="postId" value="{{postId}}">
-                      <div class="field" >
-                        <textarea placeholder="Comment here" name="comment_text"></textarea>
-                    </form>
-                    <form action="{{ url_for('delete_post') }}" class="ui form" id="deletePost", method="POST">
-                      <input type="hidden" name="postId" value="{{postId}}">
-                    </form>
-                    <br>
-                    <input type="submit" value = "Post comment" form="comment" class="ui left floated blue button"></button>
-                    {% if session["username"] == username %}
-                      <input type="submit" value = "Delete Post" form="deletePost" class="negative right floated ui button"></button>
-                    {% endif %}
-                  </div>     
-              </div>
             </div>
-          </div>
         </div>
-        <div class="four wide column"></div>
-      </div>
     </div>
-{%endblock%}
+    {%endblock%}
