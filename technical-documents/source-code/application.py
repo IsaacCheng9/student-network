@@ -55,7 +55,7 @@ def login_page():
         session["prev-page"] = request.url
         # Clear error session variables.
         session.pop("error", None)
-        return render_template("new-templates/login.html", errors=errors)
+        return render_template("login.html", errors=errors)
 
 
 @application.route("/close_connection/<username>", methods=["GET", "POST"])
@@ -181,7 +181,7 @@ def achievements() -> object:
     if percentage < 33:
         percentage_color = "red"
 
-    return render_template("new-templates/achievements.html",
+    return render_template("achievements.html",
                            unlocked_achievements=unlocked_achievements,
                            locked_achievements=locked_achievements,
                            requestCount=get_connection_request_count(),
@@ -297,38 +297,6 @@ def accept_connection_request(username) -> object:
     return redirect(session["prev-page"])
 
 
-def apply_achievement(username: str, achievement_id: int):
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO CompleteAchievements "
-            "(username, achievement_ID, date_completed) VALUES (?, ?, ?);",
-            (username, achievement_id, date.today()))
-        conn.commit()
-        cur.execute(
-            "SELECT xp_value FROM Achievements WHERE achievement_ID=?;",
-            (achievement_id,))
-        xp = cur.fetchone()[0]
-        check_level_exists(username)
-        cur.execute(
-            "UPDATE UserLevel "
-            "SET experience = experience + ? "
-            "WHERE username=?;",
-            (xp, username))
-        conn.commit()
-
-def check_level_exists(username: str):
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT * FROM UserLevel WHERE username=?;", (username,))
-        if cur.fetchone() is None:
-            cur.execute(
-                "INSERT INTO UserLevel (username, experience) VALUES (?,?);",
-                (username, 0))
-            conn.commit()
-
-
 @application.route("/remove_close_friend/<username>")
 def remove_close_friend(username: str) -> object:
     """
@@ -437,7 +405,7 @@ def show_connect_requests() -> object:
 
     session["prev-page"] = request.url
 
-    return render_template("new-templates/request.html", requests=requests, avatars=avatars,
+    return render_template("request.html", requests=requests, avatars=avatars,
                            allUsernames=get_all_usernames(),
                            requestCount=get_connection_request_count())
 
@@ -452,7 +420,7 @@ def terms_page():
     """
     if request.method == "GET":
         session["prev-page"] = request.url
-        return render_template("new-templates/terms.html",
+        return render_template("terms.html",
                                requestCount=get_connection_request_count())
     else:
         return redirect("/register")
@@ -468,7 +436,7 @@ def privacy_policy_page():
     """
     if request.method == "GET":
         session["prev-page"] = request.url
-        return render_template("new-templates/privacy_policy.html",
+        return render_template("privacy_policy.html",
                                requestCount=get_connection_request_count())
     else:
         return redirect("/terms")
@@ -543,7 +511,7 @@ def register_page():
         session.pop("notifications", None)
         session["prev-page"] = request.url
 
-        return render_template("new-templates/register.html", notifications=notifications,
+        return render_template("register.html", notifications=notifications,
                                errors=errors,
                                requestCount=get_connection_request_count())
 
@@ -623,7 +591,7 @@ def post(post_id):
             message.append(
                 "Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
-            return render_template("new-templates/error.html", message=message,
+            return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames())
         else:
@@ -638,7 +606,7 @@ def post(post_id):
             row = cur.fetchall()
             if len(row) == 0:
                 return render_template(
-                    "new-templates/post_page.html", author=author, postId=post_id,
+                    "post_page.html", author=author, postId=post_id,
                     title=title, body=body, username=username, date=date,
                     likes=likes, accountType=account_type, comments=None,
                     requestCount=get_connection_request_count(),
@@ -654,7 +622,7 @@ def post(post_id):
                 })
 
             return render_template(
-                "new-templates/post_page.html", author=author, postId=post_id, title=title,
+                "post_page.html", author=author, postId=post_id, title=title,
                 body=body, username=username, date=date, likes=likes,
                 accountType=account_type, comments=comments,
                 requestCount=get_connection_request_count(),
@@ -721,16 +689,17 @@ def feed():
             errors = session["error"]
             session.pop("error", None)
 
-            return render_template("new-templates/feed.html", posts=all_posts,
+            return render_template("feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
                                    errors=errors)
         else:
-            return render_template("new-templates/feed.html", posts=all_posts,
+            return render_template("feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(), )
     else:
         return redirect("/login")
+
 
 @application.route("/submit_post", methods=["POST"])
 def submit_post():
@@ -825,9 +794,9 @@ def like_post():
             row = cur.fetchone()
 
             likes = row[0] + 1
-            
+
             # Award achievement ID 22 - Everyone loves you if necessary
-            if likes >= 50:    
+            if likes >= 50:
                 cur.execute(
                     "SELECT * FROM CompleteAchievements "
                     "WHERE (username=? AND achievement_ID=?);",
@@ -922,7 +891,7 @@ def delete_post():
         conn.rollback()
     finally:
         message.append("Post has been deleted successfully.")
-        return render_template("new-templates/error.html", message=message,
+        return render_template("error.html", message=message,
                                requestCount=get_connection_request_count(),
                                allUsernames=get_all_usernames())
 
@@ -948,7 +917,7 @@ def delete_comment():
             if row[0] is None:
                 message.append("Comment does not exist.")
                 return render_template(
-                    "new-templates/error.html", message=message,
+                    "error.html", message=message,
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames())
             else:
@@ -958,7 +927,7 @@ def delete_comment():
     except:
         conn.rollback()
         message.append("The comment could not be deleted.")
-        return render_template("new-templates/error.html", message=message,
+        return render_template("error.html", message=message,
                                requestCount=get_connection_request_count(),
                                allUsernames=get_all_usernames())
     finally:
@@ -1016,7 +985,7 @@ def profile(username):
                 " Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
             return render_template(
-                "new-templates/error.html", message=message,
+                "error.html", message=message,
                 requestCount=get_connection_request_count())
         else:
             data = row[0]
@@ -1087,7 +1056,7 @@ def profile(username):
             connections[count] = connection[0]
             count += 1
         if session["username"] in connections:
-            close = am_close_friend(username)
+            close = is_close_friend(username)
             if close is True:
                 cur.execute(
                     "SELECT * "
@@ -1132,7 +1101,7 @@ def profile(username):
         else:
             privacy = str(post[5]).capitalize()
             icon = "users"
-        
+
         time = datetime.strptime(post[4], '%Y-%m-%d').strftime('%d-%m-%y')
         user_posts["UserPosts"].append({
             "postId": post[0],
@@ -1169,12 +1138,15 @@ def profile(username):
 
     percentage_level = 100 * float(current_xp) / float(xp_next_level)
     progress_color = "green"
-    if percentage_level < 75: progress_color = "orange"
-    if percentage_level < 50: progress_color = "yellow"
-    if percentage_level < 25: progress_color = "red"
+    if percentage_level < 75:
+        progress_color = "orange"
+    if percentage_level < 50:
+        progress_color = "yellow"
+    if percentage_level < 25:
+        progress_color = "red"
     print(conn_type)
 
-    return render_template("new-templates/profile.html", username=username,
+    return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, account_type=account_type,
@@ -1209,7 +1181,7 @@ def edit_profile() -> object:
 
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
-        return render_template("new-templates/settings.html",
+        return render_template("settings.html",
                                requestCount=get_connection_request_count(),
                                date=date, bio=bio, errors=[])
 
@@ -1282,7 +1254,7 @@ def edit_profile() -> object:
             else:
                 session["error"] = message
                 return render_template(
-                    "new-templates/settings.html", errors=message,
+                    "settings.html", errors=message,
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(), date=date, bio=bio)
 
@@ -1298,8 +1270,158 @@ def logout():
     if "username" in session:
         session.clear()
         session["prev-page"] = request.url
-        return render_template("new-templates/login.html")
+        return render_template("login.html")
     return redirect("/")
+
+
+def allowed_file(filename):
+    """
+    Checks if the file is an allowed type.
+
+    Args:
+        filename: The name of the file uploaded by the user.
+
+    Returns:
+        Whether the file is allowed or not (True/False).
+    """
+    return "." in filename and \
+           filename.rsplit(".", 1)[1].lower() in {"png", "jpg", "jpeg", "gif"}
+
+
+def apply_achievement(username: str, achievement_id: int):
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO CompleteAchievements "
+            "(username, achievement_ID, date_completed) VALUES (?, ?, ?);",
+            (username, achievement_id, date.today()))
+        conn.commit()
+        cur.execute(
+            "SELECT xp_value FROM Achievements WHERE achievement_ID=?;",
+            (achievement_id,))
+        xp = cur.fetchone()[0]
+        check_level_exists(username)
+        cur.execute(
+            "UPDATE UserLevel "
+            "SET experience = experience + ? "
+            "WHERE username=?;",
+            (xp, username))
+        conn.commit()
+
+
+def calculate_age(born):
+    """
+    Calculates the user's current age based on their date of birth.
+
+    Args:
+        born: The user's date of birth.
+    Returns:
+        The age of the user in years.
+    """
+    today = date.today()
+    return today.year - born.year - (
+            (today.month, today.day) < (born.month, born.day))
+
+
+def check_level_exists(username: str):
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM UserLevel WHERE username=?;", (username,))
+        if cur.fetchone() is None:
+            cur.execute(
+                "INSERT INTO UserLevel (username, experience) VALUES (?, ?);",
+                (username, 0))
+            conn.commit()
+
+
+def get_achievements(username: str) -> Tuple[object, object]:
+    """
+    Gets unlocked and locked achievements for the user.
+
+    Returns:
+        A list of unlocked and locked achievements and their details.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        # Gets unlocked achievements, sorted by XP descending.
+        cur.execute(
+            "SELECT description, icon, rarity, xp_value, achievement_name "
+            "FROM CompleteAchievements "
+            "INNER JOIN Achievements ON CompleteAchievements"
+            ".achievement_ID = Achievements.achievement_ID "
+            "WHERE username=?;",
+            (username,))
+        unlocked_achievements = cur.fetchall()
+        unlocked_achievements.sort(key=lambda x: x[3], reverse=True)
+
+        # Get locked achievements, sorted by XP ascending.
+        cur.execute(
+            "SELECT description, icon, rarity, xp_value, achievement_name "
+            "FROM Achievements")
+        all_achievements = cur.fetchall()
+        locked_achievements = list(
+            set(all_achievements) - set(unlocked_achievements))
+        locked_achievements.sort(key=lambda x: x[3])
+
+    return unlocked_achievements, locked_achievements
+
+
+def get_all_connections(username) -> list:
+    """
+    Gets a list of all usernames that are connected to the logged in user.
+
+    Returns:
+        A list of all usernames that are connected to the logged in user.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT user2 FROM Connection "
+            "WHERE user1=? AND connection_type='connected' UNION ALL "
+            "SELECT user1 FROM Connection "
+            "WHERE user2=? AND connection_type='connected'",
+            (username, username)
+        )
+        cons = cur.fetchall()
+
+        return cons
+
+
+def get_all_usernames() -> list:
+    """
+    Gets a list of all usernames that are registered.
+
+    Returns:
+        A list of all usernames that have been registered.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT username FROM Accounts")
+
+        row = cur.fetchall()
+
+        return row
+
+
+def get_connection_request_count() -> int:
+    """
+    Counts number of pending connection requests for a user.
+
+    Returns:
+        The number of pending connection requests for a user.
+    """
+
+    if "username" not in session:
+        return 0
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM Connection WHERE user2=? AND "
+            "connection_type='request';",
+            (session["username"],))
+        return len(list(cur.fetchall()))
 
 
 def get_connection_type(username: str):
@@ -1336,18 +1458,133 @@ def get_connection_type(username: str):
                 return None
 
 
-def calculate_age(born):
+def get_level(username) -> List[int]:
     """
-    Calculates the user's current age based on their date of birth.
+    gets the current user experience points, the experience points
+    for the next level and the user's current level from the database
 
     Args:
-        born: The user's date of birth.
+        username: username of the user logged in
+
     Returns:
-        The age of the user in years.
+        level
+        current xp
+        xp next level
     """
-    today = date.today()
-    return today.year - born.year - (
-            (today.month, today.day) < (born.month, born.day))
+    level = 1
+    xp_next_level = 100
+    xp_increase_per_level = 15
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        # Get user experience
+        cur.execute(
+            "SELECT experience FROM "
+            "UserLevel WHERE username=?;", (username,))
+        row = cur.fetchone()
+
+        xp = int(row[0])
+        while xp > xp_next_level:
+            level += 1
+            xp -= xp_next_level
+            xp_next_level += xp_increase_per_level
+
+        return [level, xp, xp_next_level]
+
+
+def is_close_friend(username) -> bool:
+    """
+    Gets whether the selected user has the logged in as a close friend.
+
+    Returns:
+        True if logged in is a close friend, false if not
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
+            (username, session["username"])
+        )
+        row = cur.fetchone()
+        if row is not None:
+            return True
+
+
+def validate_edit_profile(
+        bio: str, gender: str, dob: str,
+        hobbies: list, interests: list) -> Tuple[bool, List[str], str]:
+    """
+    Validates the details in the profile editing form.
+
+    Args:
+        bio: The bio input by the user in the form.
+        gender: The gender input selected by the user in the form.
+        dob: The date of birth input selected by the user in the form.
+        hobbies: The list of hobbies from the form.
+        interests: The list of interests from the form.
+    Returns:
+        Whether profile editing was valid, and the error message(s) if not.
+    """
+    # Editing profile remains valid as long as it isn't caught by any checks.
+    # If not, error messages will be provided to the user.
+    valid = True
+    message = []
+    file_name_hashed = ""
+
+    # Checks that the gender is male, female, or other.
+    if gender not in ["Male", "Female", "Other"]:
+        valid = False
+        message.append("Gender must be male, female, or other!")
+
+    # Only performs check if a new date of birth was entered.
+    if dob != "":
+        # Converts date string to datetime.
+        dob = datetime.strptime(dob, "%Y-%m-%d")
+        # Checks that date of birth is a past date.
+        if datetime.today() < dob:
+            valid = False
+            message.append("Date of birth must be a past date!")
+
+    # Checks that the bio has a maximum of 160 characters.
+    if len(bio) > 160:
+        valid = False
+        message.append("Bio must not exceed 160 characters!")
+
+    # Checks that each hobby has a maximum of 24 characters.
+    for hobby in hobbies:
+        if len(hobby) > 24:
+            valid = False
+            message.append("Hobbies must not exceed 24 characters!")
+            break
+
+    # Checks that each interest has a maximum of 24 characters.
+    for interest in interests:
+        if len(interest) > 24:
+            valid = False
+            message.append("Interests must not exceed 24 characters!")
+            break
+
+    # Uploads profile picture.
+    if valid is True:
+        file = request.files["file"]
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if allowed_file(file.filename):
+            secure_filename(file.filename)
+            file_name_hashed = str(uuid.uuid4())
+
+            filepath = os.path.join("." + application.config["UPLOAD_FOLDER"],
+                                    file_name_hashed)
+
+            im = Image.open(file)
+            im = im.resize((400, 400))
+            im = im.convert("RGB")
+            im.save(filepath + ".jpg")
+        elif file:
+            valid = False
+            message.append("Your file needs to be an image")
+
+    return valid, message, file_name_hashed
 
 
 def validate_registration(
@@ -1447,236 +1684,6 @@ def validate_registration(
         valid = False
 
     return valid, message
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
-
-
-def validate_edit_profile(
-        bio: str, gender: str, dob: str,
-        hobbies: list, interests: list) -> Tuple[bool, List[str], str]:
-    """
-    Validates the details in the profile editing form.
-
-    Args:
-        bio: The bio input by the user in the form.
-        gender: The gender input selected by the user in the form.
-        dob: The date of birth input selected by the user in the form.
-        hobbies: The list of hobbies from the form.
-        interests: The list of interests from the form.
-    Returns:
-        Whether profile editing was valid, and the error message(s) if not.
-    """
-    # Editing profile remains valid as long as it isn't caught by any checks.
-    # If not, error messages will be provided to the user.
-    valid = True
-    message = []
-    file_name_hashed = ""
-
-    # Checks that the gender is male, female, or other.
-    if gender not in ["Male", "Female", "Other"]:
-        valid = False
-        message.append("Gender must be male, female, or other!")
-
-    # Only performs check if a new date of birth was entered.
-    if dob != "":
-        # Converts date string to datetime.
-        dob = datetime.strptime(dob, "%Y-%m-%d")
-        # Checks that date of birth is a past date.
-        if datetime.today() < dob:
-            valid = False
-            message.append("Date of birth must be a past date!")
-
-    # Checks that the bio has a maximum of 160 characters.
-    if len(bio) > 160:
-        valid = False
-        message.append("Bio must not exceed 160 characters!")
-
-    # Checks that each hobby has a maximum of 24 characters.
-    for hobby in hobbies:
-        if len(hobby) > 24:
-            valid = False
-            message.append("Hobbies must not exceed 24 characters!")
-            break
-
-    # Checks that each interest has a maximum of 24 characters.
-    for interest in interests:
-        if len(interest) > 24:
-            valid = False
-            message.append("Interests must not exceed 24 characters!")
-            break
-
-    # Uploads profile picture.
-    if valid is True:
-        file = request.files["file"]
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        if allowed_file(file.filename):
-            secure_filename(file.filename)
-            file_name_hashed = str(uuid.uuid4())
-
-            filepath = os.path.join("." + application.config["UPLOAD_FOLDER"],
-                                    file_name_hashed)
-
-            im = Image.open(file)
-            im = im.resize((400, 400))
-            im = im.convert("RGB")
-            im.save(filepath + ".jpg")
-        elif file:
-            valid = False
-            message.append("Your file needs to be an image")
-
-    return valid, message, file_name_hashed
-
-
-def get_all_connections(username) -> list:
-    """
-    Gets a list of all usernames that are connected to the logged in user.
-
-    Returns:
-        A list of all usernames that are connected to the logged in user.
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT user2 FROM Connection "
-            "WHERE user1=? AND connection_type='connected' UNION ALL "
-            "SELECT user1 FROM Connection "
-            "WHERE user2=? AND connection_type='connected'",
-            (username, username)
-        )
-        cons = cur.fetchall()
-
-        return cons
-
-
-def get_achievements(username: str) -> Tuple[object, object]:
-    """
-    Gets unlocked and locked achievements for the user.
-
-    Returns:
-        A list of unlocked and locked achievements and their details.
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        # Gets unlocked achievements, sorted by XP descending.
-        cur.execute(
-            "SELECT description, icon, rarity, xp_value, achievement_name "
-            "FROM CompleteAchievements "
-            "INNER JOIN Achievements ON CompleteAchievements"
-            ".achievement_ID = Achievements.achievement_ID "
-            "WHERE username=?;",
-            (username,))
-        unlocked_achievements = cur.fetchall()
-        unlocked_achievements.sort(key=lambda x: x[3], reverse=True)
-
-        # Get locked achievements, sorted by XP ascending.
-        cur.execute(
-            "SELECT description, icon, rarity, xp_value, achievement_name "
-            "FROM Achievements")
-        all_achievements = cur.fetchall()
-        locked_achievements = list(
-            set(all_achievements) - set(unlocked_achievements))
-        locked_achievements.sort(key=lambda x: x[3])
-
-    return unlocked_achievements, locked_achievements
-
-
-def am_close_friend(username) -> bool:
-    """
-    Gets whether the selected user has the logged in as a close friend
-
-    Returns:
-        True if logged in is a close friend, false if not
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
-            (username, session["username"])
-        )
-        row = cur.fetchone()
-        if row is not None:
-            return True
-        return False
-
-
-def get_level(username) -> List[int]:
-    """
-    gets the current user experience points, the experience points
-    for the next level and the user's current level from the database
-
-    Args:
-        username: username of the user logged in
-
-    Returns:
-        level
-        current xp
-        xp next level
-    """
-    level = 1
-    current_xp = 0
-    xp_next_level = 100
-    message = []
-
-    xp_increase_per_level = 15
-
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        # Get user experience
-        cur.execute(
-            "SELECT experience FROM "
-            "UserLevel WHERE username=?;", (username,))
-        row = cur.fetchone()
-
-        xp = int(row[0])
-
-        #current_xp = xp % 100
-        #level = 1 + int(xp/100)
-
-        while xp > xp_next_level:
-            level += 1
-            xp -= xp_next_level
-            xp_next_level += xp_increase_per_level
-
-        return [level, xp, xp_next_level]
-
-
-def get_all_usernames() -> list:
-    """
-    Gets a list of all usernames that are registered.
-
-    Returns:
-        A list of all usernames that have been registered.
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT username FROM Accounts")
-
-        row = cur.fetchall()
-
-        return row
-
-def get_connection_request_count() -> int:
-    """
-    Counts number of pending connection requests for a user.
-
-    Returns:
-        The number of pending connection requests for a user.
-    """
-
-    if "username" not in session:
-        return 0
-
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT * FROM Connection WHERE user2=? AND "
-            "connection_type='request';",
-            (session["username"],))
-        return len(list(cur.fetchall()))
 
 
 if __name__ == "__main__":
