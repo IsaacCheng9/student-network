@@ -243,6 +243,8 @@
                 <p style="overflow-wrap: anywhere;">{{bio}}</p>
                 {% if username != session["username"] and session["username"]
                 %}
+                <div class="ui grid">
+                <div class="right floated column">
                 <div class="ui buttons right floated">
                     {% if type == None %}
                     <button class="ui blue button tiny" form="connect-request">
@@ -291,9 +293,11 @@
                         Block
                     </button>
                 </div>
+                </div>
+                </div>
                 {%endif%}
 
-                <div class="scrolling" id="posts-container" style="padding: 1em;">
+                <div class="scrolling" id="posts-container" style="padding: 1em; margin-top: 2em;">
                     <div class="ui horizontal divider">Posts</div>
                     {% for post in posts.UserPosts %}
                     <div class="ui grid stackable">
