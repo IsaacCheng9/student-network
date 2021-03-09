@@ -130,15 +130,14 @@
                             {{email}}
                         </div>
                     </div>
-                    <!--
-                                <div class="ui progress blue">
-                                    <div class="bar" style="width: 22%;">
-                                        <div class="progress">22 / 100</div>
-                                    </div>
-                                    <div class="label">Level 5</div>
-                                </div>
-                                <div class="ui divider hidden"></div>
-                    -->
+                    <div class="ui progress blue">
+                        <!-- TO DO: fix experience level bar -->
+                        <div class="bar" style="width: 50%;">
+                            <div class="progress">{{current_xp}}/{{xp_next_level}}</div>
+                        </div>
+                        <div class="label">Level{{level}}</div>
+                    </div>
+                    <div class="ui divider hidden"></div>
                 </div>
                 <div class="ui divider horizontal">Hobbies</div>
                 <div class="ui medium teal labels">
