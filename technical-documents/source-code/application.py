@@ -147,6 +147,18 @@ def connect_request(username):
 
     return redirect("/profile/" + username)
 
+@application.route("/achievements", methods=["GET", "POST"])
+def achievements() -> object:
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT description, icon FROM CompleteAchievements "
+                    "INNER JOIN Achievements ON CompleteAchievements.achievement_ID = Achievements.achievement_ID "
+                    "WHERE username=?;",
+                    (session["username"],))
+        achievements = cur.fetchall()
+        conn.commit()
+    return render_template("achievements.html",achievements = achievements,requestCount=get_connection_request_count(),
+                                   allUsernames=get_all_usernames())
 
 @application.route("/accept/<username>", methods=["GET", "POST"])
 def accept(username) -> object:
