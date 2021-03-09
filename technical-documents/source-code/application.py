@@ -21,7 +21,7 @@ application = Flask(__name__)
 application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
                           "xa2\xa0\x9fR\xa1\xa8")
 application.url_map.strict_slashes = False
-application.config['UPLOAD_FOLDER'] = '\static\images\\avatars'
+application.config['UPLOAD_FOLDER'] = '/static/images//avatars'
 
 
 @application.route("/", methods=["GET"])
@@ -428,7 +428,7 @@ def terms_page():
     """
     if request.method == "GET":
         session["prev-page"] = request.url
-        return render_template("terms.html")
+        return render_template("terms.html",requestCount=get_connection_request_count())
     else:
         return redirect("/register")
 
@@ -443,7 +443,8 @@ def privacy_policy_page():
     """
     if request.method == "GET":
         session["prev-page"] = request.url
-        return render_template("privacy_policy.html")
+        return render_template("privacy_policy.html",
+                                requestCount=get_connection_request_count())
     else:
         return redirect("/terms")
 
@@ -518,7 +519,7 @@ def register_page():
         session["prev-page"] = request.url
 
         return render_template("register.html", notifications=notifications,
-                               errors=errors)
+                               errors=errors, requestCount=get_connection_request_count())
 
 
 @application.route("/register", methods=["POST"])
@@ -651,8 +652,6 @@ def feed():
     """
     if "username" in session:
         session["prev-page"] = request.url
-
-        username = session["username"]
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
 
@@ -969,8 +968,7 @@ def profile(username):
                 " Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
-                                   requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames())
+                                    requestCount=get_connection_request_count())
         else:
             data = row[0]
             name, bio, gender, birthday, profile_picture = (
@@ -1023,7 +1021,7 @@ def profile(username):
     # Gets the user's six rarest achievements.
     unlocked_achievements, locked_achievements = get_achievements(username)
     first_six = unlocked_achievements[0:min(6, len(unlocked_achievements))]
-
+    
     set = []
     if username == session["username"]:
         # TODO: store all the users posts in a json file
@@ -1234,7 +1232,7 @@ def logout():
     if "username" in session:
         session.clear()
         session["prev-page"] = request.url
-        return render_template("login.html")
+        return render_template("login.html",)
     return redirect("/")
 
 
@@ -1411,7 +1409,6 @@ def validate_edit_profile(bio: str, gender: str, dob: str,
     # If not, error messages will be provided to the user.
     valid = True
     message = []
-    filename = ''
     new_filename = ''
     # Checks that the gender is male, female, or other.
     if gender not in ["Male", "Female", "Other"]:
@@ -1457,7 +1454,7 @@ def validate_edit_profile(bio: str, gender: str, dob: str,
         # if user does not select file, browser also
         # submit an empty part without filename
         if allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+            secure_filename(file.filename)
             new_filename = str(uuid.uuid4())
 
             filepath = os.path.join("." + application.config['UPLOAD_FOLDER'],
@@ -1562,6 +1559,7 @@ def getLevel(username) -> Tuple[int, int, int]:
     level = 1
     current_xp = 0
     xp_next_level = 100
+    message = []
 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -1569,14 +1567,31 @@ def getLevel(username) -> Tuple[int, int, int]:
         cur.execute(
             "SELECT experience FROM "
             "UserLevel WHERE username=?;", (username,))
-        row = cur.fetchone()
-
-        xp = int(row[0])
-
-        current_xp = xp % 100
-        level = 1 + int(xp / 100)
-
-        return [level, current_xp, xp_next_level]
+        row = cur.fetchall()
+        if len(row) == 0:
+            message.append("Problem with getting level")
+            session["prev-page"] = request.url
+            return render_template("error.html", message=message, 
+                                    requestCount=get_connection_request_count())
+        else:
+            data = row[0]
+            current_xp = data[0]
+            cur.execute(
+                "SELECT level, experience FROM "
+                "Levels WHERE  experience > ?;", (current_xp,))
+            row = cur.fetchone()
+            if row is None:
+                cur.execute("INSERT INTO Levels"
+                            "VALUES( (1+(SELECT MAX(level)FROM Levels)),"
+                            "(50*(SELECT MAX(level)FROM Levels)"
+                            "+(SELECT MAX(experience)FROM Levels)))")
+                cur.execute(
+                    "SELECT level, experience FROM "
+                    "Levels WHERE  experience > ?;", (current_xp,))
+                row = cur.fetchone()
+            level = row[0]
+            xp_next_level = row[1]
+            return [level, current_xp, xp_next_level]
 
 
 def get_all_usernames() -> list:
