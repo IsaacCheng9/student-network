@@ -6,6 +6,7 @@ on their feed.
 import re
 import sqlite3
 import os
+import uuid
 from datetime import date, datetime
 from string import capwords
 from typing import Tuple, List
@@ -1370,11 +1371,10 @@ def validate_edit_profile(bio: str, gender: str, dob: str,
             else:
                 if file and allowed_file(file.filename):
                     filename = secure_filename(file.filename)
-                    print(filename)
-                    print(application.config['UPLOAD_FOLDER'])
-                    file.save(os.path.join("." + application.config['UPLOAD_FOLDER'], filename))
+                    new_filename = str(uuid.uuid4())
+                    file.save(os.path.join("." + application.config['UPLOAD_FOLDER'], new_filename))
     print(valid)
-    return valid, message, filename
+    return valid, message, new_filename
 
 def get_all_connections(username) -> list:
     """
