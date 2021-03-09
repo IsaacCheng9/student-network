@@ -561,7 +561,10 @@ def register_submit() -> object:
                 "VALUES (?, 0);", (username,))
 
             conn.commit()
+
             session["notifications"] = ["register"]
+            session["username"] = username
+
             return redirect("/register")
         # Displays error message(s) stating why their details are invalid.
         else:
@@ -1558,8 +1561,10 @@ def getLevel(username) -> Tuple[int, int, int]:
             "UserLevel WHERE username=?;", (username,))
         row = cur.fetchone()
 
-        current_xp = int(row[0]) % 100
-        level = 1 + int(current_xp/100)
+        xp = int(row[0])
+
+        current_xp = xp % 100
+        level = 1 + int(xp/100)
 
         return [level, current_xp, xp_next_level]
 
