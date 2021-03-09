@@ -8,7 +8,6 @@ import re
 import sqlite3
 import uuid
 from datetime import date, datetime
-from string import capwords
 from typing import Tuple, List
 
 from PIL import Image
@@ -553,7 +552,7 @@ def register_submit() -> object:
     """
     # Obtains user input from the account registration form.
     username = request.form["username_input"].lower()
-    full_name = capwords(request.form["fullname_input"])
+    fullname = request.form["fullname_input"]
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
@@ -562,7 +561,7 @@ def register_submit() -> object:
     # Connects to the database to perform validation.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        valid, message = validate_registration(cur, username, full_name,
+        valid, message = validate_registration(cur, username, fullname,
                                                password, password_confirm,
                                                email, terms)
         # Registers the user if the details are valid.
@@ -576,7 +575,7 @@ def register_submit() -> object:
                 "INSERT INTO UserProfile (username, name, bio, gender, "
                 "birthday, profilepicture) "
                 "VALUES (?, ?, ?, ?, ?, ?);", (
-                    username, full_name, "Change your bio in the settings.",
+                    username, fullname, "Change your bio in the settings.",
                     "Male", date.today(), "/static/images/default-pfp.jpg",))
 
             cur.execute(
@@ -651,7 +650,7 @@ def post(post_id):
                     "date": time,
                 })
                 i += 1
-            # TODO: the person viewing the post is the author of the post ( othervise hide delete button)
+            
             return render_template(
                 "post_page.html", author=author, postId=post_id, title=title,
                 body=body, username=username, date=date, likes=likes,
@@ -688,9 +687,9 @@ def feed():
             all_posts = {
                 "AllPosts": []
             }
-
-            for post in row:
-                if i == 100:
+            #account type differentiation in posts db
+            for post in reversed(row):
+                if i == 20:
                     break
                 add = ""
                 if len(post[2]) > 250:
@@ -707,9 +706,20 @@ def feed():
                     "body": (post[2])[:250] + add
                 })
                 i += 1
-        return render_template("feed.html", posts=all_posts,
-                               requestCount=get_connection_request_count(),
-                               allUsernames=get_all_usernames())
+        
+
+        if "error" in session:
+            errors = []
+            errors = session["error"]
+            session.pop("error", None)
+
+            return render_template("feed.html", posts=all_posts,
+                    requestCount=get_connection_request_count(),
+                    allUsernames=get_all_usernames(),errors = errors)
+        else: 
+            return render_template("feed.html", posts=all_posts,
+                                requestCount=get_connection_request_count(),
+                                allUsernames=get_all_usernames(),)
     else:
         return redirect("/login")
 
@@ -769,10 +779,12 @@ def submit_post():
                     if len(results) >= 20:
                         apply_achievement(session["username"], 9)
 
-        # TODO: Prints error message missing title on top of page
+        #Prints error message missing title on top of page
+        session["error"]=["Missing Title!"]
     except:
         conn.rollback()
-        print("error in insert operation")
+        #Prints error message in case post couldnt be created
+        session["error"].append(["Post could not be created"])
     finally:
         return redirect("/feed")
 
@@ -850,8 +862,6 @@ def submit_comment():
     if comment_body != "":
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            # TODO: 6th value in table is privacy setting and 7th is account type.
-            # Currently is default - public/student but no functionality
             cur.execute("INSERT INTO Comments (postId, body, username) "
                         "VALUES (?, ?, ?);",
                         (post_id, comment_body, session["username"]))
@@ -894,7 +904,7 @@ def delete_post():
     except:
         conn.rollback()
     finally:
-        message.append("Post has been deleted successfully.")
+        message.append("Comment has been deleted successfully.")
         return render_template("error.html", message=message,
                                requestCount=get_connection_request_count(),
                                allUsernames=get_all_usernames())
@@ -967,10 +977,6 @@ def profile(username):
     birthday = ""
     profile_picture = ""
     email = ""
-    xp_next_level = ""
-    current_xp = ""
-    level = ""
-    level_data = []
     hobbies = []
     interests = []
     account_type = ""
@@ -1086,6 +1092,7 @@ def profile(username):
     user_posts = {
         "UserPosts": []
     }
+    i=0
 
     for post in sort_posts:
         add = ""
@@ -1101,6 +1108,7 @@ def profile(username):
             "date_posted": time,
             "body": (post[2])[:250] + add
         })
+        i += 1
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
@@ -1354,8 +1362,8 @@ def validate_registration(
 
     # Checks that the full name only contains valid characters.
     if not all(x.isalpha() or x.isspace() for x in full_name):
-        message.append("Full name must only contain letters, numbers and "
-                       "spaces!")
+        message.append("Full Name must only contain letters, numbers and"
+                       " spaces!")
         valid = False
 
     # Checks that the email hasn't already been registered.
@@ -1383,7 +1391,7 @@ def validate_registration(
             message.append(
                 "Email address does not belong to University of Exeter!")
 
-    # Checks that the password has a minimum length of 8 characters, and at
+    # Checks that the password has a minimum length of 6 characters, and at
     # least one number.
     if (len(password) <= 7 or any(
             char.isdigit() for char in password) is False):
