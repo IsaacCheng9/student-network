@@ -1,6 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Login{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Login{% endblock %} {% block content
+%}
 <div class="ui segment basic">
     <form action="/login" method="POST">
         <div class="ui card centered" style="min-width: 600px">
@@ -17,21 +16,32 @@
                 <div class="ui form">
                     <div class="required field">
                         <label>Username</label>
-                        <input name="username_input" type="text" placeholder="Username" />
+                        <input
+                            name="username_input"
+                            type="text"
+                            placeholder="Username"
+                        />
                     </div>
                     <div class="required field">
                         <label>Password</label>
-                        <input name="psw_input" type="password" placeholder="Password" />
+                        <input
+                            name="psw_input"
+                            type="password"
+                            placeholder="Password"
+                        />
                     </div>
                     <p>
-                        <a href="" style="color: #0077cc">Forgot your password?</a>
+                        <a href="" style="color: #0077cc"
+                            >Forgot your password?</a
+                        >
                     </p>
                 </div>
             </div>
             <div class="extra content">
                 <p>
                     Don't have an account?
-                    <a href="/register" style="color: #0077cc">Register here</a>.
+                    <a href="/register" style="color: #0077cc">Register here</a
+                    >.
                 </p>
             </div>
             <input type="submit" value="Login" class="ui button submit" />

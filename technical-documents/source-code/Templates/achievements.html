@@ -1,6 +1,5 @@
-{% extends "base.html" %}
-{% block title %}Achievements{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Achievements{% endblock %} {% block
+content %}
 
 <style>
     .overlay {
@@ -14,46 +13,119 @@
         justify-content: center;
         align-items: center;
 
-        background: linear-gradient(rgba(110, 129, 160, 0.1), rgba(110, 129, 160, 0.2));
+        background: linear-gradient(
+            rgba(110, 129, 160, 0.1),
+            rgba(110, 129, 160, 0.2)
+        );
         border: 1px solid #eaeaea;
         border-radius: 0.5em;
     }
 
     .gold {
-        background: conic-gradient(#edc800, #e3b600, #f3cf00, #ffe800,
-                #edc800, #e3b600, #f3cf00, #ffe800,
-                #edc800, #e3b600, #f3cf00, #ffe800,
-                #edc800, #e3b600, #f3cf00, #ffe800);
+        background: conic-gradient(
+            #edc800,
+            #e3b600,
+            #f3cf00,
+            #ffe800,
+            #edc800,
+            #e3b600,
+            #f3cf00,
+            #ffe800,
+            #edc800,
+            #e3b600,
+            #f3cf00,
+            #ffe800,
+            #edc800,
+            #e3b600,
+            #f3cf00,
+            #ffe800
+        );
     }
 
     .silver {
-        background: conic-gradient(#d7d7d7, #c3c3c3, #cccccc, #c6c6c6,
-                #d7d7d7, #c3c3c3, #cccccc, #c6c6c6,
-                #d7d7d7, #c3c3c3, #cccccc, #c6c6c6,
-                #d7d7d7, #c3c3c3, #cccccc, #c6c6c6);
+        background: conic-gradient(
+            #d7d7d7,
+            #c3c3c3,
+            #cccccc,
+            #c6c6c6,
+            #d7d7d7,
+            #c3c3c3,
+            #cccccc,
+            #c6c6c6,
+            #d7d7d7,
+            #c3c3c3,
+            #cccccc,
+            #c6c6c6,
+            #d7d7d7,
+            #c3c3c3,
+            #cccccc,
+            #c6c6c6
+        );
     }
 
     .bronze {
-        background: conic-gradient(#d95641, #b14439, #b2453a, #d25645,
-                #d95641, #b14439, #b2453a, #d25645,
-                #d95641, #b14439, #b2453a, #d25645,
-                #d95641, #b14439, #b2453a, #d25645);
+        background: conic-gradient(
+            #d95641,
+            #b14439,
+            #b2453a,
+            #d25645,
+            #d95641,
+            #b14439,
+            #b2453a,
+            #d25645,
+            #d95641,
+            #b14439,
+            #b2453a,
+            #d25645,
+            #d95641,
+            #b14439,
+            #b2453a,
+            #d25645
+        );
     }
 
     .platinum {
-        background: conic-gradient(#e6e9bf, #d2b5aa, #cbaea3, #d4b5ab,
-                #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab,
-                #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab,
-                #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab);
+        background: conic-gradient(
+            #e6e9bf,
+            #d2b5aa,
+            #cbaea3,
+            #d4b5ab,
+            #e6e9bf,
+            #d2b5aa,
+            #cbaea3,
+            #d4b5ab,
+            #e6e9bf,
+            #d2b5aa,
+            #cbaea3,
+            #d4b5ab,
+            #e6e9bf,
+            #d2b5aa,
+            #cbaea3,
+            #d4b5ab
+        );
     }
-    
+
     .diamond {
-        background: conic-gradient(#85C1E9, #D6EAF8, #2980B9, #3498DB,
-                #85C1E9, #D6EAF8, #2980B9, #3498DB,
-                #85C1E9, #D6EAF8, #2980B9, #3498DB,
-                #85C1E9, #D6EAF8, #2980B9, #3498DB);
+        background: conic-gradient(
+            #85c1e9,
+            #d6eaf8,
+            #2980b9,
+            #3498db,
+            #85c1e9,
+            #d6eaf8,
+            #2980b9,
+            #3498db,
+            #85c1e9,
+            #d6eaf8,
+            #2980b9,
+            #3498db,
+            #85c1e9,
+            #d6eaf8,
+            #2980b9,
+            #3498db
+        );
     }
-    
+
     .bronze-glow {
         text-shadow: 0 0 5px #b2453a;
         color: #b2453a !important;
@@ -71,23 +143,23 @@
         color: #d2b5aa !important;
     }
     .diamond-glow {
-        text-shadow: 0 0 5px #85C1E9;
-        color: #85C1E9 !important;
+        text-shadow: 0 0 5px #85c1e9;
+        color: #85c1e9 !important;
     }
-    
+
     .achievement-icon {
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        
+
         background-clip: text;
         text-fill-color: transparent;
     }
-    
+
     .achievement:hover .achievement-icon {
         animation-duration: 300ms;
         animation-name: achievement-hover;
     }
-    
+
     @keyframes achievement-hover {
         0% {
             transform: scaleX(1) scaleY(1);
@@ -102,8 +174,6 @@
             transform: scaleX(1) scaleY(1);
         }
     }
-    
-
 </style>
 
 <!--
@@ -123,37 +193,53 @@ according to achievement level
 -->
 
 <div class="ui segment padded">
-
     <div class="ui grid doubling">
-
-        <div class="ui sixteen wide column" style="text-align: center;">
+        <div class="ui sixteen wide column" style="text-align: center">
             <div class="ui statistic {{percentage_color}}">
                 <div class="value">{{percentage}}%</div>
                 <div class="label">achievements completed</div>
             </div>
 
-            <div class="ui horizontal divider"><i class="icon check"></i> Completed ({{unlocked_achievements|length}})</div>
+            <div class="ui horizontal divider">
+                <i class="icon check"></i> Completed
+                ({{unlocked_achievements|length}})
+            </div>
         </div>
 
         {% for achievement in unlocked_achievements %}
-        <div class="ui one wide column achievement" data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[2]}}-glow">{{achievement[2]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>' style="text-align: center;">
-            <i class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon"></i>
+        <div
+            class="ui one wide column achievement"
+            data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[2]}}-glow">{{achievement[2]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>'
+            style="text-align: center"
+        >
+            <i
+                class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon"
+            ></i>
         </div>
         {% endfor %}
 
         <div class="ui sixteen wide column">
-            <div class="ui horizontal divider"><i class="icon lock"></i>Locked ({{locked_achievements|length}})</div>
+            <div class="ui horizontal divider">
+                <i class="icon lock"></i>Locked
+                ({{locked_achievements|length}})
+            </div>
         </div>
 
         {% for achievement in locked_achievements %}
-        <div class="ui one wide column" data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[2]}}-glow">{{achievement[2]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>' style="text-align: center;">
-            <div class="overlay achievement"><i class="icon lock big"></i></div>
-            <i class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon"></i>
+        <div
+            class="ui one wide column"
+            data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[2]}}-glow">{{achievement[2]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>'
+            style="text-align: center"
+        >
+            <div class="overlay achievement">
+                <i class="icon lock big"></i>
+            </div>
+            <i
+                class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon"
+            ></i>
         </div>
         {% endfor %}
-
     </div>
-
 </div>
 
 <!-- Use static/local versions instead of this cdnjs link -->
@@ -162,7 +248,7 @@ according to achievement level
 <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
 
 <script>
-    $('[data-html]').popup();
+    $("[data-html]").popup();
 </script>
 
 {%endblock%}
