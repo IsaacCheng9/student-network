@@ -1143,12 +1143,10 @@ def profile(username):
 
     percentage_level = 100 * float(current_xp) / float(xp_next_level)
     progress_color = "green"
-    if percentage_level < 25:
-        progress_color = "yellow"
-    if percentage_level < 50:
-        progress_color = "orange"
-    if percentage_level < 75:
-        progress_color = "red"
+    if perc_of_level < 75: progress_color = "orange"
+    if perc_of_level < 50: progress_color = "yellow"
+    if perc_of_level < 25: progress_color = "red"
+    print(conn_type)
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
@@ -1596,37 +1594,27 @@ def get_level(username) -> List[int]:
     xp_next_level = 100
     message = []
 
+    xp_increase_per_level = 15
+
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Get user experience
         cur.execute(
             "SELECT experience FROM "
             "UserLevel WHERE username=?;", (username,))
-        row = cur.fetchall()
-        if len(row) == 0:
-            message.append("Problem with getting level")
-            session["prev-page"] = request.url
-            return render_template("error.html", message=message,
-                                   requestCount=get_connection_request_count())
-        else:
-            data = row[0]
-            current_xp = data[0]
-            cur.execute(
-                "SELECT level, experience FROM "
-                "Levels WHERE  experience > ?;", (current_xp,))
-            row = cur.fetchone()
-            if row is None:
-                cur.execute("INSERT INTO Levels"
-                            "VALUES( (1+(SELECT MAX(level)FROM Levels)),"
-                            "(50*(SELECT MAX(level)FROM Levels)"
-                            "+(SELECT MAX(experience)FROM Levels)))")
-                cur.execute(
-                    "SELECT level, experience FROM "
-                    "Levels WHERE  experience > ?;", (current_xp,))
-                row = cur.fetchone()
-            level = row[0]
-            xp_next_level = row[1]
-            return [level, current_xp, xp_next_level]
+        row = cur.fetchone()
+
+        xp = int(row[0])
+
+        #current_xp = xp % 100
+        #level = 1 + int(xp/100)
+        
+        while xp > xp_next_level:
+            level += 1
+            xp -= xp_next_level
+            xp_next_level += xp_increase_per_level
+
+        return [level, xp, xp_next_level]
 
 
 def get_all_usernames() -> list:
