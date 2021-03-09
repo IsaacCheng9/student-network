@@ -8,11 +8,9 @@ import re
 import sqlite3
 import uuid
 from datetime import date, datetime
-from string import capwords
 from typing import Tuple, List
 
 from PIL import Image
-
 from email_validator import validate_email, EmailNotValidError
 from flask import Flask, render_template, request, redirect, session
 from passlib.hash import sha256_crypt
@@ -22,7 +20,7 @@ application = Flask(__name__)
 application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
                           "xa2\xa0\x9fR\xa1\xa8")
 application.url_map.strict_slashes = False
-application.config['UPLOAD_FOLDER'] = '\static\images\\avatars'
+application.config['UPLOAD_FOLDER'] = '/static/images//avatars'
 
 
 @application.route("/", methods=["GET"])
@@ -92,14 +90,16 @@ def close_connection(username):
 
                         # Award achievement ID 12 - Friends if necessary
                         cur.execute(
-                            "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
                             (session["username"], 12))
                         if cur.fetchone() is None:
                             apply_achievement(session["username"], 12)
 
                         # Award achievement ID 13 - Friend Group if necessary
                         cur.execute(
-                            "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
                             (session["username"], 13))
                         if cur.fetchone() is None:
                             cur.execute(
@@ -107,8 +107,8 @@ def close_connection(username):
                                 (session["username"],))
                             if len(cur.fetchall()) >= 10:
                                 apply_achievement(session["username"], 13)
-
         session["add"] = "You can't connect with yourself!"
+
     return redirect("/profile/" + username)
 
 
@@ -142,13 +142,16 @@ def connect_request(username):
                     conn.commit()
                     session["add"] = True
 
-                    # Award achievement ID 17 if necessary
+                    # Award achievement ID 17 - Getting social if necessary
                     cur.execute(
-                        "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                        "SELECT * FROM CompleteAchievements "
+                        "WHERE (username=? AND achievement_ID=?);",
                         (session["username"], 17))
                     if cur.fetchone() is None:
                         cur.execute(
-                            "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
+                            "INSERT INTO CompleteAchievements "
+                            "(username, achievement_ID, date_completed) "
+                            "VALUES (?,?,?);",
                             (session["username"], 17, date.today()))
                         conn.commit()
 
@@ -166,26 +169,28 @@ def achievements() -> object:
         The web page for viewing achievements.
     """
 
-    unlocked_achievements, locked_achievements = get_achievements(session["username"])
+    unlocked_achievements, locked_achievements = get_achievements(
+        session["username"])
 
     percentage = int(100 * len(unlocked_achievements) /
-                 (len(unlocked_achievements) + len(locked_achievements)))
-
+                     (len(unlocked_achievements) + len(locked_achievements)))
     percentage_color = "green"
-    if percentage < 66: percentage_color = "orange"
-    if percentage < 33: percentage_color = "red"
+    if percentage < 66:
+        percentage_color = "orange"
+    if percentage < 33:
+        percentage_color = "red"
 
     return render_template("achievements.html",
-                            unlocked_achievements=unlocked_achievements,
-                            locked_achievements=locked_achievements,
-                            requestCount=get_connection_request_count(),
-                            allUsernames=get_all_usernames(),
-                            percentage=percentage,
-                            percentage_color=percentage_color)
+                           unlocked_achievements=unlocked_achievements,
+                           locked_achievements=locked_achievements,
+                           requestCount=get_connection_request_count(),
+                           allUsernames=get_all_usernames(),
+                           percentage=percentage,
+                           percentage_color=percentage_color)
 
 
-
-@application.route("/accept_connection_request/<username>", methods=["GET", "POST"])
+@application.route("/accept_connection_request/<username>",
+                   methods=["GET", "POST"])
 def accept_connection_request(username) -> object:
     """
     Accepts the connect request from another user on the network.
@@ -220,77 +225,88 @@ def accept_connection_request(username) -> object:
 
                     # Award achievement ID 4 - Connected if necessary
                     cur.execute(
-                        "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                        "SELECT * FROM CompleteAchievements "
+                        "WHERE (username=? AND achievement_ID=?);",
                         (session["username"], 4))
                     if cur.fetchone() is None:
                         apply_achievement(session["username"], 4)
 
                     # Award achievement ID 4 to connected user
                     cur.execute(
-                        "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                        "SELECT * FROM CompleteAchievements "
+                        "WHERE (username=? AND achievement_ID=?);",
                         (username, 4))
                     if cur.fetchone() is None:
                         apply_achievement(username, 4)
 
                     # Award achievement ID 5 - Popular if necessary
                     cur.execute(
-                        "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                        "SELECT * FROM CompleteAchievements "
+                        "WHERE (username=? AND achievement_ID=?);",
                         (session["username"], 5))
                     if cur.fetchone() is None:
                         cur.execute(
-                            "SELECT * FROM Connection WHERE (user1=? OR user2=?);",
+                            "SELECT * FROM Connection "
+                            "WHERE (user1=? OR user2=?);",
                             (session["username"], session["username"]))
                         if len(cur.fetchall()) >= 10:
                             apply_achievement(session["username"], 5)
 
                     # Award achievement ID 5 to connected user
                     cur.execute(
-                        "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                        "SELECT * FROM CompleteAchievements "
+                        "WHERE (username=? AND achievement_ID=?);",
                         (session["username"], 5))
                     if cur.fetchone() is None:
                         cur.execute(
-                            "SELECT * FROM Connection WHERE (user1=? OR user2=?);",
+                            "SELECT * FROM Connection "
+                            "WHERE (user1=? OR user2=?);",
                             (username, username))
                         if len(cur.fetchall()) >= 10:
                             apply_achievement(username, 5)
 
                     # Award achievement ID 6 - Centre of Attention if necessary
                     cur.execute(
-                        "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                        "SELECT * FROM CompleteAchievements "
+                        "WHERE (username=? AND achievement_ID=?);",
                         (session["username"], 6))
                     if cur.fetchone() is None:
                         cur.execute(
-                            "SELECT * FROM Connection WHERE (user1=? OR user2=?);",
+                            "SELECT * FROM Connection "
+                            "WHERE (user1=? OR user2=?);",
                             (session["username"], session["username"]))
                         if len(cur.fetchall()) >= 100:
                             apply_achievement(session["username"], 6)
 
                     # Award achievement ID 6 to connected user
                     cur.execute(
-                        "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                        "SELECT * FROM CompleteAchievements "
+                        "WHERE (username=? AND achievement_ID=?);",
                         (username, 6))
                     if cur.fetchone() is None:
                         cur.execute(
-                            "SELECT * FROM Connection WHERE (user1=? OR user2=?);",
+                            "SELECT * FROM Connection "
+                            "WHERE (user1=? OR user2=?);",
                             (username, username))
                         if len(cur.fetchall()) >= 100:
                             apply_achievement(username, 6)
-
     else:
         session["add"] = "You can't connect with yourself!"
+
     return redirect(session["prev-page"])
 
 
-def apply_achievement(username: str, achievement_ID: int):
+def apply_achievement(username: str, achievement_id: int):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO CompleteAchievements (username, achievement_ID, date_completed) VALUES (?,?,?);",
-            (username, achievement_ID, date.today()))
+            "INSERT INTO CompleteAchievements "
+            "(username, achievement_ID, date_completed) VALUES (?, ?, ?);",
+            (username, achievement_id, date.today()))
         conn.commit()
         cur.execute(
             "SELECT xp_value FROM Achievements WHERE achievement_ID=?;",
-            (achievement_ID,))
+            (achievement_id,))
         xp = cur.fetchone()[0]
         cur.execute(
             "SELECT * FROM UserLevel WHERE username=?;", (username,))
@@ -334,6 +350,7 @@ def remove_close_friend(username: str) -> object:
                     "DELETE FROM CloseFriend WHERE (user1=? AND user2=?);",
                     (session["username"], username))
                 conn.commit()
+
     return redirect(session["prev-page"])
 
 
@@ -370,17 +387,19 @@ def remove_connection(username: str) -> object:
                         (username, session["username"], session["username"],
                          username))
                     row = cur.execute(
-                        "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
-                        "(user1=? AND user2=?);",
+                        "SELECT * FROM Connection "
+                        "WHERE (user1=? AND user2=?) "
+                        "OR (user1=? AND user2=?);",
                         (username, session["username"], session["username"],
-                        username))
+                         username))
                     if row is not None:
                         cur.execute(
-                            "DELETE FROM CloseFriend WHERE (user1=? AND user2=?) "
+                            "DELETE FROM CloseFriend "
+                            "WHERE (user1=? AND user2=?) "
                             "OR (user1=? AND user2=?);",
-                            (username, session["username"], session["username"],
-                            username))  
-                    conn.commit()                     
+                            (username, session["username"],
+                             session["username"], username))
+                    conn.commit()
 
     return redirect(session["prev-page"])
 
@@ -427,7 +446,8 @@ def terms_page():
     """
     if request.method == "GET":
         session["prev-page"] = request.url
-        return render_template("terms.html")
+        return render_template("terms.html",
+                               requestCount=get_connection_request_count())
     else:
         return redirect("/register")
 
@@ -442,7 +462,8 @@ def privacy_policy_page():
     """
     if request.method == "GET":
         session["prev-page"] = request.url
-        return render_template("privacy_policy.html")
+        return render_template("privacy_policy.html",
+                               requestCount=get_connection_request_count())
     else:
         return redirect("/terms")
 
@@ -517,7 +538,8 @@ def register_page():
         session["prev-page"] = request.url
 
         return render_template("register.html", notifications=notifications,
-                               errors=errors)
+                               errors=errors,
+                               requestCount=get_connection_request_count())
 
 
 @application.route("/register", methods=["POST"])
@@ -530,7 +552,7 @@ def register_submit() -> object:
     """
     # Obtains user input from the account registration form.
     username = request.form["username_input"].lower()
-    full_name = capwords(request.form["fullname_input"])
+    fullname = request.form["fullname_input"]
     password = request.form["psw_input"]
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
@@ -539,7 +561,7 @@ def register_submit() -> object:
     # Connects to the database to perform validation.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        valid, message = validate_registration(cur, username, full_name,
+        valid, message = validate_registration(cur, username, fullname,
                                                password, password_confirm,
                                                email, terms)
         # Registers the user if the details are valid.
@@ -553,7 +575,7 @@ def register_submit() -> object:
                 "INSERT INTO UserProfile (username, name, bio, gender, "
                 "birthday, profilepicture) "
                 "VALUES (?, ?, ?, ?, ?, ?);", (
-                    username, full_name, "Change your bio in the settings.",
+                    username, fullname, "Change your bio in the settings.",
                     "Male", date.today(), "/static/images/default-pfp.jpg",))
 
             cur.execute(
@@ -572,8 +594,8 @@ def register_submit() -> object:
             return redirect("/register")
 
 
-@application.route("/post_page/<postId>", methods=["GET"])
-def post(postId):
+@application.route("/post_page/<post_id>", methods=["GET"])
+def post(post_id):
     """
     Loads a post and it's comments
 
@@ -583,8 +605,6 @@ def post(postId):
     comments = {"comments": []}
     message = []
     author = ""
-    i = 0
-
     session["prev-page"] = request.url
 
     with sqlite3.connect("database.db") as conn:
@@ -592,52 +612,49 @@ def post(postId):
         # Gets user from database using username.
         cur.execute(
             "SELECT title, body, username, date, account_type, likes "
-            "FROM POSTS WHERE postId=?;", (postId,))
+            "FROM POSTS WHERE postId=?;", (post_id,))
         row = cur.fetchall()
         if len(row) == 0:
             message.append("This post does not exist.")
             message.append(
-                " Please ensure you have entered the name correctly.")
+                "Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames())
         else:
             data = row[0]
-            title, body, username, date, accountType, likes = (
+            title, body, username, date, account_type, likes = (
                 data[0], data[1],
                 data[2], data[3],
                 data[4], data[5])
             cur.execute(
                 "SELECT *"
-                "FROM Comments WHERE postId=?;", (postId,))
+                "FROM Comments WHERE postId=?;", (post_id,))
             row = cur.fetchall()
             if len(row) == 0:
-                return render_template("post_page.html", author=author,
-                                       postId=postId, title=title, body=body,
-                                       username=username, date=date,
-                                       likes=likes,
-                                       accountType=accountType,
-                                       comments=None,
-                                       requestCount=get_connection_request_count(),
-                                       allUsernames=get_all_usernames())
+                return render_template(
+                    "post_page.html", author=author, postId=post_id,
+                    title=title, body=body, username=username, date=date,
+                    likes=likes, accountType=account_type, comments=None,
+                    requestCount=get_connection_request_count(),
+                    allUsernames=get_all_usernames())
             for comment in row:
-                if i == 20:
-                    break
+                time = datetime.strptime(
+                    comment[3], "%Y-%m-%d %H:%M:%S").strftime("%d-%m-%y %H:%M")
                 comments["comments"].append({
                     "commentId": comment[0],
                     "username": comment[1],
                     "body": comment[2],
-                    "date": comment[3],
+                    "date": time,
                 })
-                i += 1
-            # TODO: the person viewing the post is the author of the post ( othervise hide delete button)
-            return render_template("post_page.html", author=author,
-                                   postId=postId, title=title, body=body,
-                                   username=username, date=date, likes=likes,
-                                   accountType=accountType, comments=comments,
-                                   requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames())
+
+            return render_template(
+                "post_page.html", author=author, postId=post_id, title=title,
+                body=body, username=username, date=date, likes=likes,
+                accountType=account_type, comments=comments,
+                requestCount=get_connection_request_count(),
+                allUsernames=get_all_usernames())
 
 
 @application.route("/feed", methods=["GET"])
@@ -650,15 +667,13 @@ def feed():
     """
     if "username" in session:
         session["prev-page"] = request.url
-
-        username = session["username"]
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
 
-            set = get_all_connections(session["username"])
-            set.append((session["username"],))
+            connections = get_all_connections(session["username"])
+            connections.append((session["username"],))
             row = []
-            for user in set:
+            for user in connections:
                 cur.execute(
                     "SELECT * FROM POSTS "
                     "WHERE username=? "
@@ -667,31 +682,49 @@ def feed():
             # Sort reverse chronologically
             row = sorted(row, key=lambda x: x[0], reverse=True)
             i = 0
-            allPosts = {
+            all_posts = {
                 "AllPosts": []
             }
-
+            # account type differentiation in posts db
             for post in row:
-                if i == 100:
+                if i == 20:
                     break
                 add = ""
                 if len(post[2]) > 250:
                     add = "..."
                 time = datetime.strptime(post[4], '%Y-%m-%d').strftime(
                     '%d-%m-%y')
-                allPosts["AllPosts"].append({
+
+                # Get account type
+                cur.execute("SELECT type "
+                            "FROM ACCOUNTS WHERE username=? ",
+                            (post[3],))
+                accounts = cur.fetchone()
+                account_type = accounts[0]
+                all_posts["AllPosts"].append({
                     "postId": post[0],
                     "title": post[1],
                     "profile_pic": "https://via.placeholder.com/600",
                     "author": post[3],
-                    "account_type": post[6],
+                    "account_type": account_type,
                     "date_posted": time,
                     "body": (post[2])[:250] + add
                 })
                 i += 1
-        return render_template("feed.html", posts=allPosts,
-                               requestCount=get_connection_request_count(),
-                               allUsernames=get_all_usernames())
+
+        if "error" in session:
+            errors = []
+            errors = session["error"]
+            session.pop("error", None)
+
+            return render_template("feed.html", posts=all_posts,
+                                   requestCount=get_connection_request_count(),
+                                   allUsernames=get_all_usernames(),
+                                   errors=errors)
+        else:
+            return render_template("feed.html", posts=all_posts,
+                                   requestCount=get_connection_request_count(),
+                                   allUsernames=get_all_usernames(), )
     else:
         return redirect("/login")
 
@@ -705,57 +738,58 @@ def submit_post():
         Updated feed with new post added
     """
     try:
-        postTitle = request.form["post_title"]
-        postBody = request.form["post_text"]
-        if postTitle != "":
+        post_title = request.form["post_title"]
+        post_body = request.form["post_text"]
+        if post_title != "":
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
                 # TODO: 6th value in table is privacy setting and 7th is account type.
                 # Currently is default - public/student but no functionality
                 cur.execute("INSERT INTO POSTS (title, body, username) "
                             "VALUES (?, ?, ?);",
-                            (postTitle, postBody, session["username"]))
+                            (post_title, post_body, session["username"]))
                 conn.commit()
 
                 # Award achievement ID 7 - Express yourself if necessary
                 cur.execute(
-                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
                     (session["username"], 7))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 7)
 
                 # Award achievement ID 8 - 5 posts if necessary
                 cur.execute(
-                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
                     (session["username"], 8))
                 if cur.fetchone() is None:
                     cur.execute(
                         "SELECT * FROM POSTS WHERE username=?;",
                         (session["username"],))
                     results = cur.fetchall()
-                    print(results)
-                    print(len(results))
                     if len(results) >= 5:
                         apply_achievement(session["username"], 8)
 
                 # Award achievement ID 9 - 20 posts if necessary
                 cur.execute(
-                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
                     (session["username"], 9))
                 if cur.fetchone() is None:
                     cur.execute(
                         "SELECT * FROM POSTS WHERE username=?;",
                         (session["username"],))
                     results = cur.fetchall()
-                    print(results)
-                    print(len(results))
                     if len(results) >= 20:
                         apply_achievement(session["username"], 9)
-
-        # TODO: Prints error message missing title on top of page
+        else:
+            # Prints error message missing title on top of page
+            session["error"] = ["Missing Title!"]
     except:
         conn.rollback()
-        print("error in insert operation")
+        # Prints error message in case post couldnt be created
+        session["error"].append(["Post could not be created"])
     finally:
         return redirect("/feed")
 
@@ -770,26 +804,26 @@ def like_post():
     """
     likes = 0
     row = []
-    postId = request.form["postId"]
+    post_id = request.form["postId"]
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # check user hasn't liked post already
         cur.execute("SELECT username, postId FROM UserLikes"
                     " WHERE postId=? AND username=? ;",
-                    (postId, session["username"]))
+                    (post_id, session["username"]))
         row = cur.fetchone()
         if row is None:
             cur.execute("INSERT INTO UserLikes (postId,username)"
-                        "VALUES (?, ?);", (postId, session["username"]))
+                        "VALUES (?, ?);", (post_id, session["username"]))
 
             # get current total number of  current likes
             cur.execute("SELECT likes FROM POSTS"
-                        " WHERE postId=?;", (postId,))
+                        " WHERE postId=?;", (post_id,))
             row = cur.fetchone()
 
             likes = row[0] + 1
             cur.execute("UPDATE POSTS SET likes=? "
-                        " WHERE postId=? ;", (likes, postId,))
+                        " WHERE postId=? ;", (likes, post_id,))
             conn.commit()
 
             # Check how many posts user has liked
@@ -798,23 +832,26 @@ def like_post():
             row = cur.fetchone()
             if row == 1:
                 cur.execute(
-                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
-                    (session["username"], 20))
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (session["username"], 19))
                 if cur.fetchone() is None:
-                    apply_achievement(session["username"], 20)
+                    apply_achievement(session["username"], 19)
             elif row == 5:
                 cur.execute(
-                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
                     (session["username"], 23))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 23)
             elif row == 100:
                 cur.execute(
-                    "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
                     (session["username"], 24))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 24)
-    return redirect("/post_page/" + postId)
+    return redirect("/post_page/" + post_id)
 
 
 @application.route("/submit_comment", methods=["POST"])
@@ -825,27 +862,26 @@ def submit_comment():
     Returns:
         Updated post with new comment added
     """
-    postId = request.form["postId"]
-    commentBody = request.form["comment_text"]
-    if commentBody != "":
+    post_id = request.form["postId"]
+    comment_body = request.form["comment_text"]
+    if comment_body != "":
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            # TODO: 6th value in table is privacy setting and 7th is account type.
-            # Currently is default - public/student but no functionality
             cur.execute("INSERT INTO Comments (postId, body, username) "
                         "VALUES (?, ?, ?);",
-                        (postId, commentBody, session["username"]))
+                        (post_id, comment_body, session["username"]))
             conn.commit()
 
             # Award achievement ID 10 - Commentary if necessary
             cur.execute(
-                "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+                "SELECT * FROM CompleteAchievements "
+                "WHERE (username=? AND achievement_ID=?);",
                 (session["username"], 10))
             if cur.fetchone() is None:
                 apply_achievement(session["username"], 10)
 
-    session["postId"] = postId
-    return redirect("/post_page/" + postId)
+    session["postId"] = post_id
+    return redirect("/post_page/" + post_id)
 
 
 @application.route("/delete_post", methods=["POST"])
@@ -856,24 +892,24 @@ def delete_post():
     Returns:
         Feed page
     """
-    postId = request.form["postId"]
+    post_id = request.form["postId"]
     message = []
     try:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute(
-                "SELECT postId FROM POSTS WHERE postId=?;", (postId,))
+                "SELECT postId FROM POSTS WHERE postId=?;", (post_id,))
             row = cur.fetchone()
             # check the post exists in database
             if row[0] is None:
                 message.append("Error: this post does not exist")
             else:
-                cur.execute("DELETE FROM POSTS WHERE postId=?", (postId,))
+                cur.execute("DELETE FROM POSTS WHERE postId=?", (post_id,))
                 conn.commit()
     except:
         conn.rollback()
     finally:
-        message.append("Post has been deleted successfully.")
+        message.append("Comment has been deleted successfully.")
         return render_template("error.html", message=message,
                                requestCount=get_connection_request_count(),
                                allUsernames=get_all_usernames())
@@ -888,24 +924,24 @@ def delete_comment():
         post_page
     """
     message = []
-    postId = request.form["postId"]
-    commentId = request.form["commentId"]
+    post_id = request.form["postId"]
+    comment_id = request.form["commentId"]
     try:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Comments WHERE commentId=? ",
-                        (commentId,))
+                        (comment_id,))
             row = cur.fetchone()
             # check the post exists in database
             if row[0] is None:
-                message.append("Comment Does not Exists")
+                message.append("Comment does not exist.")
                 return render_template(
                     "error.html", message=message,
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames())
             else:
                 cur.execute("DELETE FROM Comments WHERE commentId =? ",
-                            (commentId,))
+                            (comment_id,))
                 conn.commit()
     except:
         conn.rollback()
@@ -914,7 +950,7 @@ def delete_comment():
                                requestCount=get_connection_request_count(),
                                allUsernames=get_all_usernames())
     finally:
-        return redirect("post_page/" + postId)
+        return redirect("post_page/" + post_id)
 
 
 @application.route("/profile", methods=["GET"])
@@ -946,10 +982,6 @@ def profile(username):
     birthday = ""
     profile_picture = ""
     email = ""
-    xp_next_level = ""
-    current_xp = ""
-    level = ""
-    level_data = []
     hobbies = []
     interests = []
     account_type = ""
@@ -967,9 +999,9 @@ def profile(username):
             message.append(
                 " Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
-            return render_template("error.html", message=message,
-                                    requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames())
+            return render_template(
+                "error.html", message=message,
+                requestCount=get_connection_request_count())
         else:
             data = row[0]
             name, bio, gender, birthday, profile_picture = (
@@ -978,7 +1010,8 @@ def profile(username):
     # Award achievement ID 1 - Look at you if necessary
     if username == session["username"]:
         cur.execute(
-            "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
             (session["username"], 1))
         if cur.fetchone() is None:
             apply_achievement(session["username"], 1)
@@ -986,7 +1019,8 @@ def profile(username):
     # Award achievement ID 2 - Looking good if necessary
     if username != session["username"] and session["username"]:
         cur.execute(
-            "SELECT * FROM CompleteAchievements WHERE (username=? AND achievement_ID=?);",
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
             (session["username"], 2))
         if cur.fetchone() is None:
             apply_achievement(session["username"], 2)
@@ -1023,53 +1057,54 @@ def profile(username):
     unlocked_achievements, locked_achievements = get_achievements(username)
     first_six = unlocked_achievements[0:min(6, len(unlocked_achievements))]
 
-    set = []
+    # Gets the user's posts.
     if username == session["username"]:
         # TODO: store all the users posts in a json file
         cur.execute(
             "SELECT * "
             "FROM POSTS WHERE username=?", (username,))
-        set = cur.fetchall()
+        sort_posts = cur.fetchall()
     else:
-        conecs = get_all_connections(username)
+        connections = get_all_connections(username)
         count = 0
-        for conec in conecs:
-            conecs[count] = conec[0]
+        for connection in connections:
+            connections[count] = connection[0]
             count += 1
-        if session["username"] in conecs:
+        if session["username"] in connections:
             close = am_close_friend(username)
-            if close == True:
+            if close is True:
                 cur.execute(
                     "SELECT * "
                     "FROM POSTS WHERE username=? AND privacy!='private'",
                     (username,))
-                set = cur.fetchall()
+                sort_posts = cur.fetchall()
             else:
                 cur.execute(
                     "SELECT * "
                     "FROM POSTS WHERE username=? "
                     "AND privacy!='private' AND privacy!='close'", (username,))
-                set = cur.fetchall()
+                sort_posts = cur.fetchall()
         else:
             cur.execute(
                 "SELECT * "
                 "FROM POSTS WHERE username=? AND privacy='public'",
                 (username,))
-            set = cur.fetchall()
+            sort_posts = cur.fetchall()
 
     # Sort reverse chronologically
-    set = sorted(set, key=lambda x: x[0], reverse=True)
+    sort_posts = sorted(sort_posts, key=lambda x: x[0], reverse=True)
 
-    userPosts = {
+    user_posts = {
         "UserPosts": []
     }
+    i = 0
 
-    for post in set:
+    for post in sort_posts:
         add = ""
         if len(post[2]) > 250:
             add = "..."
         time = datetime.strptime(post[4], '%Y-%m-%d').strftime('%d-%m-%y')
-        userPosts["UserPosts"].append({
+        user_posts["UserPosts"].append({
             "postId": post[0],
             "title": post[1],
             "profile_pic": "https://via.placeholder.com/600",
@@ -1078,6 +1113,7 @@ def profile(username):
             "date_posted": time,
             "body": (post[2])[:250] + add
         })
+        i += 1
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
@@ -1093,15 +1129,12 @@ def profile(username):
         conn_type = "close"
     session["prev-page"] = request.url
 
-    level_data = getLevel(username)
+    level_data = get_level(username)
     level = level_data[0]
     current_xp = level_data[1]
     xp_next_level = level_data[2]
 
-    print(current_xp, xp_next_level)
-
-    perc_of_level = 100 * float(current_xp) / float(xp_next_level)
-
+    percentage_level = 100 * float(current_xp) / float(xp_next_level)
     progress_color = "green"
     if perc_of_level < 75: progress_color = "orange"
     if perc_of_level < 50: progress_color = "yellow"
@@ -1112,7 +1145,7 @@ def profile(username):
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, account_type=account_type,
                            interests=interests,
-                           email=email, posts=userPosts, type=conn_type,
+                           email=email, posts=user_posts, type=conn_type,
                            unlocked_achievements=first_six,
                            allUsernames=get_all_usernames(),
                            requestCount=get_connection_request_count(),
@@ -1150,7 +1183,6 @@ def edit_profile() -> object:
     if request.method == "POST":
         # Ensures that users can only edit their own profile.
         username = session["username"]
-
         # Gets the input data from the edit profile details form.
         bio = request.form.get("bio_input")
         gender = request.form.get("gender_input")
@@ -1158,13 +1190,12 @@ def edit_profile() -> object:
         dob = datetime.strptime(dob_input, "%Y-%m-%d").strftime("%Y-%m-%d")
         hobbies_input = request.form.get("hobbies")
         interests_input = request.form.get("interests")
-
-        # Gets the individual hobbies, and formats them.
+        # Gets the individual hobbies and interests, then formats them.
         hobbies_unformatted = hobbies_input.split(",")
         hobbies = [hobby.lower() for hobby in hobbies_unformatted]
-        # Gets the individual interests, and formats them.
         interests_unformatted = interests_input.split(",")
         interests = [interest.lower() for interest in interests_unformatted]
+
         # Connects to the database to perform validation.
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
@@ -1178,17 +1209,18 @@ def edit_profile() -> object:
                 # Updates the bio, gender, and birthday.
                 if filename:
                     cur.execute(
-                        "UPDATE UserProfile SET bio=?, gender=?, birthday=?, profilepicture=?"
-                        "WHERE username=?;",
+                        "UPDATE UserProfile SET bio=?, gender=?, birthday=?, "
+                        "profilepicture=? WHERE username=?;",
                         (bio, gender, dob,
-                        application.config['UPLOAD_FOLDER'] + "\\" + filename+".jpg",
-                        username,))
+                         application.config['UPLOAD_FOLDER'] + "\\" + filename
+                         + ".jpg", username,))
                 else:
                     cur.execute(
                         "UPDATE UserProfile SET bio=?, gender=?, birthday=?"
                         "WHERE username=?;",
                         (bio, gender, dob,
-                        username,))                    
+                         username,))
+
                 # Inserts new hobbies and interests into the database if the
                 # user made a new input.
                 if hobbies != [""]:
@@ -1209,16 +1241,16 @@ def edit_profile() -> object:
                             cur.execute("INSERT INTO UserInterests "
                                         "(username, interest) VALUES (?, ?);",
                                         (username, interest,))
+
                 conn.commit()
                 return redirect("/profile")
             # Displays error message(s) stating why their details are invalid.
             else:
                 session["error"] = message
-                print(message)
-                return render_template("settings.html", errors=message,
-                                requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames(),
-                                   date=date, bio=bio)
+                return render_template(
+                    "settings.html", errors=message,
+                    requestCount=get_connection_request_count(),
+                    allUsernames=get_all_usernames(), date=date, bio=bio)
 
 
 @application.route("/logout", methods=["GET"])
@@ -1326,10 +1358,14 @@ def validate_registration(
         message.append("Username has already been registered!")
         valid = False
 
+    # Checks that the full name doesn't exceed 40 characters.
+    if len(full_name) > 40:
+        message.append("Full name exceeds 40 characters!")
+        valid = False
+
     # Checks that the full name only contains valid characters.
     if not all(x.isalpha() or x.isspace() for x in full_name):
-        message.append("Full name must only contain letters, numbers and "
-                       "spaces!")
+        message.append("Full name must only contain letters and spaces!")
         valid = False
 
     # Checks that the email hasn't already been registered.
@@ -1357,7 +1393,7 @@ def validate_registration(
             message.append(
                 "Email address does not belong to University of Exeter!")
 
-    # Checks that the password has a minimum length of 8 characters, and at
+    # Checks that the password has a minimum length of 6 characters, and at
     # least one number.
     if (len(password) <= 7 or any(
             char.isdigit() for char in password) is False):
@@ -1384,9 +1420,9 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
 
-def validate_edit_profile(bio: str, gender: str, dob: str,
-                          hobbies: list, interests: list) -> Tuple[bool,
-                                                                   List[str]]:
+def validate_edit_profile(
+        bio: str, gender: str, dob: str,
+        hobbies: list, interests: list) -> Tuple[bool, List[str], str]:
     """
     Validates the details in the profile editing form.
 
@@ -1394,7 +1430,6 @@ def validate_edit_profile(bio: str, gender: str, dob: str,
         bio: The bio input by the user in the form.
         gender: The gender input selected by the user in the form.
         dob: The date of birth input selected by the user in the form.
-        profile_pic: The profile picture uploaded by the user in the form.
         hobbies: The list of hobbies from the form.
         interests: The list of interests from the form.
     Returns:
@@ -1404,12 +1439,11 @@ def validate_edit_profile(bio: str, gender: str, dob: str,
     # If not, error messages will be provided to the user.
     valid = True
     message = []
-    filename = ''
-    new_filename = ''
+    file_name_hashed = ""
+
     # Checks that the gender is male, female, or other.
     if gender not in ["Male", "Female", "Other"]:
         valid = False
-
         message.append("Gender must be male, female, or other!")
 
     # Only performs check if a new date of birth was entered.
@@ -1419,20 +1453,17 @@ def validate_edit_profile(bio: str, gender: str, dob: str,
         # Checks that date of birth is a past date.
         if datetime.today() < dob:
             valid = False
-
             message.append("Date of birth must be a past date!")
 
     # Checks that the bio has a maximum of 160 characters.
     if len(bio) > 160:
         valid = False
-
         message.append("Bio must not exceed 160 characters!")
 
     # Checks that each hobby has a maximum of 24 characters.
     for hobby in hobbies:
         if len(hobby) > 24:
             valid = False
-
             message.append("Hobbies must not exceed 24 characters!")
             break
 
@@ -1440,32 +1471,30 @@ def validate_edit_profile(bio: str, gender: str, dob: str,
     for interest in interests:
         if len(interest) > 24:
             valid = False
-
             message.append("Interests must not exceed 24 characters!")
             break
 
-    if valid == True:
-        file = request.files['file']
-        print(file.filename)
+    # Uploads profile picture.
+    if valid is True:
+        file = request.files["file"]
         # if user does not select file, browser also
         # submit an empty part without filename
         if allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            new_filename = str(uuid.uuid4())
+            secure_filename(file.filename)
+            file_name_hashed = str(uuid.uuid4())
 
-            filepath = os.path.join("." + application.config['UPLOAD_FOLDER'],new_filename)
+            filepath = os.path.join("." + application.config["UPLOAD_FOLDER"],
+                                    file_name_hashed)
 
             im = Image.open(file)
-            im = im.resize((400,400))
+            im = im.resize((400, 400))
             im = im.convert("RGB")
-            im.save(filepath+".jpg")
-
+            im.save(filepath + ".jpg")
         elif file:
             valid = False
             message.append("Your file needs to be an image")
 
-    print(valid)
-    return valid, message, new_filename
+    return valid, message, file_name_hashed
 
 
 def get_all_connections(username) -> list:
@@ -1478,17 +1507,18 @@ def get_all_connections(username) -> list:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT user2 FROM Connection WHERE user1=? AND connection_type='connected'"
-            "UNION ALL "
-            "SELECT user1 FROM Connection WHERE user2=? AND connection_type='connected'",
+            "SELECT user2 FROM Connection "
+            "WHERE user1=? AND connection_type='connected' UNION ALL "
+            "SELECT user1 FROM Connection "
+            "WHERE user2=? AND connection_type='connected'",
             (username, username)
         )
-        set = cur.fetchall()
+        cons = cur.fetchall()
 
-        return set
+        return cons
 
 
-def get_achievements(username : str) -> Tuple[object, object]:
+def get_achievements(username: str) -> Tuple[object, object]:
     """
     Gets unlocked and locked achievements for the user.
 
@@ -1498,17 +1528,20 @@ def get_achievements(username : str) -> Tuple[object, object]:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets unlocked achievements, sorted by XP descending.
-        cur.execute("SELECT description, icon, rarity, xp_value, achievement_name "
-                    "FROM CompleteAchievements "
-                    "INNER JOIN Achievements ON CompleteAchievements"
-                    ".achievement_ID = Achievements.achievement_ID "
-                    "WHERE username=?;",
-                    (username,))
+        cur.execute(
+            "SELECT description, icon, rarity, xp_value, achievement_name "
+            "FROM CompleteAchievements "
+            "INNER JOIN Achievements ON CompleteAchievements"
+            ".achievement_ID = Achievements.achievement_ID "
+            "WHERE username=?;",
+            (username,))
         unlocked_achievements = cur.fetchall()
         unlocked_achievements.sort(key=lambda x: x[3], reverse=True)
 
         # Get locked achievements, sorted by XP ascending.
-        cur.execute("SELECT description, icon, rarity, xp_value, achievement_name FROM Achievements")
+        cur.execute(
+            "SELECT description, icon, rarity, xp_value, achievement_name "
+            "FROM Achievements")
         all_achievements = cur.fetchall()
         locked_achievements = list(
             set(all_achievements) - set(unlocked_achievements))
@@ -1536,7 +1569,7 @@ def am_close_friend(username) -> bool:
         return False
 
 
-def getLevel(username) -> Tuple[int, int, int]:
+def get_level(username) -> List[int]:
     """
     gets the current user experience points, the experience points
     for the next level and the user's current level from the database
@@ -1552,6 +1585,7 @@ def getLevel(username) -> Tuple[int, int, int]:
     level = 1
     current_xp = 0
     xp_next_level = 100
+    message = []
 
     xp_increase_per_level = 15
 

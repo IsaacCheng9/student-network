@@ -20,12 +20,23 @@
                     </div>
                     <div class="content">
                         <div class="centered">{{body}}</div>
+                        <div>
+                            <div class="ui right floated mini labeled button" tabindex="0">
+                                <button class="ui mini red button" form="likes">
+                                    <i class="heart icon"></i>
+                                </button>                              
+                                <a class="ui basic mini red left pointing label">
+                                    {{likes}}
+                                </a>
+                        </div>
                     </div>
-
-                    <div class="content">
+                    <div class="content">                      
                         <div class="ui comments">
-                            <h3>Comments</h3>
+                            <form action="{{ url_for('like_post') }}" class="ui reply form" id="likes", method="POST">
+                                <input type="hidden" name="postId" value="{{postId}}">
+                            </form>
                             
+                            <h3>Comments</h3>
                             {% for comment in comments["comments"] %}
                             <div class="comment">
                                 <a class="avatar">
@@ -36,17 +47,16 @@
                                     <div class="metadata">
                                         <span class="date">{{comment.date}}</span>
                                     </div>
+                                    {% if session["username"] == comment.username %}
+                                    &nbsp
+                                    <button type="submit" form="deleteComment{{comment.commentId}}" class="ui mini red button icon">
+                                        <i class="small trash alternate outline icon"></i>
+                                    </button>
+                                    {% endif %}
                                     <form action="{{ url_for('delete_comment') }}" class="ui reply form" id="deleteComment{{comment.commentId}}" , method="POST">
                                         <input type="hidden" name="postId" value="{{postId}}">
                                         <input type="hidden" name="commentId" value="{{comment.commentId}}">
                                     </form>
-                                    {% if session["username"] == comment.username %}
-                                    <div class="right floated content">
-                                        <button type="submit" form="deleteComment{{comment.commentId}}" class="ui mini red button icon">
-                                            <i class="small trash alternate outline icon"></i>
-                                        </button>
-                                    </div>
-                                    {% endif %}
                                     <div class="text">
                                         {{comment.body}}
                                     </div>
@@ -68,10 +78,10 @@
                                     <input type="hidden" name="postId" value="{{postId}}">
                                 </form>
                                 <br>
-                                <input type="submit" value="Post comment" form="comment" class="ui left floated blue button"></button>
                                 {% if session["username"] == username %}
-                                <input type="submit" value="Delete Post" form="deletePost" class="negative right floated ui button"></button>
+                                <input type="submit" value="Delete Post" form="deletePost" class="negative left floated ui button"></button>
                                 {% endif %}
+                                <input type="submit" value="Post comment" form="comment" class="ui right floated blue button"></button>
                             </div>
                         </div>
                     </div>
