@@ -687,7 +687,7 @@ def feed():
             }
             # account type differentiation in posts db
             for post in row:
-                if i == 20:
+                if i == 50:
                     break
                 add = ""
                 if len(post[2]) > 250:
@@ -1103,6 +1103,12 @@ def profile(username):
         add = ""
         if len(post[2]) > 250:
             add = "..."
+        if post[5] == "protected":
+            privacy = "Friends only"
+        elif post[5] == "close":
+            privacy = "Close friends only"
+        else:
+            privacy = str(post[5]).capitalize()
         time = datetime.strptime(post[4], '%Y-%m-%d').strftime('%d-%m-%y')
         user_posts["UserPosts"].append({
             "postId": post[0],
@@ -1111,7 +1117,8 @@ def profile(username):
             "author": post[3],
             "account_type": post[6],
             "date_posted": time,
-            "body": (post[2])[:250] + add
+            "body": (post[2])[:250] + add,
+            "privacy": privacy
         })
         i += 1
 
