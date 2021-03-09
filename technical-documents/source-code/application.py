@@ -584,9 +584,7 @@ def register_submit() -> object:
                     username, full_name, "Change your bio in the settings.",
                     "Male", date.today(), "/static/images/default-pfp.jpg",))
 
-            cur.execute(
-                "INSERT INTO Userlevel (username, experience) "
-                "VALUES (?, 0);", (username,))
+            check_level_exists(username)
 
             conn.commit()
 
