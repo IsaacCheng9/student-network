@@ -789,7 +789,8 @@ def edit_profile() -> object:
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
         return render_template("settings.html",
-                               requestCount=get_connection_request_count(), date=date, bio=bio)
+                               requestCount=get_connection_request_count(),
+                               date=date, bio=bio)
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -827,23 +828,26 @@ def edit_profile() -> object:
                     "UPDATE UserProfile SET bio=?, gender=?, birthday=? "
                     "WHERE username=?;",
                     (bio, gender, dob, username,))
-                # Inserts new hobbies and interests into the database.
-                for hobby in hobbies:
-                    cur.execute("SELECT hobby FROM UserHobby WHERE "
-                                "username=? AND hobby=?;",
-                                (username, hobby,))
-                    if cur.fetchone() is None:
-                        cur.execute("INSERT INTO UserHobby (username, hobby)"
-                                    "VALUES (?, ?);",
+                # Inserts new hobbies and interests into the database if the
+                # user made a new input.
+                if hobbies != [""]:
+                    for hobby in hobbies:
+                        cur.execute("SELECT hobby FROM UserHobby WHERE "
+                                    "username=? AND hobby=?;",
                                     (username, hobby,))
-                for interest in interests:
-                    cur.execute("SELECT interest FROM UserInterests WHERE "
-                                "username=? AND interest=?;",
-                                (username, interest,))
-                    if cur.fetchone() is None:
-                        cur.execute("INSERT INTO UserInterests "
-                                    "(username, interest) VALUES (?, ?);",
+                        if cur.fetchone() is None:
+                            cur.execute("INSERT INTO UserHobby (username, "
+                                        "hobby) VALUES (?, ?);",
+                                        (username, hobby,))
+                if interests != [""]:
+                    for interest in interests:
+                        cur.execute("SELECT interest FROM UserInterests WHERE "
+                                    "username=? AND interest=?;",
                                     (username, interest,))
+                        if cur.fetchone() is None:
+                            cur.execute("INSERT INTO UserInterests "
+                                        "(username, interest) VALUES (?, ?);",
+                                        (username, interest,))
                 conn.commit()
                 return redirect("/profile")
             # Displays error message(s) stating why their details are invalid.
@@ -1030,12 +1034,14 @@ def validate_edit_profile(bio: str, gender: str, dob: str, profile_pic,
         valid = False
         message.append("Gender must be male, female, or other!")
 
-    # Converts date string to datetime.
-    dob = datetime.strptime(dob, "%Y-%m-%d")
-    # Checks that date of birth is a past date.
-    if datetime.today() < dob:
-        valid = False
-        message.append("Date of birth must be a past date!")
+    # Only performs check if a new date of birth was entered.
+    if dob != "":
+        # Converts date string to datetime.
+        dob = datetime.strptime(dob, "%Y-%m-%d")
+        # Checks that date of birth is a past date.
+        if datetime.today() < dob:
+            valid = False
+            message.append("Date of birth must be a past date!")
 
     # Checks that the bio has a maximum of 160 characters.
     if len(bio) > 160:
