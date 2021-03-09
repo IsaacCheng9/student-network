@@ -1498,7 +1498,7 @@ def get_achievements(username : str) -> Tuple[object, object]:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets unlocked achievements, sorted by XP descending.
-        cur.execute("SELECT description, icon, rarity, xp_value, achievement_name, rarity "
+        cur.execute("SELECT description, icon, rarity, xp_value, achievement_name "
                     "FROM CompleteAchievements "
                     "INNER JOIN Achievements ON CompleteAchievements"
                     ".achievement_ID = Achievements.achievement_ID "

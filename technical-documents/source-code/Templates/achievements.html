@@ -136,7 +136,7 @@ according to achievement level
         </div>
 
         {% for achievement in unlocked_achievements %}
-        <div class="ui one wide column achievement" data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[5]}}-glow">{{achievement[5]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>' style="text-align: center;">
+        <div class="ui one wide column achievement" data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[2]}}-glow">{{achievement[2]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>' style="text-align: center;">
             <i class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon"></i>
         </div>
         {% endfor %}
@@ -146,7 +146,7 @@ according to achievement level
         </div>
 
         {% for achievement in locked_achievements %}
-        <div class="ui one wide column" data-title="{{achievement[4]}}" data-content="{{achievement[0]}}" style="text-align: center;">
+        <div class="ui one wide column" data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[2]}}-glow">{{achievement[2]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>' style="text-align: center;">
             <div class="overlay achievement"><i class="icon lock big"></i></div>
             <i class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon"></i>
         </div>

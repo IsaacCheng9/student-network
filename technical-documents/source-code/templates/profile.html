@@ -159,7 +159,7 @@
 
                 <div class="ui icons" style="text-align: center;">
                     {% for achievement in unlocked_achievements %}
-                    <div class="achievement" style="display: inline-block;" data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[5]}}-glow">{{achievement[5]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>' style="text-align: center;">
+                    <div class="achievement" style="display: inline-block;" data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[2]}}-glow">{{achievement[2]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>' style="text-align: center;">
                         <i class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon" data-title="{{achievement[4]}}" data-content='{{achievement[0]}} | {{achievement[3]}} XP'></i>
                     </div>
                     {% endfor %}
