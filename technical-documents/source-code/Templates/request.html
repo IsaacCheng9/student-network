@@ -7,7 +7,7 @@
         {% for i in range(requests|length) %}
         <div class="item">
             <div class="ui mini buttons right floated">
-                <form action="{{ url_for('accept', username=requests[i]) }}" method="GET">
+                <form action="{{ url_for('accept_connection_request', username=requests[i]) }}" method="GET">
                     <button class="ui green button tiny">
                         <i class="user icon"></i>
                         Accept

@@ -57,6 +57,15 @@ filename='styles/semantic.css') }}>
                         </div>
                     </div>
                     <div class="twelve wide stretched column">
+                      {%if errors|length > 0%}
+                       <div class="ui red message">
+                          {% for error in errors %}
+                           <div class="ui list">
+                               <div class="item">{{error}}</div>
+                           </div>
+                           {%endfor%}
+                       </div>
+                       {%endif%}
                         <div class="ui segment" id="profile">
                             <!-- name bio gender birthday profile_picture hobbies interests -->
                             <form action="/edit-profile" method="POST" class="ui form" enctype="multipart/form-data">
