@@ -1136,9 +1136,9 @@ def profile(username):
 
     percentage_level = 100 * float(current_xp) / float(xp_next_level)
     progress_color = "green"
-    if perc_of_level < 75: progress_color = "orange"
-    if perc_of_level < 50: progress_color = "yellow"
-    if perc_of_level < 25: progress_color = "red"
+    if percentage_level < 75: progress_color = "orange"
+    if percentage_level < 50: progress_color = "yellow"
+    if percentage_level < 25: progress_color = "red"
     print(conn_type)
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
