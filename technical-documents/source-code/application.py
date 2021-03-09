@@ -788,9 +788,9 @@ def submit_post():
                     print(len(results))
                     if len(results) >= 20:
                         apply_achievement(session["username"], 9)
-
-        #Prints error message missing title on top of page
-        session["error"]=["Missing Title!"]
+        else:
+            #Prints error message missing title on top of page
+            session["error"]=["Missing Title!"]
     except:
         conn.rollback()
         #Prints error message in case post couldnt be created
