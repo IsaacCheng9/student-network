@@ -155,19 +155,32 @@ def connect_request(username):
     return redirect("/profile/" + username)
 
 
-@application.route("/achievements", methods=["GET", "POST"])
+@application.route("/achievements", methods=["GET"])
 def achievements() -> object:
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute("SELECT description, icon FROM CompleteAchievements "
-                    "INNER JOIN Achievements ON CompleteAchievements.achievement_ID = Achievements.achievement_ID "
-                    "WHERE username=?;",
-                    (session["username"],))
-        achievements = cur.fetchall()
-        conn.commit()
-    return render_template("achievements.html", achievements=achievements,
-                           requestCount=get_connection_request_count(),
-                           allUsernames=get_all_usernames())
+    """
+    Display achievements which the user has unlocked/locked.
+
+    Returns:
+        The web page for viewing achievements.
+    """
+
+    unlocked_achievements, locked_achievements = get_achievements()
+
+    percentage = int(100 * len(unlocked_achievements) /
+                 (len(unlocked_achievements) + len(locked_achievements)))
+
+    percentage_color = "green"
+    if percentage < 66: percentage_color = "orange"
+    if percentage < 33: percentage_color = "red"
+
+    return render_template("achievements.html",
+                            unlocked_achievements=unlocked_achievements,
+                            locked_achievements=locked_achievements,
+                            requestCount=get_connection_request_count(),
+                            allUsernames=get_all_usernames(),
+                            percentage=percentage,
+                            percentage_color=percentage_color)
+
 
 
 @application.route("/accept/<username>", methods=["GET", "POST"])
@@ -943,6 +956,7 @@ def profile(username):
             data = row[0]
             name, bio, gender, birthday, profile_picture = (
                 data[0], data[1], data[2], data[3], data[4])
+
     # Gets account type.
     cur.execute(
         "SELECT type FROM "
@@ -964,12 +978,16 @@ def profile(username):
     if len(row) > 0:
         interests = row
 
+    # Gets the user's emails.
     cur.execute("SELECT email from ACCOUNTS WHERE username=?;",
                 (username,))
     row = cur.fetchall()
-
     if len(row) > 0:
         email = row[0][0]
+
+    # Gets the user's six rarest achievements.
+    unlocked_achievements, locked_achievements = get_achievements()
+    first_six = unlocked_achievements[0:min(6, len(unlocked_achievements))]
 
     set = []
     if username == session["username"]:
@@ -1040,7 +1058,6 @@ def profile(username):
     else:
         conn_type = "close"
     session["prev-page"] = request.url
-    print(conn_type)
 
     # Award achievement ID 1 - Look at you if necessary
     if username == session["username"]:
@@ -1076,6 +1093,7 @@ def profile(username):
                            age=age, hobbies=hobbies, account_type=account_type,
                            interests=interests,
                            email=email, posts=userPosts, type=conn_type,
+                           unlocked_achievements=first_six,
                            allUsernames=get_all_usernames(),
                            requestCount=get_connection_request_count(),
                            level=level, current_xp=int(current_xp),
@@ -1437,6 +1455,35 @@ def get_all_connections(username) -> list:
         set = cur.fetchall()
 
         return set
+
+
+def get_achievements() -> Tuple[object, object]:
+    """
+    Gets unlocked and locked achievements for the user.
+
+    Returns:
+        A list of unlocked and locked achievements and their details.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        # Gets unlocked achievements, sorted by XP descending.
+        cur.execute("SELECT description, icon, rarity, xp_value, achievement_name "
+                    "FROM CompleteAchievements "
+                    "INNER JOIN Achievements ON CompleteAchievements"
+                    ".achievement_ID = Achievements.achievement_ID "
+                    "WHERE username=?;",
+                    (session["username"],))
+        unlocked_achievements = cur.fetchall()
+        unlocked_achievements.sort(key=lambda x: x[3], reverse=True)
+
+        # Get locked achievements, sorted by XP ascending.
+        cur.execute("SELECT description, icon, rarity, xp_value, achievement_name FROM Achievements")
+        all_achievements = cur.fetchall()
+        locked_achievements = list(
+            set(all_achievements) - set(unlocked_achievements))
+        locked_achievements.sort(key=lambda x: x[3])
+
+    return unlocked_achievements, locked_achievements
 
 
 def am_close_friend(username) -> bool:

@@ -1,11 +1,70 @@
 {% extends "base.html" %}
 {% block title %}Profile{% endblock %}
 {% block content %}
+
+<style>
+    .gold {
+        background: conic-gradient(#edc800, #e3b600, #f3cf00, #ffe800,
+                #edc800, #e3b600, #f3cf00, #ffe800,
+                #edc800, #e3b600, #f3cf00, #ffe800,
+                #edc800, #e3b600, #f3cf00, #ffe800);
+    }
+
+    .silver {
+        background: conic-gradient(#d7d7d7, #c3c3c3, #cccccc, #c6c6c6,
+                #d7d7d7, #c3c3c3, #cccccc, #c6c6c6,
+                #d7d7d7, #c3c3c3, #cccccc, #c6c6c6,
+                #d7d7d7, #c3c3c3, #cccccc, #c6c6c6);
+    }
+
+    .bronze {
+        background: conic-gradient(#d95641, #b14439, #b2453a, #d25645,
+                #d95641, #b14439, #b2453a, #d25645,
+                #d95641, #b14439, #b2453a, #d25645,
+                #d95641, #b14439, #b2453a, #d25645);
+    }
+
+    .platinum {
+        background: conic-gradient(#e6e9bf, #d2b5aa, #cbaea3, #d4b5ab,
+                #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab,
+                #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab,
+                #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab);
+    }
+    
+    .achievement-icon {
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        
+        background-clip: text;
+        text-fill-color: transparent;
+    }
+    
+    .achievement:hover .achievement-icon {
+        animation-duration: 300ms;
+        animation-name: achievement-hover;
+    }
+    
+    @keyframes achievement-hover {
+        0% {
+            transform: scaleX(1) scaleY(1);
+        }
+        20% {
+            transform: scaleX(0.8) scaleY(1.1);
+        }
+        50% {
+            transform: scaleX(1.2) scaleY(0.9);
+        }
+        100% {
+            transform: scaleX(1) scaleY(1);
+        }
+    }
+</style>
+
 <div class="ui segment">
     <div class="ui grid container">
         <div class="row">
             <div class="five wide column">
-                <img class="fluid rounded" src="{{profile_picture}}"/>
+                <img class="fluid rounded" src="{{profile_picture}}" />
             </div>
             <div class="eleven wide column">
                 <div class="ui list">
@@ -43,15 +102,14 @@
                 </div>
                 <div class="ui list">
                     <div class="item"><b>Studying Biology at University of
-                        Bristol</b></div>
+                            Bristol</b></div>
                 </div>
                 <p>{{bio}}</p>
                 {% if username != session["username"] and session["username"]
                 %}
                 <div class="ui buttons right floated">
                     {% if type == None %}
-                    <form action="{{ url_for('connect_request', username=username) }}"
-                          method="POST">
+                    <form action="{{ url_for('connect_request', username=username) }}" method="POST">
                         <button class="ui blue button tiny">
                             <i class="user icon"></i>
                             Connect
@@ -59,8 +117,7 @@
                     </form>
                     {% endif %}
                     {% if type == "request" %}
-                    <form action="{{ url_for('remove_connection', username=username) }}"
-                          method="GET">
+                    <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
                         <button class="ui grey button tiny">
                             <i class="bell slash icon"></i>
                             Pending
@@ -68,8 +125,7 @@
                     </form>
                     {% endif %}
                     {% if type == "incoming" %}
-                    <form action="{{ url_for('accept', username=username) }}"
-                          method="GET">
+                    <form action="{{ url_for('accept', username=username) }}" method="GET">
                         <button class="ui green button tiny">
                             <i class="user icon"></i>
                             Accept Request
@@ -77,8 +133,7 @@
                     </form>
                     {% endif %}
                     {% if type == "connected" %}
-                    <form action="{{ url_for('close_connection', username=username) }}"
-                          method="GET">
+                    <form action="{{ url_for('close_connection', username=username) }}" method="GET">
                         <button class="ui blue button tiny">
                             <i class="handshake outline icon"></i>
                             Mark as close friend
@@ -86,8 +141,7 @@
                     </form>
                     {% endif %}
                     {% if type == "close" %}
-                    <form action="{{ url_for('remove_close', username=username) }}"
-                          method="GET">
+                    <form action="{{ url_for('remove_close', username=username) }}" method="GET">
                         <button class="ui green button tiny">
                             <i class="handshake outline icon"></i>
                             Close Friends
@@ -95,8 +149,7 @@
                     </form>
                     {% endif %}
                     {% if type == "connected" or type == "close" %}
-                    <form action="{{ url_for('remove_connection', username=username) }}"
-                          method="GET">
+                    <form action="{{ url_for('remove_connection', username=username) }}" method="GET">
                         <button class="ui green button tiny">
                             <i class="user icon"></i>
                             Connected
@@ -140,22 +193,32 @@
                     <div class="ui divider hidden"></div>
                 </div>
                 <div class="ui divider horizontal">Hobbies</div>
-                <div class="ui medium teal labels">
+                <div class="ui medium teal labels" style="text-align: center;">
                     {% for hobby in hobbies %}
                     <a class="ui label">{{hobby[0]}}</a>
                     {%endfor%}
                 </div>
                 <div class="ui divider horizontal">Interests</div>
-                <div class="ui medium orange labels">
+                <div class="ui medium orange labels" style="text-align: center;">
                     {% for interest in interests %}
                     <a class="ui label">{{interest[0]}}</a>
                     {% endfor %}
                 </div>
+                
+                <div class="ui horizontal divider">Achievements</div>
+                
+                <div class="ui icons" style="text-align: center;">
+                   {% for achievement in unlocked_achievements %}
+                    <div class="achievement" style="display: inline-block;">
+                        <i class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon" data-title="{{achievement[4]}}" data-content='{{achievement[0]}} | {{achievement[3]}} XP'></i>
+                    </div>
+                    {% endfor %}
+                </div>
+                
                 <div class="ui horizontal divider">Socials</div>
                 <div class="ui grid two column container stackable">
                     <div class="column">
-                        <button class="ui button facebook icon fluid mini"><i
-                                class="facebook icon"></i>
+                        <button class="ui button facebook icon fluid mini"><i class="facebook icon"></i>
                             Facebook
                         </button>
                     </div>
@@ -166,25 +229,21 @@
                         </button>
                     </div>
                     <div class="column">
-                        <button class="ui button linkedin icon fluid mini"><i
-                                class="linkedin icon"></i>
+                        <button class="ui button linkedin icon fluid mini"><i class="linkedin icon"></i>
                             LinkedIn
                         </button>
                     </div>
                     <div class="column">
-                        <button class="ui button twitter icon fluid mini"><i
-                                class="twitter icon"></i> Twitter
+                        <button class="ui button twitter icon fluid mini"><i class="twitter icon"></i> Twitter
                         </button>
                     </div>
                     <div class="column">
-                        <button class="ui button instagram icon fluid mini"><i
-                                class="instagram icon"></i>
+                        <button class="ui button instagram icon fluid mini"><i class="instagram icon"></i>
                             Instagram
                         </button>
                     </div>
                     <div class="column">
-                        <button class="ui button youtube icon fluid mini"><i
-                                class="youtube icon"></i> YouTube
+                        <button class="ui button youtube icon fluid mini"><i class="youtube icon"></i> YouTube
                         </button>
                     </div>
                 </div>
@@ -197,8 +256,7 @@
             {% for post in posts.UserPosts %}
             <div class="ui grid">
                 <div class="two wide column">
-                    <img class="ui image centered rounded"
-                         src="https://via.placeholder.com/500" alt=""/>
+                    <img class="ui image centered rounded" src="https://via.placeholder.com/500" alt="" />
                 </div>
                 <div class="fourteen wide column">
                     <h2>
@@ -220,4 +278,14 @@
         </div>
     </div>
 </div>
+
+<!-- Use static/local versions instead of this cdnjs link -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+
+<script>
+    $('[data-title]').popup();
+</script>
+
 {%endblock%}
