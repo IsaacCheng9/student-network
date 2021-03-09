@@ -963,13 +963,8 @@ def profile(username):
     birthday = ""
     profile_picture = ""
     email = ""
-    xp_next_level = ""
-    current_xp = ""
-    level = ""
-    level_data = []
     hobbies = []
     interests = []
-    account_type = ""
     message = []
 
     with sqlite3.connect("database.db") as conn:
@@ -1082,7 +1077,6 @@ def profile(username):
     user_posts = {
         "UserPosts": []
     }
-    i = 0
 
     for post in sort_posts:
         add = ""
@@ -1173,7 +1167,7 @@ def edit_profile() -> object:
         cur.execute(
             "SELECT birthday FROM UserProfile WHERE username=?",
             (session["username"],))
-        date = cur.fetchall()[0][0]
+        dob = cur.fetchall()[0][0]
         cur.execute(
             "SELECT bio FROM UserProfile WHERE username=?",
             (session["username"],))
@@ -1183,7 +1177,7 @@ def edit_profile() -> object:
     if request.method == "GET":
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
-                               date=date, bio=bio, errors=[])
+                               date=dob, bio=bio, errors=[])
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -1256,7 +1250,7 @@ def edit_profile() -> object:
                 return render_template(
                     "settings.html", errors=message,
                     requestCount=get_connection_request_count(),
-                    allUsernames=get_all_usernames(), date=date, bio=bio)
+                    allUsernames=get_all_usernames(), date=dob, bio=bio)
 
 
 @application.route("/logout", methods=["GET"])
@@ -1274,7 +1268,7 @@ def logout():
     return redirect("/")
 
 
-def allowed_file(filename):
+def allowed_file(filename) -> bool:
     """
     Checks if the file is an allowed type.
 
@@ -1289,6 +1283,13 @@ def allowed_file(filename):
 
 
 def apply_achievement(username: str, achievement_id: int):
+    """
+    Marks an achievement as unlocked by the user.
+
+    Args:
+        username: The user who unlocked the achievement.
+        achievement_id: The ID of the achievement unlocked.
+    """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
@@ -1315,6 +1316,7 @@ def calculate_age(born):
 
     Args:
         born: The user's date of birth.
+
     Returns:
         The age of the user in years.
     """
@@ -1324,6 +1326,12 @@ def calculate_age(born):
 
 
 def check_level_exists(username: str):
+    """
+    Checks that a user has a record in the database for their level.
+
+    Args:
+        username: The username of the user to check.
+    """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
@@ -1430,6 +1438,7 @@ def get_connection_type(username: str):
 
     Args:
         username: The user to check the connection type with.
+
     Returns:
         The type of connection with the specified user.
     """
@@ -1460,16 +1469,14 @@ def get_connection_type(username: str):
 
 def get_level(username) -> List[int]:
     """
-    gets the current user experience points, the experience points
-    for the next level and the user's current level from the database
+    Gets the current user experience points, the experience points
+    for the next level and the user's current level from the database.
 
     Args:
-        username: username of the user logged in
+        username: The username of the user logged in.
 
     Returns:
-        level
-        current xp
-        xp next level
+        The user's level, XP, and XP to reach the next level.
     """
     level = 1
     xp_next_level = 100
@@ -1497,7 +1504,7 @@ def is_close_friend(username) -> bool:
     Gets whether the selected user has the logged in as a close friend.
 
     Returns:
-        True if logged in is a close friend, false if not
+        Whether the user is a close friend of the user (True/False).
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
