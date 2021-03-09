@@ -768,22 +768,15 @@ def edit_profile() -> object:
     Returns:
         The updated profile page if the details provided were valid.
     """
-
-    date = "01-01-1970"
-    bio = "Default bio"
-
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT birthday FROM UserProfile WHERE username=?",
             (session["username"],))
-
         date = cur.fetchall()[0][0]
-
         cur.execute(
             "SELECT bio FROM UserProfile WHERE username=?",
             (session["username"],))
-
         bio = cur.fetchall()[0][0]
 
     # Renders the edit profile form if they navigated to this page.
@@ -965,6 +958,12 @@ def validate_registration(
     if not all(x.isalpha() or x.isspace() for x in full_name):
         message.append("Full name must only contain letters, numbers and "
                        "spaces!")
+        valid = False
+
+    # Checks that the email hasn't already been registered.
+    cur.execute("SELECT * FROM Accounts WHERE email=?;", (email,))
+    if cur.fetchone() is not None:
+        message.append("Email has already been registered!")
         valid = False
 
     # Checks that the email address has the correct format, checks whether it
