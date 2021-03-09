@@ -122,7 +122,7 @@ def connect_request(username):
 
 
 @application.route("/accept/<username>", methods=["GET", "POST"])
-def accept(username) -> object:
+def accept_connection_request(username) -> object:
     """
     Accepts the connect request from another user on the network.
 
@@ -159,7 +159,7 @@ def accept(username) -> object:
 
 
 @application.route("/remove_close/<username>")
-def remove_close(username: str) -> object:
+def remove_close_friend(username: str) -> object:
     """
     Removes a connection with the given user.
 
@@ -226,7 +226,7 @@ def remove_connection(username: str) -> object:
 
 
 @application.route("/requests", methods=["GET", "POST"])
-def show_requests() -> object:
+def show_connect_requests() -> object:
     """
     Shows connect requests made to the user.
 
