@@ -407,23 +407,9 @@ def accept_connection_request(username: str) -> object:
                     # Get connections
                     cons_user2 = get_all_connections(username)
 
-<<<<<<< HEAD
-                    # Get user degree and connections different
-                    cur.execute(
-                        "SELECT degree from UserProfile "
-                        "WHERE username=?;", (session["username"],)
-                    )
-                    degree = cur.fetchone()[0]
-                    cur.execute(
-                        "SELECT degree from UserProfile "
-                        "WHERE username=?;", (username,)
-                    )
-                    degree_user2 = cur.fetchone()[0]
-=======
                     # Get user degree and connections degree
                     degree = get_degree(session["username"])[0]
                     degree_user2 = get_degree(username)[0]
->>>>>>> 3e7d94fed939249cd5422d998535a521174b5a96
 
                     # Get count of connections who study a different degree
                     valid_user_count = 0
@@ -1983,19 +1969,14 @@ def get_profile_picture(username: str) -> str:
         row = cur.fetchone()
         if row:
             return row[0]
-<<<<<<< HEAD
-=======
 
 def get_degree(username: str) -> Tuple[int, str]:
     """
     Gets the degree of a user.
->>>>>>> 3e7d94fed939249cd5422d998535a521174b5a96
 
     Args:
         username: The username of the user's profile picture.
 
-<<<<<<< HEAD
-=======
     Returns:
         The degree of the user.
         The degreeID of the user.
@@ -2015,7 +1996,6 @@ def get_degree(username: str) -> Tuple[int, str]:
             degree = cur.fetchone()
             return degreeId[0], degree[0]
 
->>>>>>> 3e7d94fed939249cd5422d998535a521174b5a96
 def is_close_friend(username: str) -> bool:
     """
     Gets whether the selected user has the logged in as a close friend.
