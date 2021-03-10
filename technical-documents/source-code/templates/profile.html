@@ -159,8 +159,13 @@
 
                 <div class="ui icons" style="text-align: center;">
                     {% for achievement in unlocked_achievements %}
-                    <div class="achievement" style="display: inline-block;" data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;" class="{{achievement[2]}}-glow">{{achievement[2]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>' style="text-align: center;">
-                        <i class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon" data-title="{{achievement[4]}}" data-content='{{achievement[0]}} | {{achievement[3]}} XP'></i>
+                    <div class="achievement" style="display: inline-block;"
+                        data-html='<div class="header">{{achievement[4]}}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;"
+                        class="{{achievement[2]}}-glow">{{achievement[2]}}</div>{{achievement[0]}}<br><b>{{achievement[3]}} XP</b>'
+                        style="text-align: center;">
+                        <i class="icon {{ achievement[1] }} big {{achievement[2]}} achievement-icon"
+                        data-title="{{achievement[4]}}"
+                        data-content='{{achievement[0]}} | {{achievement[3]}} XP'></i>
                     </div>
                     {% endfor %}
 
@@ -287,10 +292,19 @@
                     </button>
                     <form action="{{ url_for('remove_connection', username=username) }}" method="GET" id="connected-remove-connection"></form>
                     {% endif %}
-                    <button class="ui red button tiny">
+                    {% if type == "block" %}
+                    <button class="ui red button tiny" form="unblock-button">
+                        <i class="bell slash icon"></i>
+                        Blocked
+                    </button>
+                    <form action="{{ url_for('unblock_user', username=username) }}" method="GET" id="unblock-button"></form>
+                    {% else %}
+                    <button class="ui red button tiny" form="block-button">
                         <i class="bell slash icon"></i>
                         Block
                     </button>
+                    <form action="{{ url_for('block_user', username=username) }}" method="GET" id="block-button"></form>
+                    {% endif %}
                 </div>
                 </div>
                 </div>
