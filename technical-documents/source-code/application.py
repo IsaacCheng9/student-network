@@ -1064,8 +1064,7 @@ def profile(username):
     # Gets the user's posts.
     if username == session["username"]:
         cur.execute(
-            "SELECT * "
-            "FROM POSTS WHERE username=?", (username,))
+            "SELECT * FROM POSTS WHERE username=?", (username,))
         sort_posts = cur.fetchall()
     else:
         connections = get_all_connections(username)
@@ -1083,14 +1082,12 @@ def profile(username):
                 sort_posts = cur.fetchall()
             else:
                 cur.execute(
-                    "SELECT * "
-                    "FROM POSTS WHERE username=? "
+                    "SELECT * FROM POSTS WHERE username=? "
                     "AND privacy!='private' AND privacy!='close'", (username,))
                 sort_posts = cur.fetchall()
         else:
             cur.execute(
-                "SELECT * "
-                "FROM POSTS WHERE username=? AND privacy='public'",
+                "SELECT * FROM POSTS WHERE username=? AND privacy='public'",
                 (username,))
             sort_posts = cur.fetchall()
 
