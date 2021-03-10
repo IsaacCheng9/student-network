@@ -1408,7 +1408,7 @@ def profile(username: str) -> object:
             apply_achievement(session["username"], 1)
 
     # Award achievement ID 23 - Look at you if necessary
-    # Set meeting to allow for secret achievement to be earned
+    # Set meeting to True to allow for secret achievement to be earned
     meeting_now = False                       
     if session["username"] and meeting_now:
         cur.execute(
