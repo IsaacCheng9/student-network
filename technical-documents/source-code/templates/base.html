@@ -90,7 +90,7 @@
                         %}><i class="users icon"></i> Members</a>
                     
                     <div class="right menu">
-                        <a class="ui item">
+                        <a href="{{url_for('user_profile')}}" class="ui item">
                             Logged in as {{session["username"]}}
                         </a>
                         <a href="/logout" class="ui item"><i class="key icon"></i>Logout</a>
