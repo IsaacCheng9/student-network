@@ -392,7 +392,7 @@ def show_connect_requests() -> object:
         avatars = []
         cur = conn.cursor()
 
-        # Extract incoming requests
+        # Extracts incoming requests.
         cur.execute(
             "SELECT Connection.user1, UserProfile.profilepicture FROM "
             "Connection LEFT JOIN UserProfile ON Connection.user1 = "
@@ -404,8 +404,8 @@ def show_connect_requests() -> object:
             for elem in row:
                 requests.append(elem[0])
                 avatars.append(elem[1])
-        
-        # Extract connections
+
+        # Extracts connections.
         cur.execute(
             "SELECT Connection.user1, UserProfile.profilepicture FROM "
             "Connection LEFT JOIN UserProfile ON Connection.user1 = "
@@ -419,19 +419,19 @@ def show_connect_requests() -> object:
             (session["username"], "connected"))
         connections2 = cur.fetchall()
 
-        # Extract pending requests
+        # Extracts pending requests.
         cur.execute(
             "SELECT Connection.user2, UserProfile.profilepicture FROM "
             "Connection LEFT JOIN UserProfile ON Connection.user2 = "
             "UserProfile.username WHERE user1=? AND connection_type=?;",
             (session["username"], "request"))
-        pendingConnections = cur.fetchall()
+        pending_connections = cur.fetchall()
 
-        # list of usernames of all connected people
+        # Lists usernames of all connected people.
         connections = connections1 + connections2
-        # add a is close friend to the list
-        connections = list(map(lambda x: (x[0], x[1], is_close_friend(x[0])), connections))
-        # sort by close friends first
+        # Adds a close friend to the list, and sorts by close friends first.
+        connections = list(
+            map(lambda x: (x[0], x[1], is_close_friend(x[0])), connections))
         connections = sorted(connections, key=lambda x: x[2], reverse=True)
 
     session["prev-page"] = request.url
@@ -439,7 +439,8 @@ def show_connect_requests() -> object:
     return render_template("request.html", requests=requests, avatars=avatars,
                            allUsernames=get_all_usernames(),
                            requestCount=get_connection_request_count(),
-                           connections=connections, pending=pendingConnections)
+                           connections=connections,
+                           pending=pending_connections)
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -975,12 +976,6 @@ def profile(username):
     Returns:
         The updated web page based on whether the details provided were valid.
     """
-    name = ""
-    bio = ""
-    gender = ""
-    birthday = ""
-    profile_picture = ""
-    degree = ""
     email = ""
     hobbies = []
     interests = []
@@ -1189,7 +1184,7 @@ def edit_profile() -> object:
         The updated profile page if the details provided were valid.
     """
     degrees = {
-        "degrees":[]
+        "degrees": []
     }
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -1201,15 +1196,15 @@ def edit_profile() -> object:
             "SELECT bio FROM UserProfile WHERE username=?",
             (session["username"],))
         bio = cur.fetchall()[0][0]
-        
-        #gets all possible degrees 
+
+        # gets all possible degrees
         cur.execute(
-            "SELECT * FROM Degree",)
+            "SELECT * FROM Degree", )
         degree_list = cur.fetchall()
         for item in degree_list:
             degrees["degrees"].append({
-            "degreeId": item[0],
-            "degree": item[1]
+                "degreeId": item[0],
+                "degree": item[1]
             })
 
     # Renders the edit profile form if they navigated to this page.
@@ -1256,8 +1251,8 @@ def edit_profile() -> object:
                          + ".jpg", degree, username,))
                 else:
                     cur.execute(
-                        "UPDATE UserProfile SET bio=?, gender=?, birthday=?, degree=?"
-                        "WHERE username=?;",
+                        "UPDATE UserProfile SET bio=?, gender=?, birthday=?, "
+                        "degree=? WHERE username=?;",
                         (bio, gender, dob, degree, username,))
 
                 # Inserts new hobbies and interests into the database if the
@@ -1361,7 +1356,7 @@ def calculate_age(born):
     """
     today = date.today()
     return today.year - born.year - (
-        (today.month, today.day) < (born.month, born.day))
+            (today.month, today.day) < (born.month, born.day))
 
 
 def check_level_exists(username: str):
