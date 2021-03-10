@@ -1646,6 +1646,15 @@ def edit_profile() -> object:
                          application.config[
                              'UPLOAD_FOLDER'] + "/avatars/" + file_name_hashed
                          + ".jpg", degree, username,))
+
+                    # Award achievement ID 18 - Describe yourself if necessary
+                    cur.execute(
+                        "SELECT * FROM CompleteAchievements "
+                        "WHERE (username=? AND achievement_ID=?);",
+                        (session["username"], 18))
+                    if cur.fetchone() is None:
+                        apply_achievement(username, 18)
+
                 else:
                     cur.execute(
                         "UPDATE UserProfile SET bio=?, gender=?, birthday=?, "
