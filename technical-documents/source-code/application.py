@@ -167,7 +167,7 @@ def connect_request(username: str) -> object:
 
 
 @application.route("/unblock_user/<username>", methods=["GET", "POST"])
-def unblock_user(username: str):
+def unblock_user(username: str) -> object:
     """
     Unblocks a given user.
 
@@ -202,16 +202,18 @@ def members() -> object:
     return render_template("members.html",
                            requestCount=get_connection_request_count())
 
+
 @application.route("/quizzes", methods=["GET"])
 def quizzes() -> object:
+    return render_template("quizzes.html",
+                           requestCount=get_connection_request_count())
 
-
-    return render_template("quizzes.html", requestCount=get_connection_request_count())
 
 @application.route("/quiz", methods=["GET"])
 def quiz() -> object:
+    return render_template("quiz.html",
+                           requestCount=get_connection_request_count())
 
-    return render_template("quiz.html", requestCount=get_connection_request_count())
 
 @application.route("/leaderboard", methods=["GET"])
 def leaderboard() -> object:
@@ -237,7 +239,7 @@ def leaderboard() -> object:
             top_users = top_users[0:min(25, len(top_users))]
             top_users = list(map(lambda x: (
                 x[0], x[1], get_profile_picture(x[0]), get_level(x[0])),
-                top_users))
+                                 top_users))
 
     return render_template("leaderboard.html", leaderboard=top_users,
                            requestCount=get_connection_request_count(),
@@ -374,7 +376,7 @@ def accept_connection_request(username: str) -> object:
 
                     # Awards achievement ID 16 - Shared interests if necessary.
                     common_interests = set(my_interests) - (
-                        set(my_interests) - set(connection_interests))
+                            set(my_interests) - set(connection_interests))
                     print(common_interests)
                     if common_interests:
                         cur.execute(
@@ -394,7 +396,7 @@ def accept_connection_request(username: str) -> object:
 
                     # Award achievement ID 26 - Shared hobbies if necessary
                     common_hobbies = set(my_hobbies) - (
-                        set(my_hobbies) - set(connection_hobbies))
+                            set(my_hobbies) - set(connection_hobbies))
                     print(common_hobbies)
                     if common_hobbies:
                         cur.execute(
@@ -1007,37 +1009,38 @@ def submit_post() -> object:
     if form_type == "Quiz":
         # Gets quiz details.
         quiz_name = request.form.get("quiz_name")
-        question_1 = [request.form.get("question_1"),
+        date_created = date.today()
+        author = session["username"]
+        questions = [[request.form.get("question_1"),
                       request.form.get("question_1_ans_1"),
                       request.form.get("question_1_ans_2"),
                       request.form.get("question_1_ans_3"),
-                      request.form.get("question_1_ans_4")]
-        question_2 = [request.form.get("question_2"),
+                      request.form.get("question_1_ans_4")],
+                     [request.form.get("question_2"),
                       request.form.get("question_2_ans_1"),
                       request.form.get("question_2_ans_2"),
                       request.form.get("question_2_ans_3"),
-                      request.form.get("question_2_ans_4")]
-        question_3 = [request.form.get("question_3"),
+                      request.form.get("question_2_ans_4")],
+                     [request.form.get("question_3"),
                       request.form.get("question_3_ans_1"),
                       request.form.get("question_3_ans_2"),
                       request.form.get("question_3_ans_3"),
-                      request.form.get("question_3_ans_4")]
-        question_4 = [request.form.get("question_4"),
+                      request.form.get("question_3_ans_4")],
+                     [request.form.get("question_4"),
                       request.form.get("question_4_ans_1"),
                       request.form.get("question_4_ans_2"),
                       request.form.get("question_4_ans_3"),
-                      request.form.get("question_4_ans_4")]
-        question_5 = [request.form.get("question_5"),
+                      request.form.get("question_4_ans_4")],
+                     [request.form.get("question_5"),
                       request.form.get("question_5_ans_1"),
                       request.form.get("question_5_ans_2"),
                       request.form.get("question_5_ans_3"),
-                      request.form.get("question_5_ans_4")]
-        print(quiz_name)
+                      request.form.get("question_5_ans_4")]]
 
         # Adds quiz to the database.
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("INSERT INTO Quiz (quiz_name, question_1, "
+            cur.execute("INSERT INTO Quiz (quiz_name, date_created, author, question_1, "
                         "question_1_ans_1, question_1_ans_2, question_1_ans_3, "
                         "question_1_ans_4, question_2, question_2_ans_1, "
                         "question_2_ans_2, question_2_ans_3, question_2_ans_4, "
@@ -1047,19 +1050,19 @@ def submit_post() -> object:
                         "question_4_ans_4, question_5, question_5_ans_1, "
                         "question_5_ans_2, question_5_ans_3, question_5_ans_4, "
                         "privacy) "
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
                         "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
                         (
-                            quiz_name, question_1[0], question_1[1],
-                            question_1[2],
-                            question_1[3], question_1[4], question_2[0],
-                            question_2[1], question_2[2], question_2[3],
-                            question_2[4], question_3[0], question_3[1],
-                            question_3[2], question_3[3], question_3[4],
-                            question_4[0], question_4[1], question_4[2],
-                            question_4[3], question_4[4], question_5[0],
-                            question_5[1], question_5[2], question_5[3],
-                            question_5[4], post_privacy))
+                            quiz_name, date_created, author, questions[0][0],
+                            questions[0][1], questions[0][2], questions[0][3],
+                            questions[0][4], questions[1][0], questions[1][1],
+                            questions[1][2], questions[1][3], questions[1][4],
+                            questions[2][0], questions[2][1], questions[2][2],
+                            questions[2][3], questions[2][4], questions[3][0],
+                            questions[3][1], questions[3][2], questions[3][3],
+                            questions[3][4], questions[4][0], questions[4][1],
+                            questions[4][2], questions[4][3], questions[4][4],
+                            post_privacy))
             conn.commit()
     else:
         post_title = request.form["post_title"]
@@ -1781,7 +1784,7 @@ def calculate_age(born: datetime) -> int:
     """
     today = date.today()
     return today.year - born.year - (
-        (today.month, today.day) < (born.month, born.day))
+            (today.month, today.day) < (born.month, born.day))
 
 
 def check_level_exists(username: str, conn):
@@ -2108,6 +2111,17 @@ def validate_edit_profile(
             valid = False
             message.append("Interests must not exceed 24 characters!")
             break
+
+    return valid, message
+
+
+def validate_quiz(questions: list) -> Tuple[bool, List[str]]:
+    valid = True
+    message = []
+
+    for question in questions:
+        for detail in question:
+            pass
 
     return valid, message
 
