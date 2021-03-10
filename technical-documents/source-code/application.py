@@ -224,7 +224,7 @@ def leaderboard() -> object:
             top_users = top_users[0:min(25, len(top_users))]
             top_users = list(map(lambda x: (
                 x[0], x[1], get_profile_picture(x[0]), get_level(x[0])),
-                                 top_users))
+                top_users))
 
     return render_template("leaderboard.html", leaderboard=top_users,
                            requestCount=get_connection_request_count(),
@@ -361,7 +361,7 @@ def accept_connection_request(username: str) -> object:
 
                     # Awards achievement ID 16 - Shared interests if necessary.
                     common_interests = set(my_interests) - (
-                            set(my_interests) - set(connection_interests))
+                        set(my_interests) - set(connection_interests))
                     print(common_interests)
                     if common_interests:
                         cur.execute(
@@ -371,7 +371,7 @@ def accept_connection_request(username: str) -> object:
                         if cur.fetchone() is None:
                             apply_achievement(session["username"], 16)
 
-                        # Award achievement ID 16 to connected user        
+                        # Award achievement ID 16 to connected user
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
                             "WHERE (username=? AND achievement_ID=?);",
@@ -381,7 +381,7 @@ def accept_connection_request(username: str) -> object:
 
                     # Award achievement ID 26 - Shared hobbies if necessary
                     common_hobbies = set(my_hobbies) - (
-                            set(my_hobbies) - set(connection_hobbies))
+                        set(my_hobbies) - set(connection_hobbies))
                     print(common_hobbies)
                     if common_hobbies:
                         cur.execute(
@@ -391,7 +391,7 @@ def accept_connection_request(username: str) -> object:
                         if cur.fetchone() is None:
                             apply_achievement(session["username"], 26)
 
-                        # Award achievement ID 26 to connected user   
+                        # Award achievement ID 26 to connected user
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
                             "WHERE (username=? AND achievement_ID=?);",
@@ -1201,7 +1201,7 @@ def like_post() -> object:
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 24)
 
-            # Award achievement ID 25 - Loving everything if necessary        
+            # Award achievement ID 25 - Loving everything if necessary
             elif row == 500:
                 cur.execute(
                     "SELECT * FROM CompleteAchievements "
@@ -1728,7 +1728,7 @@ def calculate_age(born: datetime) -> int:
     """
     today = date.today()
     return today.year - born.year - (
-            (today.month, today.day) < (born.month, born.day))
+        (today.month, today.day) < (born.month, born.day))
 
 
 def check_level_exists(username: str, conn):
