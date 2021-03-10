@@ -160,6 +160,7 @@ def connect_request(username):
 
     return redirect("/profile/" + username)
 
+
 @application.route("/leaderboard", methods=["GET"])
 def leaderboard() -> object:
     return render_template("leaderboard.html", 
@@ -649,7 +650,8 @@ def post(post_id):
                     title=title, body=body, username=username,
                     date=date_posted, likes=likes, accountType=account_type,
                     comments=None, requestCount=get_connection_request_count(),
-                    allUsernames=get_all_usernames(), avatar=get_profile_picture(username))
+                    allUsernames=get_all_usernames(),
+                    avatar=get_profile_picture(username))
             for comment in row:
                 time = datetime.strptime(
                     comment[3], "%Y-%m-%d %H:%M:%S").strftime("%d-%m-%y %H:%M")
@@ -665,7 +667,8 @@ def post(post_id):
                 body=body, username=username, date=date_posted, likes=likes,
                 accountType=account_type, comments=comments,
                 requestCount=get_connection_request_count(),
-                allUsernames=get_all_usernames(), avatar=get_profile_picture(username))
+                allUsernames=get_all_usernames(),
+                avatar=get_profile_picture(username))
 
 
 @application.route("/feed", methods=["GET"])
@@ -1543,6 +1546,27 @@ def get_level(username) -> List[int]:
         return [level, xp, xp_next_level]
 
 
+def get_profile_picture(username: str) -> str:
+    """
+    Gets the profile picture of a user.
+
+    Args:
+        username: The username of the user's profile picture.
+
+    Returns:
+        The profile picture of the user.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT profilepicture FROM UserProfile WHERE username=?;",
+            (username,)
+        )
+        row = cur.fetchone()
+
+    return row[0]
+
+
 def is_close_friend(username) -> bool:
     """
     Gets whether the selected user has the logged in as a close friend.
@@ -1617,17 +1641,6 @@ def validate_edit_profile(
             break
 
     return valid, message
-
-def get_profile_picture(username : str) -> str:
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT profilepicture FROM UserProfile WHERE username=?;",
-            (username, )
-        )
-        row = cur.fetchone()
-        
-    return row[0]
 
 
 def validate_registration(
