@@ -9,7 +9,7 @@ import sqlite3
 import uuid
 from datetime import date, datetime
 from string import capwords
-from typing import Tuple
+from typing import Tuple, List
 
 from PIL import Image
 from email_validator import validate_email, EmailNotValidError
@@ -1928,7 +1928,7 @@ def get_connection_type(username: str):
                 return None
 
 
-def get_level(username: str) -> list[int]:
+def get_level(username: str) -> List[int]:
     """
     Gets the current user experience points, the experience points
     for the next level and the user's current level from the database.
@@ -2004,7 +2004,7 @@ def is_close_friend(username: str) -> bool:
 
 def validate_edit_profile(
         bio: str, gender: str, dob: str,
-        hobbies: list, interests: list) -> Tuple[bool, list[str]]:
+        hobbies: list, interests: list) -> Tuple[bool, List[str]]:
     """
     Validates the details in the profile editing form.
 
@@ -2062,7 +2062,7 @@ def validate_edit_profile(
 def validate_registration(
         cur, username: str, full_name: str, password: str,
         password_confirm: str,
-        email: str, terms: str) -> Tuple[bool, list[str]]:
+        email: str, terms: str) -> Tuple[bool, List[str]]:
     """
     Validates the registration details to ensure that the email address is
     valid, and that the passwords in the form match.
@@ -2159,7 +2159,7 @@ def validate_registration(
     return valid, message
 
 
-def validate_profile_pic(file) -> Tuple[bool, list[str], str]:
+def validate_profile_pic(file) -> Tuple[bool, List[str], str]:
     """
     Validates the file to check that it's a valid image.
 
