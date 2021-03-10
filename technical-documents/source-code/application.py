@@ -953,7 +953,10 @@ def feed() -> object:
                     cur.execute(
                         "SELECT contentUrl "
                         "FROM PostContent WHERE postId=?;", (post_id,))
+                    
                     content = cur.fetchone()
+                    if content != None:
+                        content = content[0]
 
                 all_posts["AllPosts"].append({
                     "postId": user_post[0],
@@ -996,6 +999,7 @@ def submit_post() -> object:
     """
     form_type = request.form.get("form_type")
     post_privacy = request.form.get("privacy")
+    valid = True
 
     if form_type == "Quiz":
         # Gets quiz details.
@@ -1068,9 +1072,18 @@ def submit_post() -> object:
                 file_path = os.path.join(
                     "." + application.config["UPLOAD_FOLDER"] + "//post_imgs",
                     file_name_hashed)
+
                 im = Image.open(file)
-                im = im.resize((400, 400))
+                
+                fixed_height = 600
+                height_percent = (fixed_height / float(im.size[1]))
+                width_size = int((float(im.size[0]) * float(height_percent)))
+
+                width_size = min(width_size, 800)
+
+                im = im.resize((width_size, fixed_height))
                 im = im.convert("RGB")
+
                 im.save(file_path + ".jpg")
             elif file:
                 valid = False
