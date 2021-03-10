@@ -1,89 +1,89 @@
 {% extends "base.html" %} {% block title %}Register{% endblock %} {% block
 content %}
-<div class="ui segment basic">
+  <div class="ui segment basic">
     <form action="/register" method="POST">
-        <div class="ui card centered" style="min-width: 600px">
-            <div class="content">
-                <div class="header">Register</div>
-            </div>
-            <div class="content">
-                {% if errors %}
-                <div class="ui message red">
-                    <div class="header">Incorrect Credentials</div>
-                    {% for item in errors %}
-                    <p>{{ item }}</p>
-                    {% endfor %}
-                </div>
-                {% endif %} {% if "register" in notifications %}
-                <div class="ui message green">
-                    <div class="header">Success</div>
-                    <p>Account created successfully. You can now login.</p>
-                </div>
-                {% endif %}
-                <div class="ui form">
-                    <div class="required field">
-                        <label>Username</label>
-                        <input
-                            name="username_input"
-                            type="text"
-                            placeholder="Username"
-                        />
-                    </div>
-                    <div class="required field">
-                        <label>Full Name</label>
-                        <input
-                            name="fullname_input"
-                            type="text"
-                            placeholder="Full Name"
-                        />
-                    </div>
-                    <div class="required field">
-                        <label>Email Address</label>
-                        <input
-                            name="email_input"
-                            type="email"
-                            placeholder="Email Address"
-                        />
-                    </div>
-                    <div class="required field">
-                        <label>Password</label>
-                        <input
-                            name="psw_input"
-                            type="password"
-                            placeholder="Password"
-                        />
-                    </div>
-                    <div class="required field">
-                        <label>Confirm Password</label>
-                        <input
-                            name="psw_input_check"
-                            type="password"
-                            placeholder="Password"
-                        />
-                    </div>
-                    <div class="required field">
-                        <div class="ui checkbox">
-                            <input type="checkbox" name="terms" />
-                            <label>
-                                I have read and understood the
-                                <a href="/terms">Terms of Service</a></label
-                            >
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="extra content">
-                <p>
-                    Already have an account?<a
-                        href="/login"
-                        style="color: #0077cc"
-                    >
-                        Login here</a
-                    >.
-                </p>
-            </div>
-            <input type="submit" value="Register" class="ui button submit" />
+      <div class="ui card centered" style="min-width: 600px">
+        <div class="content">
+          <div class="header">Register</div>
         </div>
+        <div class="content">
+          {% if errors %}
+            <div class="ui message red">
+              <div class="header">Incorrect Credentials</div>
+              {% for item in errors %}
+                <p>{{ item }}</p>
+              {% endfor %}
+            </div>
+          {% endif %} {% if "register" in notifications %}
+          <div class="ui message green">
+            <div class="header">Success</div>
+            <p>Account created successfully. You can now login.</p>
+          </div>
+        {% endif %}
+          <div class="ui form">
+            <div class="required field">
+              <label>Username</label>
+              <input
+                  name="username_input"
+                  type="text"
+                  placeholder="Username"
+              />
+            </div>
+            <div class="required field">
+              <label>Full Name</label>
+              <input
+                  name="fullname_input"
+                  type="text"
+                  placeholder="Full Name"
+              />
+            </div>
+            <div class="required field">
+              <label>Email Address</label>
+              <input
+                  name="email_input"
+                  type="email"
+                  placeholder="Email Address"
+              />
+            </div>
+            <div class="required field">
+              <label>Password</label>
+              <input
+                  name="psw_input"
+                  type="password"
+                  placeholder="Password"
+              />
+            </div>
+            <div class="required field">
+              <label>Confirm Password</label>
+              <input
+                  name="psw_input_check"
+                  type="password"
+                  placeholder="Password"
+              />
+            </div>
+            <div class="required field">
+              <div class="ui checkbox">
+                <input type="checkbox" name="terms"/>
+                <label>
+                  I have read and understood the
+                  <a href="/terms">Terms of Service</a></label
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="extra content">
+          <p>
+            Already have an account?<a
+              href="/login"
+              style="color: #0077cc"
+          >
+            Login here</a
+          >.
+          </p>
+        </div>
+        <input type="submit" value="Register" class="ui button submit"/>
+      </div>
     </form>
-</div>
+  </div>
 {% endblock %}

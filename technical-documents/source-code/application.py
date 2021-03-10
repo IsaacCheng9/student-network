@@ -21,7 +21,7 @@ application = Flask(__name__)
 application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
                           "xa2\xa0\x9fR\xa1\xa8")
 application.url_map.strict_slashes = False
-application.config['UPLOAD_FOLDER'] = '/static/images//avatars'
+application.config['UPLOAD_FOLDER'] = '/static/images'
 
 
 @application.route("/", methods=["GET"])
@@ -161,11 +161,44 @@ def connect_request(username):
     return redirect("/profile/" + username)
 
 
+@application.route("/members", methods=["GET"])
+def members() -> object:
+    return render_template("members.html",
+                           requestCount=get_connection_request_count())
+
+
 @application.route("/leaderboard", methods=["GET"])
 def leaderboard() -> object:
-    return render_template("leaderboard.html",
+    """
+    Display leaderboard of users with the most experience
+    Returns:
+        The web page for viewing Rankings.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM UserLevel; ")
+        if cur.fetchone() is not None:
+            topUsers = cur.fetchall()
+            totalUserCount = len(topUsers)
+            # 0 = username
+            # 1 = XP value
+            topUsers.sort(key=lambda x: x[1], reverse=True)
+
+            myRanking = 0
+            for user in topUsers:
+                myRanking += 1
+                if user[0] == session["username"]:
+                    break
+
+            topUsers = topUsers[0:min(25, len(topUsers))]
+
+            topUsers = list(map(lambda x: (
+            x[0], x[1], get_profile_picture(x[0]), get_level(x[0])), topUsers))
+
+    return render_template("/leaderboard.html", leaderboard=topUsers,
                            requestCount=get_connection_request_count(),
-                           allUsernames=get_all_usernames())
+                           allUsernames=get_all_usernames(),
+                           myRanking=myRanking, totalUserCount=totalUserCount)
 
 
 @application.route("/achievements", methods=["GET"])
@@ -602,7 +635,7 @@ def register_submit() -> object:
                     username, full_name, "Change your bio in the settings.",
                     "Male", date.today(), "/static/images/default-pfp.jpg",))
 
-            check_level_exists(username)
+            check_level_exists(username, conn)
 
             conn.commit()
 
@@ -628,12 +661,12 @@ def post(post_id):
     message = []
     author = ""
     session["prev-page"] = request.url
-
+    content = None
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
-            "SELECT title, body, username, date, account_type, likes "
+            "SELECT title, body, username, date, account_type, likes, post_type "
             "FROM POSTS WHERE postId=?;", (post_id,))
         row = cur.fetchall()
         if len(row) == 0:
@@ -646,10 +679,16 @@ def post(post_id):
                                    allUsernames=get_all_usernames())
         else:
             data = row[0]
-            title, body, username, date_posted, account_type, likes = (
+            title, body, username, date_posted, account_type, likes, post_type = (
                 data[0], data[1],
                 data[2], data[3],
-                data[4], data[5])
+                data[4], data[5], data[6])
+            if post_type == "Image":
+                cur.execute(
+                    "SELECT contentUrl "
+                    "FROM PostContent WHERE postId=?;", (post_id,))
+                content = cur.fetchone()[0]
+                print(content)
             cur.execute(
                 "SELECT *"
                 "FROM Comments WHERE postId=?;", (post_id,))
@@ -661,7 +700,8 @@ def post(post_id):
                     date=date_posted, likes=likes, accountType=account_type,
                     comments=None, requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(),
-                    avatar=get_profile_picture(username))
+                    avatar=get_profile_picture(username), type=post_type,
+                    content=content)
             for comment in row:
                 time = datetime.strptime(
                     comment[3], "%Y-%m-%d %H:%M:%S").strftime("%d-%m-%y %H:%M")
@@ -833,15 +873,16 @@ def submit_post():
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
                         "?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
                         (
-                        quiz_name, question_1[0], question_1[1], question_1[2],
-                        question_1[3], question_1[4], question_2[0],
-                        question_2[1], question_2[2], question_2[3],
-                        question_2[4], question_3[0], question_3[1],
-                        question_3[2], question_3[3], question_3[4],
-                        question_4[0], question_4[1], question_4[2],
-                        question_4[3], question_4[4], question_5[0],
-                        question_5[1], question_5[2], question_5[3],
-                        question_5[4]))
+                            quiz_name, question_1[0], question_1[1],
+                            question_1[2],
+                            question_1[3], question_1[4], question_2[0],
+                            question_2[1], question_2[2], question_2[3],
+                            question_2[4], question_3[0], question_3[1],
+                            question_3[2], question_3[3], question_3[4],
+                            question_4[0], question_4[1], question_4[2],
+                            question_4[3], question_4[4], question_5[0],
+                            question_5[1], question_5[2], question_5[3],
+                            question_5[4]))
             conn.commit()
 
     # Only adds the post if a title has been input.
@@ -1249,7 +1290,7 @@ def profile(username):
         conn_type = "close"
     session["prev-page"] = request.url
 
-    check_level_exists(username)
+    check_level_exists(username, conn)
 
     level_data = get_level(username)
     level = level_data[0]
@@ -1366,7 +1407,7 @@ def edit_profile() -> object:
                         "profilepicture=?, degree=? WHERE username=?;",
                         (bio, gender, dob,
                          application.config[
-                             'UPLOAD_FOLDER'] + "\\" + file_name_hashed
+                             'UPLOAD_FOLDER'] + "/avatars/" + file_name_hashed
                          + ".jpg", degree, username,))
                 else:
                     cur.execute(
@@ -1455,7 +1496,7 @@ def apply_achievement(username: str, achievement_id: int):
             "SELECT xp_value FROM Achievements WHERE achievement_ID=?;",
             (achievement_id,))
         xp = cur.fetchone()[0]
-        check_level_exists(username)
+        check_level_exists(username, conn)
         cur.execute(
             "UPDATE UserLevel "
             "SET experience = experience + ? "
@@ -1479,22 +1520,21 @@ def calculate_age(born):
             (today.month, today.day) < (born.month, born.day))
 
 
-def check_level_exists(username: str):
+def check_level_exists(username: str, conn):
     """
     Checks that a user has a record in the database for their level.
 
     Args:
         username: The username of the user to check.
     """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT * FROM UserLevel WHERE username=?;", (username,))
+    if cur.fetchone() is None:
         cur.execute(
-            "SELECT * FROM UserLevel WHERE username=?;", (username,))
-        if cur.fetchone() is None:
-            cur.execute(
-                "INSERT INTO UserLevel (username, experience) VALUES (?, ?);",
-                (username, 0))
-            conn.commit()
+            "INSERT INTO UserLevel (username, experience) VALUES (?, ?);",
+            (username, 0))
+        conn.commit()
 
 
 def get_achievements(username: str) -> Tuple[object, object]:
@@ -1645,7 +1685,7 @@ def get_level(username) -> List[int]:
         row = cur.fetchone()
 
         xp = int(row[0])
-        while xp > xp_next_level:
+        while xp >= xp_next_level:
             level += 1
             xp -= xp_next_level
             xp_next_level += xp_increase_per_level
@@ -1867,8 +1907,9 @@ def validate_profile_pic(file) -> Tuple[bool, List[str], str]:
     if allowed_file(file.filename):
         secure_filename(file.filename)
         file_name_hashed = str(uuid.uuid4())
-        file_path = os.path.join("." + application.config["UPLOAD_FOLDER"],
-                                 file_name_hashed)
+        file_path = os.path.join(
+            "." + application.config["UPLOAD_FOLDER"] + "//avatars",
+            file_name_hashed)
         im = Image.open(file)
         im = im.resize((400, 400))
         im = im.convert("RGB")

@@ -1,4 +1,5 @@
-{% extends "base.html" %} {% block title %}Feed{% endblock %}
+{% extends "base.html" %}
+{% block title %}Feed{% endblock %}
 {% block content %}
 
   <div class="ui segment">
@@ -14,92 +15,84 @@
       <div class="sixteen wide column">
         <div class="ui buttons teal icon" id="post-type-buttons">
           <div class="ui teal button basic">Post Type</div>
-          <button
-              class="ui button"
-              onclick='SelectPostType("text", this);'
-              id="default-post-btn"
-          >
-            <i class="file alternate outline icon"></i> Text
-          </button>
-          <button
-              class="ui button basic"
-              onclick='SelectPostType("image", this);'
-          >
-            <i class="file image outline icon"></i> Image
+          <button class="ui button" onclick='SelectPostType("text", this);'
+                  id=default-post-btn><i
+              class="file alternate outline icon"></i> Text
           </button>
           <button class="ui button basic"
-                  onclick='SelectPostType("link", this);'>
-            <i class="linkify icon"></i> Link
+                  onclick='SelectPostType("image", this);'><i
+              class="file image outline icon"></i> Image
           </button>
           <button class="ui button basic"
-                  onclick='SelectPostType("quiz", this);'>
-            <i class="question circle outline icon"></i> Quiz
+                  onclick='SelectPostType("link", this);'><i
+              class="linkify icon"></i> Link
+          </button>
+          <button class="ui button basic"
+                  onclick='SelectPostType("quiz", this);'><i
+              class="question circle outline icon"></i> Quiz
           </button>
         </div>
       </div>
       <div class="sixteen wide column">
         <div class="ui segment basic" id="text-post-input">
-          <form
-              action="{{ url_for('submit_post') }}"
-              class="ui form"
-              ,
-              method="POST"
-          >
+          <form action="{{ url_for('submit_post') }}" class="ui form"
+                method="POST">
+            <input hidden name="form_type" value="Text">
             <div class="required field">
               <label>Title</label>
-              <input
-                  placeholder="Your post needs a title"
-                  type="text"
-                  name="post_title"
-              />
+              <input placeholder="Your post needs a title" type="text"
+                     name="post_title">
             </div>
             <div class="field">
               <label>Content</label>
-              <textarea
-                  placeholder="Write an optional body for your post here"
-                  name="post_text"
-                  id=""
-                  cols="3"
-                  rows="5"
-              ></textarea>
+              <textarea placeholder="Write an optional body for your post here"
+                        name="post_text" id="" cols="3" rows="5"></textarea>
             </div>
-            <input type="submit" value="Post" class="ui button teal"/>
+            <input type="submit" value="Post" class="ui button teal">
           </form>
         </div>
 
         <div class="ui segment basic" id="image-post-input">
-          <form action="" class="ui form">
+          <form action="{{ url_for('submit_post') }}" class="ui form"
+                method="POST" enctype="multipart/form-data">
+            <input hidden name="form_type" value="Image">
+            <div class="required field">
+              <label>Title</label>
+              <input placeholder="Your post needs a title" type="text"
+                     name="post_title">
+            </div>
             <div class="field">
               <label>Image</label>
-              <input type="file"/>
+              <input type="file" name="file">
             </div>
             <div class="field">
               <label>Content</label>
-              <textarea
-                  placeholder="Write an optional body for your post here"
-                  cols="3"
-                  rows="5"
-              ></textarea>
+              <textarea placeholder="Write an optional body for your post here"
+                        name="post_text" id="" cols="3" rows="5"></textarea>
             </div>
-            <input type="submit" value="Post" class="ui button teal"/>
+            <input type="submit" class="ui button teal">
           </form>
         </div>
 
         <div class="ui segment basic" id="link-post-input">
-          <form action="" class="ui form">
+          <form action="{{ url_for('submit_post') }}" class="ui form"
+                method="POST">
+            <input hidden name="form_type" value="Link">
+            <div class="required field">
+              <label>Title</label>
+              <input placeholder="Your post needs a title" type="text"
+                     name="post_title">
+            </div>
             <div class="field">
               <label>URL</label>
-              <input type="text" placeholder="URL"/>
+              <input type="text" placeholder="URL" name="link">
             </div>
             <div class="field">
               <label>Content</label>
-              <textarea
-                  placeholder="Write an optional body for your post here"
-                  cols="3"
-                  rows="5"
-              ></textarea>
+              <textarea placeholder="Write an optional body for your post here"
+                        cols="3" rows="5"></textarea>
             </div>
-            <input type="submit" value="Post" class="ui button teal"/>
+            <input type="submit" value="Post" class="ui button teal">
           </form>
         </div>
 
@@ -364,11 +357,8 @@
         {% for post in posts.AllPosts %}
           <div class="ui grid">
             <div class="two wide column">
-              <img
-                  class="ui image centered rounded"
-                  src="{{ post.profile_pic }}"
-                  alt=""
-              />
+              <img class="ui image centered rounded"
+                   src="{{ post.profile_pic }}" alt=""/>
             </div>
             <div class="fourteen wide column">
               <h2>
@@ -383,7 +373,7 @@
                   <div class="detail">{{ post.account_type }}</div>
                 </div>
               </a>
-              <br/>
+              <br>
               {{ post.body }}
             </div>
           </div>

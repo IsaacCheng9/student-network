@@ -1,0 +1,37 @@
+{% extends "base.html" %} {% block title %}Achievements{% endblock %} {% block
+content %}
+
+
+<div class="ui segment padded">
+    <div class="ui grid">
+        <div class="sixteen wide column">
+
+            <form action="" class="ui form">
+                <div class="field">
+                    <div class="ui left icon input">
+                        <input type="text" placeholder="Search users...">
+                        <i class="users icon"></i>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="two fields">
+                        <div class="ui input labeled">
+                            <div class="ui label">Search Hobby</div>
+                            <input type="text" placeholder="Search hobby...">
+                        </div>
+                        <div class="ui input labeled">
+                            <div class="ui label">Search Interest</div>
+                            <input type="text" placeholder="Search interest...">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="ui button">Apply Filters</button>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+{%endblock%}

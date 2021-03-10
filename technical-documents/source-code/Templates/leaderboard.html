@@ -3,34 +3,38 @@ content %}
 <div class="ui segment">
     <div style="text-align: center;">
         <div class="ui statistic">
-            <div class="value">#1</div>
-            <div class="detail">Your ranking</div>
-            <div class="detail">out of 1503</div>
+            <div class="value">#{{myRanking}} <span style="font-size: 0.3em;">/ {{totalUserCount}}</span></div>
+            <div class="detail">Your Ranking</div>
         </div>
     </div>
+    <div class="ui horizontal divider hidden"></div>
     <table class="ui very basic celled table fluid selectable">
         <thead>
             <tr>
-                <th class="one wide">Ranking</th>
-                <th class="seven wide">Username</th>
-                <th class="eight wide">Total XP</th>
+                <th class="one wide"><h3>Ranking</h3></th>
+                <th class="seven wide"><h3>Username</h3></th>
+                <th class="four wide"><h3>Level</h3></th>
+                <th class="four wide"><h3>Total XP</h3></th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>1</td>
+           {%for i in range(leaderboard|length)%}
+            <tr {%if myRanking == i+1%}class="active"{%endif%}>
+                <td><h2 class="ui center aligned header">#{{i+1}}</h2></td>
                 <td>
                     <h4 class="ui image header">
-                        <img src="/images/avatar2/small/lena.png" class="ui mini rounded image">
+                        <img src='{{leaderboard[i][2]}}' class="ui mini rounded image">
                         <div class="content">
-                           <a href="">ic324</a>
+                           <a href="/profile/{{leaderboard[i][0]}}">{{leaderboard[i][0]}}</a>
                             <div class="sub header">Human Resources
                             </div>
                         </div>
                     </h4>
                 </td>
-                <td>250</td>
+                <td><h2 class="ui aligned header">{{leaderboard[i][3][0]}}</h2></td>
+                <td><h2 class="ui aligned header">{{leaderboard[i][1]}}</h2></td>
             </tr>
+            {%endfor%}
         </tbody>
     </table>
 </div>
