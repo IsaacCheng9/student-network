@@ -306,11 +306,87 @@ def accept_connection_request(username) -> object:
                     if cur.fetchone() is None:
                         apply_achievement(username, 4)
 
-                    # Get number of connections
-                    con_count_user = len(get_all_connections(session["username"]))
+                    # Get connections
+                    cons_user = get_all_connections(session["username"])
+
+                    # Get connections
+                    cons_user2 = get_all_connections(username)
+
+                    # Get user degree and connections different
+                    cur.execute(
+                        "SELECT degree from UserProfile "
+                        "WHERE username=?;", (session["username"],)
+                    )
+                    degree = cur.fetchone()[0]
+                    cur.execute(
+                        "SELECT degree from UserProfile "
+                        "WHERE username=?;", (username,)
+                    )
+                    degree_user2 = cur.fetchone()[0]
+                    
+                    # Get count of connections who study a different degree
+                    valid_user_count = 0
+                    for user in cons_user:
+                        cur.execute(
+                            "SELECT username from UserProfile "
+                            "WHERE degree!=? AND username=?;",
+                            (degree, user[0])
+                        )
+                        if cur.fetchone():
+                            valid_user_count += 1
+
+                    # Get count of other user connections who study a different degree
+                    valid_user_count2 = 0
+                    for user in cons_user2:
+                        cur.execute(
+                            "SELECT username from UserProfile "
+                            "WHERE degree!=? AND username=?;",
+                            (degree_user2, user[0])
+                        )
+                        if cur.fetchone():
+                            valid_user_count2 += 1
+
+                    # Award achievement ID 14 - Reaching out if necessary
+                    if valid_user_count >= 1:
+                        cur.execute(
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
+                            (session["username"], 14))
+                        if cur.fetchone() is None:
+                            apply_achievement(session["username"], 14)
+
+                    # Award achievement ID 14 to connected user
+                    if valid_user_count2 >= 1:
+                        cur.execute(
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
+                            (username, 14))
+                        if cur.fetchone() is None:
+                            apply_achievement(username, 14)
+
+                    # Award achievement ID 15 - Outside your bubble if necessary
+                    if valid_user_count >= 10:
+                        cur.execute(
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
+                            (session["username"], 15))
+                        if cur.fetchone() is None:
+                            apply_achievement(session["username"], 15)
+
+                    # Award achievement ID 15 to connected user
+                    if valid_user_count2 >= 10:
+                        cur.execute(
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
+                            (username, 15))
+                        if cur.fetchone() is None:
+                            apply_achievement(username, 15)
 
                     # Get number of connections
-                    con_count_user2 = len(get_all_connections(username))
+                    con_count_user = len(cons_user)
+
+                    # Get number of connections
+                    con_count_user2 = len(cons_user2)
 
                     # Award achievement ID 5 - Popular if necessary
                     if con_count_user >= 10:
@@ -326,7 +402,7 @@ def accept_connection_request(username) -> object:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
                             "WHERE (username=? AND achievement_ID=?);",
-                            (session["username"], 5))
+                            (username, 5))
                         if cur.fetchone() is None:
                             apply_achievement(username, 5)
 
@@ -1030,6 +1106,7 @@ def like_post():
             cur.execute("SELECT COUNT(postId) FROM UserLikes"
                         " WHERE username=? ;", (session["username"],))
             row = cur.fetchone()[0]
+
             # Award achievement ID 19 - Liking that if necessary
             if row == 1:
                 cur.execute(
