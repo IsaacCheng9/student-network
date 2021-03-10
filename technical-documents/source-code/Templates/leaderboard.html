@@ -1,6 +1,37 @@
 {% extends "base.html" %} {% block title %}Request{% endblock %} {% block
 content %}
 <div class="ui segment">
-   
+    <div style="text-align: center;">
+        <div class="ui statistic">
+            <div class="value">#1</div>
+            <div class="detail">Your ranking</div>
+            <div class="detail">out of 1503</div>
+        </div>
+    </div>
+    <table class="ui very basic celled table fluid selectable">
+        <thead>
+            <tr>
+                <th class="one wide">Ranking</th>
+                <th class="seven wide">Username</th>
+                <th class="eight wide">Total XP</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>
+                    <h4 class="ui image header">
+                        <img src="/images/avatar2/small/lena.png" class="ui mini rounded image">
+                        <div class="content">
+                           <a href="">ic324</a>
+                            <div class="sub header">Human Resources
+                            </div>
+                        </div>
+                    </h4>
+                </td>
+                <td>250</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 {%endblock%}

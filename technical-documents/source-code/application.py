@@ -162,7 +162,9 @@ def connect_request(username):
 
 @application.route("/leaderboard", methods=["GET"])
 def leaderboard() -> object:
-    return render_template("leaderboard.html")
+    return render_template("leaderboard.html", 
+                        requestCount=get_connection_request_count(),
+                           allUsernames=get_all_usernames())
 
 
 @application.route("/achievements", methods=["GET"])
