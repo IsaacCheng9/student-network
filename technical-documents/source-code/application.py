@@ -223,9 +223,6 @@ def leaderboard() -> object:
                     break
             top_users = top_users[0:min(25, len(top_users))]
             top_users = list(map(lambda x: (
-<<<<<<< HEAD
-                x[0], x[1], get_profile_picture(x[0]), get_level(x[0])),
-=======
                 x[0], x[1], get_profile_picture(x[0]), get_level(x[0]),
                 get_degree(x[0])[1]),
 >>>>>>> 3e7d94fed939249cd5422d998535a521174b5a96
