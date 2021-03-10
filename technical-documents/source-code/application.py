@@ -307,18 +307,10 @@ def accept_connection_request(username) -> object:
                         apply_achievement(username, 4)
 
                     # Get number of connections
-                    cur.execute(
-                        "SELECT * FROM Connection "
-                        "WHERE (user1=? OR user2=?);",
-                        (session["username"], session["username"]))
-                    con_count_user = len(cur.fetchall())
+                    con_count_user = len(get_all_connections(session["username"]))
 
                     # Get number of connections
-                    cur.execute(
-                        "SELECT * FROM Connection "
-                        "WHERE (user1=? OR user2=?);",
-                        (session["username"], username))
-                    con_count_user2 = len(cur.fetchall())
+                    con_count_user2 = len(get_all_connections(username))
 
                     # Award achievement ID 5 - Popular if necessary
                     if con_count_user >= 10:
