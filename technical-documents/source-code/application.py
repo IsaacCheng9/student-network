@@ -816,6 +816,7 @@ def submit_post():
                       request.form.get("question_5_ans_2"),
                       request.form.get("question_5_ans_3"),
                       request.form.get("question_5_ans_4")]
+        print(quiz_name)
 
         # Adds quiz to the database.
         with sqlite3.connect("database.db") as conn:
