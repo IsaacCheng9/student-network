@@ -1463,6 +1463,12 @@ def profile(username):
         (session["username"], username))
     if cur.fetchone() is None:
         conn_type = get_connection_type(username)
+        if conn_type == "blocked":
+            message.append("Unable to view this profile since " + username + " has blocked you.")
+            session["prev-page"] = request.url
+            return render_template(
+                "error.html", message=message,
+                requestCount=get_connection_request_count())
     else:
         conn_type = "close"
     session["prev-page"] = request.url
@@ -1887,6 +1893,8 @@ def get_connection_type(username: str):
             if row is not None:
                 if row[0] == "connected":
                     return row[0]
+                elif row[0] == "block":
+                    return "blocked"
                 return "incoming"
             else:
                 return None
