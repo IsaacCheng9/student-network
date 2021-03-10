@@ -13,39 +13,294 @@
     {% endif %}
     <div class="ui grid">
         <div class="sixteen wide column">
-          <form action="{{ url_for('submit_post') }}" class="ui form", method="POST">
-            <div class="required field">
-              <input placeholder="Your post needs a title" type="text" name="post_title">
-            </div> 
-            <div class="field">
-              <textarea placeholder="Write an optional body for your post here" name="post_text" id="" cols="3" rows="5"></textarea>
+            <div class="ui buttons teal icon" id="post-type-buttons">
+                <div class="ui teal button basic">Post Type</div>
+                <button class="ui button" onclick='SelectPostType("text", this);' id=default-post-btn><i class="file alternate outline icon"></i> Text</button>
+                <button class="ui button basic" onclick='SelectPostType("image", this);'><i class="file image outline icon"></i> Image</button>
+                <button class="ui button basic" onclick='SelectPostType("link", this);'><i class="linkify icon"></i> Link</button>
+                <button class="ui button basic" onclick='SelectPostType("quiz", this);'><i class="question circle outline icon"></i> Quiz</button>
             </div>
-            <input type="submit" value="Post" class="ui button teal">
-          </form>
+        </div>
+        <div class="sixteen wide column">
+            <div class="ui segment basic" id="text-post-input">
+                <form action="{{ url_for('submit_post') }}" class="ui form" , method="POST">
+                    <div class="required field">
+                        <label>Title</label>
+                        <input placeholder="Your post needs a title" type="text" name="post_title">
+                    </div>
+                    <div class="field">
+                        <label>Content</label>
+                        <textarea placeholder="Write an optional body for your post here" name="post_text" id="" cols="3" rows="5"></textarea>
+                    </div>
+                    <input type="submit" value="Post" class="ui button teal">
+                </form>
+            </div>
 
-      <div class="ui horizontal divider">Recent Posts</div>
-        {% for post in posts.AllPosts %}
-          <div class="ui grid">
-              <div class="two wide column">
-                  <img class="ui image centered rounded" src="https://via.placeholder.com/500" alt="" />
-              </div>
-              <div class="fourteen wide column">
-                  <h2>
-                      <a href="/post_page/{{ post.postId }}">{{ post.title }}</a>
-                      <div style="float: right"><h3>{{ post.date_posted }}</h3></div>
-                  </h2>
-                  <a href="/profile/{{ post.author }}">
-                  <div class="ui label blue">
-                      {{ post.author }}
-                      <div class="detail">{{ post.account_type }}</div>
-                  </div></a>
-                  <br>
-                  {{ post.body }}
-              </div>
-          </div>
-          {% endfor %}
-      </div>
-      </div>
+            <div class="ui segment basic" id="image-post-input">
+                <form action="" class="ui form">
+                    <div class="field">
+                        <label>Image</label>
+                        <input type="file">
+                    </div>
+                    <div class="field">
+                        <label>Content</label>
+                        <textarea placeholder="Write an optional body for your post here" cols="3" rows="5"></textarea>
+                    </div>
+                    <input type="submit" value="Post" class="ui button teal">
+                </form>
+            </div>
+
+            <div class="ui segment basic" id="link-post-input">
+                <form action="" class="ui form">
+                    <div class="field">
+                        <label>URL</label>
+                        <input type="text" placeholder="URL">
+                    </div>
+                    <div class="field">
+                        <label>Content</label>
+                        <textarea placeholder="Write an optional body for your post here" cols="3" rows="5"></textarea>
+                    </div>
+                    <input type="submit" value="Post" class="ui button teal">
+                </form>
+            </div>
+
+            <div class="ui segment basic" id="quiz-post-input">
+                <div class="ui buttons" id="post-type-buttons">
+                    <div class="ui orange button basic">Select Question</div>
+                    <button class="ui orange button question-select" onclick='SelectQuestion(1,this);' id="default-question-btn">1</button>
+                    <button class="ui orange button question-select basic" onclick='SelectQuestion(2,this);'>2</button>
+                    <button class="ui orange button question-select basic" onclick='SelectQuestion(3,this);'>3</button>
+                    <button class="ui orange button question-select basic" onclick='SelectQuestion(4,this);'>4</button>
+                    <button class="ui orange button question-select basic" onclick='SelectQuestion(5,this);'>5</button>
+<!--                    <button class="ui green button icon"><i class="plus icon"></i></button>-->
+                </div>
+                <div class="ui horizontal divider hidden"></div>
+                <form action="" class="ui form">
+                   <div class="field">
+                       <label>Quiz Name</label>
+                       <input type="text">
+                   </div>
+                    <div class="ui segment basic question-input" id=question1>
+                        <div class="field">
+                            <label>Question</label>
+                            <input type="text" autocomplete="off">
+                        </div>
+                        <div class="two fields">
+                            <div class="field">
+                                <label>Correct Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="two fields">
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui segment basic question-input" id=question2>
+                        <div class="field">
+                            <label>Question</label>
+                            <input type="text" autocomplete="off">
+                        </div>
+                        <div class="two fields">
+                            <div class="field">
+                                <label>Correct Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="two fields">
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui segment basic question-input" id=question3>
+                        <div class="field">
+                            <label>Question</label>
+                            <input type="text" autocomplete="off">
+                        </div>
+                        <div class="two fields">
+                            <div class="field">
+                                <label>Correct Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="two fields">
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui segment basic question-input" id=question4>
+                        <div class="field">
+                            <label>Question</label>
+                            <input type="text" autocomplete="off">
+                        </div>
+                        <div class="two fields">
+                            <div class="field">
+                                <label>Correct Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="two fields">
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui segment basic question-input" id=question5>
+                        <div class="field">
+                            <label>Question</label>
+                            <input type="text" autocomplete="off">
+                        </div>
+                        <div class="two fields">
+                            <div class="field">
+                                <label>Correct Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="two fields">
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                            <div class="field">
+                                <label>Answer</label>
+                                <input type="text"  autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <input type="submit" value="Create Quiz" class="ui button teal">
+                </form>
+            </div>
+
+            <div class="ui horizontal divider">Recent Posts</div>
+            {% for post in posts.AllPosts %}
+            <div class="ui grid">
+                <div class="two wide column">
+                    <img class="ui image centered rounded" src="https://via.placeholder.com/500" alt="" />
+                </div>
+                <div class="fourteen wide column">
+                    <h2>
+                        <a href="/post_page/{{ post.postId }}">{{ post.title }}</a>
+                        <div style="float: right">
+                            <h3>{{ post.date_posted }}</h3>
+                        </div>
+                    </h2>
+                    <a href="/profile/{{ post.author }}">
+                        <div class="ui label blue">
+                            {{ post.author }}
+                            <div class="detail">{{ post.account_type }}</div>
+                        </div>
+                    </a>
+                    <br>
+                    {{ post.body }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+    // post-type-buttons
+    function SelectPostType(id, elem) {
+        var sections = ["text", "image", "link", "quiz"];
+
+        $('#post-type-buttons button').addClass("basic");
+        $(elem).removeClass("basic");
+
+        for (var section of sections) {
+            if (section == id) continue;
+            $('#' + section + "-post-input").hide(300);
+        }
+
+        $('#' + id + "-post-input").show(300);
+    }
+
+    function SelectQuestion(index, elem) {
+        $('.question-select').addClass("basic");
+        $(elem).removeClass("basic");
+        
+        $('.question-input').hide(300);
+        $('#question'+index).show(300);
+        
+        UpdateQuestionSelectBtns();
+    }
+    
+    function UpdateQuestionSelectBtns(){
+        $('.question-input').each(function(index){
+            var anyEmpty = false;
+            $(this).find("input").each(function(){
+                if ($(this).val() == ""){
+                    anyEmpty = true;
+                }
+            })
+            
+            var currentQuestion = $('.question-select').eq(index);
+            // invalid input
+            if (anyEmpty){
+                currentQuestion.removeClass("green");
+            } else {
+                currentQuestion.addClass("green");
+                currentQuestion.removeClass("orange");
+            }
+        })
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        SelectPostType("text", $('#default-post-btn'));
+        SelectQuestion(0,$('#default-question-btn'));
+        
+        $('.question-input input').on("input", function(){
+            UpdateQuestionSelectBtns();
+        })
+    })
+
+</script>
+
 {%endblock%}

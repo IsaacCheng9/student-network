@@ -391,6 +391,8 @@ def show_connect_requests() -> object:
         requests = []
         avatars = []
         cur = conn.cursor()
+
+        # Extract incoming requests
         cur.execute(
             "SELECT Connection.user1, UserProfile.profilepicture FROM "
             "Connection LEFT JOIN UserProfile ON Connection.user1 = "
@@ -402,12 +404,42 @@ def show_connect_requests() -> object:
             for elem in row:
                 requests.append(elem[0])
                 avatars.append(elem[1])
+        
+        # Extract connections
+        cur.execute(
+            "SELECT Connection.user1, UserProfile.profilepicture FROM "
+            "Connection LEFT JOIN UserProfile ON Connection.user1 = "
+            "UserProfile.username WHERE user2=? AND connection_type=?;",
+            (session["username"], "connected"))
+        connections1 = cur.fetchall()
+        cur.execute(
+            "SELECT Connection.user2, UserProfile.profilepicture FROM "
+            "Connection LEFT JOIN UserProfile ON Connection.user2 = "
+            "UserProfile.username WHERE user1=? AND connection_type=?;",
+            (session["username"], "connected"))
+        connections2 = cur.fetchall()
+
+        # Extract pending requests
+        cur.execute(
+            "SELECT Connection.user2, UserProfile.profilepicture FROM "
+            "Connection LEFT JOIN UserProfile ON Connection.user2 = "
+            "UserProfile.username WHERE user1=? AND connection_type=?;",
+            (session["username"], "request"))
+        pendingConnections = cur.fetchall()
+
+        # list of usernames of all connected people
+        connections = connections1 + connections2
+        # add a is close friend to the list
+        connections = list(map(lambda x: (x[0], x[1], is_close_friend(x[0])), connections))
+        # sort by close friends first
+        connections = sorted(connections, key=lambda x: x[2], reverse=True)
 
     session["prev-page"] = request.url
 
     return render_template("request.html", requests=requests, avatars=avatars,
                            allUsernames=get_all_usernames(),
-                           requestCount=get_connection_request_count())
+                           requestCount=get_connection_request_count(),
+                           connections=connections, pending=pendingConnections)
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -1508,11 +1540,13 @@ def is_close_friend(username) -> bool:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
-            (username, session["username"])
+            (session["username"], username)
         )
         row = cur.fetchone()
         if row is not None:
             return True
+
+    return False
 
 
 def validate_edit_profile(
