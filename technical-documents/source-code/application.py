@@ -816,6 +816,7 @@ def submit_post():
         Updated feed with new post added
     """
     form_type = request.form.get("form_type")
+    postPrivacy = request.form.get("privacy")
 
     if form_type == "Quiz":
         # Gets quiz details.
@@ -858,9 +859,10 @@ def submit_post():
                         "question_3_ans_3, question_3_ans_4, question_4, "
                         "question_4_ans_1, question_4_ans_2, question_4_ans_3, "
                         "question_4_ans_4, question_5, question_5_ans_1, "
-                        "question_5_ans_2, question_5_ans_3, question_5_ans_4) "
+                        "question_5_ans_2, question_5_ans_3, question_5_ans_4, "
+                        "privacy) "
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-                        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
                         (
                             quiz_name, question_1[0], question_1[1],
                             question_1[2],
@@ -871,7 +873,7 @@ def submit_post():
                             question_4[0], question_4[1], question_4[2],
                             question_4[3], question_4[4], question_5[0],
                             question_5[1], question_5[2], question_5[3],
-                            question_5[4]))
+                            question_5[4], postPrivacy))
             conn.commit()
     else:
         post_title = request.form["post_title"]
@@ -902,11 +904,11 @@ def submit_post():
         if post_title != "":
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
-                cur.execute("INSERT INTO POSTS (title, body, username, post_type) "
-                            "VALUES (?, ?, ?, ?);",
+                cur.execute("INSERT INTO POSTS (title, body, username, post_type, privacy) "
+                            "VALUES (?, ?, ?, ?, ?);",
                             (
                                 post_title, post_body, session["username"],
-                                form_type))
+                                form_type, postPrivacy))
                 conn.commit()
 
                 if form_type == "Image" and valid == True:
