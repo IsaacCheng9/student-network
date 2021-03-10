@@ -9,7 +9,7 @@ import sqlite3
 import uuid
 from datetime import date, datetime
 from string import capwords
-from typing import Tuple, List
+from typing import Tuple
 
 from PIL import Image
 from email_validator import validate_email, EmailNotValidError
@@ -21,11 +21,11 @@ application = Flask(__name__)
 application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
                           "xa2\xa0\x9fR\xa1\xa8")
 application.url_map.strict_slashes = False
-application.config['UPLOAD_FOLDER'] = '/static/images'
+application.config["UPLOAD_FOLDER"] = "/static/images"
 
 
 @application.route("/", methods=["GET"])
-def index_page():
+def index_page() -> object:
     """
     Renders the feed page if the user is logged in.
 
@@ -39,7 +39,7 @@ def index_page():
 
 
 @application.route("/login", methods=["GET"])
-def login_page():
+def login_page() -> object:
     """
     Renders the login page.
 
@@ -59,12 +59,13 @@ def login_page():
 
 
 @application.route("/close_connection/<username>", methods=["GET", "POST"])
-def close_connection(username):
+def close_connection(username: str) -> object:
     """
     Sends a connect request to another user on the network.
 
     Args:
         username: The username of the person to request a connection with.
+
     Returns:
         Redirection to the profile of the user they want to connect with.
     """
@@ -114,12 +115,13 @@ def close_connection(username):
 
 
 @application.route("/connect_request/<username>", methods=["GET", "POST"])
-def connect_request(username):
+def connect_request(username: str) -> object:
     """
     Sends a connect request to another user on the network.
 
     Args:
         username: The username of the person to request a connection with.
+
     Returns:
         Redirection to the profile of the user they want to connect with.
     """
@@ -162,7 +164,16 @@ def connect_request(username):
 
 
 @application.route("/unblock_user/<username>", methods=["GET", "POST"])
-def unblock_user(username):
+def unblock_user(username: str):
+    """
+    Unblocks a given user.
+
+    Args:
+        username: The user to unblock.
+
+    Returns:
+        Redirection to the unblocked user's profile page.
+    """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM Accounts WHERE username=?;",
@@ -179,6 +190,12 @@ def unblock_user(username):
 
 @application.route("/members", methods=["GET"])
 def members() -> object:
+    """
+    Displays all members registered to the student network.
+
+    Returns:
+        The web page for displaying members.
+    """
     return render_template("members.html",
                            requestCount=get_connection_request_count())
 
@@ -186,9 +203,10 @@ def members() -> object:
 @application.route("/leaderboard", methods=["GET"])
 def leaderboard() -> object:
     """
-    Display leaderboard of users with the most experience
+    Displays leaderboard of users with the most experience.
+
     Returns:
-        The web page for viewing Rankings.
+        The web page for viewing rankings.
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -196,18 +214,14 @@ def leaderboard() -> object:
         if cur.fetchone() is not None:
             top_users = cur.fetchall()
             total_user_count = len(top_users)
-            # 0 = username
-            # 1 = XP value
+            # 0 = username, 1 = XP value
             top_users.sort(key=lambda x: x[1], reverse=True)
-
             my_ranking = 0
             for user in top_users:
                 my_ranking += 1
                 if user[0] == session["username"]:
                     break
-
             top_users = top_users[0:min(25, len(top_users))]
-
             top_users = list(map(lambda x: (
                 x[0], x[1], get_profile_picture(x[0]), get_level(x[0])),
                                  top_users))
@@ -260,12 +274,13 @@ def achievements() -> object:
 
 @application.route("/accept_connection_request/<username>",
                    methods=["GET", "POST"])
-def accept_connection_request(username) -> object:
+def accept_connection_request(username: str) -> object:
     """
     Accepts the connect request from another user on the network.
 
     Args:
         username: The username of the person who requested a connection.
+
     Returns:
         Redirection to the profile of the user they want to connect with.
     """
@@ -343,9 +358,10 @@ def accept_connection_request(username) -> object:
                     conec_hobbies = []
                     for hobby in row:
                         conec_hobbies.append(hobby[0])
-                    
-                    # Award achievement ID 16 - Shared intrests if necessary
-                    common_interests = set(my_interests) - (set(my_interests) - set(conec_interests))
+
+                    # Awards achievement ID 16 - Shared interests if necessary.
+                    common_interests = set(my_interests) - (
+                            set(my_interests) - set(conec_interests))
                     print(common_interests)
                     if common_interests:
                         cur.execute(
@@ -364,7 +380,8 @@ def accept_connection_request(username) -> object:
                             apply_achievement(username, 16)
 
                     # Award achievement ID 26 - Shared hobbies if necessary
-                    common_hobbies = set(my_hobbies) - (set(my_hobbies) - set(conec_hobbies))
+                    common_hobbies = set(my_hobbies) - (
+                            set(my_hobbies) - set(conec_hobbies))
                     print(common_hobbies)
                     if common_hobbies:
                         cur.execute(
@@ -381,8 +398,6 @@ def accept_connection_request(username) -> object:
                             (username, 26))
                         if cur.fetchone() is None:
                             apply_achievement(username, 26)
-                    
-                        
 
                     # Get connections
                     cons_user = get_all_connections(session["username"])
@@ -511,9 +526,18 @@ def accept_connection_request(username) -> object:
 
 @application.route("/block_user/<username>")
 def block_user(username: str) -> object:
-    deleted = delete_friend(username)
+    """
+    Blocks the given user.
+
+    Args:
+        username: The user to block.
+
+    Returns:
+        Redirection to the profile page of the user who has been blocked.
+    """
+    deleted = delete_connection(username)
     if deleted:
-        if username != session['username']:
+        if username != session["username"]:
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
                 # Gets user from database using username.
@@ -532,6 +556,7 @@ def remove_close_friend(username: str) -> object:
 
     Args:
         username: The user they want to remove the connection with.
+
     Returns:
         Redirection to the previous page the user was on.
     """
@@ -563,10 +588,11 @@ def remove_connection(username: str) -> object:
 
     Args:
         username: The user they want to remove the connection with.
+
     Returns:
         Redirection to the previous page the user was on.
     """
-    delete_friend(username)
+    delete_connection(username)
     return redirect(session["prev-page"])
 
 
@@ -636,7 +662,7 @@ def show_connect_requests() -> object:
 
 
 @application.route("/terms", methods=["GET", "POST"])
-def terms_page():
+def terms_page() -> object:
     """
     Renders the terms and conditions page.
 
@@ -652,12 +678,12 @@ def terms_page():
 
 
 @application.route("/privacy_policy", methods=["GET", "POST"])
-def privacy_policy_page():
+def privacy_policy_page() -> object:
     """
     Renders the privacy policy page.
 
     Returns:
-        The web page for the privacy policy, or redirection back to T&C.
+        The web page for the privacy policy, or redirection back to T&Cs.
     """
     if request.method == "GET":
         session["prev-page"] = request.url
@@ -668,7 +694,7 @@ def privacy_policy_page():
 
 
 @application.route("/login", methods=["POST"])
-def login_submit():
+def login_submit() -> object:
     """
     Validates the user's login details.
 
@@ -704,7 +730,7 @@ def login_submit():
 
 
 @application.route("/error", methods=["GET"])
-def error_test():
+def error_test() -> object:
     """
     Redirects the user back to the login page if an error occurred.
 
@@ -716,7 +742,7 @@ def error_test():
 
 
 @application.route("/register", methods=["GET"])
-def register_page():
+def register_page() -> object:
     """
     Renders the user registration page.
 
@@ -792,7 +818,7 @@ def register_submit() -> object:
 
 
 @application.route("/post_page/<post_id>", methods=["GET"])
-def post(post_id):
+def post(post_id: int) -> object:
     """
     Loads a post and comments on that post.
 
@@ -864,7 +890,7 @@ def post(post_id):
 
 
 @application.route("/feed", methods=["GET"])
-def feed():
+def feed() -> object:
     """
     Checks user is logged in before viewing their feed page.
 
@@ -951,7 +977,7 @@ def feed():
 
 
 @application.route("/submit_post", methods=["POST"])
-def submit_post():
+def submit_post() -> object:
     """
     Submit post on social wall to database.
 
@@ -1104,7 +1130,7 @@ def submit_post():
 
 
 @application.route("/like_post", methods=["POST"])
-def like_post():
+def like_post() -> object:
     """
     Records liking a post to the database.
 
@@ -1188,7 +1214,7 @@ def like_post():
 
 
 @application.route("/submit_comment", methods=["POST"])
-def submit_comment():
+def submit_comment() -> object:
     """
     Submit comment on post page to database.
 
@@ -1220,7 +1246,7 @@ def submit_comment():
 
 
 @application.route("/delete_post", methods=["POST"])
-def delete_post():
+def delete_post() -> object:
     """
     Deletes a post from the database.
 
@@ -1249,7 +1275,7 @@ def delete_post():
 
 
 @application.route("/delete_comment", methods=["POST"])
-def delete_comment():
+def delete_comment() -> object:
     """
     Deletes a comment from the database.
 
@@ -1280,7 +1306,7 @@ def delete_comment():
 
 
 @application.route("/profile", methods=["GET"])
-def user_profile():
+def user_profile() -> object:
     """
     Checks the user is logged in before viewing their profile page.
 
@@ -1294,7 +1320,7 @@ def user_profile():
 
 
 @application.route("/profile/<username>", methods=["GET"])
-def profile(username):
+def profile(username: str) -> object:
     """
     Displays the user's profile page and fills in all of the necessary
     details. Hides the request buttons if the user is seeing their own page.
@@ -1626,7 +1652,7 @@ def edit_profile() -> object:
 
 
 @application.route("/logout", methods=["GET"])
-def logout():
+def logout() -> object:
     """
     Clears the user's session if they are logged in.
 
@@ -1682,7 +1708,7 @@ def apply_achievement(username: str, achievement_id: int):
         conn.commit()
 
 
-def calculate_age(born):
+def calculate_age(born: datetime) -> int:
     """
     Calculates the user's current age based on their date of birth.
 
@@ -1715,15 +1741,15 @@ def check_level_exists(username: str, conn):
         conn.commit()
 
 
-def delete_friend(username):
+def delete_connection(username: str) -> bool:
     """
-    Deletes
+    Deletes all connections with the given user.
 
     Args:
-        username:
+        username: The user to delete all connections with.
 
     Returns:
-
+        Whether deleting connections was successful (True/False).
     """
     # Checks that the user isn't trying to remove a connection with
     # themselves.
@@ -1800,7 +1826,7 @@ def get_achievements(username: str) -> Tuple[object, object]:
     return unlocked_achievements, locked_achievements
 
 
-def get_all_connections(username) -> list:
+def get_all_connections(username: str) -> list:
     """
     Gets a list of all usernames that are connected to the logged in user.
 
@@ -1892,7 +1918,7 @@ def get_connection_type(username: str):
                 return None
 
 
-def get_level(username) -> List[int]:
+def get_level(username: str) -> list[int]:
     """
     Gets the current user experience points, the experience points
     for the next level and the user's current level from the database.
@@ -1946,7 +1972,7 @@ def get_profile_picture(username: str) -> str:
     return row[0]
 
 
-def is_close_friend(username) -> bool:
+def is_close_friend(username: str) -> bool:
     """
     Gets whether the selected user has the logged in as a close friend.
 
@@ -1968,7 +1994,7 @@ def is_close_friend(username) -> bool:
 
 def validate_edit_profile(
         bio: str, gender: str, dob: str,
-        hobbies: list, interests: list) -> Tuple[bool, List[str]]:
+        hobbies: list, interests: list) -> Tuple[bool, list[str]]:
     """
     Validates the details in the profile editing form.
 
@@ -1978,6 +2004,7 @@ def validate_edit_profile(
         dob: The date of birth input selected by the user in the form.
         hobbies: The list of hobbies from the form.
         interests: The list of interests from the form.
+
     Returns:
         Whether profile editing was valid, and the error message(s) if not.
     """
@@ -2025,7 +2052,7 @@ def validate_edit_profile(
 def validate_registration(
         cur, username: str, full_name: str, password: str,
         password_confirm: str,
-        email: str, terms: str) -> Tuple[bool, List[str]]:
+        email: str, terms: str) -> Tuple[bool, list[str]]:
     """
     Validates the registration details to ensure that the email address is
     valid, and that the passwords in the form match.
@@ -2039,6 +2066,7 @@ def validate_registration(
             form.
         email: The email address input by the user in the form.
         terms: The terms and conditions input checkbox.
+
     Returns:
         Whether the registration was valid, and the error message(s) if not.
     """
@@ -2121,7 +2149,7 @@ def validate_registration(
     return valid, message
 
 
-def validate_profile_pic(file) -> Tuple[bool, List[str], str]:
+def validate_profile_pic(file) -> Tuple[bool, list[str], str]:
     """
     Validates the file to check that it's a valid image.
 
