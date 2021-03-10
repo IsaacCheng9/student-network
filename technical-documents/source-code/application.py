@@ -7,6 +7,9 @@ import os
 import re
 import sqlite3
 import uuid
+import re
+from urllib.parse import urlparse
+from urllib.parse import parse_qs
 from datetime import date, datetime
 from string import capwords
 from typing import Tuple, List
@@ -1091,9 +1094,16 @@ def submit_post() -> object:
 
         elif form_type == "Link":
             link = request.form.get("link")
+            if youtube_validation(link): 
+                data = urlparse(link)
+                query = parse_qs(data.query)
+                video_id = query["v"][0]
+                print("id: + " + video_id)
+            else:
+                valid = False
 
         # Only adds the post if a title has been input.
-        if post_title != "":
+        if post_title != "" and valid == True:
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
                 cur.execute(
@@ -1110,6 +1120,11 @@ def submit_post() -> object:
                                 (cur.lastrowid, application.config[
                                     "UPLOAD_FOLDER"] + "//post_imgs/" +
                                  file_name_hashed + ".jpg"))
+                    conn.commit()
+                elif form_type == "Link":
+                    cur.execute("INSERT INTO PostContent (postId, contentUrl) "
+                                "VALUES (?, ?);",
+                                (cur.lastrowid, video_id))
                     conn.commit()
 
                 # Award achievement ID 7 - Express yourself if necessary
@@ -1150,6 +1165,21 @@ def submit_post() -> object:
             session["error"] = ["You must submit a post title!"]
 
     return redirect("/feed")
+
+
+
+
+def youtube_validation(url):
+    url_regex = (
+        r'(https?://)?(www\.)?'
+        '(youtube|youtu|youtube-nocookie)\.(com)/'
+        '(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
+
+    url_regex_match = re.match(url_regex, url)
+    if url_regex_match:
+        return url_regex_match
+
+    return url_regex_match
 
 
 @application.route("/like_post", methods=["POST"])
