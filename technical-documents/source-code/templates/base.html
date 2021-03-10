@@ -88,6 +88,9 @@
                     
                     <a href="/members" {% if request.path=='/members' %}class="active item" {% else %}class="item" {% endif
                         %}><i class="users icon"></i> Members</a>
+                        
+                    <a href="/quizzes" {% if request.path=='/quizzes' %}class="active item" {% else %}class="item" {% endif
+                        %}><i class="question icon"></i> Quizzes</a>
                     
                     <div class="right menu">
                         <a href="{{url_for('user_profile')}}" class="ui item">

@@ -199,6 +199,16 @@ def members() -> object:
     return render_template("members.html",
                            requestCount=get_connection_request_count())
 
+@application.route("/quizzes", methods=["GET"])
+def quizzes() -> object:
+
+
+    return render_template("quizzes.html", requestCount=get_connection_request_count())
+
+@application.route("/quiz", methods=["GET"])
+def quiz() -> object:
+
+    return render_template("quiz.html", requestCount=get_connection_request_count())
 
 @application.route("/leaderboard", methods=["GET"])
 def leaderboard() -> object:

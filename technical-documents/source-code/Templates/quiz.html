@@ -1,0 +1,53 @@
+{% extends "base.html" %} {% block title %}Request{% endblock %} {% block
+content %}
+
+<style>
+    .selected {
+        background-color: dimgray !important;
+        color: #eaeaea !important;
+    }
+</style>
+
+<div class="ui segment">
+    <div class="ui grid">        
+       <div class="ui sixteen wide column" style="text-align: center;">
+           <div class="ui statistic">
+               <div class="value">1 <span style="font-size: 0.4em;">/5</span></div>
+           </div>
+       </div>
+        <div class="ui sixteen wide column">
+            <button class="ui fluid button blue"><h1>What is 2+2?</h1></button>
+        </div>
+        <div class="ui eight wide column">
+            <button class="ui fluid button gray selectable"><h1>3</h1></button>
+        </div>
+        <div class="ui eight wide column">
+            <button class="ui fluid button gray selectable"><h1>4</h1></button>
+        </div>
+        <div class="ui eight wide column">
+            <button class="ui fluid button gray selectable"><h1>5</h1></button>
+        </div>
+        <div class="ui eight wide column">
+            <button class="ui fluid button gray selectable"><h1>6</h1></button>
+        </div>
+        <div class="sixteen wide column" style="text-align: center;">
+            <div class="ui button" id=nextQuestionBtn>Next Question <i class="right arrow icon"></i></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+    $('.selectable').click(function(){
+        $('.selectable').removeClass("selected");
+        $(this).addClass("selected");
+        
+        $('#nextQuestionBtn').show(300);
+    })
+    
+    $('#nextQuestionBtn').hide();
+    
+</script>
+
+{%endblock%}
