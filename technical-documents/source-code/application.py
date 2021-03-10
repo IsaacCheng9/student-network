@@ -1029,8 +1029,8 @@ def like_post():
             # Checks how many posts user has liked.
             cur.execute("SELECT COUNT(postId) FROM UserLikes"
                         " WHERE username=? ;", (session["username"],))
-            row = cur.fetchone()
-            # Award achievement ID 22 - Everyone loves you if necessary
+            row = cur.fetchone()[0]
+            # Award achievement ID 19 - Liking that if necessary
             if row == 1:
                 cur.execute(
                     "SELECT * FROM CompleteAchievements "
@@ -1038,20 +1038,24 @@ def like_post():
                     (session["username"], 19))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 19)
-            elif row == 5:
-                cur.execute(
-                    "SELECT * FROM CompleteAchievements "
-                    "WHERE (username=? AND achievement_ID=?);",
-                    (session["username"], 23))
-                if cur.fetchone() is None:
-                    apply_achievement(session["username"], 23)
-            elif row == 100:
+
+            # Award achievement ID 24 - Show the love if necessary
+            elif row == 50:
                 cur.execute(
                     "SELECT * FROM CompleteAchievements "
                     "WHERE (username=? AND achievement_ID=?);",
                     (session["username"], 24))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 24)
+
+            # Award achievement ID 25 - Loving everything if necessary        
+            elif row == 500:
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (session["username"], 25))
+                if cur.fetchone() is None:
+                    apply_achievement(session["username"], 25)
 
     return redirect("/post_page/" + post_id)
 
