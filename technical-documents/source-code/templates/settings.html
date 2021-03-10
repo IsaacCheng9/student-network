@@ -72,7 +72,7 @@ filename='styles/semantic.css') }}>
                             <form action="/edit-profile" method="POST" class="ui form" enctype="multipart/form-data">
                                 <div class="field">
                                     <label>Degree</label>
-                                    <select name="degree_input" id="">
+                                    <select name="degree_input">
                                     {%for degree in degrees.degrees %}
                                         {{degree}}
                                         <option value="{{degree.degreeId}}">{{degree.degree}}</option>
