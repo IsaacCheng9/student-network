@@ -775,7 +775,7 @@ def feed():
                     cur.execute(
                         "SELECT contentUrl "
                         "FROM PostContent WHERE postId=?;", (post_id,))
-                    content = cur.fetchone()[0]
+                    content = cur.fetchone()
 
                 all_posts["AllPosts"].append({
                     "postId": user_post[0],
