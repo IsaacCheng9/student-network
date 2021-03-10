@@ -1023,9 +1023,9 @@ def submit_post() -> object:
 
     if form_type == "Quiz":
         # Gets quiz details.
-        quiz_name = request.form.get("quiz_name")
         date_created = date.today()
         author = session["username"]
+        quiz_name = request.form.get("quiz_name")
         questions = [[request.form.get("question_1"),
                       request.form.get("question_1_ans_1"),
                       request.form.get("question_1_ans_2"),
@@ -1052,7 +1052,10 @@ def submit_post() -> object:
                       request.form.get("question_5_ans_3"),
                       request.form.get("question_5_ans_4")]]
 
-        valid, message = validate_quiz(questions)
+        print(request.form.get("quiz_name"))
+        print(request.form.get("question_1"))
+
+        valid, message = validate_quiz(quiz_name, questions)
         if valid:
             # Adds quiz to the database.
             with sqlite3.connect("database.db") as conn:
@@ -1084,7 +1087,7 @@ def submit_post() -> object:
                 conn.commit()
         else:
             session["error"] = message
-            return redirect("feed.html")
+            return redirect("feed")
     else:
         post_title = request.form["post_title"]
         post_body = request.form["post_text"]
@@ -2134,11 +2137,12 @@ def validate_edit_profile(
     return valid, message
 
 
-def validate_quiz(questions: list) -> Tuple[bool, List[str]]:
+def validate_quiz(quiz_name: str, questions: list) -> Tuple[bool, List[str]]:
     """
     Validates the quiz creation details which have been input by a user.
 
     Args:
+        quiz_name: The name of the quiz input by the user.
         questions: The quiz question details input by the user.
 
     Returns:
@@ -2147,15 +2151,19 @@ def validate_quiz(questions: list) -> Tuple[bool, List[str]]:
     valid = True
     message = []
 
+    # Checks that a quiz name has been made.
+    if quiz_name.replace(" ", "") == "":
+        valid = False
+        message.append("You must enter a quiz name!")
+
     # Checks that all questions details have been filled in.
     for question in questions:
         for detail in question:
             if detail == "":
                 valid = False
                 message.append(
-                    "You have not filled in all inputs for questions!")
-                print(message)
-                break
+                    "You have not filled in details for all questions!")
+                return valid, message
 
     return valid, message
 
