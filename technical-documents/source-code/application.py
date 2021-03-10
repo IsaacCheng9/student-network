@@ -295,10 +295,17 @@ def accept_connection_request(username) -> object:
                         "SELECT * FROM Connection "
                         "WHERE (user1=? OR user2=?);",
                         (session["username"], session["username"]))
-                    con_count = len(cur.fetchall())
+                    con_count_user = len(cur.fetchall())
+
+                    # Get number of connections
+                    cur.execute(
+                        "SELECT * FROM Connection "
+                        "WHERE (user1=? OR user2=?);",
+                        (session["username"], username))
+                    con_count_user2 = len(cur.fetchall())
 
                     # Award achievement ID 5 - Popular if necessary
-                    if con_count >= 10:
+                    if con_count_user >= 10:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
                             "WHERE (username=? AND achievement_ID=?);",
@@ -307,7 +314,7 @@ def accept_connection_request(username) -> object:
                             apply_achievement(session["username"], 5)
 
                     # Award achievement ID 5 to connected user
-                    if con_count >= 10:
+                    if con_count_user2 >= 10:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
                             "WHERE (username=? AND achievement_ID=?);",
@@ -316,7 +323,7 @@ def accept_connection_request(username) -> object:
                             apply_achievement(username, 5)
 
                     # Award achievement ID 6 - Centre of Attention if necessary
-                    if con_count >= 100:
+                    if con_count_user >= 100:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
                             "WHERE (username=? AND achievement_ID=?);",
@@ -325,7 +332,7 @@ def accept_connection_request(username) -> object:
                             apply_achievement(session["username"], 6)
 
                     # Award achievement ID 6 to connected user
-                    if con_count >= 100:
+                    if con_count_user2 >= 100:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
                             "WHERE (username=? AND achievement_ID=?);",
