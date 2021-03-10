@@ -39,6 +39,9 @@ filename='styles/semantic.css') }}>
             z-index: 99;
         }
 
+        #hideValuesOnSelect {
+            display: none;
+        }
     </style>
 </head>
 
@@ -66,6 +69,7 @@ filename='styles/semantic.css') }}>
                             {%endfor%}
                         </div>
                         {%endif%}
+                        
                         <div class="ui segment" id="profile">
                             <!-- name bio gender birthday profile_picture hobbies interests -->
                             
@@ -73,9 +77,13 @@ filename='styles/semantic.css') }}>
                                 <div class="field">
                                     <label>Degree</label>
                                     <select name="degree_input">
-                                    {%for degree in degrees.degrees %}
-                                        {{degree}}
-                                        <option value="{{degree.degreeId}}">{{degree.degree}}</option>
+                                    {%for item in degrees.degrees %}
+                                        Degree:
+                                        {% if item.degreeId == degree %}
+                                            <option value="{{item.degreeId}}" selected>{{item.degree}}</option>
+                                        {%else%}
+                                            <option value="{{item.degreeId}}">{{item.degree}}</option>
+                                        {%endif%}
                                     {%endfor%}
                                     </select>
                                 </div>
@@ -178,7 +186,53 @@ filename='styles/semantic.css') }}>
                             Notif
                         </div>
 
-                        <div class="ui segment" id="privacy">Privacy</div>
+                        <div class="ui segment" id="privacy">
+                            <form action="/profile_privacy" method="POST" class="ui form" enctype="multipart/form-data">
+                                <div class="field">
+                                    <label>Select your profile page privacy settings:</label>
+                                    <select name="privacy"  onchange="displayDiv(this)" >
+                                        {% if privacy == "public" %}
+                                            <option value="public" selected >Public</option>
+                                        {%else %}
+                                            <option value="public">Public</option>
+                                        {%endif%}
+
+                                        {% if privacy == "protected" %}
+                                            <option value="protected" selected >Protected</option>   
+                                        {%else %}
+                                            <option value="protected">Protected</option>
+                                        {%endif%}
+
+                                        {% if privacy == "close_friends" %}
+                                            <option value="close_friends" selected >Close friends only</option>   
+                                        {%else %}
+                                            <option value="close_friends">Close friends only</option>
+                                        {%endif%}
+
+                                        {% if privacy == "private" %}
+                                            <option value="private" selected >Private</option>   
+                                        {%else %}
+                                            <option value="private">Private</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
+                                <button class="ui button submit">Save Changes</button>
+                            </form>
+                            <div class="ui segment" id="privacy_description" style="display:none;">
+                                <div id="public" style="display:none;">
+                                    Everyone can view all of your profile page details.
+                                    </div>
+                                <div id="protected" style="display:none;">
+                                    Only your connections can view your profile page.
+                                    </div>
+                                <div id="close_friends" style="display:none;">
+                                    Only your close friends can view your profile page.
+                                </div>
+                                <div id="private" style="display:none;">
+                                    You are the only one who can view your profile page.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -187,6 +241,7 @@ filename='styles/semantic.css') }}>
 </body>
 
 <script>
+
     function OpenTab(tabName, curElem) {
         var tabs = ["profile", "socials", "notifications", "privacy"];
 
@@ -209,6 +264,37 @@ filename='styles/semantic.css') }}>
         OpenTab("profile");
     });
 
+    function displayDiv(setting)
+    {
+        console.log(setting);
+        if(setting){
+            document.getElementById("privacy_description").style.display = "block";
+            if(setting.value == "public"){
+                
+                document.getElementById("public").style.display = "block";
+                document.getElementById("protected").style.display = "none";
+                document.getElementById("close_friends").style.display = "none";
+                document.getElementById("private").style.display = "none";
+            }
+            else if(setting.value == "protected"){
+                document.getElementById("public").style.display = "none";
+                document.getElementById("protected").style.display = "block";
+                document.getElementById("close_friends").style.display = "none";
+                document.getElementById("private").style.display = "none";
+            }
+            else if(setting.value == "close_friends"){
+                document.getElementById("public").style.display = "none";
+                document.getElementById("protected").style.display = "none";
+                document.getElementById("close_friends").style.display = "block";
+                document.getElementById("private").style.display = "none";
+            }else{
+                document.getElementById("public").style.display = "none";
+                document.getElementById("protected").style.display = "none";
+                document.getElementById("close_friends").style.display = "none";
+                document.getElementById("private").style.display = "block";
+            }
+        }
+    }
 </script>
 
 <script src="../static/hobbies.js"></script>

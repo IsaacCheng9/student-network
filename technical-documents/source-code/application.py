@@ -25,7 +25,7 @@ application.config['UPLOAD_FOLDER'] = '/static/images'
 
 
 @application.route("/", methods=["GET"])
-def index_page():
+def index():
     """
     Renders the feed page if the user is logged in.
 
@@ -35,7 +35,7 @@ def index_page():
     if "username" in session:
         return redirect("/profile")
     else:
-        return redirect("/login")
+        return render_template("homepage.html")
 
 
 @application.route("/login", methods=["GET"])
@@ -1355,6 +1355,18 @@ def edit_profile() -> object:
             "SELECT bio FROM UserProfile WHERE username=?",
             (session["username"],))
         bio = cur.fetchall()[0][0]
+        
+        #get current degree
+        cur.execute(
+            "SELECT degree FROM UserProfile WHERE username=?",
+            (session["username"],))
+        degree = cur.fetchall()[0][0]
+
+        #get privacy settings
+        cur.execute(
+            "SELECT privacy FROM UserProfile WHERE username=?",
+            (session["username"],))
+        privacy = cur.fetchall()[0][0]
 
         # gets all possible degrees
         cur.execute(
@@ -1370,7 +1382,8 @@ def edit_profile() -> object:
     if request.method == "GET":
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
-                               date=dob, bio=bio, degrees=degrees, errors=[])
+                               date=dob, bio=bio, degrees=degrees, degree=degree, 
+                               privacy=privacy, errors=[])
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -1458,8 +1471,25 @@ def edit_profile() -> object:
                     "settings.html", errors=message,
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(), degrees=degrees,
-                    date=dob, bio=bio)
+                    degree=degree, date=dob, bio=bio, privacy=privacy)
 
+@application.route("/profile_privacy", methods=["POST"])
+def profile_privacy():
+    """
+    Changes the privacy setting of the profile page
+
+    Returns:
+        The settings page
+    """
+    privacy = request.form.get("privacy")
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+                    "UPDATE UserProfile SET privacy=? WHERE username=?;",
+                    (privacy, session["username"],))
+
+    return redirect("/profile")
+        
 
 @application.route("/logout", methods=["GET"])
 def logout():
