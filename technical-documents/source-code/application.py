@@ -766,6 +766,34 @@ def submit_post():
     post_title = request.form["post_title"]
     post_body = request.form["post_text"]
 
+    # Gets quiz details.
+    quiz_name = request.form.get("quiz_name")
+    question_1 = [request.form.get("question_1"),
+                  request.form.get("question_1_ans_1"),
+                  request.form.get("question_1_ans_2"),
+                  request.form.get("question_1_ans_3"),
+                  request.form.get("question_1_ans_4")]
+    question_2 = [request.form.get("question_2"),
+                  request.form.get("question_2_ans_1"),
+                  request.form.get("question_2_ans_2"),
+                  request.form.get("question_2_ans_3"),
+                  request.form.get("question_2_ans_4")]
+    question_3 = [request.form.get("question_3"),
+                  request.form.get("question_3_ans_1"),
+                  request.form.get("question_3_ans_2"),
+                  request.form.get("question_3_ans_3"),
+                  request.form.get("question_3_ans_4")]
+    question_4 = [request.form.get("question_4"),
+                  request.form.get("question_4_ans_1"),
+                  request.form.get("question_4_ans_2"),
+                  request.form.get("question_4_ans_3"),
+                  request.form.get("question_4_ans_4")]
+    question_5 = [request.form.get("question_5"),
+                  request.form.get("question_5_ans_1"),
+                  request.form.get("question_5_ans_2"),
+                  request.form.get("question_5_ans_3"),
+                  request.form.get("question_5_ans_4")]
+
     # Only adds the post if a title has been input.
     if post_title != "":
         with sqlite3.connect("database.db") as conn:
