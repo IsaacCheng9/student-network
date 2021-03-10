@@ -188,6 +188,16 @@ def achievements() -> object:
     if percentage < 33:
         percentage_color = "red"
 
+    # Award achievement ID 3 - Show it off if necessary
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 3))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 3)
+
     return render_template("achievements.html",
                            unlocked_achievements=unlocked_achievements,
                            locked_achievements=locked_achievements,
