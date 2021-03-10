@@ -161,7 +161,7 @@ def connect_request(username):
     return redirect("/profile/" + username)
 
 
-@application.route("/unblock_user/<username>", methods=["GET","POST"])
+@application.route("/unblock_user/<username>", methods=["GET", "POST"])
 def unblock_user(username):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -194,27 +194,29 @@ def leaderboard() -> object:
         cur = conn.cursor()
         cur.execute("SELECT * FROM UserLevel; ")
         if cur.fetchone() is not None:
-            topUsers = cur.fetchall()
-            totalUserCount = len(topUsers)
+            top_users = cur.fetchall()
+            total_user_count = len(top_users)
             # 0 = username
             # 1 = XP value
-            topUsers.sort(key=lambda x: x[1], reverse=True)
+            top_users.sort(key=lambda x: x[1], reverse=True)
 
-            myRanking = 0
-            for user in topUsers:
-                myRanking += 1
+            my_ranking = 0
+            for user in top_users:
+                my_ranking += 1
                 if user[0] == session["username"]:
                     break
 
-            topUsers = topUsers[0:min(25, len(topUsers))]
+            top_users = top_users[0:min(25, len(top_users))]
 
-            topUsers = list(map(lambda x: (
-            x[0], x[1], get_profile_picture(x[0]), get_level(x[0])), topUsers))
+            top_users = list(map(lambda x: (
+                x[0], x[1], get_profile_picture(x[0]), get_level(x[0])),
+                                 top_users))
 
-    return render_template("/leaderboard.html", leaderboard=topUsers,
+    return render_template("leaderboard.html", leaderboard=top_users,
                            requestCount=get_connection_request_count(),
                            allUsernames=get_all_usernames(),
-                           myRanking=myRanking, totalUserCount=totalUserCount)
+                           myRanking=my_ranking,
+                           totalUserCount=total_user_count)
 
 
 @application.route("/achievements", methods=["GET"])
@@ -323,7 +325,7 @@ def accept_connection_request(username) -> object:
                         "WHERE username=?;", (username,)
                     )
                     degree_user2 = cur.fetchone()[0]
-                    
+
                     # Get count of connections who study a different degree
                     valid_user_count = 0
                     for user in cons_user:
@@ -335,7 +337,8 @@ def accept_connection_request(username) -> object:
                         if cur.fetchone():
                             valid_user_count += 1
 
-                    # Get count of other user connections who study a different degree
+                    # Gets count of other user connections who study a
+                    # different degree.
                     valid_user_count2 = 0
                     for user in cons_user2:
                         cur.execute(
@@ -346,7 +349,7 @@ def accept_connection_request(username) -> object:
                         if cur.fetchone():
                             valid_user_count2 += 1
 
-                    # Award achievement ID 14 - Reaching out if necessary
+                    # Awards achievement ID 14 - Reaching out if necessary.
                     if valid_user_count >= 1:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
@@ -364,7 +367,8 @@ def accept_connection_request(username) -> object:
                         if cur.fetchone() is None:
                             apply_achievement(username, 14)
 
-                    # Award achievement ID 15 - Outside your bubble if necessary
+                    # Award achievement ID 15 - Outside your bubble if
+                    # necessary
                     if valid_user_count >= 10:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
@@ -432,7 +436,7 @@ def accept_connection_request(username) -> object:
 @application.route("/block_user/<username>")
 def block_user(username: str) -> object:
     deleted = delete_friend(username)
-    if deleted: # if deleting was successful
+    if deleted:
         if username != session['username']:
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
@@ -443,7 +447,6 @@ def block_user(username: str) -> object:
                     (session["username"], username, "block",))
                 conn.commit()
     return redirect("/profile/" + username)
-
 
 
 @application.route("/remove_close_friend/<username>")
@@ -490,49 +493,6 @@ def remove_connection(username: str) -> object:
     delete_friend(username)
     return redirect(session["prev-page"])
 
-
-def delete_friend(username):
-    # Checks that the user isn't trying to remove a connection with
-    # themselves.
-    if username != session['username']:
-        with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-            cur.execute("SELECT * FROM Accounts WHERE username=?;",
-                        (username,))
-
-            # Searches for the connection in the database.
-            if cur.fetchone() is not None:
-                row = cur.execute(
-                    "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
-                    "(user1=? AND user2=?);",
-                    (username, session["username"], session["username"],
-                     username))
-                # Removes the connection from the database if it exists.
-                if row is not None:
-                    cur.execute(
-                        "DELETE FROM Connection WHERE (user1=? AND user2=?) "
-                        "OR (user1=? AND user2=?);",
-                        (username, session["username"], session["username"],
-                         username))
-                    row = cur.execute(
-                        "SELECT * FROM Connection "
-                        "WHERE (user1=? AND user2=?) "
-                        "OR (user1=? AND user2=?);",
-                        (username, session["username"], session["username"],
-                         username))
-                    if row is not None:
-                        cur.execute(
-                            "DELETE FROM CloseFriend "
-                            "WHERE (user1=? AND user2=?) "
-                            "OR (user1=? AND user2=?);",
-                            (username, session["username"],
-                             session["username"], username))
-                    conn.commit()    
-                    return True
-                else:
-                    return True
-            else:
-                return False
 
 @application.route("/requests", methods=["GET", "POST"])
 def show_connect_requests() -> object:
@@ -772,8 +732,8 @@ def post(post_id):
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
-            "SELECT title, body, username, date, account_type, likes, post_type "
-            "FROM POSTS WHERE postId=?;", (post_id,))
+            "SELECT title, body, username, date, account_type, likes, "
+            "post_type FROM POSTS WHERE postId=?;", (post_id,))
         row = cur.fetchall()
         if len(row) == 0:
             message.append("This post does not exist.")
@@ -785,10 +745,10 @@ def post(post_id):
                                    allUsernames=get_all_usernames())
         else:
             data = row[0]
-            title, body, username, date_posted, account_type, likes, post_type = (
-                data[0], data[1],
-                data[2], data[3],
-                data[4], data[5], data[6])
+            (title, body, username, date_posted,
+             account_type, likes, post_type) = (data[0], data[1], data[2],
+                                                data[3], data[4], data[5],
+                                                data[6])
             if post_type == "Image":
                 cur.execute(
                     "SELECT contentUrl "
@@ -908,7 +868,8 @@ def feed():
         else:
             return render_template("feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames(),content=content )
+                                   allUsernames=get_all_usernames(),
+                                   content=content)
     else:
         return redirect("/login")
 
@@ -922,7 +883,7 @@ def submit_post():
         Updated feed with new post added
     """
     form_type = request.form.get("form_type")
-    postPrivacy = request.form.get("privacy")
+    post_privacy = request.form.get("privacy")
 
     if form_type == "Quiz":
         # Gets quiz details.
@@ -979,7 +940,7 @@ def submit_post():
                             question_4[0], question_4[1], question_4[2],
                             question_4[3], question_4[4], question_5[0],
                             question_5[1], question_5[2], question_5[3],
-                            question_5[4], postPrivacy))
+                            question_5[4], post_privacy))
             conn.commit()
     else:
         post_title = request.form["post_title"]
@@ -1010,18 +971,20 @@ def submit_post():
         if post_title != "":
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
-                cur.execute("INSERT INTO POSTS (title, body, username, post_type, privacy) "
-                            "VALUES (?, ?, ?, ?, ?);",
-                            (
-                                post_title, post_body, session["username"],
-                                form_type, postPrivacy))
+                cur.execute(
+                    "INSERT INTO POSTS (title, body, username, post_type, "
+                    "privacy) VALUES (?, ?, ?, ?, ?);",
+                    (
+                        post_title, post_body, session["username"],
+                        form_type, post_privacy))
                 conn.commit()
 
-                if form_type == "Image" and valid == True:
+                if form_type == "Image" and valid is True:
                     cur.execute("INSERT INTO PostContent (postId, contentUrl) "
                                 "VALUES (?, ?);",
                                 (cur.lastrowid, application.config[
-                                    "UPLOAD_FOLDER"] + "//post_imgs/" + file_name_hashed + ".jpg"))
+                                    "UPLOAD_FOLDER"] + "//post_imgs/" +
+                                 file_name_hashed + ".jpg"))
                     conn.commit()
 
                 # Award achievement ID 7 - Express yourself if necessary
@@ -1086,7 +1049,8 @@ def like_post():
                         "VALUES (?, ?);", (post_id, session["username"]))
 
             # Gets number of current likes.
-            cur.execute("SELECT likes, username FROM POSTS WHERE postId=?;", (post_id,))
+            cur.execute("SELECT likes, username FROM POSTS WHERE postId=?;",
+                        (post_id,))
             row = cur.fetchone()
             likes = row[0] + 1
             username = row[1]
@@ -1663,6 +1627,7 @@ def check_level_exists(username: str, conn):
 
     Args:
         username: The username of the user to check.
+        conn: The connection to the database.
     """
     cur = conn.cursor()
     cur.execute(
@@ -1672,6 +1637,59 @@ def check_level_exists(username: str, conn):
             "INSERT INTO UserLevel (username, experience) VALUES (?, ?);",
             (username, 0))
         conn.commit()
+
+
+def delete_friend(username):
+    """
+    Deletes
+
+    Args:
+        username:
+
+    Returns:
+
+    """
+    # Checks that the user isn't trying to remove a connection with
+    # themselves.
+    if username != session['username']:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM Accounts WHERE username=?;",
+                        (username,))
+
+            # Searches for the connection in the database.
+            if cur.fetchone() is not None:
+                row = cur.execute(
+                    "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
+                    "(user1=? AND user2=?);",
+                    (username, session["username"], session["username"],
+                     username))
+                # Removes the connection from the database if it exists.
+                if row is not None:
+                    cur.execute(
+                        "DELETE FROM Connection WHERE (user1=? AND user2=?) "
+                        "OR (user1=? AND user2=?);",
+                        (username, session["username"], session["username"],
+                         username))
+                    row = cur.execute(
+                        "SELECT * FROM Connection "
+                        "WHERE (user1=? AND user2=?) "
+                        "OR (user1=? AND user2=?);",
+                        (username, session["username"], session["username"],
+                         username))
+                    if row is not None:
+                        cur.execute(
+                            "DELETE FROM CloseFriend "
+                            "WHERE (user1=? AND user2=?) "
+                            "OR (user1=? AND user2=?);",
+                            (username, session["username"],
+                             session["username"], username))
+                    conn.commit()
+                    return True
+                else:
+                    return True
+            else:
+                return False
 
 
 def get_achievements(username: str) -> Tuple[object, object]:
