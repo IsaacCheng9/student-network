@@ -68,7 +68,17 @@ filename='styles/semantic.css') }}>
                         {%endif%}
                         <div class="ui segment" id="profile">
                             <!-- name bio gender birthday profile_picture hobbies interests -->
+                            
                             <form action="/edit-profile" method="POST" class="ui form" enctype="multipart/form-data">
+                                <div class="field">
+                                    <label>Degree</label>
+                                    <select name="degree_input" id="">
+                                    {%for degree in degrees.degrees %}
+                                        {{degree}}
+                                        <option value="{{degree.degreeId}}">{{degree.degree}}</option>
+                                    {%endfor%}
+                                    </select>
+                                </div>
                                 <div class="field">
                                     <label>Bio</label>
                                     <textarea name="bio_input" rows="2" maxlength="160">{{bio}}</textarea>

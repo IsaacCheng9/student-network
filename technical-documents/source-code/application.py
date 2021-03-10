@@ -948,6 +948,7 @@ def profile(username):
     gender = ""
     birthday = ""
     profile_picture = ""
+    degree = ""
     email = ""
     hobbies = []
     interests = []
@@ -997,6 +998,14 @@ def profile(username):
         "ACCOUNTS WHERE username=?;", (username,))
     row = cur.fetchall()
     account_type = row[0][0]
+
+    # Gets users degree.
+    cur.execute(
+        "SELECT degree FROM  "
+        "Degree WHERE degreeId = (SELECT degree "
+        "FROM UserProfile WHERE username='student1');")
+    row = cur.fetchone()
+    degree = row[0]
 
     # Gets the user's hobbies.
     cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
@@ -1129,7 +1138,7 @@ def profile(username):
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, account_type=account_type,
-                           interests=interests,
+                           interests=interests, degree=degree,
                            email=email, posts=user_posts, type=conn_type,
                            unlocked_achievements=first_six,
                            allUsernames=get_all_usernames(),
@@ -1147,6 +1156,9 @@ def edit_profile() -> object:
     Returns:
         The updated profile page if the details provided were valid.
     """
+    degrees = {
+        "degrees":[]
+    }
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
@@ -1157,12 +1169,22 @@ def edit_profile() -> object:
             "SELECT bio FROM UserProfile WHERE username=?",
             (session["username"],))
         bio = cur.fetchall()[0][0]
+        
+        #gets all possible degrees 
+        cur.execute(
+            "SELECT * FROM Degree",)
+        degree_list = cur.fetchall()
+        for item in degree_list:
+            degrees["degrees"].append({
+            "degreeId": item[0],
+            "degree": item[1]
+            })
 
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
-                               date=dob, bio=bio, errors=[])
+                               date=dob, bio=bio, degrees=degrees, errors=[])
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -1175,6 +1197,7 @@ def edit_profile() -> object:
         dob = datetime.strptime(dob_input, "%Y-%m-%d").strftime("%Y-%m-%d")
         hobbies_input = request.form.get("hobbies")
         interests_input = request.form.get("interests")
+        degree = request.form.get("degree_input")
         # Gets the individual hobbies and interests, then formats them.
         hobbies_unformatted = hobbies_input.split(",")
         hobbies = [hobby.lower() for hobby in hobbies_unformatted]
@@ -1195,16 +1218,15 @@ def edit_profile() -> object:
                 if filename:
                     cur.execute(
                         "UPDATE UserProfile SET bio=?, gender=?, birthday=?, "
-                        "profilepicture=? WHERE username=?;",
+                        "profilepicture=?, degree=? WHERE username=?;",
                         (bio, gender, dob,
                          application.config['UPLOAD_FOLDER'] + "\\" + filename
-                         + ".jpg", username,))
+                         + ".jpg", degree, username,))
                 else:
                     cur.execute(
-                        "UPDATE UserProfile SET bio=?, gender=?, birthday=?"
+                        "UPDATE UserProfile SET bio=?, gender=?, birthday=?, degree=?"
                         "WHERE username=?;",
-                        (bio, gender, dob,
-                         username,))
+                        (bio, gender, dob, degree, username,))
 
                 # Inserts new hobbies and interests into the database if the
                 # user made a new input.
