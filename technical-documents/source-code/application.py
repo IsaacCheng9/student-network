@@ -161,6 +161,22 @@ def connect_request(username):
     return redirect("/profile/" + username)
 
 
+@application.route("/unblock_user/<username>", methods=["GET","POST"])
+def unblock_user(username):
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM Accounts WHERE username=?;",
+                    (username,))
+        if cur.fetchone() is not None:
+            if get_connection_type(username) == "block":
+                if username != session['username']:
+                    cur.execute(
+                        "DELETE FROM Connection WHERE (user1=? AND user2=?);",
+                        (session["username"], username))
+                    conn.commit()
+    return redirect("/profile/" + username)
+
+
 @application.route("/members", methods=["GET"])
 def members() -> object:
     return render_template("members.html",
@@ -347,6 +363,23 @@ def accept_connection_request(username) -> object:
     return redirect(session["prev-page"])
 
 
+@application.route("/block_user/<username>")
+def block_user(username: str) -> object:
+    deleted = delete_friend(username)
+    if deleted: # if deleting was successful
+        if username != session['username']:
+            with sqlite3.connect("database.db") as conn:
+                cur = conn.cursor()
+                # Gets user from database using username.
+                cur.execute(
+                    "INSERT INTO Connection (user1, user2, "
+                    "connection_type) VALUES (?,?,?);",
+                    (session["username"], username, "block",))
+                conn.commit()
+    return redirect("/profile/" + username)
+
+
+
 @application.route("/remove_close_friend/<username>")
 def remove_close_friend(username: str) -> object:
     """
@@ -388,6 +421,11 @@ def remove_connection(username: str) -> object:
     Returns:
         Redirection to the previous page the user was on.
     """
+    delete_friend(username)
+    return redirect(session["prev-page"])
+
+
+def delete_friend(username):
     # Checks that the user isn't trying to remove a connection with
     # themselves.
     if username != session['username']:
@@ -423,10 +461,12 @@ def remove_connection(username: str) -> object:
                             "OR (user1=? AND user2=?);",
                             (username, session["username"],
                              session["username"], username))
-                    conn.commit()
-
-    return redirect(session["prev-page"])
-
+                    conn.commit()    
+                    return True
+                else:
+                    return True
+            else:
+                return False
 
 @application.route("/requests", methods=["GET", "POST"])
 def show_connect_requests() -> object:
