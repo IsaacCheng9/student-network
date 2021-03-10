@@ -21,7 +21,7 @@ application = Flask(__name__)
 application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
                           "xa2\xa0\x9fR\xa1\xa8")
 application.url_map.strict_slashes = False
-application.config['UPLOAD_FOLDER'] = '/static/images//avatars'
+application.config['UPLOAD_FOLDER'] = '/static/images'
 
 
 @application.route("/", methods=["GET"])
@@ -615,12 +615,12 @@ def post(post_id):
     message = []
     author = ""
     session["prev-page"] = request.url
-
+    content = None
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
-            "SELECT title, body, username, date, account_type, likes "
+            "SELECT title, body, username, date, account_type, likes, post_type "
             "FROM POSTS WHERE postId=?;", (post_id,))
         row = cur.fetchall()
         if len(row) == 0:
@@ -633,10 +633,16 @@ def post(post_id):
                                    allUsernames=get_all_usernames())
         else:
             data = row[0]
-            title, body, username, date_posted, account_type, likes = (
+            title, body, username, date_posted, account_type, likes, post_type = (
                 data[0], data[1],
                 data[2], data[3],
-                data[4], data[5])
+                data[4], data[5], data[6])
+            if post_type == "Image":
+                cur.execute(
+                    "SELECT contentUrl "
+                    "FROM PostContent WHERE postId=?;", (post_id,))
+                content = cur.fetchone()[0]
+                print(content)
             cur.execute(
                 "SELECT *"
                 "FROM Comments WHERE postId=?;", (post_id,))
@@ -647,7 +653,7 @@ def post(post_id):
                     title=title, body=body, username=username,
                     date=date_posted, likes=likes, accountType=account_type,
                     comments=None, requestCount=get_connection_request_count(),
-                    allUsernames=get_all_usernames(), avatar=get_profile_picture(username))
+                    allUsernames=get_all_usernames(), avatar=get_profile_picture(username), type=post_type, content=content)
             for comment in row:
                 time = datetime.strptime(
                     comment[3], "%Y-%m-%d %H:%M:%S").strftime("%d-%m-%y %H:%M")
@@ -748,17 +754,44 @@ def submit_post():
     Returns:
         Updated feed with new post added
     """
-    post_title = request.form["post_title"]
-    post_body = request.form["post_text"]
+    valid = True
+    post_title = request.form.get("post_title")
+    post_body = request.form.get("post_text")
+    form_type = request.form.get("form_type")
+    if form_type == "Image":
+        file = request.files["file"]
+        file_name_hashed = ""
+        # Hashes the name of the file and resizes it.
+        if allowed_file(file.filename):
+            secure_filename(file.filename)
+            file_name_hashed = str(uuid.uuid4())
+            file_path = os.path.join("." + application.config["UPLOAD_FOLDER"] + "//post_imgs",
+                                 file_name_hashed)
+            im = Image.open(file)
+            im = im.resize((400, 400))
+            im = im.convert("RGB")
+            im.save(file_path + ".jpg")
+        elif file:
+            valid = False
+            message.append("Your file must be an image.")
+    elif form_type == "Link":
+        link = request.form.get("link")
+    
 
     # Only adds the post if a title has been input.
     if post_title != "":
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("INSERT INTO POSTS (title, body, username) "
-                        "VALUES (?, ?, ?);",
-                        (post_title, post_body, session["username"]))
+            cur.execute("INSERT INTO POSTS (title, body, username, post_type) "
+                        "VALUES (?, ?, ?, ?);",
+                        (post_title, post_body, session["username"], form_type))
             conn.commit()
+
+            if form_type == "Image" and valid == True:  
+                cur.execute("INSERT INTO PostContent (postId, contentUrl) "
+                            "VALUES (?, ?);",
+                            (cur.lastrowid, application.config["UPLOAD_FOLDER"] + "//post_imgs/"+file_name_hashed + ".jpg"))
+                conn.commit()
 
             # Award achievement ID 7 - Express yourself if necessary
             cur.execute(
@@ -1254,7 +1287,7 @@ def edit_profile() -> object:
                         "profilepicture=?, degree=? WHERE username=?;",
                         (bio, gender, dob,
                          application.config[
-                             'UPLOAD_FOLDER'] + "\\" + file_name_hashed
+                             'UPLOAD_FOLDER'] + "/avatars/" + file_name_hashed
                          + ".jpg", degree, username,))
                 else:
                     cur.execute(
@@ -1745,7 +1778,7 @@ def validate_profile_pic(file) -> Tuple[bool, List[str], str]:
     if allowed_file(file.filename):
         secure_filename(file.filename)
         file_name_hashed = str(uuid.uuid4())
-        file_path = os.path.join("." + application.config["UPLOAD_FOLDER"],
+        file_path = os.path.join("." + application.config["UPLOAD_FOLDER"] + "//avatars",
                                  file_name_hashed)
         im = Image.open(file)
         im = im.resize((400, 400))

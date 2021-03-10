@@ -23,7 +23,8 @@
         </div>
         <div class="sixteen wide column">
             <div class="ui segment basic" id="text-post-input">
-                <form action="{{ url_for('submit_post') }}" class="ui form" , method="POST">
+                <form action="{{ url_for('submit_post') }}" class="ui form" method="POST">
+                    <input hidden name="form_type" value="Text">
                     <div class="required field">
                         <label>Title</label>
                         <input placeholder="Your post needs a title" type="text" name="post_title">
@@ -37,24 +38,34 @@
             </div>
 
             <div class="ui segment basic" id="image-post-input">
-                <form action="" class="ui form">
+                <form action="{{ url_for('submit_post') }}" class="ui form" method="POST" enctype="multipart/form-data">
+                    <input hidden name="form_type" value="Image">
+                    <div class="required field">
+                        <label>Title</label>
+                        <input placeholder="Your post needs a title" type="text" name="post_title">
+                    </div>
                     <div class="field">
                         <label>Image</label>
-                        <input type="file">
+                        <input type="file" name="file">
                     </div>
                     <div class="field">
                         <label>Content</label>
-                        <textarea placeholder="Write an optional body for your post here" cols="3" rows="5"></textarea>
+                        <textarea placeholder="Write an optional body for your post here" name="post_text" id="" cols="3" rows="5"></textarea>
                     </div>
-                    <input type="submit" value="Post" class="ui button teal">
+                    <input type="submit" class="ui button teal">
                 </form>
             </div>
 
             <div class="ui segment basic" id="link-post-input">
-                <form action="" class="ui form">
+                <form action="{{ url_for('submit_post') }}" class="ui form" method="POST">
+                    <input hidden name="form_type" value="Link">
+                    <div class="required field">
+                        <label>Title</label>
+                        <input placeholder="Your post needs a title" type="text" name="post_title">
+                    </div>
                     <div class="field">
                         <label>URL</label>
-                        <input type="text" placeholder="URL">
+                        <input type="text" placeholder="URL" name="link">
                     </div>
                     <div class="field">
                         <label>Content</label>
@@ -75,8 +86,9 @@
 <!--                    <button class="ui green button icon"><i class="plus icon"></i></button>-->
                 </div>
                 <div class="ui horizontal divider hidden"></div>
-                <form action="" class="ui form">
-                   <div class="field">
+                <form action="{{ url_for('submit_post') }}" class="ui form" method="POST">
+                    <input hidden name="form_type" value="Quiz">
+                    <div class="field">
                        <label>Quiz Name</label>
                        <input type="text">
                    </div>

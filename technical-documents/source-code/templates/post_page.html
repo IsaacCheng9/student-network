@@ -24,6 +24,11 @@
                         <div class="centered">
                             <pre>{{body}}</pre>
                         </div>
+                        {% if type == "Image" %}
+                        <div class="image">
+                            <img class="ui image" src="{{ content }}" />
+                        </div>
+                        {% endif %}
                         <div>
                             <div class="ui right floated mini labeled button" tabindex="0">
                                 <button class="ui mini red button" form="likes">
