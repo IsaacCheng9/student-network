@@ -287,10 +287,19 @@
                     </button>
                     <form action="{{ url_for('remove_connection', username=username) }}" method="GET" id="connected-remove-connection"></form>
                     {% endif %}
-                    <button class="ui red button tiny">
+                    {% if type == "block" %}
+                    <button class="ui red button tiny" form="unblock-button">
+                        <i class="bell slash icon"></i>
+                        Blocked
+                    </button>
+                    <form action="{{ url_for('unblock_user', username=username) }}" method="GET" id="unblock-button"></form>
+                    {% else %}
+                    <button class="ui red button tiny" form="block-button">
                         <i class="bell slash icon"></i>
                         Block
                     </button>
+                    <form action="{{ url_for('block_user', username=username) }}" method="GET" id="block-button"></form>
+                    {% endif %}
                 </div>
                 </div>
                 </div>
