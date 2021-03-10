@@ -163,8 +163,8 @@ def connect_request(username):
 
 @application.route("/leaderboard", methods=["GET"])
 def leaderboard() -> object:
-    return render_template("leaderboard.html", 
-                        requestCount=get_connection_request_count(),
+    return render_template("leaderboard.html",
+                           requestCount=get_connection_request_count(),
                            allUsernames=get_all_usernames())
 
 
@@ -765,43 +765,101 @@ def submit_post():
     """
     post_title = request.form["post_title"]
     post_body = request.form["post_text"]
+    form_type = request.form.get("form_type")
 
-    # Gets quiz details.
-    quiz_name = request.form.get("quiz_name")
-    question_1 = [request.form.get("question_1"),
-                  request.form.get("question_1_ans_1"),
-                  request.form.get("question_1_ans_2"),
-                  request.form.get("question_1_ans_3"),
-                  request.form.get("question_1_ans_4")]
-    question_2 = [request.form.get("question_2"),
-                  request.form.get("question_2_ans_1"),
-                  request.form.get("question_2_ans_2"),
-                  request.form.get("question_2_ans_3"),
-                  request.form.get("question_2_ans_4")]
-    question_3 = [request.form.get("question_3"),
-                  request.form.get("question_3_ans_1"),
-                  request.form.get("question_3_ans_2"),
-                  request.form.get("question_3_ans_3"),
-                  request.form.get("question_3_ans_4")]
-    question_4 = [request.form.get("question_4"),
-                  request.form.get("question_4_ans_1"),
-                  request.form.get("question_4_ans_2"),
-                  request.form.get("question_4_ans_3"),
-                  request.form.get("question_4_ans_4")]
-    question_5 = [request.form.get("question_5"),
-                  request.form.get("question_5_ans_1"),
-                  request.form.get("question_5_ans_2"),
-                  request.form.get("question_5_ans_3"),
-                  request.form.get("question_5_ans_4")]
+    if form_type == "Image":
+        file = request.files["file"]
+        file_name_hashed = ""
+        # Hashes the name of the file and resizes it.
+        if allowed_file(file.filename):
+            secure_filename(file.filename)
+            file_name_hashed = str(uuid.uuid4())
+            file_path = os.path.join(
+                "." + application.config["UPLOAD_FOLDER"] + "//post_imgs",
+                file_name_hashed)
+            im = Image.open(file)
+            im = im.resize((400, 400))
+            im = im.convert("RGB")
+            im.save(file_path + ".jpg")
+        elif file:
+            valid = False
+            # message.append("Your file must be an image.")
+
+    elif form_type == "Link":
+        link = request.form.get("link")
+
+    elif form_type == "Quiz":
+        # Gets quiz details.
+        quiz_name = request.form.get("quiz_name")
+        question_1 = [request.form.get("question_1"),
+                      request.form.get("question_1_ans_1"),
+                      request.form.get("question_1_ans_2"),
+                      request.form.get("question_1_ans_3"),
+                      request.form.get("question_1_ans_4")]
+        question_2 = [request.form.get("question_2"),
+                      request.form.get("question_2_ans_1"),
+                      request.form.get("question_2_ans_2"),
+                      request.form.get("question_2_ans_3"),
+                      request.form.get("question_2_ans_4")]
+        question_3 = [request.form.get("question_3"),
+                      request.form.get("question_3_ans_1"),
+                      request.form.get("question_3_ans_2"),
+                      request.form.get("question_3_ans_3"),
+                      request.form.get("question_3_ans_4")]
+        question_4 = [request.form.get("question_4"),
+                      request.form.get("question_4_ans_1"),
+                      request.form.get("question_4_ans_2"),
+                      request.form.get("question_4_ans_3"),
+                      request.form.get("question_4_ans_4")]
+        question_5 = [request.form.get("question_5"),
+                      request.form.get("question_5_ans_1"),
+                      request.form.get("question_5_ans_2"),
+                      request.form.get("question_5_ans_3"),
+                      request.form.get("question_5_ans_4")]
+
+        # Adds quiz to the database.
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("INSERT INTO Quiz (quiz_name, question_1, "
+                        "question_1_ans_1, question_1_ans_2, question_1_ans_3, "
+                        "question_1_ans_4, question_2, question_2_ans_1, "
+                        "question_2_ans_2, question_2_ans_3, question_2_ans_4, "
+                        "question_3, question_3_ans_1, question_3_ans_2, "
+                        "question_3_ans_3, question_3_ans_4, question_4, "
+                        "question_4_ans_1, question_4_ans_2, question_4_ans_3, "
+                        "question_4_ans_4, question_5, question_5_ans_1, "
+                        "question_5_ans_2, question_5_ans_3, question_5_ans_4) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                        (
+                        quiz_name, question_1[0], question_1[1], question_1[2],
+                        question_1[3], question_1[4], question_2[0],
+                        question_2[1], question_2[2], question_2[3],
+                        question_2[4], question_3[0], question_3[1],
+                        question_3[2], question_3[3], question_3[4],
+                        question_4[0], question_4[1], question_4[2],
+                        question_4[3], question_4[4], question_5[0],
+                        question_5[1], question_5[2], question_5[3],
+                        question_5[4]))
+            conn.commit()
 
     # Only adds the post if a title has been input.
     if post_title != "":
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("INSERT INTO POSTS (title, body, username) "
-                        "VALUES (?, ?, ?);",
-                        (post_title, post_body, session["username"]))
+            cur.execute("INSERT INTO POSTS (title, body, username, post_type) "
+                        "VALUES (?, ?, ?, ?);",
+                        (
+                            post_title, post_body, session["username"],
+                            form_type))
             conn.commit()
+
+            if form_type == "Image" and valid == True:
+                cur.execute("INSERT INTO PostContent (postId, contentUrl) "
+                            "VALUES (?, ?);",
+                            (cur.lastrowid, application.config[
+                                "UPLOAD_FOLDER"] + "//post_imgs/" + file_name_hashed + ".jpg"))
+                conn.commit()
 
             # Award achievement ID 7 - Express yourself if necessary
             cur.execute(
