@@ -133,7 +133,8 @@
             <!--                    <button class="ui green button icon"><i class="plus icon"></i></button>-->
           </div>
           <div class="ui horizontal divider hidden"></div>
-          <form action="" class="ui form">
+          <form action="{{ url_for('submit_post') }}" class="ui form" method="POST">
+            <input hidden name="form_type" value="Quiz">
             <div class="field">
               <label>Quiz Name</label>
               <input type="text" name="quiz_name"/>

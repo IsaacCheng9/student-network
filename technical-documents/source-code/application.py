@@ -803,32 +803,9 @@ def submit_post():
     Returns:
         Updated feed with new post added
     """
-    post_title = request.form["post_title"]
-    post_body = request.form["post_text"]
     form_type = request.form.get("form_type")
 
-    if form_type == "Image":
-        file = request.files["file"]
-        file_name_hashed = ""
-        # Hashes the name of the file and resizes it.
-        if allowed_file(file.filename):
-            secure_filename(file.filename)
-            file_name_hashed = str(uuid.uuid4())
-            file_path = os.path.join(
-                "." + application.config["UPLOAD_FOLDER"] + "//post_imgs",
-                file_name_hashed)
-            im = Image.open(file)
-            im = im.resize((400, 400))
-            im = im.convert("RGB")
-            im.save(file_path + ".jpg")
-        elif file:
-            valid = False
-            # message.append("Your file must be an image.")
-
-    elif form_type == "Link":
-        link = request.form.get("link")
-
-    elif form_type == "Quiz":
+    if form_type == "Quiz":
         # Gets quiz details.
         quiz_name = request.form.get("quiz_name")
         question_1 = [request.form.get("question_1"),
@@ -884,61 +861,85 @@ def submit_post():
                             question_5[1], question_5[2], question_5[3],
                             question_5[4]))
             conn.commit()
+    else:
+        post_title = request.form["post_title"]
+        post_body = request.form["post_text"]
 
-    # Only adds the post if a title has been input.
-    if post_title != "":
-        with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-            cur.execute("INSERT INTO POSTS (title, body, username, post_type) "
-                        "VALUES (?, ?, ?, ?);",
-                        (
-                            post_title, post_body, session["username"],
-                            form_type))
-            conn.commit()
+        if form_type == "Image":
+            file = request.files["file"]
+            file_name_hashed = ""
+            # Hashes the name of the file and resizes it.
+            if allowed_file(file.filename):
+                secure_filename(file.filename)
+                file_name_hashed = str(uuid.uuid4())
+                file_path = os.path.join(
+                    "." + application.config["UPLOAD_FOLDER"] + "//post_imgs",
+                    file_name_hashed)
+                im = Image.open(file)
+                im = im.resize((400, 400))
+                im = im.convert("RGB")
+                im.save(file_path + ".jpg")
+            elif file:
+                valid = False
+                # message.append("Your file must be an image.")
 
-            if form_type == "Image" and valid == True:
-                cur.execute("INSERT INTO PostContent (postId, contentUrl) "
-                            "VALUES (?, ?);",
-                            (cur.lastrowid, application.config[
-                                "UPLOAD_FOLDER"] + "//post_imgs/" + file_name_hashed + ".jpg"))
+        elif form_type == "Link":
+            link = request.form.get("link")
+
+        # Only adds the post if a title has been input.
+        if post_title != "":
+            with sqlite3.connect("database.db") as conn:
+                cur = conn.cursor()
+                cur.execute("INSERT INTO POSTS (title, body, username, post_type) "
+                            "VALUES (?, ?, ?, ?);",
+                            (
+                                post_title, post_body, session["username"],
+                                form_type))
                 conn.commit()
 
-            # Award achievement ID 7 - Express yourself if necessary
-            cur.execute(
-                "SELECT * FROM CompleteAchievements "
-                "WHERE (username=? AND achievement_ID=?);",
-                (session["username"], 7))
-            if cur.fetchone() is None:
-                apply_achievement(session["username"], 7)
+                if form_type == "Image" and valid == True:
+                    cur.execute("INSERT INTO PostContent (postId, contentUrl) "
+                                "VALUES (?, ?);",
+                                (cur.lastrowid, application.config[
+                                    "UPLOAD_FOLDER"] + "//post_imgs/" + file_name_hashed + ".jpg"))
+                    conn.commit()
 
-            # Award achievement ID 8 - 5 posts if necessary
-            cur.execute(
-                "SELECT * FROM CompleteAchievements "
-                "WHERE (username=? AND achievement_ID=?);",
-                (session["username"], 8))
-            if cur.fetchone() is None:
+                # Award achievement ID 7 - Express yourself if necessary
                 cur.execute(
-                    "SELECT * FROM POSTS WHERE username=?;",
-                    (session["username"],))
-                results = cur.fetchall()
-                if len(results) >= 5:
-                    apply_achievement(session["username"], 8)
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (session["username"], 7))
+                if cur.fetchone() is None:
+                    apply_achievement(session["username"], 7)
 
-            # Award achievement ID 9 - 20 posts if necessary
-            cur.execute(
-                "SELECT * FROM CompleteAchievements "
-                "WHERE (username=? AND achievement_ID=?);",
-                (session["username"], 9))
-            if cur.fetchone() is None:
+                # Award achievement ID 8 - 5 posts if necessary
                 cur.execute(
-                    "SELECT * FROM POSTS WHERE username=?;",
-                    (session["username"],))
-                results = cur.fetchall()
-                if len(results) >= 20:
-                    apply_achievement(session["username"], 9)
-    else:
-        # Prints error message stating that the title is missing.
-        session["error"] = ["You must submit a post title!"]
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (session["username"], 8))
+                if cur.fetchone() is None:
+                    cur.execute(
+                        "SELECT * FROM POSTS WHERE username=?;",
+                        (session["username"],))
+                    results = cur.fetchall()
+                    if len(results) >= 5:
+                        apply_achievement(session["username"], 8)
+
+                # Award achievement ID 9 - 20 posts if necessary
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (session["username"], 9))
+                if cur.fetchone() is None:
+                    cur.execute(
+                        "SELECT * FROM POSTS WHERE username=?;",
+                        (session["username"],))
+                    results = cur.fetchall()
+                    if len(results) >= 20:
+                        apply_achievement(session["username"], 9)
+        else:
+            # Prints error message stating that the title is missing.
+            session["error"] = ["You must submit a post title!"]
 
     return redirect("/feed")
 
