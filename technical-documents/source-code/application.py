@@ -1216,6 +1216,21 @@ def like_post() -> object:
                     (session["username"], 25))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 25)
+        else:
+            # Gets number of current likes.
+            cur.execute("SELECT likes FROM POSTS WHERE postId=?;",
+                        (post_id,))
+            row = cur.fetchone()
+            likes = row[0] - 1
+
+            cur.execute("UPDATE POSTS SET likes=? "
+                        " WHERE postId=? ;", (likes, post_id,))
+            conn.commit()
+
+            cur.execute("DELETE FROM UserLikes "
+                        "WHERE (postId=? AND username=?)",
+                        (post_id, session["username"]))
+            conn.commit()
 
     return redirect("/post_page/" + post_id)
 
@@ -1247,6 +1262,29 @@ def submit_comment() -> object:
                 (session["username"], 10))
             if cur.fetchone() is None:
                 apply_achievement(session["username"], 10)
+
+            # Get username on post
+            cur.execute(
+                "SELECT username FROM POSTS "
+                "WHERE postId=?;",
+                (post_id,))
+            username = cur.fetchone()[0]
+
+            # Get number of comments
+            cur.execute(
+                "SELECT COUNT(commentId) FROM Comments "
+                "WHERE postID=?;", (post_id,))
+            row = cur.fetchone()[0]
+            print(row)
+
+            # Award achievement ID 21 - Hot topic if necessary
+            if row >= 10:
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (username, 21))
+                if cur.fetchone() is None:
+                    apply_achievement(username, 21)
 
     session["postId"] = post_id
     return redirect("/post_page/" + post_id)
@@ -1622,6 +1660,15 @@ def edit_profile() -> object:
                          application.config[
                              'UPLOAD_FOLDER'] + "/avatars/" + file_name_hashed
                          + ".jpg", degree, username,))
+
+                    # Award achievement ID 18 - Describe yourself if necessary
+                    cur.execute(
+                        "SELECT * FROM CompleteAchievements "
+                        "WHERE (username=? AND achievement_ID=?);",
+                        (session["username"], 18))
+                    if cur.fetchone() is None:
+                        apply_achievement(username, 18)
+
                 else:
                     cur.execute(
                         "UPDATE UserProfile SET bio=?, gender=?, birthday=?, "
