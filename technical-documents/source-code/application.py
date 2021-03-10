@@ -223,7 +223,12 @@ def leaderboard() -> object:
                     break
             top_users = top_users[0:min(25, len(top_users))]
             top_users = list(map(lambda x: (
+<<<<<<< HEAD
                 x[0], x[1], get_profile_picture(x[0]), get_level(x[0])),
+=======
+                x[0], x[1], get_profile_picture(x[0]), get_level(x[0]),
+                get_degree(x[0])[1]),
+>>>>>>> 3e7d94fed939249cd5422d998535a521174b5a96
                 top_users))
 
     return render_template("leaderboard.html", leaderboard=top_users,
@@ -405,6 +410,7 @@ def accept_connection_request(username: str) -> object:
                     # Get connections
                     cons_user2 = get_all_connections(username)
 
+<<<<<<< HEAD
                     # Get user degree and connections different
                     cur.execute(
                         "SELECT degree from UserProfile "
@@ -416,6 +422,11 @@ def accept_connection_request(username: str) -> object:
                         "WHERE username=?;", (username,)
                     )
                     degree_user2 = cur.fetchone()[0]
+=======
+                    # Get user degree and connections degree
+                    degree = get_degree(session["username"])[0]
+                    degree_user2 = get_degree(username)[0]
+>>>>>>> 3e7d94fed939249cd5422d998535a521174b5a96
 
                     # Get count of connections who study a different degree
                     valid_user_count = 0
@@ -1379,12 +1390,7 @@ def profile(username: str) -> object:
     account_type = row[0][0]
 
     # Gets users degree.
-    cur.execute(
-        "SELECT degree FROM  "
-        "Degree WHERE degreeId = (SELECT degree "
-        "FROM UserProfile WHERE username=?);", (username,))
-    row = cur.fetchone()
-    degree = row[0]
+    degree = get_degree(username)[1]
 
     # Gets the user's hobbies.
     cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
@@ -1980,8 +1986,39 @@ def get_profile_picture(username: str) -> str:
         row = cur.fetchone()
         if row:
             return row[0]
+<<<<<<< HEAD
+=======
 
+def get_degree(username: str) -> Tuple[int, str]:
+    """
+    Gets the degree of a user.
+>>>>>>> 3e7d94fed939249cd5422d998535a521174b5a96
 
+    Args:
+        username: The username of the user's profile picture.
+
+<<<<<<< HEAD
+=======
+    Returns:
+        The degree of the user.
+        The degreeID of the user.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT degree FROM UserProfile WHERE username=?;",
+            (username,)
+        )
+        degreeId = cur.fetchone()
+        if degreeId:
+            cur.execute(
+                "SELECT degree FROM Degree WHERE degreeId=?;",
+                (degreeId[0],)
+            )
+            degree = cur.fetchone()
+            return degreeId[0], degree[0]
+
+>>>>>>> 3e7d94fed939249cd5422d998535a521174b5a96
 def is_close_friend(username: str) -> bool:
     """
     Gets whether the selected user has the logged in as a close friend.
