@@ -1264,7 +1264,7 @@ def submit_comment() -> object:
             print(row)
 
             # Award achievement ID 21 - Hot topic if necessary
-            if row >= 2:
+            if row >= 10:
                 cur.execute(
                     "SELECT * FROM CompleteAchievements "
                     "WHERE (username=? AND achievement_ID=?);",
