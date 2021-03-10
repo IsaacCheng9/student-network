@@ -1086,21 +1086,31 @@ def like_post():
                         "VALUES (?, ?);", (post_id, session["username"]))
 
             # Gets number of current likes.
-            cur.execute("SELECT likes FROM POSTS WHERE postId=?;", (post_id,))
+            cur.execute("SELECT likes, username FROM POSTS WHERE postId=?;", (post_id,))
             row = cur.fetchone()
             likes = row[0] + 1
+            username = row[1]
+
+            cur.execute("UPDATE POSTS SET likes=? "
+                        " WHERE postId=? ;", (likes, post_id,))
+            conn.commit()
+
+            # Award achievement ID 20 - First like if necessary
+            cur.execute(
+                "SELECT * FROM CompleteAchievements "
+                "WHERE (username=? AND achievement_ID=?);",
+                (username, 20))
+            if cur.fetchone() is None:
+                apply_achievement(username, 22)
 
             # Award achievement ID 22 - Everyone loves you if necessary
             if likes >= 50:
                 cur.execute(
                     "SELECT * FROM CompleteAchievements "
                     "WHERE (username=? AND achievement_ID=?);",
-                    (session["username"], 22))
+                    (username, 22))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 22)
-            cur.execute("UPDATE POSTS SET likes=? "
-                        " WHERE postId=? ;", (likes, post_id,))
-            conn.commit()
 
             # Checks how many posts user has liked.
             cur.execute("SELECT COUNT(postId) FROM UserLikes"
