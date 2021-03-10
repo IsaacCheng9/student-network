@@ -742,7 +742,7 @@ def feed():
                 cur.execute(
                     "SELECT * FROM POSTS "
                     "WHERE username=? "
-                    "AND privacy!='private' AND privacy!='close_friend';", (user[0],))
+                    "AND privacy!='private' AND privacy!='close';", (user[0],))
                 row += cur.fetchall()
             # Sort reverse chronologically
             row = sorted(row, key=lambda x: x[0], reverse=True)
@@ -1181,8 +1181,8 @@ def profile(username):
                 (session["username"], username))
             if cur.fetchone() is None:
                 conn_type = get_connection_type(username)
-                if conn_type == "connected" and (privacy == "private" or privacy == "close_friend" or privacy == "protected"):
-                    message.append("This profile is available only to close friends")
+                if conn_type == "connected" and privacy=="close_friends":
+                    message.append("This profile is available only to connections")
                     return render_template("error.html", message=message,
                             requestCount=get_connection_request_count())
             else:
@@ -1209,12 +1209,12 @@ def profile(username):
                 elif conn_type is "connected":
                     cur.execute(
                         "SELECT * FROM POSTS WHERE username=? "
-                        "AND privacy!='private' AND privacy!='protected'", (username,))
+                        "AND privacy!='private' or privacy!='close' ", (username,))
                     sort_posts = cur.fetchall()
                 else:
                     cur.execute(
                         "SELECT * FROM POSTS WHERE username=? "
-                        "AND privacy!='private' AND privacy!='protected' AND privacy!='close_friends' ", (username,))
+                        "AND (privacy!='private' or privacy!='close' or privacy!='protected') ", (username,))
                     sort_posts = cur.fetchall()
         #Checks there are any achievements to reward
         # Award achievement ID 1 - Look at you if necessary
@@ -1256,7 +1256,7 @@ def profile(username):
         if user_post[5] == "protected":
             privacy = "Friends only"
             icon = "user plus"
-        elif user_post[5] == "close_friend":
+        elif user_post[5] == "close":
             privacy = "Close friends only"
             icon = "handshake outline"
         elif user_post[5] == "private":
