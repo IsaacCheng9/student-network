@@ -1691,6 +1691,7 @@ def get_level(username) -> List[int]:
 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
+        check_level_exists(username, conn)
         # Get user experience
         cur.execute(
             "SELECT experience FROM "
