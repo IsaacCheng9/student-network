@@ -306,6 +306,82 @@ def accept_connection_request(username) -> object:
                     if cur.fetchone() is None:
                         apply_achievement(username, 4)
 
+                    # Get user interests and hobbies
+                    cur.execute(
+                        "SELECT interest FROM UserInterests "
+                        "WHERE username=?;",
+                        (session["username"],))
+                    row = cur.fetchall()
+                    my_interests = []
+                    for interest in row:
+                        my_interests.append(interest[0])
+                    cur.execute(
+                        "SELECT hobby FROM UserHobby "
+                        "WHERE username=?;",
+                        (session["username"],))
+                    row = cur.fetchall()
+                    my_hobbies = []
+                    for hobby in row:
+                        my_hobbies.append(hobby[0])
+
+                    # Get connected user interests and hobbies
+                    cur.execute(
+                        "SELECT interest FROM UserInterests "
+                        "WHERE username=?;",
+                        (username,))
+                    row = cur.fetchall()
+                    conec_interests = []
+                    for interest in row:
+                        conec_interests.append(interest[0])
+                    cur.execute(
+                        "SELECT hobby FROM UserHobby "
+                        "WHERE username=?;",
+                        (username,))
+                    row = cur.fetchall()
+                    conec_hobbies = []
+                    for hobby in row:
+                        conec_hobbies.append(hobby[0])
+                    
+                    # Award achievement ID 16 - Shared intrests if necessary
+                    common_interests = set(my_interests) - (set(my_interests) - set(conec_interests))
+                    print(common_interests)
+                    if common_interests:
+                        cur.execute(
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
+                            (session["username"], 16))
+                        if cur.fetchone() is None:
+                            apply_achievement(session["username"], 16)
+
+                        # Award achievement ID 16 to connected user        
+                        cur.execute(
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
+                            (username, 16))
+                        if cur.fetchone() is None:
+                            apply_achievement(username, 16)
+
+                    # Award achievement ID 26 - Shared hobbies if necessary
+                    common_hobbies = set(my_hobbies) - (set(my_hobbies) - set(conec_hobbies))
+                    print(common_hobbies)
+                    if common_hobbies:
+                        cur.execute(
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
+                            (session["username"], 26))
+                        if cur.fetchone() is None:
+                            apply_achievement(session["username"], 26)
+
+                        # Award achievement ID 26 to connected user   
+                        cur.execute(
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
+                            (username, 26))
+                        if cur.fetchone() is None:
+                            apply_achievement(username, 26)
+                    
+                        
+
                     # Get connections
                     cons_user = get_all_connections(session["username"])
 
