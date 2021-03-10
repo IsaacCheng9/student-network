@@ -1978,8 +1978,8 @@ def get_profile_picture(username: str) -> str:
             (username,)
         )
         row = cur.fetchone()
-
-    return row[0]
+        if row:
+            return row[0]
 
 
 def is_close_friend(username: str) -> bool:
