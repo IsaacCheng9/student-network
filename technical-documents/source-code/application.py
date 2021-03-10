@@ -724,6 +724,7 @@ def feed():
     Returns:
         Redirection to their feed if they're logged in.
     """
+    content = ""
     if "username" in session:
         session["prev-page"] = request.url
         with sqlite3.connect("database.db") as conn:
@@ -762,6 +763,15 @@ def feed():
                 print(get_profile_picture(user_post[3]))
                 accounts = cur.fetchone()
                 account_type = accounts[0]
+
+                post_id = user_post[0]
+                post_type = user_post[8]
+                if post_type == "Image":
+                    cur.execute(
+                        "SELECT contentUrl "
+                        "FROM PostContent WHERE postId=?;", (post_id,))
+                    content = cur.fetchone()[0]
+
                 all_posts["AllPosts"].append({
                     "postId": user_post[0],
                     "title": user_post[1],
@@ -769,7 +779,9 @@ def feed():
                     "author": user_post[3],
                     "account_type": account_type,
                     "date_posted": time,
-                    "body": (user_post[2])[:250] + add
+                    "body": (user_post[2])[:250] + add,
+                    "post_type": user_post[8],
+                    "content": content
                 })
                 i += 1
 
@@ -781,11 +793,11 @@ def feed():
             return render_template("feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
-                                   errors=errors)
+                                   errors=errors, content=content)
         else:
             return render_template("feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames(), )
+                                   allUsernames=get_all_usernames(),content=content )
     else:
         return redirect("/login")
 
@@ -811,8 +823,14 @@ def submit_post():
             file_name_hashed = str(uuid.uuid4())
             file_path = os.path.join("." + application.config["UPLOAD_FOLDER"] + "//post_imgs",
                                  file_name_hashed)
+            
             im = Image.open(file)
-            im = im.resize((400, 400))
+
+            fixed_height = 400
+            height_percent = (fixed_height / float(im.size[1]))
+            width_size = int((float(im.size[0]) * float(height_percent)))
+
+            im = im.resize((width_size, fixed_height))
             im = im.convert("RGB")
             im.save(file_path + ".jpg")
         elif file:

@@ -13,12 +13,14 @@
     {% endif %}
     <div class="ui grid">
         <div class="sixteen wide column">
-            <div class="ui buttons teal icon" id="post-type-buttons">
-                <div class="ui teal button basic">Post Type</div>
-                <button class="ui button" onclick='SelectPostType("text", this);' id=default-post-btn><i class="file alternate outline icon"></i> Text</button>
-                <button class="ui button basic" onclick='SelectPostType("image", this);'><i class="file image outline icon"></i> Image</button>
-                <button class="ui button basic" onclick='SelectPostType("link", this);'><i class="linkify icon"></i> Link</button>
-                <button class="ui button basic" onclick='SelectPostType("quiz", this);'><i class="question circle outline icon"></i> Quiz</button>
+            <div class="ui segment basic">
+                <div class="ui buttons teal icon" id="post-type-buttons">
+                    <div class="ui teal button basic">Post Type</div>
+                    <button class="ui button" onclick='SelectPostType("text", this);' id=default-post-btn><i class="file alternate outline icon"></i> Text</button>
+                    <button class="ui button basic" onclick='SelectPostType("image", this);'><i class="file image outline icon"></i> Image</button>
+                    <button class="ui button basic" onclick='SelectPostType("link", this);'><i class="linkify icon"></i> Link</button>
+                    <button class="ui button basic" onclick='SelectPostType("quiz", this);'><i class="question circle outline icon"></i> Quiz</button>
+                </div>
             </div>
         </div>
         <div class="sixteen wide column">
@@ -83,15 +85,15 @@
                     <button class="ui orange button question-select basic" onclick='SelectQuestion(3,this);'>3</button>
                     <button class="ui orange button question-select basic" onclick='SelectQuestion(4,this);'>4</button>
                     <button class="ui orange button question-select basic" onclick='SelectQuestion(5,this);'>5</button>
-<!--                    <button class="ui green button icon"><i class="plus icon"></i></button>-->
+                    <!--                    <button class="ui green button icon"><i class="plus icon"></i></button>-->
                 </div>
                 <div class="ui horizontal divider hidden"></div>
                 <form action="{{ url_for('submit_post') }}" class="ui form" method="POST">
                     <input hidden name="form_type" value="Quiz">
                     <div class="field">
-                       <label>Quiz Name</label>
-                       <input type="text">
-                   </div>
+                        <label>Quiz Name</label>
+                        <input type="text">
+                    </div>
                     <div class="ui segment basic question-input" id=question1>
                         <div class="field">
                             <label>Question</label>
@@ -100,21 +102,21 @@
                         <div class="two fields">
                             <div class="field">
                                 <label>Correct Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                         </div>
                         <div class="two fields">
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                         </div>
                     </div>
@@ -126,21 +128,21 @@
                         <div class="two fields">
                             <div class="field">
                                 <label>Correct Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                         </div>
                         <div class="two fields">
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                         </div>
                     </div>
@@ -152,21 +154,21 @@
                         <div class="two fields">
                             <div class="field">
                                 <label>Correct Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                         </div>
                         <div class="two fields">
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                         </div>
                     </div>
@@ -178,21 +180,21 @@
                         <div class="two fields">
                             <div class="field">
                                 <label>Correct Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                         </div>
                         <div class="two fields">
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                         </div>
                     </div>
@@ -204,57 +206,94 @@
                         <div class="two fields">
                             <div class="field">
                                 <label>Correct Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                         </div>
                         <div class="two fields">
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                             <div class="field">
                                 <label>Answer</label>
-                                <input type="text"  autocomplete="off">
+                                <input type="text" autocomplete="off">
                             </div>
                         </div>
                     </div>
-                    
-                    
+
+
                     <input type="submit" value="Create Quiz" class="ui button teal">
                 </form>
             </div>
-
-            <div class="ui horizontal divider">Recent Posts</div>
-            {% for post in posts.AllPosts %}
-            <div class="ui grid">
-                <div class="two wide column">
-                    <img class="ui image centered rounded" src="{{post.profile_pic}}" alt="" />
-                </div>
-                <div class="fourteen wide column">
-                    <h2>
-                        <a href="/post_page/{{ post.postId }}">{{ post.title }}</a>
-                        <div style="float: right">
-                            <h3>{{ post.date_posted }}</h3>
-                        </div>
-                    </h2>
-                    <a href="/profile/{{ post.author }}">
-                        <div class="ui label blue">
-                            {{ post.author }}
-                            <div class="detail">{{ post.account_type }}</div>
-                        </div>
-                    </a>
-                    <br>
-                    {{ post.body }}
-                </div>
-            </div>
-            {% endfor %}
         </div>
     </div>
 </div>
+
+{% for post in posts.AllPosts %}
+<div class="ui segment">
+    <div class="ui grid stackable">
+        <div class="one wide column">
+            <img src="{{post.profile_pic}}" alt="" class="ui image centered round" style="border-radius: 100%;">
+        </div>
+        <div class="fifteen wide column">
+            <div class="ui label">
+                {{ post.author }}
+                <div class="detail">{{ post.account_type }}</div>
+            </div>
+            <div style="float:right;">{{ post.date_posted }}</div>
+        </div>
+        <div class="sixteen wide column">
+            <h2><a href="/post_page/{{ post.postId }}">{{ post.title }}</a></h2>
+        </div>
+        <div class="sixteen wide column">
+            {{ post.body }}
+        </div>
+        {% if post.post_type == "Image" %}
+        <div class="sixteen wide column">
+            <img src="{{ post.content }}" alt="" class="ui image centered">
+        </div>
+        {% endif %}
+
+<!--
+        <div class="sixteen wide column" style="margin: 0; padding: 0;">
+            <div class="ui divider"></div>
+
+            <div class="ui two buttons fluid">
+                <button class="ui button icon fluid basic"><i class="icon heart"></i>Like</button>
+                <button class="ui button icon fluid basic"><i class="icon comment"></i>Comment</button>
+            </div>
+
+            <div class="ui divider"></div>
+        </div>
+-->
+        <div class="sixteen wide column">
+            <div>5 comments</div>
+            <a>Show all comments</a>
+            <div class="ui comments">
+                <div class="comment">
+                    <a class="avatar">
+                        <img src="https://via.placeholder.com/200">
+                    </a>
+                    <div class="content">
+                        <a class="author">Matt</a>
+                        <div class="metadata">
+                            <span class="date">Today at 5:42PM</span>
+                        </div>
+                        <div class="text">
+                            How artistic!
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a>Write a comment</a>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
@@ -277,25 +316,25 @@
     function SelectQuestion(index, elem) {
         $('.question-select').addClass("basic");
         $(elem).removeClass("basic");
-        
+
         $('.question-input').hide(300);
-        $('#question'+index).show(300);
-        
+        $('#question' + index).show(300);
+
         UpdateQuestionSelectBtns();
     }
-    
-    function UpdateQuestionSelectBtns(){
-        $('.question-input').each(function(index){
+
+    function UpdateQuestionSelectBtns() {
+        $('.question-input').each(function(index) {
             var anyEmpty = false;
-            $(this).find("input").each(function(){
-                if ($(this).val() == ""){
+            $(this).find("input").each(function() {
+                if ($(this).val() == "") {
                     anyEmpty = true;
                 }
             })
-            
+
             var currentQuestion = $('.question-select').eq(index);
             // invalid input
-            if (anyEmpty){
+            if (anyEmpty) {
                 currentQuestion.removeClass("green");
             } else {
                 currentQuestion.addClass("green");
@@ -306,9 +345,9 @@
 
     document.addEventListener("DOMContentLoaded", function() {
         SelectPostType("text", $('#default-post-btn'));
-        SelectQuestion(0,$('#default-question-btn'));
-        
-        $('.question-input input').on("input", function(){
+        SelectQuestion(0, $('#default-question-btn'));
+
+        $('.question-input input').on("input", function() {
             UpdateQuestionSelectBtns();
         })
     })
