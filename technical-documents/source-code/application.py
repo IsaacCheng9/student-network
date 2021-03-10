@@ -1230,20 +1230,24 @@ def edit_profile() -> object:
         # Connects to the database to perform validation.
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            # Applies changes to the user's profile details on the
-            # database if valid.
-            valid, message, filename = validate_edit_profile(bio, gender, dob,
-                                                             hobbies,
-                                                             interests)
+
+            # Validates user profile details and uploaded image.
+            valid, message = validate_edit_profile(bio, gender, dob, hobbies,
+                                                   interests)
+            if valid is True:
+                file = request.files["file"]
+                valid, message, file_name_hashed = validate_profile_pic(file)
+
             # Updates the user profile if details are valid.
             if valid is True:
                 # Updates the bio, gender, and birthday.
-                if filename:
+                if file_name_hashed:
                     cur.execute(
                         "UPDATE UserProfile SET bio=?, gender=?, birthday=?, "
                         "profilepicture=?, degree=? WHERE username=?;",
                         (bio, gender, dob,
-                         application.config['UPLOAD_FOLDER'] + "\\" + filename
+                         application.config[
+                             'UPLOAD_FOLDER'] + "\\" + file_name_hashed
                          + ".jpg", degree, username,))
                 else:
                     cur.execute(
@@ -1280,7 +1284,8 @@ def edit_profile() -> object:
                 return render_template(
                     "settings.html", errors=message,
                     requestCount=get_connection_request_count(),
-                    allUsernames=get_all_usernames(), date=dob, bio=bio)
+                    allUsernames=get_all_usernames(), degrees=degrees,
+                    date=dob, bio=bio)
 
 
 @application.route("/logout", methods=["GET"])
@@ -1551,7 +1556,7 @@ def is_close_friend(username) -> bool:
 
 def validate_edit_profile(
         bio: str, gender: str, dob: str,
-        hobbies: list, interests: list) -> Tuple[bool, List[str], str]:
+        hobbies: list, interests: list) -> Tuple[bool, List[str]]:
     """
     Validates the details in the profile editing form.
 
@@ -1568,7 +1573,11 @@ def validate_edit_profile(
     # If not, error messages will be provided to the user.
     valid = True
     message = []
-    file_name_hashed = ""
+
+    # Checks that the bio has a maximum of 160 characters.
+    if len(bio) > 160:
+        valid = False
+        message.append("Bio must not exceed 160 characters!")
 
     # Checks that the gender is male, female, or other.
     if gender not in ["Male", "Female", "Other"]:
@@ -1584,11 +1593,6 @@ def validate_edit_profile(
             valid = False
             message.append("Date of birth must be a past date!")
 
-    # Checks that the bio has a maximum of 160 characters.
-    if len(bio) > 160:
-        valid = False
-        message.append("Bio must not exceed 160 characters!")
-
     # Checks that each hobby has a maximum of 24 characters.
     for hobby in hobbies:
         if len(hobby) > 24:
@@ -1603,27 +1607,7 @@ def validate_edit_profile(
             message.append("Interests must not exceed 24 characters!")
             break
 
-    # Uploads profile picture.
-    if valid is True:
-        file = request.files["file"]
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        if allowed_file(file.filename):
-            secure_filename(file.filename)
-            file_name_hashed = str(uuid.uuid4())
-
-            filepath = os.path.join("." + application.config["UPLOAD_FOLDER"],
-                                    file_name_hashed)
-
-            im = Image.open(file)
-            im = im.resize((400, 400))
-            im = im.convert("RGB")
-            im.save(filepath + ".jpg")
-        elif file:
-            valid = False
-            message.append("Your file needs to be an image")
-
-    return valid, message, file_name_hashed
+    return valid, message
 
 
 def validate_registration(
@@ -1723,6 +1707,37 @@ def validate_registration(
         valid = False
 
     return valid, message
+
+
+def validate_profile_pic(file) -> Tuple[bool, List[str], str]:
+    """
+    Validates the file to check that it's a valid image.
+
+    Args:
+        file: The he file uploaded by the user.
+
+    Returns:
+        Whether the file uploaded is a valid image, and any error messages.
+    """
+    valid = True
+    message = []
+    file_name_hashed = ""
+
+    # Hashes the name of the file and resizes it.
+    if allowed_file(file.filename):
+        secure_filename(file.filename)
+        file_name_hashed = str(uuid.uuid4())
+        file_path = os.path.join("." + application.config["UPLOAD_FOLDER"],
+                                 file_name_hashed)
+        im = Image.open(file)
+        im = im.resize((400, 400))
+        im = im.convert("RGB")
+        im.save(file_path + ".jpg")
+    elif file:
+        valid = False
+        message.append("Your file must be an image.")
+
+    return valid, message, file_name_hashed
 
 
 if __name__ == "__main__":
