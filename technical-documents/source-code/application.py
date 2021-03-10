@@ -1234,6 +1234,29 @@ def submit_comment() -> object:
             if cur.fetchone() is None:
                 apply_achievement(session["username"], 10)
 
+            # Get username on post
+            cur.execute(
+                "SELECT username FROM POSTS "
+                "WHERE postId=?;",
+                (post_id,))
+            username = cur.fetchone()[0]
+
+            # Get number of comments
+            cur.execute(
+                "SELECT COUNT(commentId) FROM Comments "
+                "WHERE postID=?;", (post_id,))
+            row = cur.fetchone()[0]
+            print(row)
+
+            # Award achievement ID 21 - Hot topic if necessary
+            if row >= 2:
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (username, 21))
+                if cur.fetchone() is None:
+                    apply_achievement(username, 21)
+
     session["postId"] = post_id
     return redirect("/post_page/" + post_id)
 
