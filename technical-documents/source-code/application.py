@@ -7,6 +7,7 @@ import os
 import re
 import sqlite3
 import uuid
+import json
 from datetime import date, datetime
 from string import capwords
 from typing import Tuple, List
@@ -967,6 +968,19 @@ def feed() -> object:
                                    content=content)
     else:
         return redirect("/login")
+
+
+@application.route("/search_query", methods=["GET"])
+def search_query():
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        chars = request.args.get('chars')
+        pattern = chars + "%"
+        cur.execute("SELECT * FROM Accounts WHERE username LIKE ? LIMIT 5;",
+                (pattern,))
+        row = cur.fetchall()
+        print(json.dumps(row))
+    return json.dumps(row)
 
 
 @application.route("/submit_post", methods=["POST"])
