@@ -1037,33 +1037,38 @@ def submit_post() -> object:
                       request.form.get("question_5_ans_3"),
                       request.form.get("question_5_ans_4")]]
 
-        # Adds quiz to the database.
-        with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-            cur.execute("INSERT INTO Quiz (quiz_name, date_created, author, question_1, "
-                        "question_1_ans_1, question_1_ans_2, question_1_ans_3, "
-                        "question_1_ans_4, question_2, question_2_ans_1, "
-                        "question_2_ans_2, question_2_ans_3, question_2_ans_4, "
-                        "question_3, question_3_ans_1, question_3_ans_2, "
-                        "question_3_ans_3, question_3_ans_4, question_4, "
-                        "question_4_ans_1, question_4_ans_2, question_4_ans_3, "
-                        "question_4_ans_4, question_5, question_5_ans_1, "
-                        "question_5_ans_2, question_5_ans_3, question_5_ans_4, "
-                        "privacy) "
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-                        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-                        (
-                            quiz_name, date_created, author, questions[0][0],
-                            questions[0][1], questions[0][2], questions[0][3],
-                            questions[0][4], questions[1][0], questions[1][1],
-                            questions[1][2], questions[1][3], questions[1][4],
-                            questions[2][0], questions[2][1], questions[2][2],
-                            questions[2][3], questions[2][4], questions[3][0],
-                            questions[3][1], questions[3][2], questions[3][3],
-                            questions[3][4], questions[4][0], questions[4][1],
-                            questions[4][2], questions[4][3], questions[4][4],
-                            post_privacy))
-            conn.commit()
+        valid, message = validate_quiz(questions)
+        if valid:
+            # Adds quiz to the database.
+            with sqlite3.connect("database.db") as conn:
+                cur = conn.cursor()
+                cur.execute("INSERT INTO Quiz (quiz_name, date_created, author, question_1, "
+                            "question_1_ans_1, question_1_ans_2, question_1_ans_3, "
+                            "question_1_ans_4, question_2, question_2_ans_1, "
+                            "question_2_ans_2, question_2_ans_3, question_2_ans_4, "
+                            "question_3, question_3_ans_1, question_3_ans_2, "
+                            "question_3_ans_3, question_3_ans_4, question_4, "
+                            "question_4_ans_1, question_4_ans_2, question_4_ans_3, "
+                            "question_4_ans_4, question_5, question_5_ans_1, "
+                            "question_5_ans_2, question_5_ans_3, question_5_ans_4, "
+                            "privacy) "
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                            "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                            (
+                                quiz_name, date_created, author, questions[0][0],
+                                questions[0][1], questions[0][2], questions[0][3],
+                                questions[0][4], questions[1][0], questions[1][1],
+                                questions[1][2], questions[1][3], questions[1][4],
+                                questions[2][0], questions[2][1], questions[2][2],
+                                questions[2][3], questions[2][4], questions[3][0],
+                                questions[3][1], questions[3][2], questions[3][3],
+                                questions[3][4], questions[4][0], questions[4][1],
+                                questions[4][2], questions[4][3], questions[4][4],
+                                post_privacy))
+                conn.commit()
+        else:
+            session["error"] = message
+            return redirect("feed.html")
     else:
         post_title = request.form["post_title"]
         post_body = request.form["post_text"]
@@ -2116,12 +2121,25 @@ def validate_edit_profile(
 
 
 def validate_quiz(questions: list) -> Tuple[bool, List[str]]:
+    """
+    Validates the quiz creation details which have been input by a user.
+
+    Args:
+        questions: The quiz question details input by the user.
+
+    Returns:
+        Whether the quiz is valid, and the error messages if not.
+    """
     valid = True
     message = []
 
+    # Checks that all questions details have been filled in.
     for question in questions:
         for detail in question:
-            pass
+            if detail == "":
+                valid = False
+                message.append("You have not filled in all inputs for questions!")
+                break
 
     return valid, message
 
