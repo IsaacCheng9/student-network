@@ -306,56 +306,47 @@ def accept_connection_request(username) -> object:
                     if cur.fetchone() is None:
                         apply_achievement(username, 4)
 
-                    # Award achievement ID 5 - Popular if necessary
+                    # Get number of connections
                     cur.execute(
-                        "SELECT * FROM CompleteAchievements "
-                        "WHERE (username=? AND achievement_ID=?);",
-                        (session["username"], 5))
-                    if cur.fetchone() is None:
+                        "SELECT * FROM Connection "
+                        "WHERE (user1=? OR user2=?);",
+                        (session["username"], session["username"]))
+                    con_count = len(cur.fetchall())
+
+                    # Award achievement ID 5 - Popular if necessary
+                    if con_count >= 10:
                         cur.execute(
-                            "SELECT * FROM Connection "
-                            "WHERE (user1=? OR user2=?);",
-                            (session["username"], session["username"]))
-                        if len(cur.fetchall()) >= 10:
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
+                            (session["username"], 5))
+                        if cur.fetchone() is None:
                             apply_achievement(session["username"], 5)
 
                     # Award achievement ID 5 to connected user
-                    cur.execute(
-                        "SELECT * FROM CompleteAchievements "
-                        "WHERE (username=? AND achievement_ID=?);",
-                        (session["username"], 5))
-                    if cur.fetchone() is None:
+                    if con_count >= 10:
                         cur.execute(
-                            "SELECT * FROM Connection "
-                            "WHERE (user1=? OR user2=?);",
-                            (username, username))
-                        if len(cur.fetchall()) >= 10:
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
+                            (session["username"], 5))
+                        if cur.fetchone() is None:
                             apply_achievement(username, 5)
 
                     # Award achievement ID 6 - Centre of Attention if necessary
-                    cur.execute(
-                        "SELECT * FROM CompleteAchievements "
-                        "WHERE (username=? AND achievement_ID=?);",
-                        (session["username"], 6))
-                    if cur.fetchone() is None:
+                    if con_count >= 100:
                         cur.execute(
-                            "SELECT * FROM Connection "
-                            "WHERE (user1=? OR user2=?);",
-                            (session["username"], session["username"]))
-                        if len(cur.fetchall()) >= 100:
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
+                            (session["username"], 6))
+                        if cur.fetchone() is None:
                             apply_achievement(session["username"], 6)
 
                     # Award achievement ID 6 to connected user
-                    cur.execute(
-                        "SELECT * FROM CompleteAchievements "
-                        "WHERE (username=? AND achievement_ID=?);",
-                        (username, 6))
-                    if cur.fetchone() is None:
+                    if con_count >= 100:
                         cur.execute(
-                            "SELECT * FROM Connection "
-                            "WHERE (user1=? OR user2=?);",
-                            (username, username))
-                        if len(cur.fetchall()) >= 100:
+                            "SELECT * FROM CompleteAchievements "
+                            "WHERE (username=? AND achievement_ID=?);",
+                            (username, 6))
+                        if cur.fetchone() is None:
                             apply_achievement(username, 6)
     else:
         session["add"] = "You can't connect with yourself!"
@@ -856,6 +847,7 @@ def submit_post():
         Updated feed with new post added
     """
     form_type = request.form.get("form_type")
+    postPrivacy = request.form.get("privacy")
 
     if form_type == "Quiz":
         # Gets quiz details.
@@ -898,9 +890,10 @@ def submit_post():
                         "question_3_ans_3, question_3_ans_4, question_4, "
                         "question_4_ans_1, question_4_ans_2, question_4_ans_3, "
                         "question_4_ans_4, question_5, question_5_ans_1, "
-                        "question_5_ans_2, question_5_ans_3, question_5_ans_4) "
+                        "question_5_ans_2, question_5_ans_3, question_5_ans_4, "
+                        "privacy) "
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-                        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
                         (
                             quiz_name, question_1[0], question_1[1],
                             question_1[2],
@@ -911,7 +904,7 @@ def submit_post():
                             question_4[0], question_4[1], question_4[2],
                             question_4[3], question_4[4], question_5[0],
                             question_5[1], question_5[2], question_5[3],
-                            question_5[4]))
+                            question_5[4], postPrivacy))
             conn.commit()
     else:
         post_title = request.form["post_title"]
@@ -942,11 +935,11 @@ def submit_post():
         if post_title != "":
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
-                cur.execute("INSERT INTO POSTS (title, body, username, post_type) "
-                            "VALUES (?, ?, ?, ?);",
+                cur.execute("INSERT INTO POSTS (title, body, username, post_type, privacy) "
+                            "VALUES (?, ?, ?, ?, ?);",
                             (
                                 post_title, post_body, session["username"],
-                                form_type))
+                                form_type, postPrivacy))
                 conn.commit()
 
                 if form_type == "Image" and valid == True:
@@ -1038,6 +1031,7 @@ def like_post():
             cur.execute("SELECT COUNT(postId) FROM UserLikes"
                         " WHERE username=? ;", (session["username"],))
             row = cur.fetchone()
+            # Award achievement ID 22 - Everyone loves you if necessary
             if row == 1:
                 cur.execute(
                     "SELECT * FROM CompleteAchievements "
@@ -1731,6 +1725,7 @@ def get_level(username) -> List[int]:
 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
+        check_level_exists(username, conn)
         # Get user experience
         cur.execute(
             "SELECT experience FROM "
