@@ -347,21 +347,21 @@ def accept_connection_request(username: str) -> object:
                         "WHERE username=?;",
                         (username,))
                     row = cur.fetchall()
-                    conec_interests = []
+                    connection_interests = []
                     for interest in row:
-                        conec_interests.append(interest[0])
+                        connection_interests.append(interest[0])
                     cur.execute(
                         "SELECT hobby FROM UserHobby "
                         "WHERE username=?;",
                         (username,))
                     row = cur.fetchall()
-                    conec_hobbies = []
+                    connection_hobbies = []
                     for hobby in row:
-                        conec_hobbies.append(hobby[0])
+                        connection_hobbies.append(hobby[0])
 
                     # Awards achievement ID 16 - Shared interests if necessary.
                     common_interests = set(my_interests) - (
-                            set(my_interests) - set(conec_interests))
+                            set(my_interests) - set(connection_interests))
                     print(common_interests)
                     if common_interests:
                         cur.execute(
@@ -381,7 +381,7 @@ def accept_connection_request(username: str) -> object:
 
                     # Award achievement ID 26 - Shared hobbies if necessary
                     common_hobbies = set(my_hobbies) - (
-                            set(my_hobbies) - set(conec_hobbies))
+                            set(my_hobbies) - set(connection_hobbies))
                     print(common_hobbies)
                     if common_hobbies:
                         cur.execute(
@@ -1489,8 +1489,10 @@ def profile(username: str) -> object:
         (session["username"], username))
     if cur.fetchone() is None:
         conn_type = get_connection_type(username)
+        # Checks that the user hasn't been blocked.
         if conn_type == "blocked":
-            message.append("Unable to view this profile since " + username + " has blocked you.")
+            message.append("Unable to view this profile since " + username +
+                           " has blocked you.")
             session["prev-page"] = request.url
             return render_template(
                 "error.html", message=message,
