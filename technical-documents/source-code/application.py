@@ -160,6 +160,10 @@ def connect_request(username):
 
     return redirect("/profile/" + username)
 
+@application.route("/leaderboard", methods=["GET"])
+def leaderboard() -> object:
+    return render_template("leaderboard.html")
+
 
 @application.route("/achievements", methods=["GET"])
 def achievements() -> object:
