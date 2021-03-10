@@ -601,10 +601,10 @@ def register_submit() -> object:
 @application.route("/post_page/<post_id>", methods=["GET"])
 def post(post_id):
     """
-    Loads a post and it's comments
+    Loads a post and comments on that post.
 
     Returns:
-        Redirection to their profile if they're logged in.
+        Redirection to the post page.
     """
     comments = {"comments": []}
     message = []
@@ -628,7 +628,7 @@ def post(post_id):
                                    allUsernames=get_all_usernames())
         else:
             data = row[0]
-            title, body, username, date, account_type, likes = (
+            title, body, username, date_posted, account_type, likes = (
                 data[0], data[1],
                 data[2], data[3],
                 data[4], data[5])
@@ -639,9 +639,9 @@ def post(post_id):
             if len(row) == 0:
                 return render_template(
                     "post_page.html", author=author, postId=post_id,
-                    title=title, body=body, username=username, date=date,
-                    likes=likes, accountType=account_type, comments=None,
-                    requestCount=get_connection_request_count(),
+                    title=title, body=body, username=username,
+                    date=date_posted, likes=likes, accountType=account_type,
+                    comments=None, requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames())
             for comment in row:
                 time = datetime.strptime(
@@ -655,7 +655,7 @@ def post(post_id):
 
             return render_template(
                 "post_page.html", author=author, postId=post_id, title=title,
-                body=body, username=username, date=date, likes=likes,
+                body=body, username=username, date=date_posted, likes=likes,
                 accountType=account_type, comments=comments,
                 requestCount=get_connection_request_count(),
                 allUsernames=get_all_usernames())
@@ -690,34 +690,34 @@ def feed():
                 "AllPosts": []
             }
             # account type differentiation in posts db
-            for post in row:
+            for user_post in row:
                 if i == 50:
                     break
                 add = ""
-                if len(post[2]) > 250:
+                if len(user_post[2]) > 250:
                     add = "..."
-                time = datetime.strptime(post[4], '%Y-%m-%d').strftime(
+                time = datetime.strptime(user_post[4], '%Y-%m-%d').strftime(
                     '%d-%m-%y')
 
                 # Get account type
                 cur.execute("SELECT type "
                             "FROM ACCOUNTS WHERE username=? ",
-                            (post[3],))
+                            (user_post[3],))
                 accounts = cur.fetchone()
                 account_type = accounts[0]
                 all_posts["AllPosts"].append({
-                    "postId": post[0],
-                    "title": post[1],
+                    "postId": user_post[0],
+                    "title": user_post[1],
                     "profile_pic": "https://via.placeholder.com/600",
-                    "author": post[3],
+                    "author": user_post[3],
                     "account_type": account_type,
                     "date_posted": time,
-                    "body": (post[2])[:250] + add
+                    "body": (user_post[2])[:250] + add
                 })
                 i += 1
 
+        # Displays any error messages.
         if "error" in session:
-            errors = []
             errors = session["error"]
             session.pop("error", None)
 
@@ -741,72 +741,68 @@ def submit_post():
     Returns:
         Updated feed with new post added
     """
-    try:
-        post_title = request.form["post_title"]
-        post_body = request.form["post_text"]
-        if post_title != "":
-            with sqlite3.connect("database.db") as conn:
-                cur = conn.cursor()
-                cur.execute("INSERT INTO POSTS (title, body, username) "
-                            "VALUES (?, ?, ?);",
-                            (post_title, post_body, session["username"]))
-                conn.commit()
+    post_title = request.form["post_title"]
+    post_body = request.form["post_text"]
 
-                # Award achievement ID 7 - Express yourself if necessary
-                cur.execute(
-                    "SELECT * FROM CompleteAchievements "
-                    "WHERE (username=? AND achievement_ID=?);",
-                    (session["username"], 7))
-                if cur.fetchone() is None:
-                    apply_achievement(session["username"], 7)
+    # Only adds the post if a title has been input.
+    if post_title != "":
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("INSERT INTO POSTS (title, body, username) "
+                        "VALUES (?, ?, ?);",
+                        (post_title, post_body, session["username"]))
+            conn.commit()
 
-                # Award achievement ID 8 - 5 posts if necessary
-                cur.execute(
-                    "SELECT * FROM CompleteAchievements "
-                    "WHERE (username=? AND achievement_ID=?);",
-                    (session["username"], 8))
-                if cur.fetchone() is None:
-                    cur.execute(
-                        "SELECT * FROM POSTS WHERE username=?;",
-                        (session["username"],))
-                    results = cur.fetchall()
-                    if len(results) >= 5:
-                        apply_achievement(session["username"], 8)
+            # Award achievement ID 7 - Express yourself if necessary
+            cur.execute(
+                "SELECT * FROM CompleteAchievements "
+                "WHERE (username=? AND achievement_ID=?);",
+                (session["username"], 7))
+            if cur.fetchone() is None:
+                apply_achievement(session["username"], 7)
 
-                # Award achievement ID 9 - 20 posts if necessary
+            # Award achievement ID 8 - 5 posts if necessary
+            cur.execute(
+                "SELECT * FROM CompleteAchievements "
+                "WHERE (username=? AND achievement_ID=?);",
+                (session["username"], 8))
+            if cur.fetchone() is None:
                 cur.execute(
-                    "SELECT * FROM CompleteAchievements "
-                    "WHERE (username=? AND achievement_ID=?);",
-                    (session["username"], 9))
-                if cur.fetchone() is None:
-                    cur.execute(
-                        "SELECT * FROM POSTS WHERE username=?;",
-                        (session["username"],))
-                    results = cur.fetchall()
-                    if len(results) >= 20:
-                        apply_achievement(session["username"], 9)
-        else:
-            # Prints error message missing title on top of page
-            session["error"] = ["Missing Title!"]
-    except:
-        conn.rollback()
-        # Prints error message in case post couldnt be created
-        session["error"].append(["Post could not be created"])
-    finally:
-        return redirect("/feed")
+                    "SELECT * FROM POSTS WHERE username=?;",
+                    (session["username"],))
+                results = cur.fetchall()
+                if len(results) >= 5:
+                    apply_achievement(session["username"], 8)
+
+            # Award achievement ID 9 - 20 posts if necessary
+            cur.execute(
+                "SELECT * FROM CompleteAchievements "
+                "WHERE (username=? AND achievement_ID=?);",
+                (session["username"], 9))
+            if cur.fetchone() is None:
+                cur.execute(
+                    "SELECT * FROM POSTS WHERE username=?;",
+                    (session["username"],))
+                results = cur.fetchall()
+                if len(results) >= 20:
+                    apply_achievement(session["username"], 9)
+    else:
+        # Prints error message stating that the title is missing.
+        session["error"] = ["You must submit a post title!"]
+
+    return redirect("/feed")
 
 
 @application.route("/like_post", methods=["POST"])
 def like_post():
     """
-    Add post like  to database.
+    Records liking a post to the database.
 
     Returns:
-        Updated post with like added
+        Redirection to the post with like added.
     """
-    likes = 0
-    row = []
     post_id = request.form["postId"]
+
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # check user hasn't liked post already
@@ -818,11 +814,9 @@ def like_post():
             cur.execute("INSERT INTO UserLikes (postId,username)"
                         "VALUES (?, ?);", (post_id, session["username"]))
 
-            # get current total number of  current likes
-            cur.execute("SELECT likes FROM POSTS"
-                        " WHERE postId=?;", (post_id,))
+            # Gets number of current likes.
+            cur.execute("SELECT likes FROM POSTS WHERE postId=?;", (post_id,))
             row = cur.fetchone()
-
             likes = row[0] + 1
 
             # Award achievement ID 22 - Everyone loves you if necessary
@@ -837,7 +831,7 @@ def like_post():
                         " WHERE postId=? ;", (likes, post_id,))
             conn.commit()
 
-            # Check how many posts user has liked
+            # Checks how many posts user has liked.
             cur.execute("SELECT COUNT(postId) FROM UserLikes"
                         " WHERE username=? ;", (session["username"],))
             row = cur.fetchone()
@@ -862,6 +856,7 @@ def like_post():
                     (session["username"], 24))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 24)
+
     return redirect("/post_page/" + post_id)
 
 
@@ -875,7 +870,9 @@ def submit_comment():
     """
     post_id = request.form["postId"]
     comment_body = request.form["comment_text"]
-    if comment_body != "":
+
+    # Only submits the comment if it is not empty.
+    if comment_body.replace(" ", "") != "":
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute("INSERT INTO Comments (postId, body, username) "
@@ -898,70 +895,61 @@ def submit_comment():
 @application.route("/delete_post", methods=["POST"])
 def delete_post():
     """
-    Delete post from database.
+    Deletes a post from the database.
 
     Returns:
-        Feed page
+        Renders a page stating that the post has been deleted successfully.
     """
     post_id = request.form["postId"]
     message = []
-    try:
-        with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-            cur.execute(
-                "SELECT postId FROM POSTS WHERE postId=?;", (post_id,))
-            row = cur.fetchone()
-            # check the post exists in database
-            if row[0] is None:
-                message.append("Error: this post does not exist")
-            else:
-                cur.execute("DELETE FROM POSTS WHERE postId=?", (post_id,))
-                conn.commit()
-    except:
-        conn.rollback()
-    finally:
-        message.append("Post has been deleted successfully.")
-        return render_template("error.html", message=message,
-                               requestCount=get_connection_request_count(),
-                               allUsernames=get_all_usernames())
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT postId FROM POSTS WHERE postId=?;", (post_id,))
+        row = cur.fetchone()
+        # check the post exists in database
+        if row[0] is None:
+            message.append("Error: this post does not exist")
+        else:
+            cur.execute("DELETE FROM POSTS WHERE postId=?", (post_id,))
+            conn.commit()
+
+    message.append("Post has been deleted successfully.")
+    return render_template("error.html", message=message,
+                           requestCount=get_connection_request_count(),
+                           allUsernames=get_all_usernames())
 
 
 @application.route("/delete_comment", methods=["POST"])
 def delete_comment():
     """
-    Delete comment from database.
+    Deletes a comment from the database.
 
     Returns:
-        post_page
+        Redirection to the post page.
     """
     message = []
     post_id = request.form["postId"]
     comment_id = request.form["commentId"]
-    try:
-        with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-            cur.execute("SELECT * FROM Comments WHERE commentId=? ",
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM Comments WHERE commentId=? ",
+                    (comment_id,))
+        row = cur.fetchone()
+        # Checks that the comment exists.
+        if row[0] is None:
+            message.append("Comment does not exist.")
+            return render_template("error.html", message=message,
+                                   requestCount=get_connection_request_count(),
+                                   allUsernames=get_all_usernames())
+        else:
+            cur.execute("DELETE FROM Comments WHERE commentId =? ",
                         (comment_id,))
-            row = cur.fetchone()
-            # check the post exists in database
-            if row[0] is None:
-                message.append("Comment does not exist.")
-                return render_template(
-                    "error.html", message=message,
-                    requestCount=get_connection_request_count(),
-                    allUsernames=get_all_usernames())
-            else:
-                cur.execute("DELETE FROM Comments WHERE commentId =? ",
-                            (comment_id,))
-                conn.commit()
-    except:
-        conn.rollback()
-        message.append("The comment could not be deleted.")
-        return render_template("error.html", message=message,
-                               requestCount=get_connection_request_count(),
-                               allUsernames=get_all_usernames())
-    finally:
-        return redirect("post_page/" + post_id)
+            conn.commit()
+
+    return redirect("post_page/" + post_id)
 
 
 @application.route("/profile", methods=["GET"])
@@ -992,6 +980,7 @@ def profile(username):
     gender = ""
     birthday = ""
     profile_picture = ""
+    degree = ""
     email = ""
     hobbies = []
     interests = []
@@ -1042,6 +1031,14 @@ def profile(username):
     row = cur.fetchall()
     account_type = row[0][0]
 
+    # Gets users degree.
+    cur.execute(
+        "SELECT degree FROM  "
+        "Degree WHERE degreeId = (SELECT degree "
+        "FROM UserProfile WHERE username='student1');")
+    row = cur.fetchone()
+    degree = row[0]
+
     # Gets the user's hobbies.
     cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
                 (username,))
@@ -1069,7 +1066,6 @@ def profile(username):
 
     # Gets the user's posts.
     if username == session["username"]:
-        # TODO: store all the users posts in a json file
         cur.execute(
             "SELECT * "
             "FROM POSTS WHERE username=?", (username,))
@@ -1108,33 +1104,33 @@ def profile(username):
         "UserPosts": []
     }
 
-    for post in sort_posts:
+    for user_post in sort_posts:
         add = ""
-        if len(post[2]) > 250:
+        if len(user_post[2]) > 250:
             add = "..."
 
-        if post[5] == "protected":
+        if user_post[5] == "protected":
             privacy = "Friends only"
             icon = "user plus"
-        elif post[5] == "close":
+        elif user_post[5] == "close":
             privacy = "Close friends only"
             icon = "handshake outline"
-        elif post[5] == "private":
+        elif user_post[5] == "private":
             privacy = "Private"
             icon = "lock"
         else:
-            privacy = str(post[5]).capitalize()
+            privacy = str(user_post[5]).capitalize()
             icon = "users"
 
-        time = datetime.strptime(post[4], '%Y-%m-%d').strftime('%d-%m-%y')
+        time = datetime.strptime(user_post[4], '%Y-%m-%d').strftime('%d-%m-%y')
         user_posts["UserPosts"].append({
-            "postId": post[0],
-            "title": post[1],
+            "postId": user_post[0],
+            "title": user_post[1],
             "profile_pic": "https://via.placeholder.com/600",
-            "author": post[3],
-            "account_type": post[6],
+            "author": user_post[3],
+            "account_type": user_post[6],
             "date_posted": time,
-            "body": (post[2])[:250] + add,
+            "body": (user_post[2])[:250] + add,
             "privacy": privacy,
             "icon": icon
         })
@@ -1174,7 +1170,7 @@ def profile(username):
                            name=name, bio=bio, gender=gender,
                            birthday=birthday, profile_picture=profile_picture,
                            age=age, hobbies=hobbies, account_type=account_type,
-                           interests=interests,
+                           interests=interests, degree=degree,
                            email=email, posts=user_posts, type=conn_type,
                            unlocked_achievements=first_six,
                            allUsernames=get_all_usernames(),
@@ -1192,6 +1188,9 @@ def edit_profile() -> object:
     Returns:
         The updated profile page if the details provided were valid.
     """
+    degrees = {
+        "degrees":[]
+    }
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
@@ -1202,12 +1201,22 @@ def edit_profile() -> object:
             "SELECT bio FROM UserProfile WHERE username=?",
             (session["username"],))
         bio = cur.fetchall()[0][0]
+        
+        #gets all possible degrees 
+        cur.execute(
+            "SELECT * FROM Degree",)
+        degree_list = cur.fetchall()
+        for item in degree_list:
+            degrees["degrees"].append({
+            "degreeId": item[0],
+            "degree": item[1]
+            })
 
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
-                               date=dob, bio=bio, errors=[])
+                               date=dob, bio=bio, degrees=degrees, errors=[])
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -1220,6 +1229,7 @@ def edit_profile() -> object:
         dob = datetime.strptime(dob_input, "%Y-%m-%d").strftime("%Y-%m-%d")
         hobbies_input = request.form.get("hobbies")
         interests_input = request.form.get("interests")
+        degree = request.form.get("degree_input")
         # Gets the individual hobbies and interests, then formats them.
         hobbies_unformatted = hobbies_input.split(",")
         hobbies = [hobby.lower() for hobby in hobbies_unformatted]
@@ -1240,16 +1250,15 @@ def edit_profile() -> object:
                 if filename:
                     cur.execute(
                         "UPDATE UserProfile SET bio=?, gender=?, birthday=?, "
-                        "profilepicture=? WHERE username=?;",
+                        "profilepicture=?, degree=? WHERE username=?;",
                         (bio, gender, dob,
                          application.config['UPLOAD_FOLDER'] + "\\" + filename
-                         + ".jpg", username,))
+                         + ".jpg", degree, username,))
                 else:
                     cur.execute(
-                        "UPDATE UserProfile SET bio=?, gender=?, birthday=?"
+                        "UPDATE UserProfile SET bio=?, gender=?, birthday=?, degree=?"
                         "WHERE username=?;",
-                        (bio, gender, dob,
-                         username,))
+                        (bio, gender, dob, degree, username,))
 
                 # Inserts new hobbies and interests into the database if the
                 # user made a new input.
@@ -1352,7 +1361,7 @@ def calculate_age(born):
     """
     today = date.today()
     return today.year - born.year - (
-            (today.month, today.day) < (born.month, born.day))
+        (today.month, today.day) < (born.month, born.day))
 
 
 def check_level_exists(username: str):
