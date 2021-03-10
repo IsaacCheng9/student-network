@@ -864,7 +864,7 @@ def post(post_id: int) -> object:
              account_type, likes, post_type) = (data[0], data[1], data[2],
                                                 data[3], data[4], data[5],
                                                 data[6])
-            if post_type == "Image":
+            if post_type == "Image" or post_type == "Link":
                 cur.execute(
                     "SELECT contentUrl "
                     "FROM PostContent WHERE postId=?;", (post_id,))
@@ -946,13 +946,12 @@ def feed() -> object:
                             "FROM ACCOUNTS WHERE username=? ",
                             (user_post[3],))
 
-                print(get_profile_picture(user_post[3]))
                 accounts = cur.fetchone()
                 account_type = accounts[0]
 
                 post_id = user_post[0]
                 post_type = user_post[8]
-                if post_type == "Image":
+                if post_type == "Image" or post_type == "Link":
                     cur.execute(
                         "SELECT contentUrl "
                         "FROM PostContent WHERE postId=?;", (post_id,))
