@@ -9,19 +9,21 @@ def test_invalid_registration():
         cur = conn.cursor()
 
         username = ["goodname", "goodname", "goodname", "goodname", "goodname",
-                    "goodname", "goodname", "b@dname"]
+                    "goodname", "goodname", "b@dname", "goodname"]
         full_name = ["Good Name", "Good Name", "Good Name", "Good Name",
-                     "Good Name", "Good Name", "Bad Name_", "Good Name"]
+                     "Good Name", "Good Name", "Bad Name_", "Good Name",
+                     "Good Name"]
         password = ["goodpw123", "goodpw123", "goodpw123", "mismatch1",
                     "badpw1",
-                    "badpwbad", "goodpw123", "goodpw123"]
+                    "badpwbad", "goodpw123", "goodpw123", "goodpw123"]
         password_confirm = ["goodpw123", "goodpw123", "goodpw123", "mismatch2",
-                            "badpw1", "badpwbad", "goodpw", "goodpw123"]
+                            "badpw1", "badpwbad", "goodpw", "goodpw123",
+                            "goodpw123"]
         email = ["goodname@exeter.ac.uk", "goodname@gmail.com", "bademail@",
                  "goodname@exeter.ac.uk", "goodname@exeter.ac.uk",
                  "goodname@exeter.ac.uk", "goodname@exeter.ac.uk",
-                 "goodname@exeter.ac.uk"]
-        terms = [None, "", "", "", "", "", "", ""]
+                 "goodname@exeter.ac.uk", "ic324@exeter.ac.uk"]
+        terms = [None, "", "", "", "", "", "", "", ""]
         for num in range(len(username)):
             valid, message = application.validate_registration(
                 cur, username[num], full_name[num], password[num],

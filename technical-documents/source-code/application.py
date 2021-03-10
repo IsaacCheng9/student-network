@@ -218,6 +218,16 @@ def achievements() -> object:
     if percentage < 33:
         percentage_color = "red"
 
+    # Award achievement ID 3 - Show it off if necessary
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 3))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 3)
+
     return render_template("achievements.html",
                            unlocked_achievements=unlocked_achievements,
                            locked_achievements=locked_achievements,
@@ -1257,6 +1267,16 @@ def edit_profile() -> object:
         username = session["username"]
         # Gets the input data from the edit profile details form.
         bio = request.form.get("bio_input")
+
+        # Award achievement ID 11 - Describe yourself if necessary
+        if bio != "Change your bio in the settings." and bio != "":
+            cur.execute(
+                "SELECT * FROM CompleteAchievements "
+                "WHERE (username=? AND achievement_ID=?);",
+                (session["username"], 11))
+            if cur.fetchone() is None:
+                apply_achievement(username, 11)
+
         gender = request.form.get("gender_input")
         dob_input = request.form.get("dob_input")
         dob = datetime.strptime(dob_input, "%Y-%m-%d").strftime("%Y-%m-%d")
