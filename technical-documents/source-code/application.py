@@ -9,7 +9,7 @@ import sqlite3
 import uuid
 from datetime import date, datetime
 from string import capwords
-from typing import Tuple
+from typing import Tuple, List
 
 from PIL import Image
 from email_validator import validate_email, EmailNotValidError
@@ -223,8 +223,9 @@ def leaderboard() -> object:
                     break
             top_users = top_users[0:min(25, len(top_users))]
             top_users = list(map(lambda x: (
-                x[0], x[1], get_profile_picture(x[0]), get_level(x[0])),
-                                 top_users))
+                x[0], x[1], get_profile_picture(x[0]), get_level(x[0]),
+                get_degree(x[0])[1]),
+                top_users))
 
     return render_template("leaderboard.html", leaderboard=top_users,
                            requestCount=get_connection_request_count(),
@@ -347,21 +348,21 @@ def accept_connection_request(username: str) -> object:
                         "WHERE username=?;",
                         (username,))
                     row = cur.fetchall()
-                    conec_interests = []
+                    connection_interests = []
                     for interest in row:
-                        conec_interests.append(interest[0])
+                        connection_interests.append(interest[0])
                     cur.execute(
                         "SELECT hobby FROM UserHobby "
                         "WHERE username=?;",
                         (username,))
                     row = cur.fetchall()
-                    conec_hobbies = []
+                    connection_hobbies = []
                     for hobby in row:
-                        conec_hobbies.append(hobby[0])
+                        connection_hobbies.append(hobby[0])
 
                     # Awards achievement ID 16 - Shared interests if necessary.
                     common_interests = set(my_interests) - (
-                            set(my_interests) - set(conec_interests))
+                        set(my_interests) - set(connection_interests))
                     print(common_interests)
                     if common_interests:
                         cur.execute(
@@ -371,7 +372,7 @@ def accept_connection_request(username: str) -> object:
                         if cur.fetchone() is None:
                             apply_achievement(session["username"], 16)
 
-                        # Award achievement ID 16 to connected user        
+                        # Award achievement ID 16 to connected user
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
                             "WHERE (username=? AND achievement_ID=?);",
@@ -381,7 +382,7 @@ def accept_connection_request(username: str) -> object:
 
                     # Award achievement ID 26 - Shared hobbies if necessary
                     common_hobbies = set(my_hobbies) - (
-                            set(my_hobbies) - set(conec_hobbies))
+                        set(my_hobbies) - set(connection_hobbies))
                     print(common_hobbies)
                     if common_hobbies:
                         cur.execute(
@@ -391,7 +392,7 @@ def accept_connection_request(username: str) -> object:
                         if cur.fetchone() is None:
                             apply_achievement(session["username"], 26)
 
-                        # Award achievement ID 26 to connected user   
+                        # Award achievement ID 26 to connected user
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
                             "WHERE (username=? AND achievement_ID=?);",
@@ -405,17 +406,9 @@ def accept_connection_request(username: str) -> object:
                     # Get connections
                     cons_user2 = get_all_connections(username)
 
-                    # Get user degree and connections different
-                    cur.execute(
-                        "SELECT degree from UserProfile "
-                        "WHERE username=?;", (session["username"],)
-                    )
-                    degree = cur.fetchone()[0]
-                    cur.execute(
-                        "SELECT degree from UserProfile "
-                        "WHERE username=?;", (username,)
-                    )
-                    degree_user2 = cur.fetchone()[0]
+                    # Get user degree and connections degree
+                    degree = get_degree(session["username"])[0]
+                    degree_user2 = get_degree(username)[0]
 
                     # Get count of connections who study a different degree
                     valid_user_count = 0
@@ -1201,7 +1194,7 @@ def like_post() -> object:
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 24)
 
-            # Award achievement ID 25 - Loving everything if necessary        
+            # Award achievement ID 25 - Loving everything if necessary
             elif row == 500:
                 cur.execute(
                     "SELECT * FROM CompleteAchievements "
@@ -1379,12 +1372,7 @@ def profile(username: str) -> object:
     account_type = row[0][0]
 
     # Gets users degree.
-    cur.execute(
-        "SELECT degree FROM  "
-        "Degree WHERE degreeId = (SELECT degree "
-        "FROM UserProfile WHERE username=?);", (username,))
-    row = cur.fetchone()
-    degree = row[0]
+    degree = get_degree(username)[1]
 
     # Gets the user's hobbies.
     cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
@@ -1489,8 +1477,10 @@ def profile(username: str) -> object:
         (session["username"], username))
     if cur.fetchone() is None:
         conn_type = get_connection_type(username)
+        # Checks that the user hasn't been blocked.
         if conn_type == "blocked":
-            message.append("Unable to view this profile since " + username + " has blocked you.")
+            message.append("Unable to view this profile since " + username +
+                           " has blocked you.")
             session["prev-page"] = request.url
             return render_template(
                 "error.html", message=message,
@@ -1726,7 +1716,7 @@ def calculate_age(born: datetime) -> int:
     """
     today = date.today()
     return today.year - born.year - (
-            (today.month, today.day) < (born.month, born.day))
+        (today.month, today.day) < (born.month, born.day))
 
 
 def check_level_exists(username: str, conn):
@@ -1926,7 +1916,7 @@ def get_connection_type(username: str):
                 return None
 
 
-def get_level(username: str) -> list[int]:
+def get_level(username: str) -> List[int]:
     """
     Gets the current user experience points, the experience points
     for the next level and the user's current level from the database.
@@ -1976,9 +1966,34 @@ def get_profile_picture(username: str) -> str:
             (username,)
         )
         row = cur.fetchone()
+        if row:
+            return row[0]
 
-    return row[0]
+def get_degree(username: str) -> Tuple[int, str]:
+    """
+    Gets the degree of a user.
 
+    Args:
+        username: The username of the user's profile picture.
+
+    Returns:
+        The degree of the user.
+        The degreeID of the user.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT degree FROM UserProfile WHERE username=?;",
+            (username,)
+        )
+        degreeId = cur.fetchone()
+        if degreeId:
+            cur.execute(
+                "SELECT degree FROM Degree WHERE degreeId=?;",
+                (degreeId[0],)
+            )
+            degree = cur.fetchone()
+            return degreeId[0], degree[0]
 
 def is_close_friend(username: str) -> bool:
     """
@@ -2002,7 +2017,7 @@ def is_close_friend(username: str) -> bool:
 
 def validate_edit_profile(
         bio: str, gender: str, dob: str,
-        hobbies: list, interests: list) -> Tuple[bool, list[str]]:
+        hobbies: list, interests: list) -> Tuple[bool, List[str]]:
     """
     Validates the details in the profile editing form.
 
@@ -2060,7 +2075,7 @@ def validate_edit_profile(
 def validate_registration(
         cur, username: str, full_name: str, password: str,
         password_confirm: str,
-        email: str, terms: str) -> Tuple[bool, list[str]]:
+        email: str, terms: str) -> Tuple[bool, List[str]]:
     """
     Validates the registration details to ensure that the email address is
     valid, and that the passwords in the form match.
@@ -2157,7 +2172,7 @@ def validate_registration(
     return valid, message
 
 
-def validate_profile_pic(file) -> Tuple[bool, list[str], str]:
+def validate_profile_pic(file) -> Tuple[bool, List[str], str]:
     """
     Validates the file to check that it's a valid image.
 
