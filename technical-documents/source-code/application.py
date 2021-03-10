@@ -160,9 +160,42 @@ def connect_request(username):
 
     return redirect("/profile/" + username)
 
+@application.route("/members", methods=["GET"])
+def members() -> object:
+
+    return render_template("members.html", requestCount=get_connection_request_count())
+
 @application.route("/leaderboard", methods=["GET"])
 def leaderboard() -> object:
-    return render_template("leaderboard.html")
+    """
+    Display leaderboard of users with the most experience
+    Returns:
+        The web page for viewing Rankings.
+    """
+    with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM UserLevel; ")
+            if cur.fetchone() is not None:
+                topUsers = cur.fetchall()
+                totalUserCount = len(topUsers)
+                # 0 = username
+                # 1 = XP value
+                topUsers.sort(key=lambda x: x[1], reverse=True)
+
+                myRanking = 0
+                for user in topUsers:
+                    myRanking += 1
+                    if user[0] == session["username"]:
+                        break
+
+                topUsers = topUsers[0:min(25, len(topUsers))]
+
+                topUsers = list(map(lambda x: (x[0], x[1], get_profile_picture(x[0]), get_level(x[0])), topUsers))
+
+    return render_template("/leaderboard.html", leaderboard = topUsers,
+                           requestCount=get_connection_request_count(),
+                           allUsernames=get_all_usernames(),
+                           myRanking=myRanking, totalUserCount=totalUserCount)
 
 
 @application.route("/achievements", methods=["GET"])
@@ -184,6 +217,16 @@ def achievements() -> object:
         percentage_color = "orange"
     if percentage < 33:
         percentage_color = "red"
+
+    # Award achievement ID 3 - Show it off if necessary
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 3))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 3)
 
     return render_template("achievements.html",
                            unlocked_achievements=unlocked_achievements,
@@ -589,7 +632,7 @@ def register_submit() -> object:
                     username, full_name, "Change your bio in the settings.",
                     "Male", date.today(), "/static/images/default-pfp.jpg",))
 
-            check_level_exists(username)
+            check_level_exists(username, conn)
 
             conn.commit()
 
@@ -669,7 +712,8 @@ def post(post_id):
                 body=body, username=username, date=date_posted, likes=likes,
                 accountType=account_type, comments=comments,
                 requestCount=get_connection_request_count(),
-                allUsernames=get_all_usernames(), avatar=get_profile_picture(username))
+                allUsernames=get_all_usernames(),
+                avatar=get_profile_picture(username))
 
 
 @application.route("/feed", methods=["GET"])
@@ -1180,7 +1224,7 @@ def profile(username):
         conn_type = "close"
     session["prev-page"] = request.url
 
-    check_level_exists(username)
+    check_level_exists(username, conn)
 
     level_data = get_level(username)
     level = level_data[0]
@@ -1255,6 +1299,16 @@ def edit_profile() -> object:
         username = session["username"]
         # Gets the input data from the edit profile details form.
         bio = request.form.get("bio_input")
+
+        # Award achievement ID 11 - Describe yourself if necessary
+        if bio != "Change your bio in the settings." and bio != "":
+            cur.execute(
+                "SELECT * FROM CompleteAchievements "
+                "WHERE (username=? AND achievement_ID=?);",
+                (session["username"], 11))
+            if cur.fetchone() is None:
+                apply_achievement(username, 11)
+
         gender = request.form.get("gender_input")
         dob_input = request.form.get("dob_input")
         dob = datetime.strptime(dob_input, "%Y-%m-%d").strftime("%Y-%m-%d")
@@ -1376,7 +1430,7 @@ def apply_achievement(username: str, achievement_id: int):
             "SELECT xp_value FROM Achievements WHERE achievement_ID=?;",
             (achievement_id,))
         xp = cur.fetchone()[0]
-        check_level_exists(username)
+        check_level_exists(username, conn)
         cur.execute(
             "UPDATE UserLevel "
             "SET experience = experience + ? "
@@ -1400,22 +1454,21 @@ def calculate_age(born):
             (today.month, today.day) < (born.month, born.day))
 
 
-def check_level_exists(username: str):
+def check_level_exists(username: str, conn):
     """
     Checks that a user has a record in the database for their level.
 
     Args:
         username: The username of the user to check.
     """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT * FROM UserLevel WHERE username=?;", (username,))
+    if cur.fetchone() is None:
         cur.execute(
-            "SELECT * FROM UserLevel WHERE username=?;", (username,))
-        if cur.fetchone() is None:
-            cur.execute(
-                "INSERT INTO UserLevel (username, experience) VALUES (?, ?);",
-                (username, 0))
-            conn.commit()
+            "INSERT INTO UserLevel (username, experience) VALUES (?, ?);",
+            (username, 0))
+        conn.commit()
 
 
 def get_achievements(username: str) -> Tuple[object, object]:
@@ -1566,12 +1619,33 @@ def get_level(username) -> List[int]:
         row = cur.fetchone()
 
         xp = int(row[0])
-        while xp > xp_next_level:
+        while xp >= xp_next_level:
             level += 1
             xp -= xp_next_level
             xp_next_level += xp_increase_per_level
 
         return [level, xp, xp_next_level]
+
+
+def get_profile_picture(username: str) -> str:
+    """
+    Gets the profile picture of a user.
+
+    Args:
+        username: The username of the user's profile picture.
+
+    Returns:
+        The profile picture of the user.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT profilepicture FROM UserProfile WHERE username=?;",
+            (username,)
+        )
+        row = cur.fetchone()
+
+    return row[0]
 
 
 def is_close_friend(username) -> bool:
@@ -1648,17 +1722,6 @@ def validate_edit_profile(
             break
 
     return valid, message
-
-def get_profile_picture(username : str) -> str:
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT profilepicture FROM UserProfile WHERE username=?;",
-            (username, )
-        )
-        row = cur.fetchone()
-        
-    return row[0]
 
 
 def validate_registration(
