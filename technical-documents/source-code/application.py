@@ -1110,7 +1110,7 @@ def like_post():
                     "WHERE (username=? AND achievement_ID=?);",
                     (username, 22))
                 if cur.fetchone() is None:
-                    apply_achievement(session["username"], 22)
+                    apply_achievement(username, 22)
 
             # Checks how many posts user has liked.
             cur.execute("SELECT COUNT(postId) FROM UserLikes"
