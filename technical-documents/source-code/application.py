@@ -643,7 +643,7 @@ def post(post_id):
                     title=title, body=body, username=username,
                     date=date_posted, likes=likes, accountType=account_type,
                     comments=None, requestCount=get_connection_request_count(),
-                    allUsernames=get_all_usernames())
+                    allUsernames=get_all_usernames(), avatar=get_profile_picture(username))
             for comment in row:
                 time = datetime.strptime(
                     comment[3], "%Y-%m-%d %H:%M:%S").strftime("%d-%m-%y %H:%M")
@@ -659,7 +659,7 @@ def post(post_id):
                 body=body, username=username, date=date_posted, likes=likes,
                 accountType=account_type, comments=comments,
                 requestCount=get_connection_request_count(),
-                allUsernames=get_all_usernames())
+                allUsernames=get_all_usernames(), avatar=get_profile_picture(username))
 
 
 @application.route("/feed", methods=["GET"])
@@ -704,12 +704,14 @@ def feed():
                 cur.execute("SELECT type "
                             "FROM ACCOUNTS WHERE username=? ",
                             (user_post[3],))
+
+                print(get_profile_picture(user_post[3]))
                 accounts = cur.fetchone()
                 account_type = accounts[0]
                 all_posts["AllPosts"].append({
                     "postId": user_post[0],
                     "title": user_post[1],
-                    "profile_pic": "https://via.placeholder.com/600",
+                    "profile_pic": get_profile_picture(user_post[3]),
                     "author": user_post[3],
                     "account_type": account_type,
                     "date_posted": time,
@@ -1030,7 +1032,7 @@ def profile(username):
     cur.execute(
         "SELECT degree FROM  "
         "Degree WHERE degreeId = (SELECT degree "
-        "FROM UserProfile WHERE username='student1');")
+        "FROM UserProfile WHERE username=?);", (username,))
     row = cur.fetchone()
     degree = row[0]
 
@@ -1628,6 +1630,17 @@ def validate_edit_profile(
             message.append("Your file needs to be an image")
 
     return valid, message, file_name_hashed
+
+def get_profile_picture(username : str) -> str:
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT profilepicture FROM UserProfile WHERE username=?;",
+            (username, )
+        )
+        row = cur.fetchone()
+        
+    return row[0]
 
 
 def validate_registration(
