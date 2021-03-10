@@ -1407,6 +1407,18 @@ def profile(username: str) -> object:
         if cur.fetchone() is None:
             apply_achievement(session["username"], 1)
 
+    # Award achievement ID 23 - Look at you if necessary
+    # Set meeting to allow for secret achievement to be earned
+    meeting_now = False                       
+    if session["username"] and meeting_now:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 23))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 23)
+
+
     # Award achievement ID 2 - Looking good if necessary
     if username != session["username"] and session["username"]:
         cur.execute(
