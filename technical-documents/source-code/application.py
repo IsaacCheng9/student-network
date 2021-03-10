@@ -1202,6 +1202,21 @@ def like_post() -> object:
                     (session["username"], 25))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 25)
+        else:
+            # Gets number of current likes.
+            cur.execute("SELECT likes FROM POSTS WHERE postId=?;",
+                        (post_id,))
+            row = cur.fetchone()
+            likes = row[0] - 1
+
+            cur.execute("UPDATE POSTS SET likes=? "
+                        " WHERE postId=? ;", (likes, post_id,))
+            conn.commit()
+
+            cur.execute("DELETE FROM UserLikes "
+                        "WHERE (postId=? AND username=?)",
+                        (post_id, session["username"]))
+            conn.commit()
 
     return redirect("/post_page/" + post_id)
 
