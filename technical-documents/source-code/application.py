@@ -1101,7 +1101,7 @@ def like_post():
                 "WHERE (username=? AND achievement_ID=?);",
                 (username, 20))
             if cur.fetchone() is None:
-                apply_achievement(username, 22)
+                apply_achievement(username, 20)
 
             # Award achievement ID 22 - Everyone loves you if necessary
             if likes >= 50:
