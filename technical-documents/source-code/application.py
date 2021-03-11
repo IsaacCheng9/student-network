@@ -3,14 +3,17 @@ A student network application which is presented as a web application using
 the Flask module. Students each have their own profile page, and they can post
 on their feed.
 """
+import json
 import os
 import re
 import sqlite3
 import uuid
-import json
 from datetime import date, datetime
+from random import sample
 from string import capwords
 from typing import Tuple, List
+from urllib.parse import parse_qs
+from urllib.parse import urlparse
 
 from PIL import Image
 from email_validator import validate_email, EmailNotValidError
@@ -36,6 +39,7 @@ def index_page() -> object:
     if "username" in session:
         return redirect("/profile")
     else:
+        session["prev-page"] = request.url
         return render_template("homepage.html")
 
 
@@ -165,7 +169,7 @@ def connect_request(username: str) -> object:
 
 
 @application.route("/unblock_user/<username>", methods=["GET", "POST"])
-def unblock_user(username: str):
+def unblock_user(username: str) -> object:
     """
     Unblocks a given user.
 
@@ -186,7 +190,7 @@ def unblock_user(username: str):
                         "DELETE FROM Connection WHERE (user1=? AND user2=?);",
                         (session["username"], username))
                     conn.commit()
-    return redirect("/profile/" + username)
+    return redirect(session["prev-page"])
 
 
 @application.route("/members", methods=["GET"])
@@ -197,8 +201,85 @@ def members() -> object:
     Returns:
         The web page for displaying members.
     """
+    session["prev-page"] = request.url
     return render_template("members.html",
                            requestCount=get_connection_request_count())
+
+
+@application.route("/quizzes", methods=["GET"])
+def quizzes() -> object:
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT quiz_id, date_created, author, quiz_name FROM Quiz")
+
+        row = cur.fetchall()
+
+        quizzes = sorted(row, key=lambda x: x[0], reverse=True)
+
+
+    return render_template("quizzes.html",
+                           requestCount=get_connection_request_count(), quizzes=quizzes)
+
+
+@application.route("/quiz/<quiz_id>", methods=["GET"])
+def quiz(quiz_id: int) -> object:
+    # Gets the quiz details from the database.
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT quiz_name, date_created, author, question_1, "
+            "question_1_ans_1, question_1_ans_2, question_1_ans_3, "
+            "question_1_ans_4, question_2, question_2_ans_1, "
+            "question_2_ans_2, question_2_ans_3, question_2_ans_4, "
+            "question_3, question_3_ans_1, question_3_ans_2, "
+            "question_3_ans_3, question_3_ans_4, question_4, "
+            "question_4_ans_1, question_4_ans_2, question_4_ans_3, "
+            "question_4_ans_4, question_5, question_5_ans_1, "
+            "question_5_ans_2, question_5_ans_3, question_5_ans_4, privacy "
+            "FROM Quiz WHERE quiz_id=?;", (quiz_id,))
+        quiz_details = cur.fetchall()
+        quiz_name = quiz_details[0][0]
+        question_1 = quiz_details[0][3]
+        question_1_options = sample(
+            [quiz_details[0][4], quiz_details[0][5],
+             quiz_details[0][6], quiz_details[0][7]], 4)
+        question_2 = quiz_details[0][8]
+        question_2_options = sample(
+            [quiz_details[0][9], quiz_details[0][10],
+             quiz_details[0][11], quiz_details[0][12]], 4)
+        question_3 = quiz_details[0][13]
+        question_3_options = sample(
+            [quiz_details[0][14], quiz_details[0][15],
+             quiz_details[0][16], quiz_details[0][17]], 4)
+        question_4 = quiz_details[0][18]
+        question_4_options = sample(
+            [quiz_details[0][19], quiz_details[0][20],
+             quiz_details[0][21], quiz_details[0][22]], 4)
+        question_5 = quiz_details[0][23]
+        question_5_options = sample(
+            [quiz_details[0][24], quiz_details[0][25],
+             quiz_details[0][26], quiz_details[0][27]], 4)
+        print(quiz_name)
+        print(question_1)
+        print(question_1_options)
+        print(question_2)
+        print(question_2_options)
+        print(question_3)
+        print(question_3_options)
+        print(question_4)
+        print(question_4_options)
+        print(question_5)
+        print(question_5_options)
+
+        questions = [question_1, question_2, question_3, question_4,
+                     question_5]
+        answers = [question_1_options, question_2_options, question_3_options,
+                   question_4_options, question_5_options]
+
+    return render_template("quiz.html",
+                           requestCount=get_connection_request_count(),
+                           questions=questions, answers=answers, quiz_name=quiz_name)
 
 
 @application.route("/leaderboard", methods=["GET"])
@@ -226,8 +307,8 @@ def leaderboard() -> object:
             top_users = list(map(lambda x: (
                 x[0], x[1], get_profile_picture(x[0]), get_level(x[0]),
                 get_degree(x[0])[1]),
-                top_users))
-
+                                 top_users))
+    session["prev-page"] = request.url
     return render_template("leaderboard.html", leaderboard=top_users,
                            requestCount=get_connection_request_count(),
                            allUsernames=get_all_usernames(),
@@ -264,7 +345,7 @@ def achievements() -> object:
             (session["username"], 3))
         if cur.fetchone() is None:
             apply_achievement(session["username"], 3)
-
+    session["prev-page"] = request.url
     return render_template("achievements.html",
                            unlocked_achievements=unlocked_achievements,
                            locked_achievements=locked_achievements,
@@ -363,7 +444,7 @@ def accept_connection_request(username: str) -> object:
 
                     # Awards achievement ID 16 - Shared interests if necessary.
                     common_interests = set(my_interests) - (
-                        set(my_interests) - set(connection_interests))
+                            set(my_interests) - set(connection_interests))
                     print(common_interests)
                     if common_interests:
                         cur.execute(
@@ -383,7 +464,7 @@ def accept_connection_request(username: str) -> object:
 
                     # Award achievement ID 26 - Shared hobbies if necessary
                     common_hobbies = set(my_hobbies) - (
-                        set(my_hobbies) - set(connection_hobbies))
+                            set(my_hobbies) - set(connection_hobbies))
                     print(common_hobbies)
                     if common_hobbies:
                         cur.execute(
@@ -639,6 +720,14 @@ def show_connect_requests() -> object:
             (session["username"], "request"))
         pending_connections = cur.fetchall()
 
+        # Extracts blocked users.
+        cur.execute(
+            "SELECT Connection.user2, UserProfile.profilepicture FROM "
+            "Connection LEFT JOIN UserProfile ON Connection.user2 = "
+            "UserProfile.username WHERE user1=? AND connection_type=?;",
+            (session["username"], "block"))
+        blocked_connections = cur.fetchall()
+
         # Lists usernames of all connected people.
         connections = connections1 + connections2
         # Adds a close friend to the list, and sorts by close friends first.
@@ -652,7 +741,8 @@ def show_connect_requests() -> object:
                            allUsernames=get_all_usernames(),
                            requestCount=get_connection_request_count(),
                            connections=connections,
-                           pending=pending_connections)
+                           pending=pending_connections,
+                           blocked=blocked_connections)
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -819,13 +909,46 @@ def post(post_id: int) -> object:
     Returns:
         Redirection to the post page.
     """
+
     comments = {"comments": []}
     message = []
     author = ""
     session["prev-page"] = request.url
     content = None
+    #check post restrictions 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
+        cur.execute(
+            "SELECT privacy, username "
+            "FROM POSTS WHERE postId=?;", (post_id,))
+        row = cur.fetchone()
+        if row == None:
+            return render_template("error.html", message=["This post does not exists."],)
+        privacy  = row[0]
+        username = row[1]
+        #check its if its an anonymous user or a logged in user
+        if session.get("username"):
+            #check if the user is the same as the author of the post
+            if username != session["username"]:
+                #check if post is available for display
+                if privacy == "private":
+                    return render_template("error.html", message=["This post is private. You cannot access it."],)
+                else:
+                    #check if user trying to view post is a connection of the post author
+                    conn_type = get_connection_type(username)
+                    if conn_type != True:
+                        if privacy == "protected":
+                            return render_template("error.html", message=["This post is is available only to connections."],)
+                    else:
+                        #if user and author are connected chack that they are close friends 
+                        connection = is_close_friend(username)
+                        if connection != True:
+                            if privacy== "close":
+                                return render_template("error.html", message=["This post is is available only to close friends."],)  
+        else:
+            if privacy != "public":
+                return render_template("error.html", message=["This post is private. You cannot access it."],)
+                
         # Gets user from database using username.
         cur.execute(
             "SELECT title, body, username, date, account_type, likes, "
@@ -845,17 +968,20 @@ def post(post_id: int) -> object:
              account_type, likes, post_type) = (data[0], data[1], data[2],
                                                 data[3], data[4], data[5],
                                                 data[6])
-            if post_type == "Image":
+            if post_type == "Image" or post_type == "Link":
                 cur.execute(
                     "SELECT contentUrl "
                     "FROM PostContent WHERE postId=?;", (post_id,))
-                content = cur.fetchone()[0]
+                content = cur.fetchone()
+                if content != None:
+                    content = content[0]
                 print(content)
             cur.execute(
                 "SELECT *"
                 "FROM Comments WHERE postId=?;", (post_id,))
             row = cur.fetchall()
             if len(row) == 0:
+                session["prev-page"] = request.url
                 return render_template(
                     "post_page.html", author=author, postId=post_id,
                     title=title, body=body, username=username,
@@ -873,7 +999,7 @@ def post(post_id: int) -> object:
                     "body": comment[2],
                     "date": time,
                 })
-
+            session["prev-page"] = request.url
             return render_template(
                 "post_page.html", author=author, postId=post_id, title=title,
                 body=body, username=username, date=date_posted, likes=likes,
@@ -927,17 +1053,19 @@ def feed() -> object:
                             "FROM ACCOUNTS WHERE username=? ",
                             (user_post[3],))
 
-                print(get_profile_picture(user_post[3]))
                 accounts = cur.fetchone()
                 account_type = accounts[0]
 
                 post_id = user_post[0]
                 post_type = user_post[8]
-                if post_type == "Image":
+                if post_type == "Image" or post_type == "Link":
                     cur.execute(
                         "SELECT contentUrl "
                         "FROM PostContent WHERE postId=?;", (post_id,))
+
                     content = cur.fetchone()
+                    if content != None:
+                        content = content[0]
 
                 all_posts["AllPosts"].append({
                     "postId": user_post[0],
@@ -956,12 +1084,13 @@ def feed() -> object:
         if "error" in session:
             errors = session["error"]
             session.pop("error", None)
-
+            session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
                                    errors=errors, content=content)
         else:
+            session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
@@ -976,9 +1105,10 @@ def search_query():
         cur = conn.cursor()
         chars = request.args.get('chars')
         pattern = "%" + chars + "%"
-        cur.execute("SELECT UserProfile.username, Degree.degree FROM UserProfile "
-                    "LEFT JOIN Degree ON Degree.degreeId = UserProfile.degree WHERE username LIKE ? LIMIT 10;",
-                (pattern,))
+        cur.execute(
+            "SELECT UserProfile.username, Degree.degree FROM UserProfile "
+            "LEFT JOIN Degree ON Degree.degreeId = UserProfile.degree WHERE username LIKE ? LIMIT 10;",
+            (pattern,))
         row = cur.fetchall()
 
         row.sort(key=lambda x: x[0])
@@ -986,7 +1116,7 @@ def search_query():
 
         print(json.dumps(row))
 
-    #return json.dumps(row)
+    # return json.dumps(row)
     return jsonify(row)
 
 
@@ -1000,64 +1130,75 @@ def submit_post() -> object:
     """
     form_type = request.form.get("form_type")
     post_privacy = request.form.get("privacy")
+    valid = True
 
     if form_type == "Quiz":
         # Gets quiz details.
+        date_created = date.today()
+        author = session["username"]
         quiz_name = request.form.get("quiz_name")
-        question_1 = [request.form.get("question_1"),
+        questions = [[request.form.get("question_1"),
                       request.form.get("question_1_ans_1"),
                       request.form.get("question_1_ans_2"),
                       request.form.get("question_1_ans_3"),
-                      request.form.get("question_1_ans_4")]
-        question_2 = [request.form.get("question_2"),
+                      request.form.get("question_1_ans_4")],
+                     [request.form.get("question_2"),
                       request.form.get("question_2_ans_1"),
                       request.form.get("question_2_ans_2"),
                       request.form.get("question_2_ans_3"),
-                      request.form.get("question_2_ans_4")]
-        question_3 = [request.form.get("question_3"),
+                      request.form.get("question_2_ans_4")],
+                     [request.form.get("question_3"),
                       request.form.get("question_3_ans_1"),
                       request.form.get("question_3_ans_2"),
                       request.form.get("question_3_ans_3"),
-                      request.form.get("question_3_ans_4")]
-        question_4 = [request.form.get("question_4"),
+                      request.form.get("question_3_ans_4")],
+                     [request.form.get("question_4"),
                       request.form.get("question_4_ans_1"),
                       request.form.get("question_4_ans_2"),
                       request.form.get("question_4_ans_3"),
-                      request.form.get("question_4_ans_4")]
-        question_5 = [request.form.get("question_5"),
+                      request.form.get("question_4_ans_4")],
+                     [request.form.get("question_5"),
                       request.form.get("question_5_ans_1"),
                       request.form.get("question_5_ans_2"),
                       request.form.get("question_5_ans_3"),
-                      request.form.get("question_5_ans_4")]
-        print(quiz_name)
+                      request.form.get("question_5_ans_4")]]
 
-        # Adds quiz to the database.
-        with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-            cur.execute("INSERT INTO Quiz (quiz_name, question_1, "
-                        "question_1_ans_1, question_1_ans_2, question_1_ans_3, "
-                        "question_1_ans_4, question_2, question_2_ans_1, "
-                        "question_2_ans_2, question_2_ans_3, question_2_ans_4, "
-                        "question_3, question_3_ans_1, question_3_ans_2, "
-                        "question_3_ans_3, question_3_ans_4, question_4, "
-                        "question_4_ans_1, question_4_ans_2, question_4_ans_3, "
-                        "question_4_ans_4, question_5, question_5_ans_1, "
-                        "question_5_ans_2, question_5_ans_3, question_5_ans_4, "
-                        "privacy) "
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-                        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-                        (
-                            quiz_name, question_1[0], question_1[1],
-                            question_1[2],
-                            question_1[3], question_1[4], question_2[0],
-                            question_2[1], question_2[2], question_2[3],
-                            question_2[4], question_3[0], question_3[1],
-                            question_3[2], question_3[3], question_3[4],
-                            question_4[0], question_4[1], question_4[2],
-                            question_4[3], question_4[4], question_5[0],
-                            question_5[1], question_5[2], question_5[3],
-                            question_5[4], post_privacy))
-            conn.commit()
+        print(request.form.get("quiz_name"))
+        print(request.form.get("question_1"))
+
+        valid, message = validate_quiz(quiz_name, questions)
+        if valid:
+            # Adds quiz to the database.
+            with sqlite3.connect("database.db") as conn:
+                cur = conn.cursor()
+                cur.execute(
+                    "INSERT INTO Quiz (quiz_name, date_created, author, question_1, "
+                    "question_1_ans_1, question_1_ans_2, question_1_ans_3, "
+                    "question_1_ans_4, question_2, question_2_ans_1, "
+                    "question_2_ans_2, question_2_ans_3, question_2_ans_4, "
+                    "question_3, question_3_ans_1, question_3_ans_2, "
+                    "question_3_ans_3, question_3_ans_4, question_4, "
+                    "question_4_ans_1, question_4_ans_2, question_4_ans_3, "
+                    "question_4_ans_4, question_5, question_5_ans_1, "
+                    "question_5_ans_2, question_5_ans_3, question_5_ans_4, "
+                    "privacy) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                    "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                    (
+                        quiz_name, date_created, author, questions[0][0],
+                        questions[0][1], questions[0][2], questions[0][3],
+                        questions[0][4], questions[1][0], questions[1][1],
+                        questions[1][2], questions[1][3], questions[1][4],
+                        questions[2][0], questions[2][1], questions[2][2],
+                        questions[2][3], questions[2][4], questions[3][0],
+                        questions[3][1], questions[3][2], questions[3][3],
+                        questions[3][4], questions[4][0], questions[4][1],
+                        questions[4][2], questions[4][3], questions[4][4],
+                        post_privacy))
+                conn.commit()
+        else:
+            session["error"] = message
+            return redirect("feed")
     else:
         post_title = request.form["post_title"]
         post_body = request.form["post_text"]
@@ -1072,9 +1213,18 @@ def submit_post() -> object:
                 file_path = os.path.join(
                     "." + application.config["UPLOAD_FOLDER"] + "//post_imgs",
                     file_name_hashed)
+
                 im = Image.open(file)
-                im = im.resize((400, 400))
+
+                fixed_height = 600
+                height_percent = (fixed_height / float(im.size[1]))
+                width_size = int((float(im.size[0]) * float(height_percent)))
+
+                width_size = min(width_size, 800)
+
+                im = im.resize((width_size, fixed_height))
                 im = im.convert("RGB")
+
                 im.save(file_path + ".jpg")
             elif file:
                 valid = False
@@ -1082,17 +1232,31 @@ def submit_post() -> object:
 
         elif form_type == "Link":
             link = request.form.get("link")
+            if youtube_validation(link):
+                data = urlparse(link)
+                query = parse_qs(data.query)
+                video_id = query["v"][0]
+                print("id: + " + video_id)
+            else:
+                valid = False
 
         # Only adds the post if a title has been input.
-        if post_title != "":
+        if post_title != "" and valid == True:
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
+                # Get account type
+                cur.execute(
+                    "SELECT type FROM ACCOUNTS "
+                    "WHERE username=?;",
+                    (session["username"],))
+                account_type = cur.fetchone()[0]
+
                 cur.execute(
                     "INSERT INTO POSTS (title, body, username, post_type, "
-                    "privacy) VALUES (?, ?, ?, ?, ?);",
+                    "privacy, account_type) VALUES (?, ?, ?, ?, ?, ?);",
                     (
                         post_title, post_body, session["username"],
-                        form_type, post_privacy))
+                        form_type, post_privacy, account_type))
                 conn.commit()
 
                 if form_type == "Image" and valid is True:
@@ -1101,6 +1265,11 @@ def submit_post() -> object:
                                 (cur.lastrowid, application.config[
                                     "UPLOAD_FOLDER"] + "//post_imgs/" +
                                  file_name_hashed + ".jpg"))
+                    conn.commit()
+                elif form_type == "Link":
+                    cur.execute("INSERT INTO PostContent (postId, contentUrl) "
+                                "VALUES (?, ?);",
+                                (cur.lastrowid, video_id))
                     conn.commit()
 
                 # Award achievement ID 7 - Express yourself if necessary
@@ -1141,6 +1310,19 @@ def submit_post() -> object:
             session["error"] = ["You must submit a post title!"]
 
     return redirect("/feed")
+
+
+def youtube_validation(url):
+    url_regex = (
+        r'(https?://)?(www\.)?'
+        '(youtube|youtu|youtube-nocookie)\.(com)/'
+        '(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
+
+    url_regex_match = re.match(url_regex, url)
+    if url_regex_match:
+        return url_regex_match
+
+    return url_regex_match
 
 
 @application.route("/like_post", methods=["POST"])
@@ -1321,6 +1503,7 @@ def delete_post() -> object:
             conn.commit()
 
     message.append("Post has been deleted successfully.")
+    session["prev-page"] = request.url
     return render_template("error.html", message=message,
                            requestCount=get_connection_request_count(),
                            allUsernames=get_all_usernames())
@@ -1346,6 +1529,7 @@ def delete_comment() -> object:
         # Checks that the comment exists.
         if row[0] is None:
             message.append("Comment does not exist.")
+            session["prev-page"] = request.url
             return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames())
@@ -1408,7 +1592,7 @@ def profile(username: str) -> object:
             name, bio, gender, birthday, profile_picture, privacy = (
                 data[0], data[1], data[2], data[3], data[4], data[5])
 
-    #If user is logged in there are specific features wich can be displayed
+    # If user is logged in there are specific features wich can be displayed
     if session.get("username"):
 
         if username == session["username"]:
@@ -1423,13 +1607,16 @@ def profile(username: str) -> object:
                 (session["username"], username))
             if cur.fetchone() is None:
                 conn_type = get_connection_type(username)
-                if conn_type == "connected" and privacy=="close_friends":
-                    message.append("This profile is available only to connections")
+                if conn_type == "connected" and privacy == "close_friends":
+                    message.append(
+                        "This profile is available only to connections")
+                    session["prev-page"] = request.url
                     return render_template("error.html", message=message,
-                            requestCount=get_connection_request_count())
+                                           requestCount=get_connection_request_count())
             elif conn_type == "blocked":
-                message.append("Unable to view this profile since " + username +
-                            " has blocked you.")
+                message.append(
+                    "Unable to view this profile since " + username +
+                    " has blocked you.")
                 session["prev-page"] = request.url
                 return render_template(
                     "error.html", message=message,
@@ -1437,9 +1624,11 @@ def profile(username: str) -> object:
             else:
                 conn_type = "close_friend"
                 if privacy == "private":
-                    message.append("This profile is available only to close friends. Please try viewing it after loggin in.")
+                    message.append(
+                        "This profile is available only to close friends. Please try viewing it after loggin in.")
+                    session["prev-page"] = request.url
                     return render_template("error.html", message=message,
-                            requestCount=get_connection_request_count())
+                                           requestCount=get_connection_request_count())
 
             session["prev-page"] = request.url
             connections = get_all_connections(username)
@@ -1448,25 +1637,27 @@ def profile(username: str) -> object:
                 connections[count] = connection[0]
                 count += 1
             if session["username"] in connections:
-                #check if user trying to view profile is a close friend
-                if conn_type is "close_friend":
+                # check if user trying to view profile is a close friend
+                if conn_type == "close_friend":
                     cur.execute(
                         "SELECT * "
                         "FROM POSTS WHERE username=? AND (privacy=='close' or privacy=='protected' or privacy=='public')",
                         (username,))
                     sort_posts = cur.fetchall()
-                elif conn_type is "connected":
+                elif conn_type == "connected":
                     cur.execute(
                         "SELECT * FROM POSTS WHERE username=? "
-                        "AND (privacy!='private' or privacy!='close') ", (username,))
+                        "AND (privacy!='private' or privacy!='close') ",
+                        (username,))
                     sort_posts = cur.fetchall()
                 else:
                     cur.execute(
                         "SELECT * FROM POSTS WHERE username=? "
-                        "AND (privacy!='private' or privacy!='close' or privacy!='protected') ", (username,))
+                        "AND (privacy!='private' or privacy!='close' or privacy!='protected') ",
+                        (username,))
                     sort_posts = cur.fetchall()
-                    
-        #Checks there are any achievements to reward
+
+        # Checks there are any achievements to reward
         # Award achievement ID 1 - Look at you if necessary
         if username == session["username"]:
             cur.execute(
@@ -1487,7 +1678,7 @@ def profile(username: str) -> object:
 
         # Award achievement ID 23 - Look at you if necessary
         # Set meeting to allow for secret achievement to be earned
-        meeting_now = False                       
+        meeting_now = False
         if session["username"] and meeting_now:
             cur.execute(
                 "SELECT * FROM CompleteAchievements "
@@ -1497,7 +1688,7 @@ def profile(username: str) -> object:
                 apply_achievement(session["username"], 23)
 
     else:
-        #Only public posts can be viewed when not logged in 
+        # Only public posts can be viewed when not logged in
         cur.execute(
             "SELECT * FROM POSTS WHERE username=? AND privacy='public'",
             (username,))
@@ -1538,8 +1729,9 @@ def profile(username: str) -> object:
             "date_posted": time,
             "body": (user_post[2])[:250] + add,
             "privacy": privacy,
-            "icon": icon
-        })   
+            "icon": icon,
+            "type": user_post[8]
+        })
 
     # Gets account type.
     cur.execute(
@@ -1581,12 +1773,11 @@ def profile(username: str) -> object:
     unlocked_achievements, locked_achievements = get_achievements(username)
     first_six = unlocked_achievements[0:min(6, len(unlocked_achievements))]
 
-
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
     age = calculate_age(datetime_object)
 
-    #get user level
+    # get user level
     check_level_exists(username, conn)
 
     level_data = get_level(username)
@@ -1602,31 +1793,37 @@ def profile(username: str) -> object:
         progress_color = "yellow"
     if percentage_level < 25:
         progress_color = "red"
-    
-    if session.get("username"):   
+
+    if session.get("username"):
+        session["prev-page"] = request.url
         return render_template("profile.html", username=username,
-                                name=name, bio=bio, gender=gender,
-                                birthday=birthday, profile_picture=profile_picture,
-                                age=age, hobbies=hobbies, account_type=account_type,
-                                interests=interests, degree=degree,
-                                email=email, posts=user_posts, type=conn_type,
-                                unlocked_achievements=first_six,
-                                allUsernames=get_all_usernames(),
-                                requestCount=get_connection_request_count(),
-                                level=level, current_xp=int(current_xp),
-                                xp_next_level=int(xp_next_level),
-                                progress_color=progress_color)
+                               name=name, bio=bio, gender=gender,
+                               birthday=birthday,
+                               profile_picture=profile_picture,
+                               age=age, hobbies=hobbies,
+                               account_type=account_type,
+                               interests=interests, degree=degree,
+                               email=email, posts=user_posts, type=conn_type,
+                               unlocked_achievements=first_six,
+                               allUsernames=get_all_usernames(),
+                               requestCount=get_connection_request_count(),
+                               level=level, current_xp=int(current_xp),
+                               xp_next_level=int(xp_next_level),
+                               progress_color=progress_color)
     else:
+        session["prev-page"] = request.url
         return render_template("profile.html", username=username,
-                            name=name, bio=bio, gender=gender,
-                            birthday=birthday, profile_picture=profile_picture,
-                            age=age, hobbies=hobbies, account_type=account_type,
-                            interests=interests, degree=degree,
-                            email=email, posts=user_posts, type="none",
-                            unlocked_achievements=first_six,
-                            level=level, current_xp=int(current_xp),
-                            xp_next_level=int(xp_next_level),
-                            progress_color=progress_color)
+                               name=name, bio=bio, gender=gender,
+                               birthday=birthday,
+                               profile_picture=profile_picture,
+                               age=age, hobbies=hobbies,
+                               account_type=account_type,
+                               interests=interests, degree=degree,
+                               email=email, posts=user_posts, type="none",
+                               unlocked_achievements=first_six,
+                               level=level, current_xp=int(current_xp),
+                               xp_next_level=int(xp_next_level),
+                               progress_color=progress_color)
 
 
 @application.route("/edit-profile", methods=["GET", "POST"])
@@ -1643,24 +1840,25 @@ def edit_profile() -> object:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT birthday, bio, degree, privacy, gender FROM UserProfile WHERE username=?",
+            "SELECT birthday FROM UserProfile WHERE username=?",
             (session["username"],))
-        data = cur.fetchone()
-        dob = data[0]
-        bio = data[1]
-        degree = data[2]
-        privacy = data[3]
-        gender = data[4]
-
+        dob = cur.fetchall()[0][0]
         cur.execute(
-            "SELECT hobby FROM UserHobby WHERE username=?",
+            "SELECT bio FROM UserProfile WHERE username=?",
             (session["username"],))
-        hobbies = cur.fetchall()
+        bio = cur.fetchall()[0][0]
 
+        # get current degree
         cur.execute(
-            "SELECT interest FROM UserInterests WHERE username=?",
+            "SELECT degree FROM UserProfile WHERE username=?",
             (session["username"],))
-        intrests= cur.fetchall()
+        degree = cur.fetchall()[0][0]
+
+        # get privacy settings
+        cur.execute(
+            "SELECT privacy FROM UserProfile WHERE username=?",
+            (session["username"],))
+        privacy = cur.fetchall()[0][0]
 
         # gets all possible degrees
         cur.execute(
@@ -1674,10 +1872,12 @@ def edit_profile() -> object:
 
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
+        session["prev-page"] = request.url
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
-                               date=dob, bio=bio, degrees=degrees, gender=gender, degree=degree, 
-                               privacy=privacy, hobbies=hobbies, intrests=intrests, errors=[])
+                               date=dob, bio=bio, degrees=degrees,
+                               degree=degree,
+                               privacy=privacy, errors=[])
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -1770,11 +1970,13 @@ def edit_profile() -> object:
             # Displays error message(s) stating why their details are invalid.
             else:
                 session["error"] = message
+                session["prev-page"] = request.url
                 return render_template(
                     "settings.html", errors=message,
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(), degrees=degrees,
                     degree=degree, date=dob, bio=bio, privacy=privacy)
+
 
 @application.route("/profile_privacy", methods=["POST"])
 def profile_privacy():
@@ -1788,11 +1990,11 @@ def profile_privacy():
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-                    "UPDATE UserProfile SET privacy=? WHERE username=?;",
-                    (privacy, session["username"],))
+            "UPDATE UserProfile SET privacy=? WHERE username=?;",
+            (privacy, session["username"],))
 
     return redirect("/profile")
-        
+
 
 @application.route("/logout", methods=["GET"])
 def logout() -> object:
@@ -1863,7 +2065,7 @@ def calculate_age(born: datetime) -> int:
     """
     today = date.today()
     return today.year - born.year - (
-        (today.month, today.day) < (born.month, born.day))
+            (today.month, today.day) < (born.month, born.day))
 
 
 def check_level_exists(username: str, conn):
@@ -2116,6 +2318,7 @@ def get_profile_picture(username: str) -> str:
         if row:
             return row[0]
 
+
 def get_degree(username: str) -> Tuple[int, str]:
     """
     Gets the degree of a user.
@@ -2141,6 +2344,7 @@ def get_degree(username: str) -> Tuple[int, str]:
             )
             degree = cur.fetchone()
             return degreeId[0], degree[0]
+
 
 def is_close_friend(username: str) -> bool:
     """
@@ -2214,6 +2418,37 @@ def validate_edit_profile(
             valid = False
             message.append("Interests must not exceed 24 characters!")
             break
+
+    return valid, message
+
+
+def validate_quiz(quiz_name: str, questions: list) -> Tuple[bool, List[str]]:
+    """
+    Validates the quiz creation details which have been input by a user.
+
+    Args:
+        quiz_name: The name of the quiz input by the user.
+        questions: The quiz question details input by the user.
+
+    Returns:
+        Whether the quiz is valid, and the error messages if not.
+    """
+    valid = True
+    message = []
+
+    # Checks that a quiz name has been made.
+    if quiz_name.replace(" ", "") == "":
+        valid = False
+        message.append("You must enter a quiz name!")
+
+    # Checks that all questions details have been filled in.
+    for question in questions:
+        for detail in question:
+            if detail == "":
+                valid = False
+                message.append(
+                    "You have not filled in details for all questions!")
+                return valid, message
 
     return valid, message
 

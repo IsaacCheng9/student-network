@@ -82,5 +82,31 @@ content %}
         {% endfor %}
     </div>
     {%endif%}
+    {%if blocked|length > 0%}
+    <div class="ui horizontal divider">Your Blocked Connections ({{blocked|length}})</div>
+    <div class="ui middle aligned list">
+        {% for connection in blocked %}
+        <div class="item">
+            <div class="ui mini buttons right floated">
+                <form action="{{ url_for('unblock_user', username=connection[0]) }}" method="GET">
+                    <button class="ui red button tiny">
+                        <i class="close icon"></i>
+                        Unblock
+                    </button>
+                </form>
+            </div>
+            <img class="ui avatar image" src="{{ connection[1] }}" />
+            <div class="content">
+                {% if connection[2]%}
+                <span data-tooltip="Close Friends">
+                    <i class="handshake outline icon"></i>
+                </span>
+                {%endif%}
+                <a href="{{ url_for('profile', username=connection[0]) }}">{{ connection[0] }}</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {%endif%}
 </div>
 {%endblock%}
