@@ -1027,6 +1027,7 @@ def post(post_id: int) -> object:
                     "username": comment[1],
                     "body": comment[2],
                     "date": time,
+                    "profilePic": get_profile_picture(comment[1])
                 })
             session["prev-page"] = request.url
             return render_template(
