@@ -1357,23 +1357,26 @@ def submit_post() -> object:
 
         if form_type == "Image":
             file = request.files["file"]
-            file_name_hashed = ""
-            # Hashes the name of the file and resizes it.
-            if allowed_file(file.filename):
-                secure_filename(file.filename)
-                file_name_hashed = str(uuid.uuid4())
-                file_path = os.path.join(
-                    "." + application.config["UPLOAD_FOLDER"] + "//post_imgs",
-                    file_name_hashed)
+            if not file:
+                valid = False
+            if valid:
+                file_name_hashed = ""
+                # Hashes the name of the file and resizes it.
+                if allowed_file(file.filename):
+                    secure_filename(file.filename)
+                    file_name_hashed = str(uuid.uuid4())
+                    file_path = os.path.join(
+                        "." + application.config["UPLOAD_FOLDER"] + "//post_imgs",
+                        file_name_hashed)
 
-                im = Image.open(file)
-                fixed_height = 600
-                height_percent = (fixed_height / float(im.size[1]))
-                width_size = int((float(im.size[0]) * float(height_percent)))
-                width_size = min(width_size, 800)
-                im = im.resize((width_size, fixed_height))
-                im = im.convert("RGB")
-                im.save(file_path + ".jpg")
+                    im = Image.open(file)
+                    fixed_height = 600
+                    height_percent = (fixed_height / float(im.size[1]))
+                    width_size = int((float(im.size[0]) * float(height_percent)))
+                    width_size = min(width_size, 800)
+                    im = im.resize((width_size, fixed_height))
+                    im = im.convert("RGB")
+                    im.save(file_path + ".jpg")
             elif file:
                 valid = False
 
@@ -1453,7 +1456,7 @@ def submit_post() -> object:
                         apply_achievement(session["username"], 9)
         else:
             # Prints error message stating that the title is missing.
-            session["error"] = ["You must submit a post title!"]
+            session["error"] = ["Make sure all fields are filled in correctly!"]
 
     return redirect("/feed")
 
