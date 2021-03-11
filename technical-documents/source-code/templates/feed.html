@@ -187,10 +187,22 @@
             <img src="{{post.profile_pic}}" alt="" class="ui image centered round" style="border-radius: 100%" />
         </div>
         <div class="fifteen wide column">
+            {% if post.account_type == "staff" %}
+            <div class="ui label red">
+                {{ post.author }}
+                <div class="detail">{{ post.account_type }}</div>
+            </div>
+            {% elif post.account_type == "admin" %}
+            <div class="ui label purple">
+                {{ post.author }}
+                <div class="detail">{{ post.account_type }}</div>
+            </div>
+            {% else %}
             <div class="ui label">
                 {{ post.author }}
                 <div class="detail">{{ post.account_type }}</div>
             </div>
+            {% endif %}
             <div style="float: right">{{ post.date_posted }}</div>
         </div>
         <div class="sixteen wide column">
