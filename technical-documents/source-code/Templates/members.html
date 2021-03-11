@@ -53,12 +53,16 @@ content %}
                   console.log(json_response);
 
                   document.getElementById("users").innerHTML = "";
+                  
+                  var hobby = document.getElementById("hobbyInput").value;
+                  var interest = document.getElementById("interestInput").value;
+                  
+                  if (username == "" && hobby == "" && interest == ""){
+                      return;
+                  }
 
                   for (var user of json_response){
                       var extra = ``;
-                      
-                      var hobby = document.getElementById("hobbyInput").value;
-                      var interest = document.getElementById("interestInput").value;
                       
                       var hobbyOrInterest = false;
                       
