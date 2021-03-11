@@ -929,7 +929,9 @@ def post(post_id: int) -> object:
                 cur.execute(
                     "SELECT contentUrl "
                     "FROM PostContent WHERE postId=?;", (post_id,))
-                content = cur.fetchone()[0]
+                content = cur.fetchone()
+                if content != None:
+                    content = content[0]
                 print(content)
             cur.execute(
                 "SELECT *"
@@ -1684,7 +1686,8 @@ def profile(username: str) -> object:
             "date_posted": time,
             "body": (user_post[2])[:250] + add,
             "privacy": privacy,
-            "icon": icon
+            "icon": icon,
+            "type": user_post[8]
         })
 
     # Gets account type.

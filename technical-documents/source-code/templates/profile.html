@@ -316,6 +316,15 @@
                     <div class="ui grid stackable">
                         <div class="sixteen wide column">
                             <h2>
+                                {%if post.type == "Text"%}
+                                <i class="icon file outline alternate"></i>
+                                {%endif%}
+                                {%if post.type == "Image"%}
+                                <i class="icon image"></i>
+                                {%endif%}
+                                {%if post.type == "Link"%}
+                                <i class="icon linkify"></i>
+                                {%endif%}
                                 <a href="/post_page/{{ post.postId }}">{{ post.title}}</a>
                                 <div style="float: right">{{ post.date_posted }}</div>
                             </h2>
