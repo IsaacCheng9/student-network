@@ -13,7 +13,7 @@ content %}
     <div class="ui grid"></div>
     {%for index in range(questions|length)%}
     <div class="ui grid quiz-question stackable compact" id="question-{{index}}">
-        <input type="hidden" class="userAnswer" value="" name="userAnswer{{index}}">
+        <input form="submitForm" type="hidden" class="userAnswer" value="" name="userAnswer{{index}}">
         <div class="ui sixteen wide column" style="text-align: center;">
             <div class="ui statistic">
                 <div class="value">{{index + 1}} <span style="font-size: 0.4em;">/{{questions|length}}</span></div>
@@ -53,7 +53,7 @@ content %}
             <div class="ui button" id="nextQuestionBtn" onclick="NextQuestion();" style="float: right;">Next <i class="right arrow icon"></i></div>
         </div>
         <div class="sixteen wide column">
-        <form method="POST" action="/quiz/{{quiz_id}}">
+        <form id="submitForm" method="POST" action="/quiz/{{quiz_id}}">
             <input value="Submit Answers" type="submit" class="ui button green icon" style="float: right;" id="submitBtn"><i class="icon check"></i>
         </form>
         </div>
@@ -80,7 +80,7 @@ content %}
             }
         })
         
-        $('#submitBtn').prop('disabled', allFilled);
+        $('#submitBtn').prop('disabled', !allFilled);
         $('#submitBtn').removeClass("disabled");
         if (!allFilled){
             $('#submitBtn').addClass("disabled");

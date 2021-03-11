@@ -258,7 +258,8 @@ def quiz(quiz_id: int) -> object:
     if request.method == "GET":
         return render_template("quiz.html",
                                requestCount=get_connection_request_count(),
-                               questions=questions, answers=answers)
+                               quiz_id=quiz_id, questions=questions,
+                               answers=answers)
 
     elif request.method == "POST":
         score = 0
@@ -268,22 +269,17 @@ def quiz(quiz_id: int) -> object:
                         request.form.get("userAnswer2"),
                         request.form.get("userAnswer3"),
                         request.form.get("userAnswer4")]
+        # TODO: Remove after testing.
+        print("test", user_answers)
 
         # Displays an error message if they have not answered all questions.
         if any(user_answers) == "":
             session["error"] = "You have not answered all the questions!"
             return redirect(session["prev-page"])
         else:
-            if user_answers[0] == quiz_details[0][4]:
-                score += 1
-            if user_answers[1] == quiz_details[0][9]:
-                score += 1
-            if user_answers[2] == quiz_details[0][14]:
-                score += 1
-            if user_answers[3] == quiz_details[0][19]:
-                score += 1
-            if user_answers[4] == quiz_details[0][24]:
-                score += 1
+            for i in range(5):
+                if user_answers[i] == quiz_details[0][(5 * i) + 4]:
+                    score += 1
 
             session["error"] = "You scored {}/5 in this quiz!".format(score)
             return redirect("/quizzes")
