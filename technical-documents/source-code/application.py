@@ -209,7 +209,7 @@ def quizzes() -> object:
                            requestCount=get_connection_request_count())
 
 
-@application.route("/quiz/<quiz_id>", methods=["GET"])
+@application.route("/quiz/<quiz_id>", methods=["GET", "POST"])
 def quiz(quiz_id: int) -> object:
     # Gets the quiz details from the database.
     with sqlite3.connect("database.db") as conn:
@@ -247,23 +247,46 @@ def quiz(quiz_id: int) -> object:
         question_5_options = sample(
             [quiz_details[0][24], quiz_details[0][25],
              quiz_details[0][26], quiz_details[0][27]], 4)
-        print(quiz_name)
-        print(question_1)
-        print(question_1_options)
-        print(question_2)
-        print(question_2_options)
-        print(question_3)
-        print(question_3_options)
-        print(question_4)
-        print(question_4_options)
-        print(question_5)
-        print(question_5_options)
 
-        questions = [question_1, question_2, question_3, question_4, question_5]
-        answers = [question_1_options, question_2_options,question_3_options,question_4_options,question_5_options]
+        # Gets a list of questions and answers to pass to the web page.
+        questions = [question_1, question_2, question_3, question_4,
+                     question_5]
+        answers = [question_1_options, question_2_options,
+                   question_3_options, question_4_options,
+                   question_5_options]
 
-    return render_template("quiz.html",
-                           requestCount=get_connection_request_count(), questions=questions,answers=answers)
+    if request.method == "GET":
+        return render_template("quiz.html",
+                               requestCount=get_connection_request_count(),
+                               questions=questions, answers=answers)
+
+    elif request.method == "POST":
+        score = 0
+        # Gets the answers selected by the user.
+        user_answers = [request.form.get("userAnswer0"),
+                        request.form.get("userAnswer1"),
+                        request.form.get("userAnswer2"),
+                        request.form.get("userAnswer3"),
+                        request.form.get("userAnswer4")]
+
+        # Displays an error message if they have not answered all questions.
+        if any(user_answers) == "":
+            session["error"] = "You have not answered all the questions!"
+            return redirect(session["prev-page"])
+        else:
+            if user_answers[0] == quiz_details[0][4]:
+                score += 1
+            if user_answers[1] == quiz_details[0][9]:
+                score += 1
+            if user_answers[2] == quiz_details[0][14]:
+                score += 1
+            if user_answers[3] == quiz_details[0][19]:
+                score += 1
+            if user_answers[4] == quiz_details[0][24]:
+                score += 1
+
+            session["error"] = "You scored {}/5 in this quiz!".format(score)
+            return redirect("/quizzes")
 
 
 @application.route("/leaderboard", methods=["GET"])
@@ -428,7 +451,6 @@ def accept_connection_request(username: str) -> object:
                     # Awards achievement ID 16 - Shared interests if necessary.
                     common_interests = set(my_interests) - (
                             set(my_interests) - set(connection_interests))
-                    print(common_interests)
                     if common_interests:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
@@ -448,7 +470,6 @@ def accept_connection_request(username: str) -> object:
                     # Award achievement ID 26 - Shared hobbies if necessary
                     common_hobbies = set(my_hobbies) - (
                             set(my_hobbies) - set(connection_hobbies))
-                    print(common_hobbies)
                     if common_hobbies:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
@@ -922,7 +943,6 @@ def post(post_id: int) -> object:
                     "SELECT contentUrl "
                     "FROM PostContent WHERE postId=?;", (post_id,))
                 content = cur.fetchone()[0]
-                print(content)
             cur.execute(
                 "SELECT *"
                 "FROM Comments WHERE postId=?;", (post_id,))
@@ -1087,9 +1107,6 @@ def submit_post() -> object:
                       request.form.get("question_5_ans_3"),
                       request.form.get("question_5_ans_4")]]
 
-        print(request.form.get("quiz_name"))
-        print(request.form.get("question_1"))
-
         valid, message = validate_quiz(quiz_name, questions)
         if valid:
             # Adds quiz to the database.
@@ -1160,7 +1177,6 @@ def submit_post() -> object:
                 data = urlparse(link)
                 query = parse_qs(data.query)
                 video_id = query["v"][0]
-                print("id: + " + video_id)
             else:
                 valid = False
 
@@ -1629,7 +1645,6 @@ def profile(username: str) -> object:
         progress_color = "yellow"
     if percentage_level < 25:
         progress_color = "red"
-    print(conn_type)
 
     return render_template("profile.html", username=username,
                            name=name, bio=bio, gender=gender,
