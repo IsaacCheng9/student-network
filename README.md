@@ -1,8 +1,8 @@
-# student-network
+# Student Network - Reconnect
 
-A platform which promotes a student community, through providing social
-opportunities and providing infrastructure to help students engage with each
-other and foster student community.
+A student network which promotes interaction within the University of Exeter's
+student community. This aims to provide social opportunities by encouraging
+students to engage with each other in a fun and friendly online environment.
 
 ## Group N - Contributors
 
@@ -22,7 +22,7 @@ it with the following link:
 
 [http://reconnect-env.eba-6cuvfzp3.eu-west-2.elasticbeanstalk.com](http://reconnect-env.eba-6cuvfzp3.eu-west-2.elasticbeanstalk.com)
 
-## User Manual
+## User Guide
 
 Upon opening the application, you will be greeted with a home page. From here,
 you can log into your existing account, or you can register a new account. It
@@ -31,9 +31,9 @@ email addresses, and academics will be sent for manual verification after
 signing up.
 
 When you log in, you will be redirected to your profile page. This displays
-information about you, such as your hobbies, interests, rarest achievements
-unlocked, and links to your social media profiles. Posts made by you are also
-displayed on this page.
+information about you, such as your hobbies, interests, your rarest
+achievements unlocked, and links to your social media profiles. Posts made by
+you are also displayed on this page.
 
 By default, some details will be filled in for you, such as your profile
 picture, bio, date of birth, and gender. You can edit all these details by

@@ -217,7 +217,6 @@ def quizzes() -> object:
 
         quiz_posts = sorted(row, key=lambda x: x[0], reverse=True)
 
-
     # Displays any error messages.
     if "error" in session:
         errors = session["error"]
@@ -796,7 +795,9 @@ def show_connect_requests() -> object:
 def show_staff_requests() -> object:
     if "admin" in session:
         if not session["admin"]:
-            return render_template("error.html", message=["You are not logged in to an admin account"], requestCount=get_connection_request_count())
+            return render_template("error.html", message=[
+                "You are not logged in to an admin account"],
+                                   requestCount=get_connection_request_count())
         with sqlite3.connect("database.db") as conn:
             # Loads the list of connection requests and their avatars.
             requests = []
@@ -807,16 +808,18 @@ def show_staff_requests() -> object:
                 "WHERE type='pending_staff';")
             conn.commit()
             row = cur.fetchall()
-            requestCount = get_connection_request_count()
-            print(row)
+            request_count = get_connection_request_count()
             if len(row) > 0:
                 for elem in row:
                     requests.append(elem[0])
-                    
-            print(requests)
-            return render_template("admin.html", requests=requests, requestCount=requestCount)
+
+            return render_template("admin.html", requests=requests,
+                                   requestCount=request_count)
     else:
-        return render_template("error.html", message=["You are not logged in to an admin account"], requestCount=get_connection_request_count())
+        return render_template("error.html", message=[
+            "You are not logged in to an admin account"],
+                               requestCount=get_connection_request_count())
+
 
 @application.route("/accept_staff/<username>", methods=["GET", "POST"])
 def accept_staff(username):
@@ -828,6 +831,7 @@ def accept_staff(username):
         cur.execute("UPDATE ACCOUNTS SET type=? "
                     " WHERE username=? ;", ('staff', username))
     return redirect('/admin')
+
 
 @application.route("/reject_staff/<username>", methods=["GET", "POST"])
 def reject_staff(username):
@@ -888,15 +892,14 @@ def login_submit() -> object:
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
-            "SELECT password, type FROM ACCOUNTS WHERE username=?;", (username,))
+            "SELECT password, type FROM ACCOUNTS WHERE username=?;",
+            (username,))
         conn.commit()
         row = cur.fetchone()
-        print(row)
         if row is not None:
             hashed_psw = row[0]
             account_type = row[1]
         else:
-            print("still cant find account")
             session["error"] = ["login"]
             return redirect("/login")
         if hashed_psw is not None:
@@ -1084,7 +1087,7 @@ def post(post_id: int) -> object:
              account_type, likes, post_type) = (data[0], data[1], data[2],
                                                 data[3], data[4], data[5],
                                                 data[6])
-            
+
             cur.execute(
                 "SELECT username FROM ACCOUNTS WHERE username=?;",
                 (session["username"],))
@@ -1140,7 +1143,7 @@ def json_posts():
     }
     number = request.args.get("number")
     starting_id = request.args.get("starting_id")
-    content = ""    
+    content = ""
     all_posts, content, valid = fetch_posts(number, starting_id)
     return jsonify(all_posts)
 
@@ -1159,13 +1162,13 @@ def fetch_posts(number, starting_id):
             connections.append((session["username"],))
             row = []
             for user in connections:
-                print("user",user)
                 cur.execute(
                     "SELECT * FROM POSTS "
                     "WHERE username=? AND postId <= ?"
-                    "AND privacy!='private' AND privacy!='close' ORDER BY postId DESC LIMIT ?;", (user[0], starting_id, number))
+                    "AND privacy!='private' AND privacy!='close' "
+                    "ORDER BY postId DESC LIMIT ?;",
+                    (user[0], starting_id, number))
                 row += cur.fetchall()
-                print("row",row)
             # Sort reverse chronologically
             row = sorted(row, key=lambda x: x[0], reverse=True)
             i = 0
@@ -1194,7 +1197,9 @@ def fetch_posts(number, starting_id):
                 cur.execute("SELECT * FROM Comments WHERE postId=? LIMIT 5;", (post_id,))
                 comments = cur.fetchall()
 
-                comments = list(map(lambda x: (x[0], x[1], x[2], x[3], x[4], get_profile_picture(x[1])), comments))
+                comments = list(map(lambda x: (x[0], x[1], x[2], x[3], x[4],
+                                               get_profile_picture(x[1])),
+                                    comments))
 
                 if post_type == "Image" or post_type == "Link":
                     cur.execute(
@@ -1233,7 +1238,6 @@ def fetch_posts(number, starting_id):
         return all_posts, content, True
     else:
         return all_posts, content, False
-        
 
 
 @application.route("/feed", methods=["GET"])
@@ -1244,7 +1248,7 @@ def feed() -> object:
     Returns:
         Redirection to their feed if they're logged in.
     """
-    all_posts= {
+    all_posts = {
         "AllPosts": []
     }
     content = ""
@@ -1259,7 +1263,7 @@ def feed() -> object:
             "SELECT MAX(postId) FROM POSTS")
         row = cur.fetchone()
 
-    all_posts, content, valid = fetch_posts(2,row[0])
+    all_posts, content, valid = fetch_posts(2, row[0])
     # Displays any error messages.
 
     all_posts = []
@@ -1270,15 +1274,16 @@ def feed() -> object:
             session.pop("error", None)
             session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
-                                    requestCount=get_connection_request_count(),
-                                    allUsernames=get_all_usernames(),
-                                    errors=errors, content=content, max_id=row[0])
+                                   requestCount=get_connection_request_count(),
+                                   allUsernames=get_all_usernames(),
+                                   errors=errors, content=content,
+                                   max_id=row[0])
         else:
             session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
-                                    requestCount=get_connection_request_count(),
-                                    allUsernames=get_all_usernames(),
-                                    content=content, max_id=row[0])
+                                   requestCount=get_connection_request_count(),
+                                   allUsernames=get_all_usernames(),
+                                   content=content, max_id=row[0])
     else:
         return redirect("/login")
 
@@ -1880,18 +1885,17 @@ def profile(username: str) -> object:
     row = cur.fetchall()
     if len(row) > 0:
         email = row[0][0]
-    
 
     socials = {
-            "socials": []
-        }
+        "socials": []
+    }
     # Gets the user's socials
     cur.execute("SELECT * from UserSocial WHERE username=?;",
                 (username,))
     row = cur.fetchall()
     if len(row) > 0:
-        
-        #get users social media names 
+
+        # get users social media names
         cur.execute(
             "SELECT * FROM UserSocial", )
         socials = cur.fetchall()
@@ -1938,7 +1942,8 @@ def profile(username: str) -> object:
                                age=age, hobbies=hobbies,
                                account_type=account_type,
                                interests=interests, degree=degree,
-                               email=email, socials=socials, posts=user_posts, type=conn_type,
+                               email=email, socials=socials, posts=user_posts,
+                               type=conn_type,
                                unlocked_achievements=first_six,
                                allUsernames=get_all_usernames(),
                                requestCount=get_connection_request_count(),
@@ -1953,7 +1958,8 @@ def profile(username: str) -> object:
                                profile_picture=profile_picture,
                                age=age, hobbies=hobbies,
                                account_type=account_type,
-                               interests=interests, socials=socials, degree=degree,
+                               interests=interests, socials=socials,
+                               degree=degree,
                                email=email, posts=user_posts, type="none",
                                unlocked_achievements=first_six,
                                level=level, current_xp=int(current_xp),
@@ -2006,7 +2012,7 @@ def edit_profile() -> object:
         socials = {
             "socials": []
         }
-        #get users social media names 
+        # get users social media names
         cur.execute(
             "SELECT * FROM UserSocial", )
         socials = cur.fetchall()
@@ -2024,8 +2030,9 @@ def edit_profile() -> object:
     if request.method == "GET":
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
-                               date=dob, bio=bio, degrees=degrees, gender=gender,
-                               degree=degree, socials=socials, privacy=privacy, 
+                               date=dob, bio=bio, degrees=degrees,
+                               gender=gender,
+                               degree=degree, socials=socials, privacy=privacy,
                                hobbies=hobbies, interests=interests, errors=[])
 
     # Processes the form if they updated their profile using the form.
@@ -2150,6 +2157,7 @@ def profile_privacy():
 
     return redirect("/profile")
 
+
 @application.route("/edit_socials", methods=["POST"])
 def edit_socials():
     """
@@ -2167,12 +2175,12 @@ def edit_socials():
         cur = conn.cursor()
         cur.execute(
             "UPDATE UserSocial SET  twitter=?,"
-                                    "facebook=?, youtube=?,"
-                                    "instagram = ?,"
-                                    "linkedin=? WHERE username=?;",
-                                    (twitter, facebook, youtube,
-                                    instagram, linkedin, 
-                                     session["username"],))
+            "facebook=?, youtube=?,"
+            "instagram = ?,"
+            "linkedin=? WHERE username=?;",
+            (twitter, facebook, youtube,
+             instagram, linkedin,
+             session["username"],))
     return redirect("/profile")
 
 
