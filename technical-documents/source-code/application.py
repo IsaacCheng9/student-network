@@ -308,6 +308,23 @@ def quiz(quiz_id: int) -> object:
 
             print(question_feedback)
 
+            # Award achievement ID 27 - Boffin if necessary
+            cur.execute(
+                "SELECT * FROM CompleteAchievements "
+                "WHERE (username=? AND achievement_ID=?);",
+                (session["username"], 27))
+            if cur.fetchone() is None:
+                apply_achievement(session["username"], 27)
+
+            # Award achievement ID 28 - Brainiac if necessary
+            if score == 5:
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (session["username"], 28))
+                if cur.fetchone() is None:
+                    apply_achievement(session["username"], 28)
+
             #session["error"] = "You scored {}/5 in this quiz!".format(score)
             return render_template("/quiz_results.html", question_feedback=question_feedback,
                                     requestCount=get_connection_request_count(), score=score)
