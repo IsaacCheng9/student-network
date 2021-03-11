@@ -109,11 +109,11 @@ filename='styles/semantic.css') }}>
                                 </div>
                                 <div class="field">
                                     <label>Profile Picture</label>
-                                    <input name="file" type="file" id="profile-picture-upload" accept="image/*" />
+                                    <input name="file" type="file" id="profile-picture-upload" accept="image/*" / oninput='document.getElementById("avatar-file-name").innerHTML = this.value;'>
                                     <label for="profile-picture-upload" class="custom-file-upload ui label">
                                         <i class="upload icon"></i>
                                         Upload
-                                        <div class="detail">
+                                        <div class="detail" id="avatar-file-name">
                                             profile_pic.png
                                         </div>
                                     </label>

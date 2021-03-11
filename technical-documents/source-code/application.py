@@ -1144,21 +1144,59 @@ def feed() -> object:
 def search_query():
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        chars = request.args.get('chars')
-        pattern = "%" + chars + "%"
-        cur.execute(
-            "SELECT UserProfile.username, Degree.degree FROM UserProfile "
-            "LEFT JOIN Degree ON Degree.degreeId = UserProfile.degree WHERE username LIKE ? LIMIT 10;",
-            (pattern,))
-        row = cur.fetchall()
 
-        row.sort(key=lambda x: x[0])
-        row = list(map(lambda x: (x[0], x[1], get_profile_picture(x[0])), row))
+        chars = request.args.get("chars")
+        hobby = request.args.get("hobby")
+        interest = request.args.get("interest")
+        
+        name_pattern = "%" + chars + "%"
+        hobby_pattern = "%" + hobby + "%"
+        interest_pattern = "%" + interest + "%"
+            
+        cur.execute("SELECT UserProfile.username, UserHobby.hobby, UserInterests.interest FROM UserProfile "
+                    "LEFT JOIN UserHobby ON UserHobby.username=UserProfile.username "
+                    "LEFT JOIN UserInterests ON UserInterests.username=UserProfile.username "
+                    "WHERE (UserProfile.username LIKE ?) "
+                    "AND (IFNULL(hobby, '') LIKE ?) AND (IFNULL(interest, '') LIKE ?) "
+                    
+                    "GROUP BY UserProfile.username LIMIT 10;", (name_pattern, hobby_pattern, interest_pattern,))
 
-        print(json.dumps(row))
+        usernames = cur.fetchall()
+        print(usernames)
+
+        """if hobby != "":
+            # Searches by common hobby.
+            cur.execute("SELECT username, hobby FROM UserHobby WHERE hobby LIKE %",
+                        (hobby,))
+            common_hobbies = cur.fetchall() # [(username, hobby)]
+            print(common_hobbies)
+            usernames = list(set(usernames).intersection(common_hobbies))
+            print(usernames)
+            # usernames = [user1 + user2 for user1 in usernames[:] for user2 in common_hobbies]"""
+
+        """if interest != "":
+            # Searches by common interest.
+            cur.execute("SELECT username, interest FROM UserInterests WHERE interest=?",
+                        (interest,))
+            common_interests = cur.fetchall() # [(username, interest)]
+            usernames = [user for user in usernames[:] and user in common_interests]"""
+
+        # # gets usernames and degree
+        # pattern = "%" + chars + "%"
+        # cur.execute(
+        #     "SELECT UserProfile.username, Degree.degree FROM UserProfile "
+        #     "LEFT JOIN Degree ON Degree.degreeId = UserProfile.degree WHERE username LIKE ? LIMIT 10;",
+        #     (pattern,))
+        # usernames = cur.fetchall()
+        # sort alphabetically
+        usernames.sort(key=lambda x: x[0]) # [(username, degree)]
+        
+        # adds a profile picture to each user
+        #usernames = list(map(lambda x: (x[0], x[1], get_profile_picture(x[0])), usernames))
+        usernames = list(map(lambda x: (x[0], x[1], x[2], get_profile_picture(x[0]), get_degree(x[0])[1]), usernames))
 
     # return json.dumps(row)
-    return jsonify(row)
+    return jsonify(usernames)
 
 
 @application.route("/submit_post", methods=["POST"])
