@@ -922,6 +922,8 @@ def post(post_id: int) -> object:
             "SELECT privacy, username "
             "FROM POSTS WHERE postId=?;", (post_id,))
         row = cur.fetchone()
+        if row == None:
+            return render_template("error.html", message=["This post does not exist."],)
         privacy  = row[0]
         username = row[1]
         #check its if its an anonymous user or a logged in user
