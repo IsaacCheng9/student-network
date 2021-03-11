@@ -208,24 +208,26 @@ def members() -> object:
 
 @application.route("/quizzes", methods=["GET"])
 def quizzes() -> object:
-
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT quiz_id, date_created, author, quiz_name FROM Quiz")
+        cur.execute(
+            "SELECT quiz_id, date_created, author, quiz_name FROM Quiz")
 
         row = cur.fetchall()
 
-        quizzes = sorted(row, key=lambda x: x[0], reverse=True)
+        quiz_posts = sorted(row, key=lambda x: x[0], reverse=True)
 
     # Displays any error messages.
     if "error" in session:
         errors = session["error"]
         session.pop("error", None)
         return render_template("quizzes.html",
-                               requestCount=get_connection_request_count(), quizzes=quizzes, errors=errors)
+                               requestCount=get_connection_request_count(),
+                               quizzes=quiz_posts, errors=errors)
     else:
         return render_template("quizzes.html",
-                               requestCount=get_connection_request_count(), quizzes=quizzes)
+                               requestCount=get_connection_request_count(),
+                               quizzes=quiz_posts)
 
 
 @application.route("/quiz/<quiz_id>", methods=["GET", "POST"])
@@ -277,8 +279,8 @@ def quiz(quiz_id: int) -> object:
     if request.method == "GET":
         return render_template("quiz.html",
                                requestCount=get_connection_request_count(),
-                               quiz_id=quiz_id, questions=questions,
-                               answers=answers)
+                               quiz_name=quiz_name, quiz_id=quiz_id,
+                               questions=questions, answers=answers)
 
     elif request.method == "POST":
         score = 0
@@ -301,7 +303,8 @@ def quiz(quiz_id: int) -> object:
                 correct_answer = quiz_details[0][(5 * i) + 4]
                 correct = user_answers[i] == correct_answer
 
-                question_feedback.append([questions[i], user_answers[i], correct_answer])
+                question_feedback.append(
+                    [questions[i], user_answers[i], correct_answer])
 
                 if correct:
                     score += 1
@@ -325,9 +328,11 @@ def quiz(quiz_id: int) -> object:
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 28)
 
-            #session["error"] = "You scored {}/5 in this quiz!".format(score)
-            return render_template("/quiz_results.html", question_feedback=question_feedback,
-                                    requestCount=get_connection_request_count(), score=score)
+            # session["error"] = "You scored {}/5 in this quiz!".format(score)
+            return render_template("quiz_results.html",
+                                   question_feedback=question_feedback,
+                                   requestCount=get_connection_request_count(),
+                                   score=score)
 
 
 @application.route("/leaderboard", methods=["GET"])
@@ -355,7 +360,7 @@ def leaderboard() -> object:
             top_users = list(map(lambda x: (
                 x[0], x[1], get_profile_picture(x[0]), get_level(x[0]),
                 get_degree(x[0])[1]),
-                                 top_users))
+                top_users))
     session["prev-page"] = request.url
     return render_template("leaderboard.html", leaderboard=top_users,
                            requestCount=get_connection_request_count(),
@@ -492,7 +497,7 @@ def accept_connection_request(username: str) -> object:
 
                     # Awards achievement ID 16 - Shared interests if necessary.
                     common_interests = set(my_interests) - (
-                            set(my_interests) - set(connection_interests))
+                        set(my_interests) - set(connection_interests))
                     if common_interests:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
@@ -511,7 +516,7 @@ def accept_connection_request(username: str) -> object:
 
                     # Award achievement ID 26 - Shared hobbies if necessary
                     common_hobbies = set(my_hobbies) - (
-                            set(my_hobbies) - set(connection_hobbies))
+                        set(my_hobbies) - set(connection_hobbies))
                     if common_hobbies:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
@@ -961,40 +966,51 @@ def post(post_id: int) -> object:
     author = ""
     session["prev-page"] = request.url
     content = None
-    #check post restrictions 
+    # check post restrictions
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT privacy, username "
             "FROM POSTS WHERE postId=?;", (post_id,))
         row = cur.fetchone()
-        if row == None:
-            return render_template("error.html", message=["This post does not exist."],)
-        privacy  = row[0]
+        if row is None:
+            return render_template("error.html",
+                                   message=["This post does not exist."], )
+        privacy = row[0]
         username = row[1]
-        #check its if its an anonymous user or a logged in user
+        # check its if its an anonymous user or a logged in user
         if session.get("username"):
-            #check if the user is the same as the author of the post
+            # check if the user is the same as the author of the post
             if username != session["username"]:
-                #check if post is available for display
+                # check if post is available for display
                 if privacy == "private":
-                    return render_template("error.html", message=["This post is private. You cannot access it."],)
+                    return render_template("error.html", message=[
+                        "This post is private. You cannot access it."], )
                 else:
-                    #check if user trying to view post is a connection of the post author
+                    # Checks if user trying to view the post has a connection
+                    # with the post author.
                     conn_type = get_connection_type(username)
-                    if conn_type != True:
+                    if conn_type is not True:
                         if privacy == "protected":
-                            return render_template("error.html", message=["This post is is available only to connections."],)
+                            return render_template(
+                                "error.html",
+                                message=["This post is only available to "
+                                         "connections."])
                     else:
-                        #if user and author are connected chack that they are close friends 
+                        # If the user and author are connected, check that they
+                        # are close friends.
                         connection = is_close_friend(username)
-                        if connection != True:
-                            if privacy== "close":
-                                return render_template("error.html", message=["This post is is available only to close friends."],)  
+                        if connection is not True:
+                            if privacy == "close":
+                                return render_template(
+                                    "error.html", message=[
+                                        "This post is only available to close "
+                                        "friends."])
         else:
             if privacy != "public":
-                return render_template("error.html", message=["This post is private. You cannot access it."],)
-                
+                return render_template("error.html", message=[
+                    "This post is private. You cannot access it."], )
+
         # Gets user from database using username.
         cur.execute(
             "SELECT title, body, username, date, account_type, likes, "
@@ -1019,7 +1035,7 @@ def post(post_id: int) -> object:
                     "SELECT contentUrl "
                     "FROM PostContent WHERE postId=?;", (post_id,))
                 content = cur.fetchone()
-                if content != None:
+                if content is not None:
                     content = content[0]
                 print(content)
             cur.execute(
@@ -1049,12 +1065,12 @@ def post(post_id: int) -> object:
             session["prev-page"] = request.url
             return render_template(
                 "post_page.html", author=author, postId=post_id,
-                    title=title, body=body, username=username,
-                    date=date_posted, likes=likes, accountType=account_type,
-                    comments=comments, requestCount=get_connection_request_count(),
-                    allUsernames=get_all_usernames(),
-                    avatar=get_profile_picture(username), type=post_type,
-                    content=content)
+                title=title, body=body, username=username,
+                date=date_posted, likes=likes, accountType=account_type,
+                comments=comments, requestCount=get_connection_request_count(),
+                allUsernames=get_all_usernames(),
+                avatar=get_profile_picture(username), type=post_type,
+                content=content)
 
 
 @application.route("/feed", methods=["GET"])
@@ -1112,7 +1128,7 @@ def feed() -> object:
                         "FROM PostContent WHERE postId=?;", (post_id,))
 
                     content = cur.fetchone()
-                    if content != None:
+                    if content is not None:
                         content = content[0]
 
                 cur.execute(
@@ -1123,7 +1139,7 @@ def feed() -> object:
                 cur.execute(
                     "SELECT likes "
                     "FROM POSTS WHERE postId=?;", (post_id,))
-                like_count = cur.fetchone()[0] 
+                like_count = cur.fetchone()[0]
 
                 all_posts["AllPosts"].append({
                     "postId": user_post[0],
@@ -1167,8 +1183,8 @@ def search_query():
         pattern = "%" + chars + "%"
         cur.execute(
             "SELECT UserProfile.username, Degree.degree FROM UserProfile "
-            "LEFT JOIN Degree ON Degree.degreeId = UserProfile.degree WHERE username LIKE ? LIMIT 10;",
-            (pattern,))
+            "LEFT JOIN Degree ON Degree.degreeId = UserProfile.degree "
+            "WHERE username LIKE ? LIMIT 10;", (pattern,))
         row = cur.fetchall()
 
         row.sort(key=lambda x: x[0])
@@ -1229,18 +1245,18 @@ def submit_post() -> object:
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
                 cur.execute(
-                    "INSERT INTO Quiz (quiz_name, date_created, author, question_1, "
-                    "question_1_ans_1, question_1_ans_2, question_1_ans_3, "
-                    "question_1_ans_4, question_2, question_2_ans_1, "
-                    "question_2_ans_2, question_2_ans_3, question_2_ans_4, "
-                    "question_3, question_3_ans_1, question_3_ans_2, "
-                    "question_3_ans_3, question_3_ans_4, question_4, "
-                    "question_4_ans_1, question_4_ans_2, question_4_ans_3, "
-                    "question_4_ans_4, question_5, question_5_ans_1, "
-                    "question_5_ans_2, question_5_ans_3, question_5_ans_4, "
-                    "privacy) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-                    "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                    "INSERT INTO Quiz (quiz_name, date_created, author, "
+                    "question_1, question_1_ans_1, question_1_ans_2, "
+                    "question_1_ans_3, question_1_ans_4, question_2, "
+                    "question_2_ans_1, question_2_ans_2, question_2_ans_3, "
+                    "question_2_ans_4, question_3, question_3_ans_1, "
+                    "question_3_ans_2, question_3_ans_3, question_3_ans_4, "
+                    "question_4, question_4_ans_1, question_4_ans_2, "
+                    "question_4_ans_3, question_4_ans_4, question_5, "
+                    "question_5_ans_1, question_5_ans_2, question_5_ans_3, "
+                    "question_5_ans_4, privacy) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                    "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
                     (
                         quiz_name, date_created, author, questions[0][0],
                         questions[0][1], questions[0][2], questions[0][3],
@@ -1289,7 +1305,7 @@ def submit_post() -> object:
 
         elif form_type == "Link":
             link = request.form.get("link")
-            if youtube_validation(link):
+            if validate_youtube(link):
                 data = urlparse(link)
                 query = parse_qs(data.query)
                 video_id = query["v"][0]
@@ -1297,7 +1313,7 @@ def submit_post() -> object:
                 valid = False
 
         # Only adds the post if a title has been input.
-        if post_title != "" and valid == True:
+        if post_title != "" and valid is True:
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
                 # Get account type
@@ -1366,19 +1382,6 @@ def submit_post() -> object:
             session["error"] = ["You must submit a post title!"]
 
     return redirect("/feed")
-
-
-def youtube_validation(url):
-    url_regex = (
-        r'(https?://)?(www\.)?'
-        '(youtube|youtu|youtube-nocookie)\.(com)/'
-        '(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})')
-
-    url_regex_match = re.match(url_regex, url)
-    if url_regex_match:
-        return url_regex_match
-
-    return url_regex_match
 
 
 @application.route("/like_post", methods=["POST"])
@@ -1619,8 +1622,8 @@ def profile(username: str) -> object:
     and checks if the user viewing the page has unlocked any achievements.
 
     Returns:
-        The updated web page based on whether the details provided were valid and
-        the profile page user's privacy settings.
+        The updated web page based on whether the details provided were valid,
+        and the profile page user's privacy settings.
     """
     email = ""
     conn_type = ""
@@ -1653,7 +1656,8 @@ def profile(username: str) -> object:
     if session.get("username"):
 
         if username == session["username"]:
-            # Gets the user's posts regrdless of post settings if user is the owner of the profile.
+            # Gets the user's posts regardless of post settings if user is the
+            # owner of the profile.
             cur.execute(
                 "SELECT * FROM POSTS WHERE username=?", (username,))
             sort_posts = cur.fetchall()
@@ -1668,8 +1672,9 @@ def profile(username: str) -> object:
                     message.append(
                         "This profile is available only to connections")
                     session["prev-page"] = request.url
-                    return render_template("error.html", message=message,
-                                           requestCount=get_connection_request_count())
+                    return render_template(
+                        "error.html", message=message,
+                        requestCount=get_connection_request_count())
             elif conn_type == "blocked":
                 message.append(
                     "Unable to view this profile since " + username +
@@ -1682,10 +1687,12 @@ def profile(username: str) -> object:
                 conn_type = "close_friend"
                 if privacy == "private":
                     message.append(
-                        "This profile is available only to close friends. Please try viewing it after loggin in.")
+                        "This profile is only available to close friends. "
+                        "Please try viewing it after logging in.")
                     session["prev-page"] = request.url
-                    return render_template("error.html", message=message,
-                                           requestCount=get_connection_request_count())
+                    return render_template(
+                        "error.html", message=message,
+                        requestCount=get_connection_request_count())
 
             session["prev-page"] = request.url
             connections = get_all_connections(username)
@@ -1698,7 +1705,8 @@ def profile(username: str) -> object:
                 if conn_type == "close_friend":
                     cur.execute(
                         "SELECT * "
-                        "FROM POSTS WHERE username=? AND (privacy=='close' or privacy=='protected' or privacy=='public')",
+                        "FROM POSTS WHERE username=? AND (privacy=='close' "
+                        "OR privacy=='protected' OR privacy=='public')",
                         (username,))
                     sort_posts = cur.fetchall()
                 elif conn_type == "connected":
@@ -1710,7 +1718,8 @@ def profile(username: str) -> object:
                 else:
                     cur.execute(
                         "SELECT * FROM POSTS WHERE username=? "
-                        "AND (privacy!='private' or privacy!='close' or privacy!='protected') ",
+                        "AND (privacy!='private' OR privacy!='close' OR "
+                        "privacy!='protected') ",
                         (username,))
                     sort_posts = cur.fetchall()
 
@@ -1896,8 +1905,8 @@ def edit_profile() -> object:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT birthday, bio, degree, privacy, gender FROM UserProfile WHERE username=?",
-            (session["username"],))
+            "SELECT birthday, bio, degree, privacy, gender FROM UserProfile "
+            "WHERE username=?", (session["username"],))
         data = cur.fetchone()
         dob = data[0]
         bio = data[1]
@@ -1913,7 +1922,7 @@ def edit_profile() -> object:
         cur.execute(
             "SELECT interest FROM UserInterests WHERE username=?",
             (session["username"],))
-        interests= cur.fetchall()
+        interests = cur.fetchall()
 
         # gets all possible degrees
         cur.execute(
@@ -1929,8 +1938,10 @@ def edit_profile() -> object:
     if request.method == "GET":
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
-                               date=dob, bio=bio, degrees=degrees, gender=gender, degree=degree, 
-                               privacy=privacy, hobbies=hobbies, interests=interests, errors=[])
+                               date=dob, bio=bio, degrees=degrees,
+                               gender=gender, degree=degree,
+                               privacy=privacy, hobbies=hobbies,
+                               interests=interests, errors=[])
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -1999,13 +2010,13 @@ def edit_profile() -> object:
 
                 # Inserts new hobbies and interests into the database if the
                 # user made a new input.
-                
+
                 cur.execute("DELETE FROM UserHobby WHERE "
-                                    "username=?;",
-                                    (username,))
+                            "username=?;",
+                            (username,))
                 cur.execute("DELETE FROM UserInterests WHERE "
-                                    "username=?;",
-                                    (username,))
+                            "username=?;",
+                            (username,))
                 if hobbies != [""]:
                     for hobby in hobbies:
                         cur.execute("SELECT hobby FROM UserHobby WHERE "
@@ -2124,7 +2135,7 @@ def calculate_age(born: datetime) -> int:
     """
     today = date.today()
     return today.year - born.year - (
-            (today.month, today.day) < (born.month, born.day))
+        (today.month, today.day) < (born.month, born.day))
 
 
 def check_level_exists(username: str, conn):
@@ -2395,14 +2406,14 @@ def get_degree(username: str) -> Tuple[int, str]:
             "SELECT degree FROM UserProfile WHERE username=?;",
             (username,)
         )
-        degreeId = cur.fetchone()
-        if degreeId:
+        degree_id = cur.fetchone()
+        if degree_id:
             cur.execute(
                 "SELECT degree FROM Degree WHERE degreeId=?;",
-                (degreeId[0],)
+                (degree_id[0],)
             )
             degree = cur.fetchone()
-            return degreeId[0], degree[0]
+            return degree_id[0], degree[0]
 
 
 def is_close_friend(username: str) -> bool:
@@ -2643,6 +2654,25 @@ def validate_profile_pic(file) -> Tuple[bool, List[str], str]:
         message.append("Your file must be an image.")
 
     return valid, message, file_name_hashed
+
+
+def validate_youtube(url: str):
+    """
+    Checks that the link is a YouTube link.
+
+    Args:
+        url: The link input by the user.
+
+    Returns:
+        Whether the link is a YouTube link (True/False).
+    """
+    url_regex = (
+        r"(https?://)?(www\.)?"
+        "(youtube|youtu|youtube-nocookie)\.(com)/"
+        "(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})")
+    url_regex_match = re.match(url_regex, url)
+
+    return url_regex_match
 
 
 if __name__ == "__main__":
