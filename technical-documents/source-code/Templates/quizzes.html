@@ -3,6 +3,14 @@ content %}
 <!-- when writing the for loop, use the whole ui segment instead of just "sixteen wide column" -->
 
 <div class="ui segment" id="quiz-post-input">
+    {% if errors %}
+    <div class="ui message red">
+        <div class="header">Error:</div>
+        {% for item in errors %}
+        <p>{{ item }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
     <div class="ui buttons" id="post-type-buttons">
         <div class="ui orange button basic">Select Question</div>
         <button class="ui orange button question-select" onclick="SelectQuestion(1,this);" id="default-question-btn">
