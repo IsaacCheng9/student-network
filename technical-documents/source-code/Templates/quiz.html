@@ -14,11 +14,6 @@ content %}
     {%for index in range(questions|length)%}
     <div class="ui grid quiz-question stackable compact" id="question-{{index}}">
         <input type="hidden" class="userAnswer" value="" name="userAnswer{{index}}">
-        <div class="ui sixteen wide column" style="text-align: center;">
-            <div class="ui statistic">
-                <div class="value">{{index + 1}} <span style="font-size: 0.4em;">/{{questions|length}}</span></div>
-            </div>
-        </div>
         <div class="ui sixteen wide column">
             <h2>{{quiz_name}}</h2>
         </div>
@@ -53,6 +48,9 @@ content %}
     <div class="ui grid">
         <div class="sixteen wide column" style="text-align: center;">
             <div class="ui button" id="prevQuestionBtn" onclick="PreviousQuestion();" style="float: left;"><i class="left arrow icon"></i> Previous</div>
+            <div class="ui statistic small">
+                <div class="value" id="question-number"></div>
+            </div>
             <div class="ui button" id="nextQuestionBtn" onclick="NextQuestion();" style="float: right;">Next <i class="right arrow icon"></i></div>
         </div>
         <div class="sixteen wide column">
@@ -133,6 +131,8 @@ content %}
     function DisplayQuestion(index) {
         $('.quiz-question').hide();
         $('#question-' + index).show();
+        
+        $('#question-number').html(`${questionIndex+1} <span style="font-size: 0.4em;">/${5}</span>`);
     }
 
     DisplayQuestion(0);
