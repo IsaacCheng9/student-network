@@ -790,6 +790,12 @@ def show_connect_requests() -> object:
                            pending=pending_connections,
                            blocked=blocked_connections)
 
+@application.route("/admin", methods=["GET", "POST"])
+def show_staff_requests() -> object:
+    requests = []
+    requestCount = 0
+    return render_template("admin.html", requests=requests, requestCount=requestCount)
+
 
 @application.route("/terms", methods=["GET", "POST"])
 def terms_page() -> object:
