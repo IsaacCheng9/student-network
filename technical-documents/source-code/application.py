@@ -1057,14 +1057,19 @@ def post(post_id: int) -> object:
                     content=content)
 
 
-@application.route("/feed", methods=["GET"])
-def feed() -> object:
-    """
-    Checks user is logged in before viewing their feed page.
+@application.route("/fetch_posts/", methods=['GET'])
+def json_posts():
+    all_posts = {
+        "AllPosts": []
+    }
+    number = request.args.get("number")
+    starting_id = request.args.get("starting_id")
+    content = ""    
+    all_posts, content = fetch_posts(number, starting_id)
+    return jsonify(all_posts)
 
-    Returns:
-        Redirection to their feed if they're logged in.
-    """
+
+def fetch_posts(number, starting_id):
     content = ""
     if "username" in session:
         session["prev-page"] = request.url
@@ -1075,10 +1080,11 @@ def feed() -> object:
             connections.append((session["username"],))
             row = []
             for user in connections:
+                print(user)
                 cur.execute(
                     "SELECT * FROM POSTS "
-                    "WHERE username=? "
-                    "AND privacy!='private' AND privacy!='close';", (user[0],))
+                    "WHERE username=? AND postId < ?"
+                    "AND privacy!='private' AND privacy!='close' LIMIT ?;", (user[0], starting_id, number))
                 row += cur.fetchall()
             # Sort reverse chronologically
             row = sorted(row, key=lambda x: x[0], reverse=True)
@@ -1088,7 +1094,7 @@ def feed() -> object:
             }
             # account type differentiation in posts db
             for user_post in row:
-                if i == 50:
+                if i == number:
                     break
                 add = ""
                 if len(user_post[2]) > 250:
@@ -1139,22 +1145,52 @@ def feed() -> object:
                     "like_count": like_count,
                 })
                 i += 1
+        return all_posts, content
+    else:
+        return False
+        
 
-        # Displays any error messages.
+
+@application.route("/feed", methods=["GET"])
+def feed() -> object:
+    """
+    Checks user is logged in before viewing their feed page.
+
+    Returns:
+        Redirection to their feed if they're logged in.
+    """
+    all_posts= {
+        "AllPosts": []
+    }
+    content = ""
+    session["prev-page"] = request.url
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+
+        connections = get_all_connections(session["username"])
+        connections.append((session["username"],))
+        row = []
+        cur.execute(
+            "SELECT MAX(post_id) FROM POSTS", (user[0], starting_id, offset))
+        row = cur.fetchone()
+
+    all_posts, content, valid = fetch_posts(2,row[0])
+    # Displays any error messages.
+    if valid:
         if "error" in session:
             errors = session["error"]
             session.pop("error", None)
             session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
-                                   requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames(),
-                                   errors=errors, content=content)
+                                    requestCount=get_connection_request_count(),
+                                    allUsernames=get_all_usernames(),
+                                    errors=errors, content=content)
         else:
             session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
-                                   requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames(),
-                                   content=content)
+                                    requestCount=get_connection_request_count(),
+                                    allUsernames=get_all_usernames(),
+                                    content=content)
     else:
         return redirect("/login")
 
