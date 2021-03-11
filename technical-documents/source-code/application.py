@@ -1096,6 +1096,16 @@ def feed() -> object:
                     if content != None:
                         content = content[0]
 
+                cur.execute(
+                    "SELECT COUNT(commentID)"
+                    "FROM Comments WHERE postId=?;", (post_id,))
+                comment_count = cur.fetchone()[0]
+
+                cur.execute(
+                    "SELECT likes "
+                    "FROM POSTS WHERE postId=?;", (post_id,))
+                like_count = cur.fetchone()[0] 
+
                 all_posts["AllPosts"].append({
                     "postId": user_post[0],
                     "title": user_post[1],
@@ -1105,7 +1115,9 @@ def feed() -> object:
                     "date_posted": time,
                     "body": (user_post[2])[:250] + add,
                     "post_type": user_post[8],
-                    "content": content
+                    "content": content,
+                    "comment_count": comment_count,
+                    "like_count": like_count,
                 })
                 i += 1
 

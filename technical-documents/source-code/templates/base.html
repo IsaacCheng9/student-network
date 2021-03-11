@@ -74,6 +74,8 @@
                     {% else %}
                     <a href="{{url_for('user_profile')}}" class="item"><i class="user icon"></i> Profile</a>
                     {% endif %}
+                    <a href="/members" {% if request.path=='/members' %}class="active item" {% else %}class="item" {% endif
+                        %}><i class="users icon"></i> Members</a>
                     <a href="/requests" {% if request.path=='/requests' %}class="active item" {% else %}class="item" {%
                         endif %}class="item">
                         <i class="icon sitemap"></i>
@@ -88,9 +90,6 @@
                         %}><i class="trophy icon"></i> Achievements</a>
                     <a href="/leaderboard" {% if request.path=='/leaderboard' %}class="active item" {% else %}class="item" {% endif
                         %}><i class="chart bar icon"></i> Leaderboard</a>
-                    
-                    <a href="/members" {% if request.path=='/members' %}class="active item" {% else %}class="item" {% endif
-                        %}><i class="users icon"></i> Members</a>
                         
                     <a href="/quizzes" {% if request.path=='/quizzes' %}class="active item" {% else %}class="item" {% endif
                         %}><i class="question icon"></i> Quizzes</a>

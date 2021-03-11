@@ -223,8 +223,16 @@
         </div>
 -->
         <div class="sixteen wide column">
+<<<<<<< HEAD
             <div>5 comments</div>
             <a href="/post_page/{{ post.postId }}">Show all comments</a>
+=======
+            <div>{{ post.comment_count }} comments &nbsp;&nbsp; {{ post.like_count }}
+                <i class="heart icon"></i></div>
+            {% if post.comment_count > 0 %}
+                <a>Show all comments</a>
+            {% endif %}
+>>>>>>> 96cf547b2e7c45a260306ec95b8f7ae1c0c96a15
             <div class="ui comments">
                 <div class="comment">
                     <a class="avatar">
@@ -233,9 +241,9 @@
                     <div class="content">
                         <a class="author">Matt</a>
                         <div class="metadata">
-                            <span class="date">Today at 5:42PM</span>
+                            <span class="date">Today</span>
                         </div>
-                        <div class="text">How artistic!</div>
+                        <div class="text">I cant figue out how to get each posts comments on the feed</div>
                     </div>
                 </div>
             </div>
