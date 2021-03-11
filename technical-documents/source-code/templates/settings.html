@@ -171,45 +171,41 @@
                                         <button class="ui button submit">Save Changes</button>
                                     </div>
                                 </form>
-                            </div>
+
                             <div class="ui segment" id="socials">
-                                <div class="ui form">
+                                <form action="/edit_socials" method="POST" class="ui form" name="socials_edit" enctype="multipart/form-data">
                                     <div class="ui message green">
                                         Only fill in your username, don't use full links.
                                     </div>
-                                    <div class="two fields">
-                                        <div class="field">
+                                    <div class="two fields" >
+                                        <div class="field" >
                                             <label><i class="icon facebook"></i> Facebook</label>
-                                            <input type="text" placeholder="Username">
+                                            <input type="text" name="facebook" id="facebook" placeholder="{{socials.facebook}}">
                                         </div>
                                         <div class="field">
-                                            <label><i class="icon google"></i> Google</label>
-                                            <input type="text" placeholder="Username">
+                                            <label><i class="icon twitter"></i> Twitter</label>
+                                            <input type="text" name="twitter" id="twitter" placeholder="{{socials.twitter}}">
                                         </div>
                                     </div>
                                     <div class="two fields">
                                         <div class="field">
                                             <label><i class="icon linkedin"></i> LinkedIn</label>
-                                            <input type="text" placeholder="Username">
+                                            <input type="text"  name="linkedin" id="linkedin" placeholder="{{socials.linkedin}}">
                                         </div>
-                                        <div class="field">
-                                            <label><i class="icon twitter"></i> Twitter</label>
-                                            <input type="text" placeholder="@Username">
-                                        </div>
+                                        
                                     </div>
                                     <div class="two fields">
                                         <div class="field">
                                             <label><i class="icon instagram"></i> Instagram</label>
-                                            <input type="text" placeholder="Username">
+                                            <input type="text" name="instagram" id="instagram" placeholder="{{socials.instagram}}">
                                         </div>
                                         <div class="field">
                                             <label><i class="icon youtube"></i> YouTube</label>
-                                            <input type="text" placeholder="Username">
+                                            <input type="text" name="youtube" id="youtube" placeholder="{{socials.youtube}}">
                                         </div>
                                     </div>
-                                    
-                                    <div class="ui button submit">Save Changes</div>
-                                </div>
+                                    <div class="ui button submit" form="socials_edit">Save Changes</div>
+                                </form>
                             </div>
     
                             <div class="ui segment" id="notifications">
@@ -248,6 +244,7 @@
                                     </div>
                                     <button class="ui button submit">Save Changes</button>
                                 </form>
+                            </div>
                                 <div class="ui segment" id="privacy_description" style="display:none;">
                                     <div id="public" style="display:none;">
                                         Everyone can view all of your profile page details.
@@ -262,8 +259,6 @@
                                         You are the only one who can view your profile page.
                                     </div>
                                 </div>
-                                <button class="ui button submit">Save Changes</button>
-                            </form>
                         </div>
                     </div>
                 </div>
