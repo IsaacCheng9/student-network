@@ -1593,13 +1593,13 @@ def profile(username: str) -> object:
                 count += 1
             if session["username"] in connections:
                 # check if user trying to view profile is a close friend
-                if conn_type is "close_friend":
+                if conn_type == "close_friend":
                     cur.execute(
                         "SELECT * "
                         "FROM POSTS WHERE username=? AND (privacy=='close' or privacy=='protected' or privacy=='public')",
                         (username,))
                     sort_posts = cur.fetchall()
-                elif conn_type is "connected":
+                elif conn_type == "connected":
                     cur.execute(
                         "SELECT * FROM POSTS WHERE username=? "
                         "AND (privacy!='private' or privacy!='close') ",
