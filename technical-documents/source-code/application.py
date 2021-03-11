@@ -1643,25 +1643,24 @@ def edit_profile() -> object:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT birthday FROM UserProfile WHERE username=?",
+            "SELECT birthday, bio, degree, privacy, gender FROM UserProfile WHERE username=?",
             (session["username"],))
-        dob = cur.fetchall()[0][0]
-        cur.execute(
-            "SELECT bio FROM UserProfile WHERE username=?",
-            (session["username"],))
-        bio = cur.fetchall()[0][0]
-        
-        #get current degree
-        cur.execute(
-            "SELECT degree FROM UserProfile WHERE username=?",
-            (session["username"],))
-        degree = cur.fetchall()[0][0]
+        data = cur.fetchone()
+        dob = data[0]
+        bio = data[1]
+        degree = data[2]
+        privacy = data[3]
+        gender = data[4]
 
-        #get privacy settings
         cur.execute(
-            "SELECT privacy FROM UserProfile WHERE username=?",
+            "SELECT hobby FROM UserHobby WHERE username=?",
             (session["username"],))
-        privacy = cur.fetchall()[0][0]
+        hobbies = cur.fetchall()
+
+        cur.execute(
+            "SELECT interest FROM UserInterests WHERE username=?",
+            (session["username"],))
+        intrests= cur.fetchall()
 
         # gets all possible degrees
         cur.execute(
@@ -1677,8 +1676,8 @@ def edit_profile() -> object:
     if request.method == "GET":
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
-                               date=dob, bio=bio, degrees=degrees, degree=degree, 
-                               privacy=privacy, errors=[])
+                               date=dob, bio=bio, degrees=degrees, gender=gender, degree=degree, 
+                               privacy=privacy, hobbies=hobbies, intrests=intrests, errors=[])
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
