@@ -809,12 +809,10 @@ def show_staff_requests() -> object:
             conn.commit()
             row = cur.fetchall()
             request_count = get_connection_request_count()
-            print(row)
             if len(row) > 0:
                 for elem in row:
                     requests.append(elem[0])
 
-            print(requests)
             return render_template("admin.html", requests=requests,
                                    requestCount=request_count)
     else:
@@ -898,12 +896,10 @@ def login_submit() -> object:
             (username,))
         conn.commit()
         row = cur.fetchone()
-        print(row)
         if row is not None:
             hashed_psw = row[0]
             account_type = row[1]
         else:
-            print("still cant find account")
             session["error"] = ["login"]
             return redirect("/login")
         if hashed_psw is not None:
@@ -1166,7 +1162,6 @@ def fetch_posts(number, starting_id):
             connections.append((session["username"],))
             row = []
             for user in connections:
-                print("user", user)
                 cur.execute(
                     "SELECT * FROM POSTS "
                     "WHERE username=? AND postId <= ?"
@@ -1174,7 +1169,6 @@ def fetch_posts(number, starting_id):
                     "ORDER BY postId DESC LIMIT ?;",
                     (user[0], starting_id, number))
                 row += cur.fetchall()
-                print("row", row)
             # Sort reverse chronologically
             row = sorted(row, key=lambda x: x[0], reverse=True)
             i = 0
