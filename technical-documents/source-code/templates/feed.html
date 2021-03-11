@@ -81,7 +81,7 @@
     </div>
     {% endif %}
     <div class="ui grid">
-        <div class="sixteen wide column">
+        <div class="sixteen wide column" style="margin-bottom: -3em !important;">
             <div class="ui segment basic">
                 <div class="ui buttons teal icon" id="post-type-buttons">
                     <div class="ui teal button basic">Post Type</div>
@@ -341,7 +341,7 @@
         
         if (post.body != ""){
             postBody = `<div class="sixteen wide column">
-                    <div class="ui segment">${ post.body }</div>
+                    <div class="ui segment" style="overflow-wrap: anywhere;">${ post.body }</div>
                 </div>`;
         }
         

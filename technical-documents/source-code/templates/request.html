@@ -2,7 +2,9 @@
 {% block title %}Request{% endblock %} 
 {% block content %}
 <div class="ui segment">
-   
+    {%if requests|length == 0 and connections|length == 0 %}
+    <div class="ui message orange"style="text-align: center;">No connections to show</div>
+    {% endif %}
     {%if requests|length > 0%}
     <div class="ui horizontal divider">Your Connection Requests ({{requests|length}})</div>
     <div class="ui middle aligned list">
