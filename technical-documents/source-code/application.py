@@ -1130,7 +1130,8 @@ def post(post_id: int) -> object:
                 "post_page.html", author=author, postId=post_id,
                 title=title, body=body, username=username,
                 date=date_posted, likes=likes, accountType=account_type,
-                comments=comments, requestCount=get_connection_request_count(),
+                user_account_type=user_account_type, comments=comments,
+                requestCount=get_connection_request_count(),
                 allUsernames=get_all_usernames(),
                 avatar=get_profile_picture(username), type=post_type,
                 content=content)
