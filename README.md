@@ -8,12 +8,12 @@ other and foster student community.
 
 Group members (contributors) include:
 
--   Isaac Cheng
--   Ryan Storey
--   Sofia Reid
--   Barnie Gill
--   Oskar Oramus
--   Sam Shailer
+- Isaac Cheng
+- Ryan Storey
+- Sofia Reid
+- Barnie Gill
+- Oskar Oramus
+- Sam Shailer
 
 ## Live Deployed Version
 
@@ -25,10 +25,10 @@ it with the following link:
 ## User Manual
 
 Upon opening the application, you will be greeted with a home page. From here,
-you can log into your existing account, or you can register a new account.
-It should be noted that registration will only work with University of
-Exeter email addresses, and academics will be sent for manual verification
-after signing up.
+you can log into your existing account, or you can register a new account. It
+should be noted that registration will only work with University of Exeter
+email addresses, and academics will be sent for manual verification after
+signing up.
 
 When you log in, you will be redirected to your profile page. This displays
 information about you, such as your hobbies, interests, rarest achievements
@@ -42,8 +42,8 @@ pressing the 'Edit Profile' button.
 To search for other members on the Reconnect network, you can navigate to the
 'Members' page using the navigation bar on the top. From here, you can search
 by the username, with the option of searching by a common hobby and/or interest
-too. Search results will be displayed live with their username and their degree,
-enabling you to visit the profiles of people and make connections.
+too. Search results will be displayed live with their username and their
+degree, enabling you to visit the profiles of people and make connections.
 
 Connections may be formed with people, with the option of marking connections
 as close friends. Whereas connections must be accepted by people, you are able
@@ -59,25 +59,25 @@ handshake next to them.
 
 On your feed, you can view all the posts of people who you have connected with.
 This is sorted in chronological order, with the newest posts appearing at the
-top. You can also make new posts from this page; these are categorised as
-a text post, an image post, or a link post.
+top. You can also make new posts from this page; these are categorised as a
+text post, an image post, or a link post.
 
 Achievements may be unlocked by performing tasks on the Reconnect network. You
 can view these on the Achievements page, which displays your progress with
 achievements as a percentage, and the achievements you have completed, starting
-from the most recent. This page also shows you which achievements you are yet to
-unlock. Hovering over each achievement shows the title of the achievement,
-description, and number of XP gained by unlocking it. Each of these achievements
-has its own unique icon. Watch out for hidden achievements which are not
-displayed until you unlock them; these will reward you with extra XP!
+from the most recent. This page also shows you which achievements you are yet
+to unlock. Hovering over each achievement shows the title of the achievement,
+description, and number of XP gained by unlocking it. Each of these
+achievements has its own unique icon. Watch out for hidden achievements which
+are not displayed until you unlock them; these will reward you with extra XP!
 
 You will level up your profile based on how much XP you have gained. This
 encourages some healthy competition in the Reconnect network. By interacting
-more in various parts of the application, you will quickly be able to climb
-up the leaderboard!
+more in various parts of the application, you will quickly be able to climb up
+the leaderboard!
 
-We have also provided you with an easy way to test and share your knowledge
-on the Quizzes page. From here, you can create a quiz consisting of five
+We have also provided you with an easy way to test and share your knowledge on
+the Quizzes page. From here, you can create a quiz consisting of five
 multiple-choice questions for others to complete. You can also view and take
 part in quizzes made from other people.
 
@@ -135,27 +135,28 @@ They can be found in the following path:
 
 ### Python Version
 
-The application has been developed and tested to work on Python 3.8 and onwards.
+The application has been developed and tested to work on Python 3.8 and
+onwards.
 
 ### Python Libraries
 
-This project uses several Python libraries. To run the application
-locally, you should `pip install` the following:
+This project uses several Python libraries. To run the application locally, you
+should `pip install` the following:
 
--   click
--   email-validator
--   Flask
--   itsdangerous
--   Jinja2
--   MarkupSafe
--   passlib
--   Werkzeug
--   Pillow
+- click
+- email-validator
+- Flask
+- itsdangerous
+- Jinja2
+- MarkupSafe
+- passlib
+- Werkzeug
+- Pillow
 
 For example, you should `pip install passlib`.
 
 ### Virtual Environment
 
-Alternatively, a virtual environment has been included in the GitHub repository.
-This includes all of the Python libraries required to run the applciation
-locally.
+Alternatively, a virtual environment has been included in the GitHub
+repository. This includes all the Python libraries required to run the
+application locally.
