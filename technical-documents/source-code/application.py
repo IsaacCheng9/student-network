@@ -1067,6 +1067,8 @@ def post(post_id: int) -> object:
         privacy = row[0]
         username = row[1]
         # check its if its an anonymous user or a logged in user
+        if "username" not in session:
+            return redirect("/login")
         if session.get("username"):
             # check if the user is the same as the author of the post
             if username != session["username"]:
