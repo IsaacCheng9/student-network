@@ -1814,6 +1814,29 @@ def profile(username: str) -> object:
     row = cur.fetchall()
     if len(row) > 0:
         email = row[0][0]
+    
+
+    socials = {
+            "socials": []
+        }
+    # Gets the user's socials
+    cur.execute("SELECT * from UserSocial WHERE username=?;",
+                (username,))
+    row = cur.fetchall()
+    if len(row) > 0:
+        
+        #get users social media names 
+        cur.execute(
+            "SELECT * FROM UserSocial", )
+        socials = cur.fetchall()
+        for item in socials:
+            socials["socials"].append({
+                "twitter": item[0],
+                "facebook": item[1],
+                "youtube": item[2],
+                "instagram": item[3],
+                "linkedin": item[4],
+            })
 
     # Gets the user's six rarest achievements.
     unlocked_achievements, locked_achievements = get_achievements(username)
@@ -1849,7 +1872,7 @@ def profile(username: str) -> object:
                                age=age, hobbies=hobbies,
                                account_type=account_type,
                                interests=interests, degree=degree,
-                               email=email, posts=user_posts, type=conn_type,
+                               email=email, socials=socials, posts=user_posts, type=conn_type,
                                unlocked_achievements=first_six,
                                allUsernames=get_all_usernames(),
                                requestCount=get_connection_request_count(),
@@ -1864,7 +1887,7 @@ def profile(username: str) -> object:
                                profile_picture=profile_picture,
                                age=age, hobbies=hobbies,
                                account_type=account_type,
-                               interests=interests, degree=degree,
+                               interests=interests, socials=socials, degree=degree,
                                email=email, posts=user_posts, type="none",
                                unlocked_achievements=first_six,
                                level=level, current_xp=int(current_xp),
@@ -1914,14 +1937,30 @@ def edit_profile() -> object:
                 "degree": item[1]
             })
 
+        socials = {
+            "socials": []
+        }
+        #get users social media names 
+        cur.execute(
+            "SELECT * FROM UserSocial", )
+        socials = cur.fetchall()
+        for item in socials:
+            socials["socials"].append({
+                "twitter": item[0],
+                "facebook": item[1],
+                "youtube": item[2],
+                "google": item[3],
+                "instagram": item[4],
+                "linkedin": item[5],
+            })
+
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
-                               date=dob, bio=bio, degrees=degrees,
-                               gender=gender, degree=degree,
-                               privacy=privacy, hobbies=hobbies,
-                               interests=interests, errors=[])
+                               date=dob, bio=bio, degrees=degrees, gender=gender,
+                               degree=degree, socials=socials, privacy=privacy, 
+                               hobbies=hobbies, interests=interests, errors=[])
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -2043,6 +2082,31 @@ def profile_privacy():
             "UPDATE UserProfile SET privacy=? WHERE username=?;",
             (privacy, session["username"],))
 
+    return redirect("/profile")
+
+@application.route("/edit_socials", methods=["POST"])
+def edit_socials():
+    """
+    Changes the privacy setting of the profile page
+
+    Returns:
+        The settings page
+    """
+    twitter = request.form.get("twitter")
+    facebook = request.form.get("facebook")
+    youtube = request.form.get("youtube")
+    instagram = request.form.get("instagram")
+    linkedin = request.form.get("linkedin")
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE UserSocial SET  twitter=?,"
+                                    "facebook=?, youtube=?,"
+                                    "instagram = ?,"
+                                    "linkedin=? WHERE username=?;",
+                                    (twitter, facebook, youtube,
+                                    instagram, linkedin, 
+                                     session["username"],))
     return redirect("/profile")
 
 
