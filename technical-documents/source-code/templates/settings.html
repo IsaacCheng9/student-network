@@ -1,14 +1,15 @@
-{% extends "base.html" %} {% block title %}Settings{% endblock %} {% block
-content %}
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %} 
+{% block content %}
 
 <html lang="en">
 <meta charset="UTF-8" />
 
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <!--
-<link rel="stylesheet" href={{ url_for('static',
-filename='styles/semantic.css') }}>
--->
+    <link rel="stylesheet" href={{ url_for('static',
+    filename='styles/semantic.css') }}>
+    -->
 <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" type="text/css" /> -->
 
 <head>
@@ -39,10 +40,16 @@ filename='styles/semantic.css') }}>
             z-index: 99;
         }
 
+        #hideValuesOnSelect {
+            display: none;
+        }
+
     </style>
 </head>
 
 <body>
+
+
     <!-- Page Contents -->
     <div class="pusher">
         <div class="ui container">
@@ -66,9 +73,24 @@ filename='styles/semantic.css') }}>
                             {%endfor%}
                         </div>
                         {%endif%}
+
                         <div class="ui segment" id="profile">
                             <!-- name bio gender birthday profile_picture hobbies interests -->
+
                             <form action="/edit-profile" method="POST" class="ui form" enctype="multipart/form-data">
+                                <div class="field">
+                                    <label>Degree</label>
+                                    <select name="degree_input">
+                                        {%for item in degrees.degrees %}
+                                        Degree:
+                                        {% if item.degreeId == degree %}
+                                        <option value="{{item.degreeId}}" selected>{{item.degree}}</option>
+                                        {%else%}
+                                        <option value="{{item.degreeId}}">{{item.degree}}</option>
+                                        {%endif%}
+                                        {%endfor%}
+                                    </select>
+                                </div>
                                 <div class="field">
                                     <label>Bio</label>
                                     <textarea name="bio_input" rows="2" maxlength="160">{{bio}}</textarea>
@@ -76,13 +98,23 @@ filename='styles/semantic.css') }}>
                                 <div class="field">
                                     <label>Gender</label>
                                     <select name="gender_input" id="">
+                                        {% if gender == "Male" %}
+                                        <option value="Male" selected>Male</option>
+                                        {%else %}
                                         <option value="Male">Male</option>
-                                        <option value="Female">
-                                            Female
-                                        </option>
-                                        <option value="Other">
-                                            Other
-                                        </option>
+                                        {%endif%}
+
+                                        {% if gender == "Female" %}
+                                        <option value="Female" selected>Female</option>
+                                        {%else %}
+                                        <option value="Female">Female</option>
+                                        {%endif%}
+
+                                        {% if gender == "Other" %}
+                                        <option value="Other" selected>Other</option>
+                                        {%else %}
+                                        <option value="Other">Other</option>
+                                        {%endif%}
                                     </select>
                                 </div>
                                 <div class="field">
@@ -91,11 +123,11 @@ filename='styles/semantic.css') }}>
                                 </div>
                                 <div class="field">
                                     <label>Profile Picture</label>
-                                    <input name="file" type="file" id="profile-picture-upload" accept="image/*" />
+                                    <input name="file" type="file" id="profile-picture-upload" accept="image/*" oninput='document.getElementById("avatar-file-name").innerHTML = this.files[0].name;;' />
                                     <label for="profile-picture-upload" class="custom-file-upload ui label">
                                         <i class="upload icon"></i>
                                         Upload
-                                        <div class="detail">
+                                        <div class="detail" id="avatar-file-name">
                                             profile_pic.png
                                         </div>
                                     </label>
@@ -106,9 +138,22 @@ filename='styles/semantic.css') }}>
                                     <div style="color: grey">
                                         Use comma to separate the hobbies
                                     </div>
-                                    <input name="hobbies_input" type="text" maxlength="24">
+                                    <input name="hobbies_input" type="text" placeholder="{% if hobbies != none %} {%for item in hobbies%} {{item[0]}}, {%endfor%} {%endif%}" maxlength="24">
+                                    <script src="../static/hobbies.js"></script>
                                     <div class="ui divider hidden"></div>
-                                    <div class="ui grid container" name="hobby-div"></div>
+                                    <div class="ui grid container" name="hobby-div">
+
+                                        {% if hobbies != none %}
+                                        {% for i in range(hobbies|length) %}
+                                        <script>
+                                            addHTag("{{ hobbies[i][0]}}")
+
+                                        </script>
+                                        {%endfor%}
+                                        {%endif%}
+
+                                    </div>
+
                                 </div>
                                 <div class="ui divider"></div>
                                 <div class="field">
@@ -116,59 +161,111 @@ filename='styles/semantic.css') }}>
                                     <div style="color: grey">
                                         Use comma to separate the interests
                                     </div>
-                                    <input name="interests_input" type="text" maxlength="24">
+                                    <input name="interests_input" type="text" maxlength="24" placeholder="{% if insterest != none %} {%for item in interests%} {{item[0]}}, {%endfor%} {%endif%}">
+                                    <script src="../static/interests.js"></script>
                                     <div class="ui divider hidden"></div>
-                                    <div class="ui grid container" name="interest-div"></div>
-                                </div>
+                                    <div class="ui grid container" name="interest-div">
+                                        {% if interests != none %}
+                                        {% for i in range(interests|length) %}
+                                        <script>
+                                            addITag("{{ interests[i][0] }}")
 
+                                        </script>
+                                        {%endfor%}
+                                        {%endif%}
+                                    </div>
+                                </div>
                                 <button class="ui button submit">Save Changes</button>
                             </form>
                         </div>
+
                         <div class="ui segment" id="socials">
-                            <div class="ui form">
-                                <div class="ui message green">
-                                    Only fill in your username, don't use full links.
-                                </div>
+                            <form action="/edit_socials" method="POST" class="ui form" name="socials_edit" enctype="multipart/form-data">
                                 <div class="two fields">
                                     <div class="field">
+                                        <label><i class="icon facebook"></i> Facebook</label>
+                                        <input type="text" name="facebook" id="facebook" placeholder="{{socials.facebook}}">
+                                    </div>
+                                    <div class="field">
+                                        <label><i class="icon twitter"></i> Twitter</label>
+                                        <input type="text" name="twitter" id="twitter" placeholder="{{socials.twitter}}">
+                                    </div>
+                                </div>
+                                <div class="two fields">
+                                   <div class="field">
                                         <label><i class="icon facebook"></i> Facebook</label>
                                         <input type="text" placeholder="Username">
                                     </div>
                                     <div class="field">
-                                        <label><i class="icon google"></i> Google</label>
-                                        <input type="text" placeholder="Username">
-                                    </div>
-                                </div>
-                                <div class="two fields">
-                                    <div class="field">
                                         <label><i class="icon linkedin"></i> LinkedIn</label>
-                                        <input type="text" placeholder="Username">
+                                        <input type="text" name="linkedin" id="linkedin" placeholder="{{socials.linkedin}}">
                                     </div>
-                                    <div class="field">
-                                        <label><i class="icon twitter"></i> Twitter</label>
-                                        <input type="text" placeholder="@Username">
-                                    </div>
+
                                 </div>
                                 <div class="two fields">
                                     <div class="field">
                                         <label><i class="icon instagram"></i> Instagram</label>
-                                        <input type="text" placeholder="Username">
+                                        <input type="text" name="instagram" id="instagram" placeholder="{{socials.instagram}}">
                                     </div>
                                     <div class="field">
                                         <label><i class="icon youtube"></i> YouTube</label>
-                                        <input type="text" placeholder="Username">
+                                        <input type="text" name="youtube" id="youtube" placeholder="{{socials.youtube}}">
                                     </div>
                                 </div>
-                                
-                                <div class="ui button submit">Save Changes</div>
-                            </div>
+                                <div class="ui button submit" form="socials_edit">Save Changes</div>
+                            </form>
                         </div>
-
                         <div class="ui segment" id="notifications">
                             Notif
                         </div>
 
-                        <div class="ui segment" id="privacy">Privacy</div>
+                        <div class="ui segment" id="privacy">
+                            <form action="/profile_privacy" method="POST" class="ui form" enctype="multipart/form-data">
+                                <div class="field">
+                                    <label>Select your profile page privacy settings:</label>
+                                    <select name="privacy" onchange="displayDiv(this)">
+                                        {% if privacy == "public" %}
+                                        <option value="public" selected>Public</option>
+                                        {%else %}
+                                        <option value="public">Public</option>
+                                        {%endif%}
+
+                                        {% if privacy == "protected" %}
+                                        <option value="protected" selected>Protected</option>
+                                        {%else %}
+                                        <option value="protected">Protected</option>
+                                        {%endif%}
+
+                                        {% if privacy == "close_friends" %}
+                                        <option value="close_friends" selected>Close friends only</option>
+                                        {%else %}
+                                        <option value="close_friends">Close friends only</option>
+                                        {%endif%}
+
+                                        {% if privacy == "private" %}
+                                        <option value="private" selected>Private</option>
+                                        {%else %}
+                                        <option value="private">Private</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
+                                <button class="ui button submit">Save Changes</button>
+                            </form>
+                        </div>
+                        <div class="ui segment" id="privacy_description" style="display:none;">
+                            <div id="public" style="display:none;">
+                                Everyone can view all of your profile page details.
+                            </div>
+                            <div id="protected" style="display:none;">
+                                Only your connections can view your profile page.
+                            </div>
+                            <div id="close_friends" style="display:none;">
+                                Only your close friends can view your profile page.
+                            </div>
+                            <div id="private" style="display:none;">
+                                You are the only one who can view your profile page.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -199,11 +296,35 @@ filename='styles/semantic.css') }}>
         OpenTab("profile");
     });
 
+    function displayDiv(setting) {
+        console.log(setting);
+        if (setting) {
+            document.getElementById("privacy_description").style.display = "block";
+            if (setting.value == "public") {
+
+                document.getElementById("public").style.display = "block";
+                document.getElementById("protected").style.display = "none";
+                document.getElementById("close_friends").style.display = "none";
+                document.getElementById("private").style.display = "none";
+            } else if (setting.value == "protected") {
+                document.getElementById("public").style.display = "none";
+                document.getElementById("protected").style.display = "block";
+                document.getElementById("close_friends").style.display = "none";
+                document.getElementById("private").style.display = "none";
+            } else if (setting.value == "close_friends") {
+                document.getElementById("public").style.display = "none";
+                document.getElementById("protected").style.display = "none";
+                document.getElementById("close_friends").style.display = "block";
+                document.getElementById("private").style.display = "none";
+            } else {
+                document.getElementById("public").style.display = "none";
+                document.getElementById("protected").style.display = "none";
+                document.getElementById("close_friends").style.display = "none";
+                document.getElementById("private").style.display = "block";
+            }
+        }
+    }
+
 </script>
 
-<script src="../static/hobbies.js"></script>
-<script src="../static/interests.js"></script>
-
-</html>
-
-{%endblock%}
+{% endblock %}

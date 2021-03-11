@@ -1,0 +1,106 @@
+
+{% extends "base.html" %} 
+{% block title %}Members{% endblock %} 
+{% block content %}
+
+
+  <div class="ui segment padded">
+    <div class="ui grid">
+      <div class="sixteen wide column">
+        <div class="field">
+          <div class="ui left icon input fluid">
+            <input type="text" placeholder="Search users..." id="userInput" oninput="SearchUser();">
+            <i class="users icon"></i>
+          </div>
+        </div>
+      </div>
+      <div class="seven wide column">
+        <div class="ui input fluid labeled">
+          <div class="ui label teal">Search Hobby</div>
+          <input type="text" placeholder="Search for common hobby..." id="hobbyInput" oninput="SearchUser();">
+        </div>
+      </div>
+      <div class="ui two wide column">
+          <div class="ui label fluid green big" style="text-align: center;">AND</div>
+      </div>
+      <div class="seven wide column">
+        <div class="ui input fluid labeled">
+          <div class="ui label purple">Search Interest</div>
+          <input type="text" placeholder="Search for common interest..." id="interestInput" oninput="SearchUser();">
+        </div>
+      </div>
+
+      <div class="sixteen wide column">
+        <div class="ui list large" id="users"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+      function SearchUser(){
+          var xhttp;
+          var username = document.getElementById("userInput").value;
+          
+          if (username == ""){
+              document.getElementById("users").innerHTML = "";
+          }
+          
+          
+
+          xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function(){
+              if (this.readyState == 4 && this.status == 200){
+                  var json_response = JSON.parse(this.response);
+                  console.log(json_response);
+
+                  document.getElementById("users").innerHTML = "";
+                  
+                  var hobby = document.getElementById("hobbyInput").value;
+                  var interest = document.getElementById("interestInput").value;
+                  
+                  if (username == "" && hobby == "" && interest == ""){
+                      return;
+                  }
+
+                  for (var user of json_response){
+                      var extra = ``;
+                      
+                      var hobbyOrInterest = false;
+                      
+                      if (user[1] != null && hobby != ""){
+                          extra += `<div class="description">Likes: <b>${user[1]}</b></div>`;
+                          hobbyOrInterest = true;
+                      }
+                      if (user[2] != null && interest != ""){
+                          extra += `<div class="description">Interested in: <b>${user[2]}</b></div>`;
+                          hobbyOrInterest = true;
+                      }
+                      
+                      if (!hobbyOrInterest){
+                          extra = `<div class="description">Studying ${user[4]}</div>`
+                      }
+                      
+                      var html = `<div class="item">
+                                    <img class="ui avatar image" src="${user[3]}">
+                                    <div class="content">
+                                      <a class="header" href="./profile/${user[0]}">${user[0]}</a>
+                                      ${extra}
+                                    </div>
+                                  </div>`;
+
+                      document.getElementById("users").innerHTML += html;
+                  }
+              }
+          }
+          
+          var hobby = document.getElementById("hobbyInput").value;
+          var interest = document.getElementById("interestInput").value;
+          
+          console.log(hobby, interest);
+
+          xhttp.open("GET", "search_query?chars="+username+"&hobby="+hobby+"&interest="+interest);
+          xhttp.send();
+      }
+  </script>
+
+{%endblock%}

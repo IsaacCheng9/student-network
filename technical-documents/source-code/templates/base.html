@@ -1,20 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<link rel=stylesheet href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" type="text/css">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel=stylesheet
+      href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
+      type="text/css">
+<link rel="shortcut icon"
+      href="../static/images/logo/chatboxes_stretch_png.png">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/semantic.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/icon.min.css">
-    <title>Student Network - {%block title%}{%endblock%}</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='styles/semantic.css') }}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/icon.min.css">
+    <title>Student Network - {% block title %}{% endblock %}</title>
     <!-- Standard Meta -->
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 
     <style type="text/css">
         .student-background {
@@ -44,71 +51,94 @@
 </head>
 
 <body>
-    <!-- Page Contents -->
-    <div class="pusher">
-        <div class="ui container">
-            <div class="student-background"></div>
-            <div class="sticky">
-                <div class="ui menu stackable">
-                  <div class="item">
-                   <img src="../static/images/logo/chatboxes_stretch_png.png" alt="">
-                   </div>
-                    {% if not "username" in session %}
-                    <a href="/login" {% if request.path=='/login' %}class="active item" {% else %}class="item" {% endif
-                        %}>Login</a>
-                    {%endif%}
-                    {% set register_paths = ["/login", "/register",
-                    "/privacy_policy", "/terms", "/logout"]%}
-                    {% for path in register_paths %}
-                    {% if request.path == path%}
-                    <a href="/register" {% if request.path=='/register' %}class="active item" {% else %}class="item" {%
-                            endif %}>Register</a>
-                    {%endif%}
-                    {%endfor%}
-                    {% if session["username"] %}
-                    {% if request.path == ("/profile/" + session["username"])  %}
-                    <a href="{{url_for('user_profile')}}" class="active item">Profile</a>
-                    {% else %}
-                    <a href="{{url_for('user_profile')}}" class="item">Profile</a>
-                    {% endif %}
-                    <a href="/requests" {% if request.path=='/requests' %}class="active item" {% else %}class="item" {%
-                        endif %}class="item">
-                        Connect Requests
-                        {%if requestCount > 0%}
-                        <div class="ui label red mini">{{requestCount}}</div>
-                        {%endif%}
-                    </a>
-                    <a href="/feed" {% if request.path=='/feed' %}class="active item" {% else %}class="item" {% endif
-                        %}>Feed</a>
-                    <a href="/achievements" {% if request.path=='/achievements' %}class="active item" {% else %}class="item" {% endif
-                        %}>Achievements</a>
-                    <div class="right menu">
-                        <div class="ui item">
-                            <div class="ui transparent icon input">
-                                <input class="prompt" autocomplete="off" type="text" id="search" placeholder="Search for a user" list="usernames-list">
-                                <i class="search link icon"></i>
-
-                                <datalist id="usernames-list">
-                                    {%for username in allUsernames%}
-                                    <option value="{{username[0]}}">
-                                        {%endfor%}
-                                </datalist>
-                            </div>
-                        </div>
-                        <a class="ui item">
-                            Logged in as {{session["username"]}}
-                        </a>
-                        <a href="/logout" class="ui item">Logout</a>
-                    </div>
-                    {%endif%}
+<!-- Page Contents -->
+<div class="pusher">
+    <div class="ui container">
+        <div class="student-background"></div>
+        <div class="sticky">
+            <div class="ui menu small pointing stackable">
+                <div class="item">
+                    <img src="../static/images/logo/chatboxes_stretch_png.png"
+                         onclick='location.href = "/"'' alt="">
                 </div>
-                {% block content %}
-                {% endblock %}
+                {% if not "username" in session %}
+                    <a href="/" {% if request.path=='/' %}class="active item"
+                       {% else %}class="item" {% endif %}>Home Page</a>
+                    <a href="/login"
+                       {% if request.path=='/login' %}class="active item"
+                       {% else %}class="item" {% endif %}>Login</a>
+                    <a href="/register"
+                       {% if request.path=='/register' %}class="active item"
+                       {% else %}class="item" {% endif %}>Register</a>
+                {% endif %}
+                {% set register_paths = ["/login", "/register",
+                    "/privacy_policy", "/terms", "/logout"] %}
+                {% if session["username"] %}
+                    {% if request.path == ("/profile/" + session["username"]) %}
+                        <a href="{{ url_for('user_profile') }}"
+                           class="active item"><i class="user icon"></i>Profile</a>
+                    {% else %}
+                        <a href="{{ url_for('user_profile') }}" class="item"><i
+                                class="user icon"></i> Profile</a>
+                    {% endif %}
+                    <a href="/members"
+                       {% if request.path=='/members' %}class="active item"
+                       {% else %}class="item" {% endif %}><i
+                            class="users icon"></i> Members</a>
+                    <a href="/requests"
+                       {% if request.path=='/requests' %}class="active item"
+                       {% else %}class="item" {% endif %}class="item">
+                        <i class="icon sitemap"></i>
+                        Connections
+                        {% if requestCount > 0 %}
+                            <div class="ui label red mini">{{ requestCount }}</div>
+                        {% endif %}
+                    </a>
+                    <a href="/feed"
+                       {% if request.path=='/feed' %}class="active item"
+                       {% else %}class="item" {% endif %}><i
+                            class="icon newspaper outline"></i> Feed</a>
+                    <a href="/achievements"
+                       {% if request.path=='/achievements' %}class="active item"
+                       {% else %}class="item" {% endif %}><i
+                            class="trophy icon"></i> Achievements</a>
+                    <a href="/leaderboard"
+                       {% if request.path=='/leaderboard' %}class="active item"
+                       {% else %}class="item" {% endif %}><i
+                            class="chart bar icon"></i> Leaderboard</a>
+
+                    <a href="/quizzes"
+                       {% if request.path=='/quizzes' %}class="active item"
+                       {% else %}class="item" {% endif %}><i
+                            class="question icon"></i> Quizzes</a>
+
+                    {% if "admin" in session: %}
+                        {% if session["admin"]: %}
+                            {% if request.path == "/admin": %}
+                                <a href="{{ url_for('show_staff_requests'
+                                ) }}" class="active item"><i class="lock icon"></i>Admin</a>
+                            {% else: %}
+                                <a href="{{ url_for('show_staff_requests'
+                                ) }}" class="item"><i class="lock icon"></i>Admin</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+
+                    <div class="right menu">
+                        <a href="{{ url_for('user_profile') }}"
+                           class="ui item">
+                            Logged in as {{ session["username"] }}
+                        </a>
+                        <a href="/logout" class="ui item"><i
+                                class="key icon"></i>Logout</a>
+                    </div>
+                {% endif %}
             </div>
+            {% block content %}
+            {% endblock %}
         </div>
     </div>
+</div>
 </body>
-
-<script type="text/javascript" src="../static/searchbar.js"></script>
 
 </html>

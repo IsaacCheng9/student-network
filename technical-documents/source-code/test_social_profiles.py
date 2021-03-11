@@ -1,3 +1,5 @@
+from flask import Flask, session, url_for, request
+
 import application
 
 
@@ -15,19 +17,49 @@ def test_invalid_edit_profile():
                  ["interest"], ["interest"]]
     for num in range(len(bio)):
         valid, message = application.validate_edit_profile(
-            bio[num], gender[num], dob[num], "", hobbies[num], interests[num])
+            bio[num], gender[num], dob[num], hobbies[num], interests[num])
         assert valid is False
 
 
 def test_valid_edit_profile():
     """Tests that valid profile editing details are accepted."""
     valid, message = application.validate_edit_profile(
-        "good bio", "Male", "2001-01-31", "", ["hobby"], ["interest"])
+        "good bio", "Male", "2001-01-31", ["hobby"], ["interest"])
     assert valid is True
 
 
 def test_null_edit_profile():
     """Tests that null profile editing details are accepted."""
     valid, message = application.validate_edit_profile(
-        "", "Male", "", "", [], [])
+        "", "Male", "", [], [])
     assert valid is True
+
+def test_invalid_user_profile_route():
+    app = application.application
+    client = app.test_client()
+    url = '/profile'
+
+    with client:
+        response = client.get(url, follow_redirects=True)
+        assert request.path == url_for('login_page')
+
+def test_valid_profile_route():
+    app = application.application
+    client = app.test_client()
+    with client.session_transaction() as session:
+        session["username"] = 'barn354'
+    url = '/profile/barn354'
+
+    with client:
+        response = client.get(url)
+        assert response.status_code == 200
+        assert request.path == url_for('profile', username='barn354')
+
+def test_invalid_profile_route():
+    app = application.application
+    client = app.test_client()
+    url = '/profile/barn354'
+
+    with client:
+        response = client.get(url, follow_redirects=True)
+        assert request.path == url_for('login_page')
