@@ -351,8 +351,7 @@ def leaderboard() -> object:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM UserLevel "
-                    "ORDER BY experience DESC LIMIT 30; ")
+        cur.execute("SELECT * FROM UserLevel")
         top_users = cur.fetchall()
         if top_users is not None:
             total_user_count = len(top_users)
