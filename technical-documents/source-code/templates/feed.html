@@ -129,7 +129,7 @@
                         <label>Title</label>
                         <input placeholder="Your post needs a title" type="text" name="post_title" />
                     </div>
-                    <div class="field">
+                    <div class="required field">
                         <label>Image</label>
                         <input type="file" name="file" />
                     </div>
@@ -157,7 +157,7 @@
                         <label>Title</label>
                         <input placeholder="Your post needs a title" type="text" name="post_title" />
                     </div>
-                    <div class="field">
+                    <div class="required field">
                         <label>URL</label>
                         <input type="text" placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ" name="link" />
                     </div>
@@ -319,6 +319,24 @@
                         </div>`;
         }
         
+        var comments = ``;
+        
+        for (var comment of post.comments){
+            console.log(comment);
+            comments += `<div class="comment">
+                            <a class="avatar">
+                                <img src="${comment[5]}" />
+                            </a>
+                            <div class="content">
+                                <a class="author">${comment[1]}</a>
+                                <div class="metadata">
+                                    <span class="date">${comment[3]}</span>
+                                </div>
+                                <div class="text">${comment[2]}</div>
+                            </div>
+                        </div>`;
+        }
+        
         var html = `<div class="ui segment">
             <div class="ui grid stackable">
                 <div class="one wide column">
@@ -341,22 +359,10 @@
                 <div class="sixteen wide column">
                     <div>${ post.comment_count } comments &nbsp;&nbsp; ${ post.like_count }
                         <i class="heart icon"></i></div>
-                    <a href="/post_page/${ post.postId }">Show all comments</a>
                     <div class="ui comments">
-                        <div class="comment">
-                            <a class="avatar">
-                                <img src="https://via.placeholder.com/200" />
-                            </a>
-                            <div class="content">
-                                <a class="author">Matt</a>
-                                <div class="metadata">
-                                    <span class="date">Today</span>
-                                </div>
-                                <div class="text">I cant figue out how to get each posts comments on the feed</div>
-                            </div>
-                        </div>
+                        ${comments}
                     </div>
-                    <a href="/post_page/${ post.postId }">Write a comment</a>
+                    <a href="/post_page/${ post.postId }"><i class="icon pencil"></i>Write a comment</a>
                 </div>
             </div>
         </div>`;
