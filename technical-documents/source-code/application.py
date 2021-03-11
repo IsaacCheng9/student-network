@@ -259,8 +259,11 @@ def quiz(quiz_id: int) -> object:
         print(question_5)
         print(question_5_options)
 
+        questions = [question_1, question_2, question_3, question_4, question_5]
+        answers = [question_1_options, question_2_options,question_3_options,question_4_options,question_5_options]
+
     return render_template("quiz.html",
-                           requestCount=get_connection_request_count())
+                           requestCount=get_connection_request_count(), questions=questions,answers=answers)
 
 
 @application.route("/leaderboard", methods=["GET"])

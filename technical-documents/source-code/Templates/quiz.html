@@ -10,9 +10,10 @@ content %}
 </style>
 
 <div class="ui segment">
+    <div class="ui grid"></div>
     {%for index in range(questions|length)%}
-    <div class="ui grid quiz-question" id="question-{{index}}">
-        <input type="hidden" class="userAnswer" name="userAnswer{{index}}">
+    <div class="ui grid quiz-question stackable compact" id="question-{{index}}">
+        <input type="hidden" class="userAnswer" value="" name="userAnswer{{index}}">
         <div class="ui sixteen wide column" style="text-align: center;">
             <div class="ui statistic">
                 <div class="value">{{index + 1}} <span style="font-size: 0.4em;">/{{questions|length}}</span></div>
@@ -52,7 +53,7 @@ content %}
             <div class="ui button" id="nextQuestionBtn" onclick="NextQuestion();" style="float: right;">Next <i class="right arrow icon"></i></div>
         </div>
         <div class="sixteen wide column">
-            <div class="ui button green icon" style="float: right;"><i class="icon check"></i> Submit Answers</div>
+            <div class="ui button green icon" style="float: right;" id="submitBtn"><i class="icon check"></i> Submit Answers</div>
         </div>
     </div>
 </div>
@@ -61,11 +62,28 @@ content %}
 
 <script>
     $('.selectable').click(function() {
-        $(this).parent().find(".selectable").removeClass("selected");
+        $(this).parent().parent().find(".selectable").removeClass("selected");
         $(this).addClass("selected");
 
         $('#question-' + questionIndex).find(".userAnswer").val($(this).find("h1").html())
+        
+        UpdateSubmitBtn();
     })
+    
+    function UpdateSubmitBtn(){
+        var allFilled = true;
+        $('.userAnswer').each(function(){
+            if ($(this).val() == ""){
+                allFilled = false;
+            }
+        })
+        
+        $('#submitBtn').prop('disabled', allFilled);
+        $('#submitBtn').removeClass("disabled");
+        if (!allFilled){
+            $('#submitBtn').addClass("disabled");
+        }
+    }
 
     var questionIndex = 0;
 
@@ -116,6 +134,7 @@ content %}
 
     DisplayQuestion(0);
     PreviousQuestion();
+    UpdateSubmitBtn();
 
 </script>
 
