@@ -932,13 +932,44 @@ def post(post_id: int) -> object:
     Returns:
         Redirection to the post page.
     """
+
     comments = {"comments": []}
     message = []
     author = ""
     session["prev-page"] = request.url
     content = None
+    #check post restrictions 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
+        cur.execute(
+            "SELECT privacy, username "
+            "FROM POSTS WHERE postId=?;", (post_id,))
+        row = cur.fetchone()
+        privacy  = row[0]
+        username = row[1]
+        #check its if its an anonymous user or a logged in user
+        if session.get("username"):
+            #check if the user is the same as the author of the post
+            if username != session["username"]:
+                #check if post is available for display
+                if privacy == "private":
+                    return render_template("error.html", message=["This post is private. You cannot access it."],)
+                else:
+                    #check if user trying to view post is a connection of the post author
+                    conn_type = get_connection_type(username)
+                    if conn_type != True:
+                        if privacy == "protected":
+                            return render_template("error.html", message=["This post is is available only to connections."],)
+                    else:
+                        #if user and author are connected chack that they are close friends 
+                        connection = is_close_friend(username)
+                        if connection != True:
+                            if privacy== "close":
+                                return render_template("error.html", message=["This post is is available only to close friends."],)  
+        else:
+            if privacy != "public":
+                return render_template("error.html", message=["This post is private. You cannot access it."],)
+                
         # Gets user from database using username.
         cur.execute(
             "SELECT title, body, username, date, account_type, likes, "
