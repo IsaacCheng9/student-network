@@ -1816,6 +1816,7 @@ def logout() -> object:
         return render_template("login.html")
     return redirect("/")
 
+#Aux functions
 
 def allowed_file(filename) -> bool:
     """
