@@ -51,11 +51,13 @@
             <div class="sticky">
                 <div class="ui menu small pointing stackable">
                   <div class="item">
-                   <img src="../static/images/logo/chatboxes_stretch_png.png" alt="">
+                   <img src="../static/images/logo/chatboxes_stretch_png.png" onclick='location.href = "/"'' alt="">
                    </div>
                     {% if not "username" in session %}
                     <a href="/login" {% if request.path=='/login' %}class="active item" {% else %}class="item" {% endif
                         %}>Login</a>
+                    <a href="/" {% if request.path=='/' %}class="active item" {% else %}class="item" {% endif
+                            %}>Homepage</a>
                     {%endif%}
                     {% set register_paths = ["/login", "/register",
                     "/privacy_policy", "/terms", "/logout"]%}
