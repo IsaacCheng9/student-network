@@ -340,7 +340,7 @@ def leaderboard() -> object:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM UserLevel; ")
+        cur.execute("SELECT * FROM UserLevel ORDER BY experience DESC LIMIT 30; ")
         top_users = cur.fetchall()
         if top_users is not None:
             total_user_count = len(top_users)
@@ -1130,7 +1130,8 @@ def post(post_id: int) -> object:
                 "post_page.html", author=author, postId=post_id,
                 title=title, body=body, username=username,
                 date=date_posted, likes=likes, accountType=account_type,
-                comments=comments, requestCount=get_connection_request_count(),
+                user_account_type=user_account_type, comments=comments,
+                requestCount=get_connection_request_count(),
                 allUsernames=get_all_usernames(),
                 avatar=get_profile_picture(username), type=post_type,
                 content=content)
@@ -1194,7 +1195,8 @@ def fetch_posts(number, starting_id):
                 post_id = user_post[0]
                 post_type = user_post[8]
 
-                cur.execute("SELECT * FROM Comments WHERE postId=? LIMIT 5;", (post_id,))
+                cur.execute("SELECT * FROM Comments WHERE postId=? LIMIT 5;",
+                            (post_id,))
                 comments = cur.fetchall()
 
                 comments = list(map(lambda x: (x[0], x[1], x[2], x[3], x[4],
@@ -1332,108 +1334,175 @@ def submit_post() -> object:
     valid = True
     form_type = request.form.get("form_type")
     post_privacy = request.form.get("privacy")
-    post_title = request.form["post_title"]
-    post_body = request.form["post_text"]
 
-    if form_type == "Image":
-        file = request.files["file"]
-        file_name_hashed = ""
-        # Hashes the name of the file and resizes it.
-        if allowed_file(file.filename):
-            secure_filename(file.filename)
-            file_name_hashed = str(uuid.uuid4())
-            file_path = os.path.join(
-                "." + application.config["UPLOAD_FOLDER"] + "//post_imgs",
-                file_name_hashed)
+    if form_type == "Quiz":
+        # Gets quiz details.
+        date_created = date.today()
+        author = session["username"]
+        quiz_name = request.form.get("quiz_name")
+        questions = [[request.form.get("question_1"),
+                      request.form.get("question_1_ans_1"),
+                      request.form.get("question_1_ans_2"),
+                      request.form.get("question_1_ans_3"),
+                      request.form.get("question_1_ans_4")],
+                     [request.form.get("question_2"),
+                      request.form.get("question_2_ans_1"),
+                      request.form.get("question_2_ans_2"),
+                      request.form.get("question_2_ans_3"),
+                      request.form.get("question_2_ans_4")],
+                     [request.form.get("question_3"),
+                      request.form.get("question_3_ans_1"),
+                      request.form.get("question_3_ans_2"),
+                      request.form.get("question_3_ans_3"),
+                      request.form.get("question_3_ans_4")],
+                     [request.form.get("question_4"),
+                      request.form.get("question_4_ans_1"),
+                      request.form.get("question_4_ans_2"),
+                      request.form.get("question_4_ans_3"),
+                      request.form.get("question_4_ans_4")],
+                     [request.form.get("question_5"),
+                      request.form.get("question_5_ans_1"),
+                      request.form.get("question_5_ans_2"),
+                      request.form.get("question_5_ans_3"),
+                      request.form.get("question_5_ans_4")]]
 
-            im = Image.open(file)
-            fixed_height = 600
-            height_percent = (fixed_height / float(im.size[1]))
-            width_size = int((float(im.size[0]) * float(height_percent)))
-            width_size = min(width_size, 800)
-            im = im.resize((width_size, fixed_height))
-            im = im.convert("RGB")
-            im.save(file_path + ".jpg")
-        elif file:
-            valid = False
-
-    elif form_type == "Link":
-        link = request.form.get("link")
-        if validate_youtube(link):
-            data = urlparse(link)
-            query = parse_qs(data.query)
-            video_id = query["v"][0]
+        valid, message = validate_quiz(quiz_name, questions)
+        if valid:
+            # Adds quiz to the database.
+            with sqlite3.connect("database.db") as conn:
+                cur = conn.cursor()
+                cur.execute(
+                    "INSERT INTO Quiz (quiz_name, date_created, author,"
+                    "question_1, question_1_ans_1, question_1_ans_2,"
+                    "question_1_ans_3, question_1_ans_4, question_2,"
+                    "question_2_ans_1, question_2_ans_2, question_2_ans_3,"
+                    "question_2_ans_4, question_3, question_3_ans_1,"
+                    "question_3_ans_2, question_3_ans_3, question_3_ans_4,"
+                    "question_4, question_4_ans_1, question_4_ans_2,"
+                    "question_4_ans_3, question_4_ans_4, question_5,"
+                    "question_5_ans_1, question_5_ans_2, question_5_ans_3,"
+                    "question_5_ans_4, privacy) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                    "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                    (
+                        quiz_name, date_created, author, questions[0][0],
+                        questions[0][1], questions[0][2], questions[0][3],
+                        questions[0][4], questions[1][0], questions[1][1],
+                        questions[1][2], questions[1][3], questions[1][4],
+                        questions[2][0], questions[2][1], questions[2][2],
+                        questions[2][3], questions[2][4], questions[3][0],
+                        questions[3][1], questions[3][2], questions[3][3],
+                        questions[3][4], questions[4][0], questions[4][1],
+                        questions[4][2], questions[4][3], questions[4][4],
+                        post_privacy))
+                conn.commit()
         else:
-            valid = False
+            session["error"] = message
+            return redirect("quizzes")
 
-    # Only adds the post if a title has been input.
-    if post_title != "" and valid is True:
-        with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-            # Get account type
-            cur.execute(
-                "SELECT type FROM ACCOUNTS "
-                "WHERE username=?;",
-                (session["username"],))
-            account_type = cur.fetchone()[0]
-
-            cur.execute(
-                "INSERT INTO POSTS (title, body, username, post_type, "
-                "privacy, account_type) VALUES (?, ?, ?, ?, ?, ?);",
-                (
-                    post_title, post_body, session["username"],
-                    form_type, post_privacy, account_type))
-            conn.commit()
-
-            if form_type == "Image" and valid is True:
-                cur.execute("INSERT INTO PostContent (postId, contentUrl) "
-                            "VALUES (?, ?);",
-                            (cur.lastrowid, application.config[
-                                "UPLOAD_FOLDER"] + "//post_imgs/" +
-                             file_name_hashed + ".jpg"))
-                conn.commit()
-            elif form_type == "Link":
-                cur.execute("INSERT INTO PostContent (postId, contentUrl) "
-                            "VALUES (?, ?);",
-                            (cur.lastrowid, video_id))
-                conn.commit()
-
-            # Award achievement ID 7 - Express yourself if necessary
-            cur.execute(
-                "SELECT * FROM CompleteAchievements "
-                "WHERE (username=? AND achievement_ID=?);",
-                (session["username"], 7))
-            if cur.fetchone() is None:
-                apply_achievement(session["username"], 7)
-
-            # Award achievement ID 8 - 5 posts if necessary
-            cur.execute(
-                "SELECT * FROM CompleteAchievements "
-                "WHERE (username=? AND achievement_ID=?);",
-                (session["username"], 8))
-            if cur.fetchone() is None:
-                cur.execute(
-                    "SELECT * FROM POSTS WHERE username=?;",
-                    (session["username"],))
-                results = cur.fetchall()
-                if len(results) >= 5:
-                    apply_achievement(session["username"], 8)
-
-            # Award achievement ID 9 - 20 posts if necessary
-            cur.execute(
-                "SELECT * FROM CompleteAchievements "
-                "WHERE (username=? AND achievement_ID=?);",
-                (session["username"], 9))
-            if cur.fetchone() is None:
-                cur.execute(
-                    "SELECT * FROM POSTS WHERE username=?;",
-                    (session["username"],))
-                results = cur.fetchall()
-                if len(results) >= 20:
-                    apply_achievement(session["username"], 9)
     else:
-        # Prints error message stating that the title is missing.
-        session["error"] = ["You must submit a post title!"]
+        post_title = request.form["post_title"]
+        post_body = request.form["post_text"]
+
+        if form_type == "Image":
+            file = request.files["file"]
+            file_name_hashed = ""
+            # Hashes the name of the file and resizes it.
+            if allowed_file(file.filename):
+                secure_filename(file.filename)
+                file_name_hashed = str(uuid.uuid4())
+                file_path = os.path.join(
+                    "." + application.config["UPLOAD_FOLDER"] + "//post_imgs",
+                    file_name_hashed)
+
+                im = Image.open(file)
+                fixed_height = 600
+                height_percent = (fixed_height / float(im.size[1]))
+                width_size = int((float(im.size[0]) * float(height_percent)))
+                width_size = min(width_size, 800)
+                im = im.resize((width_size, fixed_height))
+                im = im.convert("RGB")
+                im.save(file_path + ".jpg")
+            elif file:
+                valid = False
+
+        elif form_type == "Link":
+            link = request.form.get("link")
+            if validate_youtube(link):
+                data = urlparse(link)
+                query = parse_qs(data.query)
+                video_id = query["v"][0]
+            else:
+                valid = False
+
+        # Only adds the post if a title has been input.
+        if post_title != "" and valid is True:
+            with sqlite3.connect("database.db") as conn:
+                cur = conn.cursor()
+                # Get account type
+                cur.execute(
+                    "SELECT type FROM ACCOUNTS "
+                    "WHERE username=?;",
+                    (session["username"],))
+                account_type = cur.fetchone()[0]
+
+                cur.execute(
+                    "INSERT INTO POSTS (title, body, username, post_type, "
+                    "privacy, account_type) VALUES (?, ?, ?, ?, ?, ?);",
+                    (
+                        post_title, post_body, session["username"],
+                        form_type, post_privacy, account_type))
+                conn.commit()
+
+                if form_type == "Image" and valid is True:
+                    cur.execute("INSERT INTO PostContent (postId, contentUrl) "
+                                "VALUES (?, ?);",
+                                (cur.lastrowid, application.config[
+                                    "UPLOAD_FOLDER"] + "//post_imgs/" +
+                                 file_name_hashed + ".jpg"))
+                    conn.commit()
+                elif form_type == "Link":
+                    cur.execute("INSERT INTO PostContent (postId, contentUrl) "
+                                "VALUES (?, ?);",
+                                (cur.lastrowid, video_id))
+                    conn.commit()
+
+                # Award achievement ID 7 - Express yourself if necessary
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (session["username"], 7))
+                if cur.fetchone() is None:
+                    apply_achievement(session["username"], 7)
+
+                # Award achievement ID 8 - 5 posts if necessary
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (session["username"], 8))
+                if cur.fetchone() is None:
+                    cur.execute(
+                        "SELECT * FROM POSTS WHERE username=?;",
+                        (session["username"],))
+                    results = cur.fetchall()
+                    if len(results) >= 5:
+                        apply_achievement(session["username"], 8)
+
+                # Award achievement ID 9 - 20 posts if necessary
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (session["username"], 9))
+                if cur.fetchone() is None:
+                    cur.execute(
+                        "SELECT * FROM POSTS WHERE username=?;",
+                        (session["username"],))
+                    results = cur.fetchall()
+                    if len(results) >= 20:
+                        apply_achievement(session["username"], 9)
+        else:
+            # Prints error message stating that the title is missing.
+            session["error"] = ["You must submit a post title!"]
 
     return redirect("/feed")
 

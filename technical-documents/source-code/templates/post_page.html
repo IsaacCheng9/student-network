@@ -163,7 +163,7 @@
                                         <input type="hidden" name="postId" value="{{postId}}">
                                     </form>
                                     <br>
-                                    {% if session["username"] == username %}
+                                    {% if session["username"] == username or user_account_type == "staff" %}
                                     <input type="submit" value="Delete Post" form="deletePost" class="negative left floated ui button"></button>
                                     {% endif %}
                                     <input type="submit" value="Post comment" form="comment" class="ui right floated blue button"></button>
