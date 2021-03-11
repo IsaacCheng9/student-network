@@ -814,7 +814,7 @@ def show_staff_requests() -> object:
                     requests.append(elem[0])
                     
             print(requests)
-            return render_template("admin.html", requests=requests, requestCount=requestCount)
+            return render_template("admin.html", requests=requests, requestCount=get_connection_request_count())
     else:
         return render_template("error.html", message=["You are not logged in to an admin account"], requestCount=get_connection_request_count())
 
