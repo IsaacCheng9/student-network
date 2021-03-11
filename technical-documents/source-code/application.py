@@ -1949,8 +1949,9 @@ def edit_profile() -> object:
                          application.config[
                              'UPLOAD_FOLDER'] + "/avatars/" + file_name_hashed
                          + ".jpg", degree, username,))
+                    conn.commit()
 
-                    # Award achievement ID 18 - Describe yourself if necessary
+                    # Award achievement ID 18 - Show yourself if necessary
                     cur.execute(
                         "SELECT * FROM CompleteAchievements "
                         "WHERE (username=? AND achievement_ID=?);",
