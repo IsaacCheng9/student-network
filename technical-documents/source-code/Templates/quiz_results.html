@@ -1,0 +1,28 @@
+{% extends "base.html" %} {% block title %}Request{% endblock %} {% block
+content %}
+<!-- when writing the for loop, use the whole ui segment instead of just "sixteen wide column" -->
+<div class="ui segment">
+    {% for question in question_feedback %}
+    
+        {%if question[1] == question[2]%}
+        <div class="ui message green">
+            <div class="header">{{question[0]}}</div>
+            <div class="detail">{{question[2]}}</div>
+            <div class="detail">Correct</div>
+        </div>
+        {%endif%}
+        
+        {%if question[1] != question[2]%}
+        <div class="ui message red">
+            <div class="header">{{question[0]}}</div>
+            <div class="detail">Your answer: {{question[1]}}</div>
+            <div class="detail">Correct Answer: {{question[2]}}</div>
+        </div>
+        {%endif%}
+    
+    {%endfor%}
+    
+    <h2>{{score}} / 5 ({{(score / 5 * 100)}}%)</h2>
+    <a href="/quizzes">Back to quiz page</a>
+</div>
+{%endblock%}

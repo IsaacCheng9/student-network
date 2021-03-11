@@ -1,0 +1,27 @@
+Achievement ID,Achievement Name,Achievement Description,XP value,Associated icon,Rarity/icon colour
+1,Look at you,Visit your profile page for the first time,25,address card,bronze
+2,Looking good,Visit someone else's profile for the first time,25,eye,bronze
+3,Show it off,Open the achievements tab for the first time,25,trophy,bronze
+4,Connected,Add your first connection,50,address book,silver
+5,Popular,Add 10 connections,75,address book,gold
+6,Centre of attention,Add 100 connections,150,address book,platinum
+7,Express yourself,Post to your social feed for the first time,50,file alternate,silver
+8,5 posts,Post to your social feed 5 times,75,file alternate,gold
+9,20 posts,Post to your social feed 20 times,150,file alternate,platinum
+10,Commentary,Make your first comment on a post,50,comment,silver
+11,Describe yourself,Describe yourself by writing a bio,50,tags,silver
+12,Friends,Add your first close connection,50,users,silver
+13,Friend group,Add 10 close connections,75,users,gold
+14,Reaching out,Connect with 1 person outside of your subject,50,handshake,silver
+15,Outside your bubble,Connect with 10 people outside of your subject,75,handshake,gold
+16,Shared intrests,Connect with someone who has a mutual intrest,50,bowling ball,silver
+17,Getting social,Send a connection request,50,user plus,silver
+18,Show yourself,Add a profile picture,50,user circle,silver
+19,Liking that,Like a post for the first time,50,thumbs up,silver
+20,First like,Receive a like on a post,50,heart,silver
+21,Hot topic,Have a post reach 10 comments,100,comments,gold
+22,Everyone loves you,Have a post reach 50 likes,100,heart,gold
+23,Secret meeting,Login during a special event,300,user secret,diamond
+24,Show the love,Like 50 posts,75,thumbs up,gold
+25,Loving everything,Like 500 posts,150,thumbs up,platinum
+26,Shared hobbies,Connect with someone who has a mutual hobby,50,paint brush,silver
