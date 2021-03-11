@@ -94,23 +94,13 @@ filename='styles/semantic.css') }}>
                                 <div class="field">
                                     <label>Gender</label>
                                     <select name="gender_input" id="">
-                                        {% if gender == "Male" %}
-                                            <option value="Male" selected>Male</option>
-                                        {%else %}
-                                            <option value="Male">Male</option>
-                                        {%endif%}
-
-                                        {% if gender == "Female" %}
-                                            <option value="Female" selected>Female</option>
-                                        {%else %}
-                                            <option value="Female">Female</option>
-                                        {%endif%}
-
-                                        {% if gender == "Other" %}
-                                            <option value="Other" selected>Other</option>
-                                        {%else %}
-                                            <option value="Other">Other</option>
-                                        {%endif%}
+                                        <option value="Male">Male</option>
+                                        <option value="Female">
+                                            Female
+                                        </option>
+                                        <option value="Other">
+                                            Other
+                                        </option>
                                     </select>
                                 </div>
                                 <div class="field">
@@ -134,43 +124,22 @@ filename='styles/semantic.css') }}>
                                     <div style="color: grey">
                                         Use comma to separate the hobbies
                                     </div>
-                                    <input name="hobbies_input" type="text"  placeholder="{% if hobbies != none %} {%for item in hobbies%} {{item[0]}}, {%endfor%} {%endif%}" maxlength="24">
+                                    <input name="hobbies_input" type="text" maxlength="24">
                                     <div class="ui divider hidden"></div>
-                                    <div class="ui grid container" name="hobby-div">
-                                        <div class="ui labels teal">
-                                        {% if hobbies != none %} 
-                                            {% for hobby in hobbies %}
-                                                    <div class="ui label">{{hobby[0]}}<i class="close icon"></i></div>
-                                            
-                                                        
-                                                        {%endfor%}
-                                                {%endif%}
-                                            </div>
-                                        </div>
-
+                                    <div class="ui grid container" name="hobby-div"></div>
                                 </div>
-                                 <div class="ui divider"></div>
+                                <div class="ui divider"></div>
                                 <div class="field">
                                     <label>Interests</label>
                                     <div style="color: grey">
                                         Use comma to separate the interests
                                     </div>
-                                    <input name="interests_input" type="text"maxlength="24" laceholder="{% if hobbies != none %} {%for item in hobbies%} {{item[0]}}, {%endfor%} {%endif%}">
-
+                                    <input name="interests_input" type="text" maxlength="24">
                                     <div class="ui divider hidden"></div>
-                                    <div class="ui grid container" name="interest-div" >
-                                        {% if intrests != none %} 
-                                        <div class=" ui labels teal">
-                                            {% for intrest in intrests%}
-                                                <div class="ui purple label">{{intrest[0]}}<i class="close icon"></i></div>
-                                                {%endfor%}
-                                        {%endif%}
-                                    </div>
-                                    </div>
+                                    <div class="ui grid container" name="interest-div"></div>
                                 </div>
 
                                 <button class="ui button submit">Save Changes</button>
-
                             </form>
                         </div>
                         <div class="ui segment" id="socials">
@@ -326,12 +295,8 @@ filename='styles/semantic.css') }}>
             }
         }
     }
-
-
-
 </script>
 
-<script src="../static/gender.js"></script>
 <script src="../static/hobbies.js"></script>
 <script src="../static/interests.js"></script>
 
