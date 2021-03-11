@@ -173,7 +173,7 @@
             <div class="five wide column" id="left-column">
                 <img style="margin-bottom: 1em; border-radius: 1em;" class="ui image fluid rounded" src="{{profile_picture}}" />
                 
-                <h1 class="mobile only"><div>{{name}}</div></h1>
+                <h1><div>{{name}}</div></h1>
 
                 <div class="ui list">
                     <div class="item">
@@ -285,11 +285,33 @@
                 </div>
             </div>
             <div class="eleven wide column">
-                <div class="ui list">
-                    <div class="item">
-                        <h1>
-                            <div class="mobile hidden">{{name}}</div>
-                            {% if session and session["username"] == username%}
+               <div class="ui grid">
+                   <div class="sixteen wide column">
+                       <h1>
+                           <div class="mobile hidden">{{name}}</div>
+                       </h1>
+                   </div>
+                   <div class="eight wide column">
+                       {% if account_type == "staff" %}
+                        <div class="ui label basic medium red">
+                            @{{username}}
+                            <div class="detail">{{ account_type }}</div>
+                        </div>
+                        {% elif account_type == "admin" %}
+                        <div class="ui label basic medium purple">
+                            @{{username}}
+                            <div class="detail">{{ account_type }}</div>
+                        </div>
+                        {% else %}
+                        <div class="ui label basic medium blue">
+                            @{{username}}
+                            <div class="detail">{{ account_type }}</div>
+                        </div>
+                        {% endif %}
+                   </div>
+                   <div class="eight wide column">
+                      <div style="float:right;">
+                       {% if session and session["username"] == username%}
                             <div class="right floated content">
                                 <a href="../edit-profile">
                                     <button class="ui button icon green">
@@ -299,37 +321,13 @@
                                 </a>
                             </div>
                             {%endif%}
-                        </h1>
-                        <span class="right floated content">
-
                             <a href="">
                                 <i class="exclamation triangle icon"></i>
                                 Report user
                             </a>
-
-                        </span>
-                    </div>
-                    <div class="item">
-                        <h5>
-                            {% if account_type == "staff" %}
-                            <div class="ui label basic medium red">
-                                @{{username}}
-                                <div class="detail">{{ account_type }}</div>
                             </div>
-                            {% elif account_type == "admin" %}
-                            <div class="ui label basic medium purple">
-                                @{{username}}
-                                <div class="detail">{{ account_type }}</div>
-                            </div>
-                            {% else %}
-                            <div class="ui label basic medium blue">
-                                @{{username}}
-                                <div class="detail">{{ account_type }}</div>
-                            </div>
-                            {% endif %}
-                        </h5>
-                    </div>
-                </div>
+                   </div>
+               </div>
                 <div class="ui list">
                     <div class="item"><b>Studying: {{degree}} </b></div>
                 </div>
