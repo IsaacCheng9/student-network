@@ -277,12 +277,21 @@ def quiz(quiz_id: int) -> object:
             session["error"] = "You have not answered all the questions!"
             return redirect(session["prev-page"])
         else:
+            question_feedback = []
             for i in range(5):
-                if user_answers[i] == quiz_details[0][(5 * i) + 4]:
+                correct_answer = quiz_details[0][(5 * i) + 4]
+                correct = user_answers[i] == correct_answer
+
+                question_feedback.append([questions[i], user_answers[i], correct_answer])
+
+                if correct:
                     score += 1
 
-            session["error"] = "You scored {}/5 in this quiz!".format(score)
-            return redirect("/quizzes")
+            print(question_feedback)
+
+            #session["error"] = "You scored {}/5 in this quiz!".format(score)
+            return render_template("/quiz_results.html", question_feedback=question_feedback,
+                                    requestCount=get_connection_request_count(), score=score)
 
 
 @application.route("/leaderboard", methods=["GET"])
