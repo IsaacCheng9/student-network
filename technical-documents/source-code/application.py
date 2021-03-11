@@ -3,7 +3,6 @@ A student network application which is presented as a web application using
 the Flask module. Students each have their own profile page, and they can post
 on their feed.
 """
-import json
 import os
 import re
 import sqlite3
@@ -208,7 +207,6 @@ def members() -> object:
 
 @application.route("/quizzes", methods=["GET"])
 def quizzes() -> object:
-
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
@@ -361,7 +359,7 @@ def leaderboard() -> object:
             top_users = list(map(lambda x: (
                 x[0], x[1], get_profile_picture(x[0]), get_level(x[0]),
                 get_degree(x[0])[1]),
-                top_users))
+                                 top_users))
     session["prev-page"] = request.url
     return render_template("leaderboard.html", leaderboard=top_users,
                            requestCount=get_connection_request_count(),
@@ -498,7 +496,7 @@ def accept_connection_request(username: str) -> object:
 
                     # Awards achievement ID 16 - Shared interests if necessary.
                     common_interests = set(my_interests) - (
-                        set(my_interests) - set(connection_interests))
+                            set(my_interests) - set(connection_interests))
                     if common_interests:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
@@ -517,7 +515,7 @@ def accept_connection_request(username: str) -> object:
 
                     # Award achievement ID 26 - Shared hobbies if necessary
                     common_hobbies = set(my_hobbies) - (
-                        set(my_hobbies) - set(connection_hobbies))
+                            set(my_hobbies) - set(connection_hobbies))
                     if common_hobbies:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
@@ -796,11 +794,13 @@ def show_connect_requests() -> object:
                            pending=pending_connections,
                            blocked=blocked_connections)
 
+
 @application.route("/admin", methods=["GET", "POST"])
 def show_staff_requests() -> object:
     requests = []
-    requestCount = 0
-    return render_template("admin.html", requests=requests, requestCount=requestCount)
+    request_count = 0
+    return render_template("admin.html", requests=requests,
+                           requestCount=request_count)
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -1186,58 +1186,32 @@ def feed() -> object:
 def search_query():
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-
         chars = request.args.get("chars")
         hobby = request.args.get("hobby")
         interest = request.args.get("interest")
-
         name_pattern = "%" + chars + "%"
         hobby_pattern = "%" + hobby + "%"
         interest_pattern = "%" + interest + "%"
 
-        cur.execute("SELECT UserProfile.username, UserHobby.hobby, UserInterests.interest FROM UserProfile "
-                    "LEFT JOIN UserHobby ON UserHobby.username=UserProfile.username "
-                    "LEFT JOIN UserInterests ON UserInterests.username=UserProfile.username "
-                    "WHERE (UserProfile.username LIKE ?) "
-                    "AND (IFNULL(hobby, '') LIKE ?) AND (IFNULL(interest, '') LIKE ?) "
-                    
-                    "GROUP BY UserProfile.username LIMIT 10;", (name_pattern, hobby_pattern, interest_pattern,))
-
+        # Filters by username, common hobbies, and interests.
+        cur.execute(
+            "SELECT UserProfile.username, UserHobby.hobby, "
+            "UserInterests.interest FROM UserProfile "
+            "LEFT JOIN UserHobby ON UserHobby.username=UserProfile.username "
+            "LEFT JOIN UserInterests ON "
+            "UserInterests.username=UserProfile.username "
+            "WHERE (UserProfile.username LIKE ?) "
+            "AND (IFNULL(hobby, '') LIKE ?) AND (IFNULL(interest, '') LIKE ?) "
+            "GROUP BY UserProfile.username LIMIT 10;",
+            (name_pattern, hobby_pattern, interest_pattern,))
         usernames = cur.fetchall()
-        print(usernames)
+        # Sorts results alphabetically.
+        usernames.sort(key=lambda x: x[0])  # [(username, degree)]
+        # Adds a profile picture to each user.
+        usernames = list(map(lambda x: (
+            x[0], x[1], x[2], get_profile_picture(x[0]), get_degree(x[0])[1]),
+                             usernames))
 
-        """if hobby != "":
-            # Searches by common hobby.
-            cur.execute("SELECT username, hobby FROM UserHobby WHERE hobby LIKE %",
-                        (hobby,))
-            common_hobbies = cur.fetchall() # [(username, hobby)]
-            print(common_hobbies)
-            usernames = list(set(usernames).intersection(common_hobbies))
-            print(usernames)
-            # usernames = [user1 + user2 for user1 in usernames[:] for user2 in common_hobbies]"""
-
-        """if interest != "":
-            # Searches by common interest.
-            cur.execute("SELECT username, interest FROM UserInterests WHERE interest=?",
-                        (interest,))
-            common_interests = cur.fetchall() # [(username, interest)]
-            usernames = [user for user in usernames[:] and user in common_interests]"""
-
-        # # gets usernames and degree
-        # pattern = "%" + chars + "%"
-        # cur.execute(
-        #     "SELECT UserProfile.username, Degree.degree FROM UserProfile "
-        #     "LEFT JOIN Degree ON Degree.degreeId = UserProfile.degree WHERE username LIKE ? LIMIT 10;",
-        #     (pattern,))
-        # usernames = cur.fetchall()
-        # sort alphabetically
-        usernames.sort(key=lambda x: x[0]) # [(username, degree)]
-
-        # adds a profile picture to each user
-        #usernames = list(map(lambda x: (x[0], x[1], get_profile_picture(x[0])), usernames))
-        usernames = list(map(lambda x: (x[0], x[1], x[2], get_profile_picture(x[0]), get_degree(x[0])[1]), usernames))
-
-    # return json.dumps(row)
     return jsonify(usernames)
 
 
@@ -1697,7 +1671,7 @@ def profile(username: str) -> object:
             name, bio, gender, birthday, profile_picture, privacy = (
                 data[0], data[1], data[2], data[3], data[4], data[5])
 
-    # If user is logged in there are specific features wich can be displayed
+    # If the user is logged in, specific features can then be displayed.
     if session.get("username"):
 
         if username == session["username"]:
@@ -2180,7 +2154,7 @@ def calculate_age(born: datetime) -> int:
     """
     today = date.today()
     return today.year - born.year - (
-        (today.month, today.day) < (born.month, born.day))
+            (today.month, today.day) < (born.month, born.day))
 
 
 def check_level_exists(username: str, conn):
