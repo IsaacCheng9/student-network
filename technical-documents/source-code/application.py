@@ -36,6 +36,7 @@ def index_page() -> object:
     if "username" in session:
         return redirect("/profile")
     else:
+        session["prev-page"] = request.url
         return render_template("homepage.html")
 
 
@@ -186,7 +187,7 @@ def unblock_user(username: str):
                         "DELETE FROM Connection WHERE (user1=? AND user2=?);",
                         (session["username"], username))
                     conn.commit()
-    return redirect("/profile/" + username)
+    return redirect(session["prev-page"])
 
 
 @application.route("/members", methods=["GET"])
@@ -197,6 +198,7 @@ def members() -> object:
     Returns:
         The web page for displaying members.
     """
+    session["prev-page"] = request.url
     return render_template("members.html",
                            requestCount=get_connection_request_count())
 
@@ -227,7 +229,7 @@ def leaderboard() -> object:
                 x[0], x[1], get_profile_picture(x[0]), get_level(x[0]),
                 get_degree(x[0])[1]),
                 top_users))
-
+    session["prev-page"] = request.url
     return render_template("leaderboard.html", leaderboard=top_users,
                            requestCount=get_connection_request_count(),
                            allUsernames=get_all_usernames(),
@@ -264,7 +266,7 @@ def achievements() -> object:
             (session["username"], 3))
         if cur.fetchone() is None:
             apply_achievement(session["username"], 3)
-
+    session["prev-page"] = request.url
     return render_template("achievements.html",
                            unlocked_achievements=unlocked_achievements,
                            locked_achievements=locked_achievements,
@@ -638,6 +640,14 @@ def show_connect_requests() -> object:
             "UserProfile.username WHERE user1=? AND connection_type=?;",
             (session["username"], "request"))
         pending_connections = cur.fetchall()
+        
+        # Extracts blocked users.
+        cur.execute(
+            "SELECT Connection.user2, UserProfile.profilepicture FROM "
+            "Connection LEFT JOIN UserProfile ON Connection.user2 = "
+            "UserProfile.username WHERE user1=? AND connection_type=?;",
+            (session["username"], "block"))
+        blocked_connections = cur.fetchall()
 
         # Lists usernames of all connected people.
         connections = connections1 + connections2
@@ -652,7 +662,7 @@ def show_connect_requests() -> object:
                            allUsernames=get_all_usernames(),
                            requestCount=get_connection_request_count(),
                            connections=connections,
-                           pending=pending_connections)
+                           pending=pending_connections, blocked=blocked_connections)
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -856,6 +866,7 @@ def post(post_id: int) -> object:
                 "FROM Comments WHERE postId=?;", (post_id,))
             row = cur.fetchall()
             if len(row) == 0:
+                session["prev-page"] = request.url
                 return render_template(
                     "post_page.html", author=author, postId=post_id,
                     title=title, body=body, username=username,
@@ -873,7 +884,7 @@ def post(post_id: int) -> object:
                     "body": comment[2],
                     "date": time,
                 })
-
+            session["prev-page"] = request.url
             return render_template(
                 "post_page.html", author=author, postId=post_id, title=title,
                 body=body, username=username, date=date_posted, likes=likes,
@@ -956,12 +967,13 @@ def feed() -> object:
         if "error" in session:
             errors = session["error"]
             session.pop("error", None)
-
+            session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
                                    errors=errors, content=content)
         else:
+            session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
@@ -1321,6 +1333,7 @@ def delete_post() -> object:
             conn.commit()
 
     message.append("Post has been deleted successfully.")
+    session["prev-page"] = request.url
     return render_template("error.html", message=message,
                            requestCount=get_connection_request_count(),
                            allUsernames=get_all_usernames())
@@ -1346,6 +1359,7 @@ def delete_comment() -> object:
         # Checks that the comment exists.
         if row[0] is None:
             message.append("Comment does not exist.")
+            session["prev-page"] = request.url
             return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames())
@@ -1425,6 +1439,7 @@ def profile(username: str) -> object:
                 conn_type = get_connection_type(username)
                 if conn_type == "connected" and privacy=="close_friends":
                     message.append("This profile is available only to connections")
+                    session["prev-page"] = request.url
                     return render_template("error.html", message=message,
                             requestCount=get_connection_request_count())
             elif conn_type == "blocked":
@@ -1438,6 +1453,7 @@ def profile(username: str) -> object:
                 conn_type = "close_friend"
                 if privacy == "private":
                     message.append("This profile is available only to close friends. Please try viewing it after loggin in.")
+                    session["prev-page"] = request.url
                     return render_template("error.html", message=message,
                             requestCount=get_connection_request_count())
 
@@ -1604,6 +1620,7 @@ def profile(username: str) -> object:
         progress_color = "red"
     
     if session.get("username"):   
+        session["prev-page"] = request.url
         return render_template("profile.html", username=username,
                                 name=name, bio=bio, gender=gender,
                                 birthday=birthday, profile_picture=profile_picture,
@@ -1617,6 +1634,7 @@ def profile(username: str) -> object:
                                 xp_next_level=int(xp_next_level),
                                 progress_color=progress_color)
     else:
+        session["prev-page"] = request.url
         return render_template("profile.html", username=username,
                             name=name, bio=bio, gender=gender,
                             birthday=birthday, profile_picture=profile_picture,
@@ -1675,6 +1693,7 @@ def edit_profile() -> object:
 
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
+        session["prev-page"] = request.url
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
                                date=dob, bio=bio, degrees=degrees, degree=degree, 
@@ -1771,6 +1790,7 @@ def edit_profile() -> object:
             # Displays error message(s) stating why their details are invalid.
             else:
                 session["error"] = message
+                session["prev-page"] = request.url
                 return render_template(
                     "settings.html", errors=message,
                     requestCount=get_connection_request_count(),
