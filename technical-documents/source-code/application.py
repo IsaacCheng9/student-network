@@ -794,10 +794,29 @@ def show_connect_requests() -> object:
 
 @application.route("/admin", methods=["GET", "POST"])
 def show_staff_requests() -> object:
-    requests = []
-    request_count = 0
-    return render_template("admin.html", requests=requests,
-                           requestCount=request_count)
+    if "admin" in session:
+        if not session["admin"]:
+            return render_template("error.html", message=["You are not logged in to an admin account"], requestCount=get_connection_request_count())
+        with sqlite3.connect("database.db") as conn:
+            # Loads the list of connection requests and their avatars.
+            requests = []
+            cur = conn.cursor()
+            # Extracts incoming requests.
+            cur.execute(
+                "SELECT username FROM ACCOUNTS "
+                "WHERE type='pending_staff';")
+            conn.commit()
+            row = cur.fetchall()
+            requestCount = get_connection_request_count()
+            print(row)
+            if len(row) > 0:
+                for elem in row:
+                    requests.append(elem[0])
+                    
+            print(requests)
+            return render_template("admin.html", requests=requests, requestCount=requestCount)
+    else:
+        return render_template("error.html", message=["You are not logged in to an admin account"], requestCount=get_connection_request_count())
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -847,19 +866,27 @@ def login_submit() -> object:
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
-            "SELECT password FROM Accounts WHERE username=?;", (username,))
+            "SELECT password, type FROM ACCOUNTS WHERE username=?;", (username,))
         conn.commit()
         row = cur.fetchone()
+        print(row)
         if row is not None:
             hashed_psw = row[0]
+            account_type = row[1]
         else:
+            print("still cant find account")
             session["error"] = ["login"]
             return redirect("/login")
         if hashed_psw is not None:
             if sha256_crypt.verify(psw, hashed_psw):
                 session["username"] = username
                 session["prev-page"] = request.url
-                return redirect("/profile")
+                if account_type == 'admin':
+                    session["admin"] = True
+                    return redirect("/admin")
+                else:
+                    session["admin"] = False
+                    return redirect("/profile")
             else:
                 session["error"] = ["login"]
                 return redirect("/login")
