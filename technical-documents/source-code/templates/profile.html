@@ -278,14 +278,14 @@
                     </button>
                     <form action="{{ url_for('close_connection', username=username) }}" method="GET" id="close-connection"></form>
                     {% endif %}
-                    {% if type == "close" %}
+                    {% if type == "close_friend" %}
                     <button class="ui purple button tiny" form="remove-close">
                         <i class="handshake outline icon"></i>
                         Close Friends
                     </button>
                     <form action="{{ url_for('remove_close_friend', username=username) }}" method="GET" id="remove-close"></form>
                     {% endif %}
-                    {% if type == "connected" or type == "close" %}
+                    {% if type == "connected" or type == "close_friend" %}
                     <button class="ui green button tiny" form="connected-remove-connection">
                         <i class="user icon"></i>
                         Connected

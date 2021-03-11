@@ -36,7 +36,7 @@ def index_page() -> object:
     if "username" in session:
         return redirect("/profile")
     else:
-        return redirect("/login")
+        return render_template("homepage.html")
 
 
 @application.route("/login", methods=["GET"])
@@ -1375,21 +1375,24 @@ def user_profile() -> object:
 def profile(username: str) -> object:
     """
     Displays the user's profile page and fills in all of the necessary
-    details. Hides the request buttons if the user is seeing their own page.
+    details. Hides the request buttons if the user is seeing their own page
+    and checks if the user viewing the page has unlocked any achievements.
 
     Returns:
-        The updated web page based on whether the details provided were valid.
+        The updated web page based on whether the details provided were valid and
+        the profile page user's privacy settings.
     """
     email = ""
+    conn_type = ""
+    sort_posts = []
     hobbies = []
     interests = []
     message = []
-
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
-            "SELECT name, bio, gender, birthday, profilepicture FROM "
+            "SELECT name, bio, gender, birthday, profilepicture, privacy FROM "
             "UserProfile WHERE username=?;", (username,))
         row = cur.fetchall()
         if len(row) == 0:
@@ -1402,103 +1405,103 @@ def profile(username: str) -> object:
                 requestCount=get_connection_request_count())
         else:
             data = row[0]
-            name, bio, gender, birthday, profile_picture = (
-                data[0], data[1], data[2], data[3], data[4])
+            name, bio, gender, birthday, profile_picture, privacy = (
+                data[0], data[1], data[2], data[3], data[4], data[5])
 
-    # Award achievement ID 1 - Look at you if necessary
-    if username == session["username"]:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 1))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 1)
+    #If user is logged in there are specific features wich can be displayed
+    if session.get("username"):
 
-    # Award achievement ID 23 - Look at you if necessary
-    # Set meeting to True to allow for secret achievement to be earned
-    meeting_now = False                       
-    if session["username"] and meeting_now:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 23))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 23)
-
-
-    # Award achievement ID 2 - Looking good if necessary
-    if username != session["username"] and session["username"]:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 2))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 2)
-
-    # Gets account type.
-    cur.execute(
-        "SELECT type FROM "
-        "ACCOUNTS WHERE username=?;", (username,))
-    row = cur.fetchall()
-    account_type = row[0][0]
-
-    # Gets users degree.
-    degree = get_degree(username)[1]
-
-    # Gets the user's hobbies.
-    cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
-                (username,))
-    row = cur.fetchall()
-    if len(row) > 0:
-        hobbies = row
-
-    # Gets the user's interests.
-    cur.execute("SELECT interest FROM UserInterests WHERE username=?;",
-                (username,))
-    row = cur.fetchall()
-    if len(row) > 0:
-        interests = row
-
-    # Gets the user's emails.
-    cur.execute("SELECT email from ACCOUNTS WHERE username=?;",
-                (username,))
-    row = cur.fetchall()
-    if len(row) > 0:
-        email = row[0][0]
-
-    # Gets the user's six rarest achievements.
-    unlocked_achievements, locked_achievements = get_achievements(username)
-    first_six = unlocked_achievements[0:min(6, len(unlocked_achievements))]
-
-    # Gets the user's posts.
-    if username == session["username"]:
-        cur.execute(
-            "SELECT * FROM POSTS WHERE username=?", (username,))
-        sort_posts = cur.fetchall()
-    else:
-        connections = get_all_connections(username)
-        count = 0
-        for connection in connections:
-            connections[count] = connection[0]
-            count += 1
-        if session["username"] in connections:
-            close = is_close_friend(username)
-            if close is True:
-                cur.execute(
-                    "SELECT * "
-                    "FROM POSTS WHERE username=? AND privacy!='private'",
-                    (username,))
-                sort_posts = cur.fetchall()
-            else:
-                cur.execute(
-                    "SELECT * FROM POSTS WHERE username=? "
-                    "AND privacy!='private' AND privacy!='close'", (username,))
-                sort_posts = cur.fetchall()
-        else:
+        if username == session["username"]:
+            # Gets the user's posts regrdless of post settings if user is the owner of the profile.
             cur.execute(
-                "SELECT * FROM POSTS WHERE username=? AND privacy='public'",
-                (username,))
+                "SELECT * FROM POSTS WHERE username=?", (username,))
             sort_posts = cur.fetchall()
+        else:
+            # Gets the connection type between the profile owner and the user.
+            cur.execute(
+                "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
+                (session["username"], username))
+            if cur.fetchone() is None:
+                conn_type = get_connection_type(username)
+                if conn_type == "connected" and privacy=="close_friends":
+                    message.append("This profile is available only to connections")
+                    return render_template("error.html", message=message,
+                            requestCount=get_connection_request_count())
+            elif conn_type == "blocked":
+                message.append("Unable to view this profile since " + username +
+                            " has blocked you.")
+                session["prev-page"] = request.url
+                return render_template(
+                    "error.html", message=message,
+                    requestCount=get_connection_request_count())
+            else:
+                conn_type = "close_friend"
+                if privacy == "private":
+                    message.append("This profile is available only to close friends. Please try viewing it after loggin in.")
+                    return render_template("error.html", message=message,
+                            requestCount=get_connection_request_count())
+
+            session["prev-page"] = request.url
+            connections = get_all_connections(username)
+            count = 0
+            for connection in connections:
+                connections[count] = connection[0]
+                count += 1
+            if session["username"] in connections:
+                #check if user trying to view profile is a close friend
+                if conn_type is "close_friend":
+                    cur.execute(
+                        "SELECT * "
+                        "FROM POSTS WHERE username=? AND (privacy=='close' or privacy=='protected' or privacy=='public')",
+                        (username,))
+                    sort_posts = cur.fetchall()
+                elif conn_type is "connected":
+                    cur.execute(
+                        "SELECT * FROM POSTS WHERE username=? "
+                        "AND (privacy!='private' or privacy!='close') ", (username,))
+                    sort_posts = cur.fetchall()
+                else:
+                    cur.execute(
+                        "SELECT * FROM POSTS WHERE username=? "
+                        "AND (privacy!='private' or privacy!='close' or privacy!='protected') ", (username,))
+                    sort_posts = cur.fetchall()
+                    
+        #Checks there are any achievements to reward
+        # Award achievement ID 1 - Look at you if necessary
+        if username == session["username"]:
+            cur.execute(
+                "SELECT * FROM CompleteAchievements "
+                "WHERE (username=? AND achievement_ID=?);",
+                (session["username"], 1))
+            if cur.fetchone() is None:
+                apply_achievement(session["username"], 1)
+
+        # Award achievement ID 2 - Looking good if necessary
+        if username != session["username"] and session["username"]:
+            cur.execute(
+                "SELECT * FROM CompleteAchievements "
+                "WHERE (username=? AND achievement_ID=?);",
+                (session["username"], 2))
+            if cur.fetchone() is None:
+                apply_achievement(session["username"], 2)
+
+        # Award achievement ID 23 - Look at you if necessary
+        # Set meeting to allow for secret achievement to be earned
+        meeting_now = False                       
+        if session["username"] and meeting_now:
+            cur.execute(
+                "SELECT * FROM CompleteAchievements "
+                "WHERE (username=? AND achievement_ID=?);",
+                (session["username"], 23))
+            if cur.fetchone() is None:
+                apply_achievement(session["username"], 23)
+
+    else:
+        #Only public posts can be viewed when not logged in 
+        cur.execute(
+            "SELECT * FROM POSTS WHERE username=? AND privacy='public'",
+            (username,))
+        sort_posts = cur.fetchall()
 
     # Sort reverse chronologically
     sort_posts = sorted(sort_posts, key=lambda x: x[0], reverse=True)
@@ -1536,30 +1539,54 @@ def profile(username: str) -> object:
             "body": (user_post[2])[:250] + add,
             "privacy": privacy,
             "icon": icon
-        })
+        })   
+
+    # Gets account type.
+    cur.execute(
+        "SELECT type FROM "
+        "ACCOUNTS WHERE username=?;", (username,))
+    row = cur.fetchall()
+    account_type = row[0][0]
+
+    # Gets users degree.
+    cur.execute(
+        "SELECT degree FROM  "
+        "Degree WHERE degreeId = (SELECT degree "
+        "FROM UserProfile WHERE username=?);", (username,))
+    row = cur.fetchone()
+    degree = row[0]
+
+    # Gets the user's hobbies.
+    cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
+                (username,))
+    row = cur.fetchall()
+    if len(row) > 0:
+        hobbies = row
+
+    # Gets the user's interests.
+    cur.execute("SELECT interest FROM UserInterests WHERE username=?;",
+                (username,))
+    row = cur.fetchall()
+    if len(row) > 0:
+        interests = row
+
+    # Gets the user's email
+    cur.execute("SELECT email from ACCOUNTS WHERE username=?;",
+                (username,))
+    row = cur.fetchall()
+    if len(row) > 0:
+        email = row[0][0]
+
+    # Gets the user's six rarest achievements.
+    unlocked_achievements, locked_achievements = get_achievements(username)
+    first_six = unlocked_achievements[0:min(6, len(unlocked_achievements))]
+
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
     age = calculate_age(datetime_object)
 
-    # Gets the connection type with the user to show their relationship.
-    cur.execute(
-        "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
-        (session["username"], username))
-    if cur.fetchone() is None:
-        conn_type = get_connection_type(username)
-        # Checks that the user hasn't been blocked.
-        if conn_type == "blocked":
-            message.append("Unable to view this profile since " + username +
-                           " has blocked you.")
-            session["prev-page"] = request.url
-            return render_template(
-                "error.html", message=message,
-                requestCount=get_connection_request_count())
-    else:
-        conn_type = "close"
-    session["prev-page"] = request.url
-
+    #get user level
     check_level_exists(username, conn)
 
     level_data = get_level(username)
@@ -1575,20 +1602,31 @@ def profile(username: str) -> object:
         progress_color = "yellow"
     if percentage_level < 25:
         progress_color = "red"
-    print(conn_type)
-
-    return render_template("profile.html", username=username,
-                           name=name, bio=bio, gender=gender,
-                           birthday=birthday, profile_picture=profile_picture,
-                           age=age, hobbies=hobbies, account_type=account_type,
-                           interests=interests, degree=degree,
-                           email=email, posts=user_posts, type=conn_type,
-                           unlocked_achievements=first_six,
-                           allUsernames=get_all_usernames(),
-                           requestCount=get_connection_request_count(),
-                           level=level, current_xp=int(current_xp),
-                           xp_next_level=int(xp_next_level),
-                           progress_color=progress_color)
+    
+    if session.get("username"):   
+        return render_template("profile.html", username=username,
+                                name=name, bio=bio, gender=gender,
+                                birthday=birthday, profile_picture=profile_picture,
+                                age=age, hobbies=hobbies, account_type=account_type,
+                                interests=interests, degree=degree,
+                                email=email, posts=user_posts, type=conn_type,
+                                unlocked_achievements=first_six,
+                                allUsernames=get_all_usernames(),
+                                requestCount=get_connection_request_count(),
+                                level=level, current_xp=int(current_xp),
+                                xp_next_level=int(xp_next_level),
+                                progress_color=progress_color)
+    else:
+        return render_template("profile.html", username=username,
+                            name=name, bio=bio, gender=gender,
+                            birthday=birthday, profile_picture=profile_picture,
+                            age=age, hobbies=hobbies, account_type=account_type,
+                            interests=interests, degree=degree,
+                            email=email, posts=user_posts, type="none",
+                            unlocked_achievements=first_six,
+                            level=level, current_xp=int(current_xp),
+                            xp_next_level=int(xp_next_level),
+                            progress_color=progress_color)
 
 
 @application.route("/edit-profile", methods=["GET", "POST"])
@@ -1612,6 +1650,18 @@ def edit_profile() -> object:
             "SELECT bio FROM UserProfile WHERE username=?",
             (session["username"],))
         bio = cur.fetchall()[0][0]
+        
+        #get current degree
+        cur.execute(
+            "SELECT degree FROM UserProfile WHERE username=?",
+            (session["username"],))
+        degree = cur.fetchall()[0][0]
+
+        #get privacy settings
+        cur.execute(
+            "SELECT privacy FROM UserProfile WHERE username=?",
+            (session["username"],))
+        privacy = cur.fetchall()[0][0]
 
         # gets all possible degrees
         cur.execute(
@@ -1627,7 +1677,8 @@ def edit_profile() -> object:
     if request.method == "GET":
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
-                               date=dob, bio=bio, degrees=degrees, errors=[])
+                               date=dob, bio=bio, degrees=degrees, degree=degree, 
+                               privacy=privacy, errors=[])
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -1724,8 +1775,25 @@ def edit_profile() -> object:
                     "settings.html", errors=message,
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(), degrees=degrees,
-                    date=dob, bio=bio)
+                    degree=degree, date=dob, bio=bio, privacy=privacy)
 
+@application.route("/profile_privacy", methods=["POST"])
+def profile_privacy():
+    """
+    Changes the privacy setting of the profile page
+
+    Returns:
+        The settings page
+    """
+    privacy = request.form.get("privacy")
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+                    "UPDATE UserProfile SET privacy=? WHERE username=?;",
+                    (privacy, session["username"],))
+
+    return redirect("/profile")
+        
 
 @application.route("/logout", methods=["GET"])
 def logout() -> object:
@@ -1988,7 +2056,7 @@ def get_connection_type(username: str):
             row = cur.fetchone()
             if row is not None:
                 if row[0] == "connected":
-                    return row[0]
+                    return "connected"
                 elif row[0] == "block":
                     return "blocked"
                 return "incoming"
@@ -2091,7 +2159,6 @@ def is_close_friend(username: str) -> bool:
         row = cur.fetchone()
         if row is not None:
             return True
-
     return False
 
 
