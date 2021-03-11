@@ -208,8 +208,18 @@ def members() -> object:
 
 @application.route("/quizzes", methods=["GET"])
 def quizzes() -> object:
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT quiz_id, date_created, author, quiz_name FROM Quiz")
+
+        row = cur.fetchall()
+
+        quizzes = sorted(row, key=lambda x: x[0], reverse=True)
+
+
     return render_template("quizzes.html",
-                           requestCount=get_connection_request_count())
+                           requestCount=get_connection_request_count(), quizzes=quizzes)
 
 
 @application.route("/quiz/<quiz_id>", methods=["GET"])
@@ -269,7 +279,7 @@ def quiz(quiz_id: int) -> object:
 
     return render_template("quiz.html",
                            requestCount=get_connection_request_count(),
-                           questions=questions, answers=answers)
+                           questions=questions, answers=answers, quiz_name=quiz_name)
 
 
 @application.route("/leaderboard", methods=["GET"])
