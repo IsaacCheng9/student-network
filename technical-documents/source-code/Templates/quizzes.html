@@ -1,5 +1,6 @@
-{% extends "base.html" %} {% block title %}Request{% endblock %} {% block
-content %}
+{% extends "base.html" %} 
+{% block title %}Request{% endblock %} 
+{% block content %}
 <!-- when writing the for loop, use the whole ui segment instead of just "sixteen wide column" -->
 
 <div class="ui segment" id="quiz-post-input">
@@ -12,7 +13,7 @@ content %}
     </div>
     {% endif %}
     <div class="ui buttons" id="post-type-buttons">
-        <div class="ui orange button basic">Select Question</div>
+        <div class="ui orange button basic">Question</div>
         <button class="ui orange button question-select" onclick="SelectQuestion(1,this);" id="default-question-btn">
             1
         </button>
