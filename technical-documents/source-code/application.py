@@ -222,7 +222,7 @@ def quizzes() -> object:
                            requestCount=get_connection_request_count(), quizzes=quizzes)
 
 
-@application.route("/quiz/<quiz_id>", methods=["GET"])
+@application.route("/quiz/<quiz_id>", methods=["GET", "POST"])
 def quiz(quiz_id: int) -> object:
     # Gets the quiz details from the database.
     with sqlite3.connect("database.db") as conn:
@@ -260,26 +260,51 @@ def quiz(quiz_id: int) -> object:
         question_5_options = sample(
             [quiz_details[0][24], quiz_details[0][25],
              quiz_details[0][26], quiz_details[0][27]], 4)
-        print(quiz_name)
-        print(question_1)
-        print(question_1_options)
-        print(question_2)
-        print(question_2_options)
-        print(question_3)
-        print(question_3_options)
-        print(question_4)
-        print(question_4_options)
-        print(question_5)
-        print(question_5_options)
 
+        # Gets a list of questions and answers to pass to the web page.
         questions = [question_1, question_2, question_3, question_4,
                      question_5]
-        answers = [question_1_options, question_2_options, question_3_options,
-                   question_4_options, question_5_options]
+        answers = [question_1_options, question_2_options,
+                   question_3_options, question_4_options,
+                   question_5_options]
 
-    return render_template("quiz.html",
-                           requestCount=get_connection_request_count(),
-                           questions=questions, answers=answers, quiz_name=quiz_name)
+    if request.method == "GET":
+        return render_template("quiz.html",
+                               requestCount=get_connection_request_count(),
+                               quiz_id=quiz_id, questions=questions,
+                               answers=answers)
+
+    elif request.method == "POST":
+        score = 0
+        # Gets the answers selected by the user.
+        user_answers = [request.form.get("userAnswer0"),
+                        request.form.get("userAnswer1"),
+                        request.form.get("userAnswer2"),
+                        request.form.get("userAnswer3"),
+                        request.form.get("userAnswer4")]
+        # TODO: Remove after testing.
+        print("test", user_answers)
+
+        # Displays an error message if they have not answered all questions.
+        if any(user_answers) == "":
+            session["error"] = "You have not answered all the questions!"
+            return redirect(session["prev-page"])
+        else:
+            question_feedback = []
+            for i in range(5):
+                correct_answer = quiz_details[0][(5 * i) + 4]
+                correct = user_answers[i] == correct_answer
+
+                question_feedback.append([questions[i], user_answers[i], correct_answer])
+
+                if correct:
+                    score += 1
+
+            print(question_feedback)
+
+            #session["error"] = "You scored {}/5 in this quiz!".format(score)
+            return render_template("/quiz_results.html", question_feedback=question_feedback,
+                                    requestCount=get_connection_request_count(), score=score)
 
 
 @application.route("/leaderboard", methods=["GET"])
@@ -445,7 +470,6 @@ def accept_connection_request(username: str) -> object:
                     # Awards achievement ID 16 - Shared interests if necessary.
                     common_interests = set(my_interests) - (
                             set(my_interests) - set(connection_interests))
-                    print(common_interests)
                     if common_interests:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
@@ -465,7 +489,6 @@ def accept_connection_request(username: str) -> object:
                     # Award achievement ID 26 - Shared hobbies if necessary
                     common_hobbies = set(my_hobbies) - (
                             set(my_hobbies) - set(connection_hobbies))
-                    print(common_hobbies)
                     if common_hobbies:
                         cur.execute(
                             "SELECT * FROM CompleteAchievements "
@@ -1130,9 +1153,6 @@ def submit_post() -> object:
                       request.form.get("question_5_ans_3"),
                       request.form.get("question_5_ans_4")]]
 
-        print(request.form.get("quiz_name"))
-        print(request.form.get("question_1"))
-
         valid, message = validate_quiz(quiz_name, questions)
         if valid:
             # Adds quiz to the database.
@@ -1203,7 +1223,6 @@ def submit_post() -> object:
                 data = urlparse(link)
                 query = parse_qs(data.query)
                 video_id = query["v"][0]
-                print("id: + " + video_id)
             else:
                 valid = False
 
@@ -1539,6 +1558,7 @@ def profile(username: str) -> object:
     hobbies = []
     interests = []
     message = []
+
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets user from database using username.
@@ -2329,6 +2349,7 @@ def is_close_friend(username: str) -> bool:
         row = cur.fetchone()
         if row is not None:
             return True
+
     return False
 
 
