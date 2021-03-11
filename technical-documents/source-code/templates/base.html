@@ -112,6 +112,18 @@
                        {% else %}class="item" {% endif %}><i
                             class="question icon"></i> Quizzes</a>
 
+                    {% if "admin" in session: %}
+                        {% if session["admin"]: %}
+                            {% if request.path == "/admin": %}
+                                <a href="{{ url_for('show_staff_requests'
+                                ) }}" class="active item"><i class="lock icon"></i>Admin</a>
+                            {% else: %}
+                                <a href="{{ url_for('show_staff_requests'
+                                ) }}" class="item"><i class="lock icon"></i>Admin</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+
                     <div class="right menu">
                         <a href="{{ url_for('user_profile') }}"
                            class="ui item">
