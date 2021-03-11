@@ -1030,12 +1030,13 @@ def post(post_id: int) -> object:
                 })
             session["prev-page"] = request.url
             return render_template(
-                "post_page.html", author=author, postId=post_id, title=title,
-                body=body, username=username, date=date_posted, likes=likes,
-                accountType=account_type, comments=comments,
-                requestCount=get_connection_request_count(),
-                allUsernames=get_all_usernames(),
-                avatar=get_profile_picture(username))
+                "post_page.html", author=author, postId=post_id,
+                    title=title, body=body, username=username,
+                    date=date_posted, likes=likes, accountType=account_type,
+                    comments=comments, requestCount=get_connection_request_count(),
+                    allUsernames=get_all_usernames(),
+                    avatar=get_profile_picture(username), type=post_type,
+                    content=content)
 
 
 @application.route("/feed", methods=["GET"])
