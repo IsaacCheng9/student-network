@@ -1,71 +1,72 @@
+
 {% extends "base.html" %} {% block title %}Achievements{% endblock %} {% block
 content %}
 
 
-<div class="ui segment padded">
+  <div class="ui segment padded">
     <div class="ui grid">
-        <div class="sixteen wide column">
-            <div class="field">
-                <div class="ui left icon input fluid">
-                    <input type="text" placeholder="Search users..." oninput="SearchUser(this.value);">
-                    <i class="users icon"></i>
-                </div>
-            </div>
+      <div class="sixteen wide column">
+        <div class="field">
+          <div class="ui left icon input fluid">
+            <input type="text" placeholder="Search users..." oninput="SearchUser(this.value);">
+            <i class="users icon"></i>
+          </div>
         </div>
-        <div class="eight wide column">
-           <div class="ui input fluid labeled">
-                <div class="ui label">Search Hobby</div>
-                <input type="text" placeholder="Search hobby...">
-            </div>
+      </div>
+      <div class="eight wide column">
+        <div class="ui input fluid labeled">
+          <div class="ui label">Search Hobby</div>
+          <input type="text" placeholder="Search hobby...">
         </div>
-        <div class="eight wide column">
-            <div class="ui input fluid labeled">
-                <div class="ui label">Search Interest</div>
-                <input type="text" placeholder="Search interest...">
-            </div>
+      </div>
+      <div class="eight wide column">
+        <div class="ui input fluid labeled">
+          <div class="ui label">Search Interest</div>
+          <input type="text" placeholder="Search interest...">
         </div>
-        
-        <div class="sixteen wide column">
-            <div class="ui list large" id="users"></div>
-        </div>
-    </div>
-</div>
+      </div>
 
-<script>
-    function SearchUser(username){
-        var xhttp;
-        if (username == ""){
-            document.getElementById("users").innerHTML = "";
-            return;
-        }
-        
-        console.log(username);
-        
-        xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function(){
-            if (this.readyState == 4 && this.status == 200){
-                console.log(this.response);
-                var json_response = JSON.parse(this.response);
-                
-                document.getElementById("users").innerHTML = "";
-                
-                for (var user of json_response){
-                    var html = `<div class="item">
+      <div class="sixteen wide column">
+        <div class="ui list large" id="users"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+      function SearchUser(username){
+          var xhttp;
+          if (username == ""){
+              document.getElementById("users").innerHTML = "";
+              return;
+          }
+
+          console.log(username);
+
+          xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function(){
+              if (this.readyState == 4 && this.status == 200){
+                  console.log(this.response);
+                  var json_response = JSON.parse(this.response);
+
+                  document.getElementById("users").innerHTML = "";
+
+                  for (var user of json_response){
+                      var html = `<div class="item">
                                     <img class="ui avatar image" src="${user[2]}">
                                     <div class="content">
                                       <a class="header" href="./profile/${user[0]}">${user[0]}</a>
                                       <div class="description">Studying ${user[1]}</div>
                                     </div>
                                   </div>`;
-                    
-                    document.getElementById("users").innerHTML += html;
-                }
-            }
-        }
-        
-        xhttp.open("GET", "search_query?chars="+username);
-        xhttp.send();
-    }
-</script>
+
+                      document.getElementById("users").innerHTML += html;
+                  }
+              }
+          }
+
+          xhttp.open("GET", "search_query?chars="+username);
+          xhttp.send();
+      }
+  </script>
 
 {%endblock%}

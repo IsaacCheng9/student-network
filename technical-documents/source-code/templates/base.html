@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel=stylesheet href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" type="text/css">
+<link rel="shortcut icon" href="../static/images/logo/chatboxes_stretch_png.png">
 
 <head>
     <meta charset="UTF-8" />
@@ -90,6 +91,9 @@
                     
                     <a href="/members" {% if request.path=='/members' %}class="active item" {% else %}class="item" {% endif
                         %}><i class="users icon"></i> Members</a>
+                        
+                    <a href="/quizzes" {% if request.path=='/quizzes' %}class="active item" {% else %}class="item" {% endif
+                        %}><i class="question icon"></i> Quizzes</a>
                     
                     <div class="right menu">
                         <a href="{{url_for('user_profile')}}" class="ui item">
