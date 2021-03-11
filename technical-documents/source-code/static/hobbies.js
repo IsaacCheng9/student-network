@@ -38,11 +38,12 @@
 		
         tag.element.classList.add('ui','labels', 'teal');
 		tag.element.appendChild(label);
+        g.setAttribute("id", "text");
 
         let closeBtn = document.createElement('i');
         closeBtn.classList.add('close', 'icon');
         closeBtn.addEventListener('click', function () {
-            removeHTag(hTags.indexOf(tag));
+            removeHTag(hTags.getElementById("text"));
         });
         tag.element.firstElementChild.appendChild(closeBtn);
 
@@ -53,10 +54,8 @@
         refreshHTags();
     }
 
-    function removeHTag (index) {
-        let tag = hTags[index];
-        hTags.splice(index, 1);
-        tag.element.remove();
+    function removeHTag (id) {
+        document.getElementById(id).remove();
         refreshhTags();
     }
 
