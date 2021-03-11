@@ -207,14 +207,18 @@ def members() -> object:
 
 @application.route("/quizzes", methods=["GET"])
 def quizzes() -> object:
+    """
+    Loads the sorted list of quizzes.
+
+    Returns:
+        The web page of quizzes created.
+    """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
 
         cur.execute(
             "SELECT quiz_id, date_created, author, quiz_name FROM Quiz")
-
         row = cur.fetchall()
-
         quiz_posts = sorted(row, key=lambda x: x[0], reverse=True)
 
     # Displays any error messages.
@@ -232,6 +236,15 @@ def quizzes() -> object:
 
 @application.route("/quiz/<quiz_id>", methods=["GET", "POST"])
 def quiz(quiz_id: int) -> object:
+    """
+    Loads the quiz and processes the user's answers.
+
+    Args:
+        quiz_id: The quiz
+
+    Returns:
+        The web page for answering the questions, or feedback for your answers.
+    """
     # Gets the quiz details from the database.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -300,10 +313,8 @@ def quiz(quiz_id: int) -> object:
             for i in range(5):
                 correct_answer = quiz_details[0][(5 * i) + 4]
                 correct = user_answers[i] == correct_answer
-
                 question_feedback.append(
                     [questions[i], user_answers[i], correct_answer])
-
                 if correct:
                     score += 1
 
@@ -340,7 +351,8 @@ def leaderboard() -> object:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM UserLevel ORDER BY experience DESC LIMIT 30; ")
+        cur.execute("SELECT * FROM UserLevel "
+                    "ORDER BY experience DESC LIMIT 30; ")
         top_users = cur.fetchall()
         if top_users is not None:
             total_user_count = len(top_users)
@@ -372,16 +384,18 @@ def achievements() -> object:
     Returns:
         The web page for viewing achievements.
     """
-
     unlocked_achievements, locked_achievements = get_achievements(
         session["username"])
 
+    # Displays the percentage of achievements unlocked.
     percentage = int(100 * len(unlocked_achievements) /
                      (len(unlocked_achievements) + len(locked_achievements)))
     percentage_color = "green"
-    if percentage < 66:
+    if percentage < 75:
+        percentage_color = "yellow"
+    if percentage < 50:
         percentage_color = "orange"
-    if percentage < 33:
+    if percentage < 25:
         percentage_color = "red"
 
     # Award achievement ID 3 - Show it off if necessary
@@ -793,6 +807,12 @@ def show_connect_requests() -> object:
 
 @application.route("/admin", methods=["GET", "POST"])
 def show_staff_requests() -> object:
+    """
+    Displays requests to sign up as a staff member.
+
+    Returns:
+        The web page for handling administration.
+    """
     if "admin" in session:
         if not session["admin"]:
             return render_template("error.html", message=[
@@ -822,9 +842,15 @@ def show_staff_requests() -> object:
 
 
 @application.route("/accept_staff/<username>", methods=["GET", "POST"])
-def accept_staff(username):
+def accept_staff(username: str):
     """
-    Accept user as staff member
+    Accepts user as a staff member.
+
+    Args:
+        username: The user to accept as a staff member.
+
+    Returns:
+        Redirection to the administration page.
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -834,9 +860,15 @@ def accept_staff(username):
 
 
 @application.route("/reject_staff/<username>", methods=["GET", "POST"])
-def reject_staff(username):
+def reject_staff(username: str):
     """
-    Reject user as staff member
+    Rejects user as staff member.
+
+    Args:
+        username: The user to reject as a staff member.
+
+    Returns:
+        Redirection to the administration page.
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -1138,7 +1170,13 @@ def post(post_id: int) -> object:
 
 
 @application.route("/fetch_posts/", methods=['GET'])
-def json_posts():
+def json_posts() -> dict:
+    """
+    Creates a JSON format for each post to make them readable by JavaScript.
+
+    Returns:
+        JSON dictionary file for posts.
+    """
     all_posts = {
         "AllPosts": []
     }
@@ -1147,99 +1185,6 @@ def json_posts():
     content = ""
     all_posts, content, valid = fetch_posts(number, starting_id)
     return jsonify(all_posts)
-
-
-def fetch_posts(number, starting_id):
-    content = ""
-    all_posts = {
-        "AllPosts": []
-    }
-    if "username" in session:
-        session["prev-page"] = request.url
-        with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-
-            connections = get_all_connections(session["username"])
-            connections.append((session["username"],))
-            row = []
-            for user in connections:
-                cur.execute(
-                    "SELECT * FROM POSTS "
-                    "WHERE username=? AND postId <= ?"
-                    "AND privacy!='private' AND privacy!='close' "
-                    "ORDER BY postId DESC LIMIT ?;",
-                    (user[0], starting_id, number))
-                row += cur.fetchall()
-            # Sort reverse chronologically
-            row = sorted(row, key=lambda x: x[0], reverse=True)
-            i = 0
-
-            # account type differentiation in posts db
-            for user_post in row:
-                if i == int(number):
-                    break
-                add = ""
-                if len(user_post[2]) > 250:
-                    add = "..."
-                time = datetime.strptime(user_post[4], '%Y-%m-%d').strftime(
-                    '%d-%m-%y')
-
-                # Get account type
-                cur.execute("SELECT type "
-                            "FROM ACCOUNTS WHERE username=? ",
-                            (user_post[3],))
-
-                accounts = cur.fetchone()
-                account_type = accounts[0]
-
-                post_id = user_post[0]
-                post_type = user_post[8]
-
-                cur.execute("SELECT * FROM Comments WHERE postId=? LIMIT 5;",
-                            (post_id,))
-                comments = cur.fetchall()
-
-                comments = list(map(lambda x: (x[0], x[1], x[2], x[3], x[4],
-                                               get_profile_picture(x[1])),
-                                    comments))
-
-                if post_type == "Image" or post_type == "Link":
-                    cur.execute(
-                        "SELECT contentUrl "
-                        "FROM PostContent WHERE postId=?;", (post_id,))
-
-                    content = cur.fetchone()
-                    if content is not None:
-                        content = content[0]
-
-                cur.execute(
-                    "SELECT COUNT(commentID)"
-                    "FROM Comments WHERE postId=?;", (post_id,))
-                comment_count = cur.fetchone()[0]
-
-                cur.execute(
-                    "SELECT likes "
-                    "FROM POSTS WHERE postId=?;", (post_id,))
-                like_count = cur.fetchone()[0]
-
-                all_posts["AllPosts"].append({
-                    "postId": user_post[0],
-                    "title": user_post[1],
-                    "profile_pic": get_profile_picture(user_post[3]),
-                    "author": user_post[3],
-                    "account_type": account_type,
-                    "date_posted": time,
-                    "body": (user_post[2])[:250] + add,
-                    "post_type": user_post[8],
-                    "content": content,
-                    "comment_count": comment_count,
-                    "like_count": like_count,
-                    "comments": comments
-                })
-                i += 1
-        return all_posts, content, True
-    else:
-        return all_posts, content, False
 
 
 @application.route("/feed", methods=["GET"])
@@ -1291,7 +1236,14 @@ def feed() -> object:
 
 
 @application.route("/search_query", methods=["GET"])
-def search_query():
+def search_query() -> dict:
+    """
+    Searches for members registered in the student network.
+
+    Returns:
+        JSON dictionary of search results of users, and their hobbies
+        and interests.
+    """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         chars = request.args.get("chars")
@@ -1510,7 +1462,7 @@ def submit_post() -> object:
 @application.route("/like_post", methods=["POST"])
 def like_post() -> object:
     """
-    Records liking a post to the database.
+    Processes liking a post to the database.
 
     Returns:
         Redirection to the post with like added.
@@ -1742,6 +1694,9 @@ def profile(username: str) -> object:
     Displays the user's profile page and fills in all of the necessary
     details. Hides the request buttons if the user is seeing their own page
     and checks if the user viewing the page has unlocked any achievements.
+
+    Args:
+        username: The user to view the profile of.
 
     Returns:
         The updated web page based on whether the details provided were valid,
@@ -2040,6 +1995,7 @@ def profile(username: str) -> object:
 def edit_profile() -> object:
     """
     Updates the user's profile using info from the edit profile form.
+
     Returns:
         The updated profile page if the details provided were valid.
     """
@@ -2210,12 +2166,12 @@ def edit_profile() -> object:
 
 
 @application.route("/profile_privacy", methods=["POST"])
-def profile_privacy():
+def profile_privacy() -> object:
     """
-    Changes the privacy setting of the profile page
+    Changes the privacy setting of the user's profile page.
 
     Returns:
-        The settings page
+        The web page to edit the user's profile details.
     """
     privacy = request.form.get("privacy")
     with sqlite3.connect("database.db") as conn:
@@ -2228,12 +2184,12 @@ def profile_privacy():
 
 
 @application.route("/edit_socials", methods=["POST"])
-def edit_socials():
+def edit_socials() -> object:
     """
-    Changes the privacy setting of the profile page
+    Changes the links to the user's social media profiles.
 
     Returns:
-        The settings page
+        The web page for the logged in user's profile page.
     """
     twitter = request.form.get("twitter")
     facebook = request.form.get("facebook")
@@ -2243,13 +2199,11 @@ def edit_socials():
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "UPDATE UserSocial SET  twitter=?,"
-            "facebook=?, youtube=?,"
-            "instagram = ?,"
-            "linkedin=? WHERE username=?;",
-            (twitter, facebook, youtube,
-             instagram, linkedin,
+            "UPDATE UserSocial SET  twitter=?, facebook=?, youtube=?,"
+            "instagram = ?, linkedin=? WHERE username=?;",
+            (twitter, facebook, youtube, instagram, linkedin,
              session["username"],))
+
     return redirect("/profile")
 
 
@@ -2268,18 +2222,18 @@ def logout() -> object:
     return redirect("/")
 
 
-def allowed_file(filename) -> bool:
+def allowed_file(file_name) -> bool:
     """
     Checks if the file is an allowed type.
 
     Args:
-        filename: The name of the file uploaded by the user.
+        file_name: The name of the file uploaded by the user.
 
     Returns:
         Whether the file is allowed or not (True/False).
     """
-    return "." in filename and \
-           filename.rsplit(".", 1)[1].lower() in {"png", "jpg", "jpeg", "gif"}
+    return "." in file_name and \
+           file_name.rsplit(".", 1)[1].lower() in {"png", "jpg", "jpeg", "gif"}
 
 
 def apply_achievement(username: str, achievement_id: int):
@@ -2394,6 +2348,110 @@ def delete_connection(username: str) -> bool:
                     return True
             else:
                 return False
+
+
+def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
+    """
+    Fetches posts which are visible by the user logged in.
+
+    Args:
+        number: Number of posts.
+        starting_id: ID of the first post to fetch, in descending order.
+
+    Returns:
+        A dictionary of details in the post, type of post, and validity of
+        post.
+    """
+    content = ""
+    all_posts = {
+        "AllPosts": []
+    }
+    if "username" in session:
+        session["prev-page"] = request.url
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+
+            connections = get_all_connections(session["username"])
+            connections.append((session["username"],))
+            row = []
+            for user in connections:
+                cur.execute(
+                    "SELECT * FROM POSTS "
+                    "WHERE username=? AND postId <= ?"
+                    "AND privacy!='private' AND privacy!='close' "
+                    "ORDER BY postId DESC LIMIT ?;",
+                    (user[0], starting_id, number))
+                row += cur.fetchall()
+            # Sort reverse chronologically
+            row = sorted(row, key=lambda x: x[0], reverse=True)
+            i = 0
+
+            # account type differentiation in posts db
+            for user_post in row:
+                if i == int(number):
+                    break
+                add = ""
+                if len(user_post[2]) > 250:
+                    add = "..."
+                time = datetime.strptime(user_post[4], '%Y-%m-%d').strftime(
+                    '%d-%m-%y')
+
+                # Get account type
+                cur.execute("SELECT type "
+                            "FROM ACCOUNTS WHERE username=? ",
+                            (user_post[3],))
+
+                accounts = cur.fetchone()
+                account_type = accounts[0]
+
+                post_id = user_post[0]
+                post_type = user_post[8]
+
+                cur.execute("SELECT * FROM Comments WHERE postId=? LIMIT 5;",
+                            (post_id,))
+                comments = cur.fetchall()
+
+                comments = list(map(lambda x: (x[0], x[1], x[2], x[3], x[4],
+                                               get_profile_picture(x[1])),
+                                    comments))
+
+                if post_type == "Image" or post_type == "Link":
+                    cur.execute(
+                        "SELECT contentUrl "
+                        "FROM PostContent WHERE postId=?;", (post_id,))
+
+                    content = cur.fetchone()
+                    if content is not None:
+                        content = content[0]
+
+                cur.execute(
+                    "SELECT COUNT(commentID)"
+                    "FROM Comments WHERE postId=?;", (post_id,))
+                comment_count = cur.fetchone()[0]
+
+                cur.execute(
+                    "SELECT likes "
+                    "FROM POSTS WHERE postId=?;", (post_id,))
+                like_count = cur.fetchone()[0]
+
+                all_posts["AllPosts"].append({
+                    "postId": user_post[0],
+                    "title": user_post[1],
+                    "profile_pic": get_profile_picture(user_post[3]),
+                    "author": user_post[3],
+                    "account_type": account_type,
+                    "date_posted": time,
+                    "body": (user_post[2])[:250] + add,
+                    "post_type": user_post[8],
+                    "content": content,
+                    "comment_count": comment_count,
+                    "like_count": like_count,
+                    "comments": comments
+                })
+                i += 1
+        return all_posts, content, True
+    else:
+        return all_posts, content, False
 
 
 def get_achievements(username: str) -> Tuple[object, object]:
