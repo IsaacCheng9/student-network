@@ -82,6 +82,7 @@
                             {{username}}
                             <div class="detail">{{accountType}}</div>
                         </a>
+                        <a href="{{url_for('feed')}}" class="right floated meta">Back To Feed</a>
                         <div class="ui horizontal divider hidden"></div>
                         <div class="header">
                             {{title}}
@@ -125,7 +126,7 @@
                                 {% for comment in comments["comments"] %}
                                 <div class="comment">
                                     <a class="avatar">
-                                        <img src="{{avatar}}" />
+                                        <img src="{{comment.profilePic}}" />
                                     </a>
                                     <div class="content">
                                         <a class="author">{{comment.username}}</a>

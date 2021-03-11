@@ -308,6 +308,23 @@ def quiz(quiz_id: int) -> object:
 
             print(question_feedback)
 
+            # Award achievement ID 27 - Boffin if necessary
+            cur.execute(
+                "SELECT * FROM CompleteAchievements "
+                "WHERE (username=? AND achievement_ID=?);",
+                (session["username"], 27))
+            if cur.fetchone() is None:
+                apply_achievement(session["username"], 27)
+
+            # Award achievement ID 28 - Brainiac if necessary
+            if score == 5:
+                cur.execute(
+                    "SELECT * FROM CompleteAchievements "
+                    "WHERE (username=? AND achievement_ID=?);",
+                    (session["username"], 28))
+                if cur.fetchone() is None:
+                    apply_achievement(session["username"], 28)
+
             #session["error"] = "You scored {}/5 in this quiz!".format(score)
             return render_template("/quiz_results.html", question_feedback=question_feedback,
                                     requestCount=get_connection_request_count(), score=score)
@@ -1027,15 +1044,17 @@ def post(post_id: int) -> object:
                     "username": comment[1],
                     "body": comment[2],
                     "date": time,
+                    "profilePic": get_profile_picture(comment[1])
                 })
             session["prev-page"] = request.url
             return render_template(
-                "post_page.html", author=author, postId=post_id, title=title,
-                body=body, username=username, date=date_posted, likes=likes,
-                accountType=account_type, comments=comments,
-                requestCount=get_connection_request_count(),
-                allUsernames=get_all_usernames(),
-                avatar=get_profile_picture(username))
+                "post_page.html", author=author, postId=post_id,
+                    title=title, body=body, username=username,
+                    date=date_posted, likes=likes, accountType=account_type,
+                    comments=comments, requestCount=get_connection_request_count(),
+                    allUsernames=get_all_usernames(),
+                    avatar=get_profile_picture(username), type=post_type,
+                    content=content)
 
 
 @application.route("/feed", methods=["GET"])
@@ -1906,7 +1925,6 @@ def profile(username: str) -> object:
 def edit_profile() -> object:
     """
     Updates the user's profile using info from the edit profile form.
-
     Returns:
         The updated profile page if the details provided were valid.
     """
@@ -1916,25 +1934,24 @@ def edit_profile() -> object:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT birthday FROM UserProfile WHERE username=?",
+            "SELECT birthday, bio, degree, privacy, gender FROM UserProfile WHERE username=?",
             (session["username"],))
-        dob = cur.fetchall()[0][0]
-        cur.execute(
-            "SELECT bio FROM UserProfile WHERE username=?",
-            (session["username"],))
-        bio = cur.fetchall()[0][0]
+        data = cur.fetchone()
+        dob = data[0]
+        bio = data[1]
+        degree = data[2]
+        privacy = data[3]
+        gender = data[4]
 
-        # get current degree
         cur.execute(
-            "SELECT degree FROM UserProfile WHERE username=?",
+            "SELECT hobby FROM UserHobby WHERE username=?",
             (session["username"],))
-        degree = cur.fetchall()[0][0]
+        hobbies = cur.fetchall()
 
-        # get privacy settings
         cur.execute(
-            "SELECT privacy FROM UserProfile WHERE username=?",
+            "SELECT interest FROM UserInterests WHERE username=?",
             (session["username"],))
-        privacy = cur.fetchall()[0][0]
+        interests= cur.fetchall()
 
         # gets all possible degrees
         cur.execute(
@@ -1948,12 +1965,10 @@ def edit_profile() -> object:
 
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
-        session["prev-page"] = request.url
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
-                               date=dob, bio=bio, degrees=degrees,
-                               degree=degree,
-                               privacy=privacy, errors=[])
+                               date=dob, bio=bio, degrees=degrees, gender=gender, degree=degree, 
+                               privacy=privacy, hobbies=hobbies, interests=interests, errors=[])
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -1982,7 +1997,6 @@ def edit_profile() -> object:
         hobbies = [hobby.lower() for hobby in hobbies_unformatted]
         interests_unformatted = interests_input.split(",")
         interests = [interest.lower() for interest in interests_unformatted]
-
         # Connects to the database to perform validation.
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
@@ -2023,6 +2037,13 @@ def edit_profile() -> object:
 
                 # Inserts new hobbies and interests into the database if the
                 # user made a new input.
+                
+                cur.execute("DELETE FROM UserHobby WHERE "
+                                    "username=?;",
+                                    (username,))
+                cur.execute("DELETE FROM UserInterests WHERE "
+                                    "username=?;",
+                                    (username,))
                 if hobbies != [""]:
                     for hobby in hobbies:
                         cur.execute("SELECT hobby FROM UserHobby WHERE "
@@ -2047,7 +2068,6 @@ def edit_profile() -> object:
             # Displays error message(s) stating why their details are invalid.
             else:
                 session["error"] = message
-                session["prev-page"] = request.url
                 return render_template(
                     "settings.html", errors=message,
                     requestCount=get_connection_request_count(),

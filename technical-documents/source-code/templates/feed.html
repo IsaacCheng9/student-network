@@ -226,7 +226,7 @@
             <div>{{ post.comment_count }} comments &nbsp;&nbsp; {{ post.like_count }}
                 <i class="heart icon"></i></div>
             {% if post.comment_count > 0 %}
-                <a>Show all comments</a>
+                <a href="/post_page/{{ post.postId }}">Show all comments</a>
             {% endif %}
             <div class="ui comments">
                 <div class="comment">
@@ -242,7 +242,7 @@
                     </div>
                 </div>
             </div>
-            <a>Write a comment</a>
+            <a href="/post_page/{{ post.postId }}">Write a comment</a>
         </div>
     </div>
 </div>
