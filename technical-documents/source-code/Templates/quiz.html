@@ -53,7 +53,9 @@ content %}
             <div class="ui button" id="nextQuestionBtn" onclick="NextQuestion();" style="float: right;">Next <i class="right arrow icon"></i></div>
         </div>
         <div class="sixteen wide column">
-            <div class="ui button green icon" style="float: right;" id="submitBtn"><i class="icon check"></i> Submit Answers</div>
+        <form method="POST" action="/quiz/{{quiz_id}}">
+            <input value="Submit Answers" type="submit" class="ui button green icon" style="float: right;" id="submitBtn"><i class="icon check"></i>
+        </form>
         </div>
     </div>
 </div>
