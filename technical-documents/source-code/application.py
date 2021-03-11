@@ -8,6 +8,7 @@ import re
 import sqlite3
 import uuid
 from datetime import date, datetime
+from random import sample
 from string import capwords
 from typing import Tuple, List
 from urllib.parse import parse_qs
@@ -210,6 +211,7 @@ def quizzes() -> object:
 
 @application.route("/quiz/<quiz_id>", methods=["GET"])
 def quiz(quiz_id: int) -> object:
+    # Gets the quiz details from the database.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
@@ -223,9 +225,39 @@ def quiz(quiz_id: int) -> object:
             "question_4_ans_4, question_5, question_5_ans_1, "
             "question_5_ans_2, question_5_ans_3, question_5_ans_4, privacy "
             "FROM Quiz WHERE quiz_id=?;", (quiz_id,))
-        if cur.fetchone() is not None:
-            quiz = cur.fetchall()
-            print(quiz)
+        quiz_details = cur.fetchall()
+        quiz_name = quiz_details[0][0]
+        question_1 = quiz_details[0][3]
+        question_1_options = sample(
+            [quiz_details[0][4], quiz_details[0][5],
+             quiz_details[0][6], quiz_details[0][7]], 4)
+        question_2 = quiz_details[0][8]
+        question_2_options = sample(
+            [quiz_details[0][9], quiz_details[0][10],
+             quiz_details[0][11], quiz_details[0][12]], 4)
+        question_3 = quiz_details[0][13]
+        question_3_options = sample(
+            [quiz_details[0][14], quiz_details[0][15],
+             quiz_details[0][16], quiz_details[0][17]], 4)
+        question_4 = quiz_details[0][18]
+        question_4_options = sample(
+            [quiz_details[0][19], quiz_details[0][20],
+             quiz_details[0][21], quiz_details[0][22]], 4)
+        question_5 = quiz_details[0][23]
+        question_5_options = sample(
+            [quiz_details[0][24], quiz_details[0][25],
+             quiz_details[0][26], quiz_details[0][27]], 4)
+        print(quiz_name)
+        print(question_1)
+        print(question_1_options)
+        print(question_2)
+        print(question_2_options)
+        print(question_3)
+        print(question_3_options)
+        print(question_4)
+        print(question_4_options)
+        print(question_5)
+        print(question_5_options)
 
     return render_template("quiz.html",
                            requestCount=get_connection_request_count())
