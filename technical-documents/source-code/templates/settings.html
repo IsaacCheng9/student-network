@@ -123,7 +123,7 @@
                                 </div>
                                 <div class="field">
                                     <label>Profile Picture</label>
-                                    <input name="file" type="file" id="profile-picture-upload" accept="image/*" oninput='document.getElementById("avatar-file-name").innerHTML = this.value;' />
+                                    <input name="file" type="file" id="profile-picture-upload" accept="image/*" oninput='document.getElementById("avatar-file-name").innerHTML = this.files[0].name;;' />
                                     <label for="profile-picture-upload" class="custom-file-upload ui label">
                                         <i class="upload icon"></i>
                                         Upload
@@ -176,115 +176,100 @@
                                     </div>
                                 </div>
                                 <button class="ui button submit">Save Changes</button>
-                        </form>
-                    </div>
-                    <div class="ui segment" id="socials">
-                        <div class="ui form">
-                            <div class="ui message green">
-                                Only fill in your username, don't use full links.
-                                        <button class="ui button submit">Save Changes</button>
-                                    </div>
-                                </form>
+                            </form>
+                        </div>
 
-                            <div class="ui segment" id="socials">
-                                <form action="/edit_socials" method="POST" class="ui form" name="socials_edit" enctype="multipart/form-data">
-                                    <div class="ui message green">
-                                        Only fill in your username, don't use full links.
-                                    </div>
-                                    <div class="two fields" >
-                                        <div class="field" >
-                                            <label><i class="icon facebook"></i> Facebook</label>
-                                            <input type="text" name="facebook" id="facebook" placeholder="{{socials.facebook}}">
-                                        </div>
-                                        <div class="field">
-                                            <label><i class="icon twitter"></i> Twitter</label>
-                                            <input type="text" name="twitter" id="twitter" placeholder="{{socials.twitter}}">
-                                        </div>
-                                    </div>
-                                    <div class="two fields">
-                                        <div class="field">
-                                            <label><i class="icon linkedin"></i> LinkedIn</label>
-                                            <input type="text"  name="linkedin" id="linkedin" placeholder="{{socials.linkedin}}">
-                                        </div>
-                                        
-                                    </div>
-                                    <div class="two fields">
-                                        <div class="field">
-                                            <label><i class="icon instagram"></i> Instagram</label>
-                                            <input type="text" name="instagram" id="instagram" placeholder="{{socials.instagram}}">
-                                        </div>
-                                        <div class="field">
-                                            <label><i class="icon youtube"></i> YouTube</label>
-                                            <input type="text" name="youtube" id="youtube" placeholder="{{socials.youtube}}">
-                                        </div>
-                                    </div>
-                                    <div class="ui button submit" form="socials_edit">Save Changes</div>
-                                </form>
-                            </div>
-                            <div class="two fields">
-                                <div class="field">
-                                    <label><i class="icon facebook"></i> Facebook</label>
-                                    <input type="text" placeholder="Username">
-                                </div>
-                            </div>
-                            
-                    <div class="ui segment" id="notifications">
-                        Notif
-                    </div>                    
-    
-                            <div class="ui segment" id="privacy">
-                                <form action="/profile_privacy" method="POST" class="ui form" enctype="multipart/form-data">
+                        <div class="ui segment" id="socials">
+                            <form action="/edit_socials" method="POST" class="ui form" name="socials_edit" enctype="multipart/form-data">
+                                <div class="two fields">
                                     <div class="field">
-                                        <label>Select your profile page privacy settings:</label>
-                                        <select name="privacy"  onchange="displayDiv(this)" >
-                                            {% if privacy == "public" %}
-                                                <option value="public" selected >Public</option>
-                                            {%else %}
-                                                <option value="public">Public</option>
-                                            {%endif%}
-    
-                                            {% if privacy == "protected" %}
-                                                <option value="protected" selected >Protected</option>   
-                                            {%else %}
-                                                <option value="protected">Protected</option>
-                                            {%endif%}
-    
-                                            {% if privacy == "close_friends" %}
-                                                <option value="close_friends" selected >Close friends only</option>   
-                                            {%else %}
-                                                <option value="close_friends">Close friends only</option>
-                                            {%endif%}
-    
-                                            {% if privacy == "private" %}
-                                                <option value="private" selected >Private</option>   
-                                            {%else %}
-                                                <option value="private">Private</option>
-                                            {%endif%}
-                                        </select>
+                                        <label><i class="icon facebook"></i> Facebook</label>
+                                        <input type="text" name="facebook" id="facebook" placeholder="{{socials.facebook}}">
                                     </div>
-                                    <button class="ui button submit">Save Changes</button>
-                                </form>
-                            </div>
-                                <div class="ui segment" id="privacy_description" style="display:none;">
-                                    <div id="public" style="display:none;">
-                                        Everyone can view all of your profile page details.
-                                        </div>
-                                    <div id="protected" style="display:none;">
-                                        Only your connections can view your profile page.
-                                        </div>
-                                    <div id="close_friends" style="display:none;">
-                                        Only your close friends can view your profile page.
-                                    </div>
-                                    <div id="private" style="display:none;">
-                                        You are the only one who can view your profile page.
+                                    <div class="field">
+                                        <label><i class="icon twitter"></i> Twitter</label>
+                                        <input type="text" name="twitter" id="twitter" placeholder="{{socials.twitter}}">
                                     </div>
                                 </div>
+                                <div class="two fields">
+                                   <div class="field">
+                                        <label><i class="icon facebook"></i> Facebook</label>
+                                        <input type="text" placeholder="Username">
+                                    </div>
+                                    <div class="field">
+                                        <label><i class="icon linkedin"></i> LinkedIn</label>
+                                        <input type="text" name="linkedin" id="linkedin" placeholder="{{socials.linkedin}}">
+                                    </div>
+
+                                </div>
+                                <div class="two fields">
+                                    <div class="field">
+                                        <label><i class="icon instagram"></i> Instagram</label>
+                                        <input type="text" name="instagram" id="instagram" placeholder="{{socials.instagram}}">
+                                    </div>
+                                    <div class="field">
+                                        <label><i class="icon youtube"></i> YouTube</label>
+                                        <input type="text" name="youtube" id="youtube" placeholder="{{socials.youtube}}">
+                                    </div>
+                                </div>
+                                <div class="ui button submit" form="socials_edit">Save Changes</div>
+                            </form>
+                        </div>
+                        <div class="ui segment" id="notifications">
+                            Notif
+                        </div>
+
+                        <div class="ui segment" id="privacy">
+                            <form action="/profile_privacy" method="POST" class="ui form" enctype="multipart/form-data">
+                                <div class="field">
+                                    <label>Select your profile page privacy settings:</label>
+                                    <select name="privacy" onchange="displayDiv(this)">
+                                        {% if privacy == "public" %}
+                                        <option value="public" selected>Public</option>
+                                        {%else %}
+                                        <option value="public">Public</option>
+                                        {%endif%}
+
+                                        {% if privacy == "protected" %}
+                                        <option value="protected" selected>Protected</option>
+                                        {%else %}
+                                        <option value="protected">Protected</option>
+                                        {%endif%}
+
+                                        {% if privacy == "close_friends" %}
+                                        <option value="close_friends" selected>Close friends only</option>
+                                        {%else %}
+                                        <option value="close_friends">Close friends only</option>
+                                        {%endif%}
+
+                                        {% if privacy == "private" %}
+                                        <option value="private" selected>Private</option>
+                                        {%else %}
+                                        <option value="private">Private</option>
+                                        {%endif%}
+                                    </select>
+                                </div>
+                                <button class="ui button submit">Save Changes</button>
+                            </form>
+                        </div>
+                        <div class="ui segment" id="privacy_description" style="display:none;">
+                            <div id="public" style="display:none;">
+                                Everyone can view all of your profile page details.
+                            </div>
+                            <div id="protected" style="display:none;">
+                                Only your connections can view your profile page.
+                            </div>
+                            <div id="close_friends" style="display:none;">
+                                Only your close friends can view your profile page.
+                            </div>
+                            <div id="private" style="display:none;">
+                                You are the only one who can view your profile page.
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 </body>
 
