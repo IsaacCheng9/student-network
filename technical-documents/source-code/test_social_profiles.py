@@ -41,7 +41,7 @@ def test_invalid_user_profile_route():
 
     with client:
         response = client.get(url, follow_redirects=True)
-        assert request.path == url_for('login_page')
+        assert request.path == url_for('index_page')
 
 def test_valid_profile_route():
     app = application.application
@@ -54,12 +54,3 @@ def test_valid_profile_route():
         response = client.get(url)
         assert response.status_code == 200
         assert request.path == url_for('profile', username='barn354')
-
-def test_invalid_profile_route():
-    app = application.application
-    client = app.test_client()
-    url = '/profile/barn354'
-
-    with client:
-        response = client.get(url, follow_redirects=True)
-        assert request.path == url_for('login_page')
