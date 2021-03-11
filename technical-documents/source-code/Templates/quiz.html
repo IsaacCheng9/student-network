@@ -6,32 +6,53 @@ content %}
         background-color: dimgray !important;
         color: #eaeaea !important;
     }
+
 </style>
 
 <div class="ui segment">
-    <div class="ui grid">        
-       <div class="ui sixteen wide column" style="text-align: center;">
-           <div class="ui statistic">
-               <div class="value">1 <span style="font-size: 0.4em;">/5</span></div>
-           </div>
-       </div>
+    {%for index in range(questions|length)%}
+    <div class="ui grid quiz-question" id="question-{{index}}">
+        <input type="hidden" class="userAnswer" name="userAnswer{{index}}">
+        <div class="ui sixteen wide column" style="text-align: center;">
+            <div class="ui statistic">
+                <div class="value">{{index + 1}} <span style="font-size: 0.4em;">/{{questions|length}}</span></div>
+            </div>
+        </div>
         <div class="ui sixteen wide column">
-            <button class="ui fluid button blue"><h1>What is 2+2?</h1></button>
+            <button class="ui fluid button blue">
+                <h1>{{questions[index]}}</h1>
+            </button>
         </div>
         <div class="ui eight wide column">
-            <button class="ui fluid button gray selectable"><h1>3</h1></button>
+            <button class="ui fluid button gray selectable">
+                <h1>{{answers[index][0]}}</h1>
+            </button>
         </div>
         <div class="ui eight wide column">
-            <button class="ui fluid button gray selectable"><h1>4</h1></button>
+            <button class="ui fluid button gray selectable">
+                <h1>{{answers[index][1]}}</h1>
+            </button>
         </div>
         <div class="ui eight wide column">
-            <button class="ui fluid button gray selectable"><h1>5</h1></button>
+            <button class="ui fluid button gray selectable">
+                <h1>{{answers[index][2]}}</h1>
+            </button>
         </div>
         <div class="ui eight wide column">
-            <button class="ui fluid button gray selectable"><h1>6</h1></button>
+            <button class="ui fluid button gray selectable">
+                <h1>{{answers[index][3]}}</h1>
+            </button>
         </div>
+    </div>
+    {%endfor%}
+    <div class="ui horizontal divider"></div>
+    <div class="ui grid">
         <div class="sixteen wide column" style="text-align: center;">
-            <div class="ui button" id=nextQuestionBtn>Next Question <i class="right arrow icon"></i></div>
+            <div class="ui button" id="prevQuestionBtn" onclick="PreviousQuestion();" style="float: left;"><i class="left arrow icon"></i> Previous</div>
+            <div class="ui button" id="nextQuestionBtn" onclick="NextQuestion();" style="float: right;">Next <i class="right arrow icon"></i></div>
+        </div>
+        <div class="sixteen wide column">
+            <div class="ui button green icon" style="float: right;"><i class="icon check"></i> Submit Answers</div>
         </div>
     </div>
 </div>
@@ -39,15 +60,63 @@ content %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
-    $('.selectable').click(function(){
-        $('.selectable').removeClass("selected");
+    $('.selectable').click(function() {
+        $(this).parent().find(".selectable").removeClass("selected");
         $(this).addClass("selected");
-        
-        $('#nextQuestionBtn').show(300);
+
+        $('#question-' + questionIndex).find(".userAnswer").val($(this).find("h1").html())
     })
-    
-    $('#nextQuestionBtn').hide();
-    
+
+    var questionIndex = 0;
+
+    function Clamp(num, min, max) {
+        if (num < min) return min;
+        if (num > max) return max;
+        return num;
+    }
+
+    function NextQuestion() {
+        questionIndex++;
+        questionIndex = Clamp(questionIndex, 0, 4);
+        DisplayQuestion(questionIndex);
+
+        $('#nextQuestionBtn').prop('disabled', false);
+        $('#prevQuestionBtn').prop('disabled', false);
+
+        $('#nextQuestionBtn').removeClass("disabled");
+        $('#prevQuestionBtn').removeClass("disabled");
+
+        if (questionIndex == 4) {
+            $('#nextQuestionBtn').prop('disabled', true);
+            $('#nextQuestionBtn').addClass("disabled");
+        }
+    }
+
+    function PreviousQuestion() {
+        questionIndex--;
+        questionIndex = Clamp(questionIndex, 0, 4);
+        DisplayQuestion(questionIndex);
+
+        $('#prevQuestionBtn').prop('disabled', false);
+        $('#nextQuestionBtn').prop('disabled', false);
+
+        $('#nextQuestionBtn').removeClass("disabled");
+        $('#prevQuestionBtn').removeClass("disabled");
+
+        if (questionIndex == 0) {
+            $('#prevQuestionBtn').prop('disabled', true);
+            $('#prevQuestionBtn').addClass("disabled");
+        }
+    }
+
+    function DisplayQuestion(index) {
+        $('.quiz-question').hide();
+        $('#question-' + index).show();
+    }
+
+    DisplayQuestion(0);
+    PreviousQuestion();
+
 </script>
 
 {%endblock%}
