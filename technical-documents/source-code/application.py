@@ -1660,7 +1660,7 @@ def edit_profile() -> object:
         cur.execute(
             "SELECT interest FROM UserInterests WHERE username=?",
             (session["username"],))
-        intrests= cur.fetchall()
+        interests= cur.fetchall()
 
         # gets all possible degrees
         cur.execute(
@@ -1677,7 +1677,7 @@ def edit_profile() -> object:
         return render_template("settings.html",
                                requestCount=get_connection_request_count(),
                                date=dob, bio=bio, degrees=degrees, gender=gender, degree=degree, 
-                               privacy=privacy, hobbies=hobbies, intrests=intrests, errors=[])
+                               privacy=privacy, hobbies=hobbies, interests=interests, errors=[])
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -1706,7 +1706,6 @@ def edit_profile() -> object:
         hobbies = [hobby.lower() for hobby in hobbies_unformatted]
         interests_unformatted = interests_input.split(",")
         interests = [interest.lower() for interest in interests_unformatted]
-
         # Connects to the database to perform validation.
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
@@ -1746,6 +1745,13 @@ def edit_profile() -> object:
 
                 # Inserts new hobbies and interests into the database if the
                 # user made a new input.
+                
+                cur.execute("DELETE FROM UserHobby WHERE "
+                                    "username=?;",
+                                    (username,))
+                cur.execute("DELETE FROM UserInterests WHERE "
+                                    "username=?;",
+                                    (username,))
                 if hobbies != [""]:
                     for hobby in hobbies:
                         cur.execute("SELECT hobby FROM UserHobby WHERE "

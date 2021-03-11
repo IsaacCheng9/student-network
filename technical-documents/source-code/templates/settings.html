@@ -46,6 +46,8 @@ filename='styles/semantic.css') }}>
 </head>
 
 <body>
+
+    
     <!-- Page Contents -->
     <div class="pusher">
         <div class="ui container">
@@ -135,18 +137,17 @@ filename='styles/semantic.css') }}>
                                         Use comma to separate the hobbies
                                     </div>
                                     <input name="hobbies_input" type="text"  placeholder="{% if hobbies != none %} {%for item in hobbies%} {{item[0]}}, {%endfor%} {%endif%}" maxlength="24">
+                                    <script src="../static/hobbies.js"></script>
                                     <div class="ui divider hidden"></div>
                                     <div class="ui grid container" name="hobby-div">
-                                        <div class="ui labels teal">
+                                        
                                         {% if hobbies != none %} 
-                                            {% for hobby in hobbies %}
-                                                    <div class="ui label">{{hobby[0]}}<i class="close icon"></i></div>
-                                            
-                                                        
-                                                        {%endfor%}
-                                                {%endif%}
-                                            </div>
-                                        </div>
+                                            {% for i in range(hobbies|length) %}
+                                            <script>addHTag("{{ hobbies[i][0]}}")</script>
+                                            {%endfor%}
+                                        {%endif%}
+
+                                    </div>
 
                                 </div>
                                  <div class="ui divider"></div>
@@ -155,22 +156,19 @@ filename='styles/semantic.css') }}>
                                     <div style="color: grey">
                                         Use comma to separate the interests
                                     </div>
-                                    <input name="interests_input" type="text"maxlength="24" laceholder="{% if hobbies != none %} {%for item in hobbies%} {{item[0]}}, {%endfor%} {%endif%}">
-
+                                    <input name="interests_input" type="text"maxlength="24" placeholder="{% if hobbies != none %} {%for item in hobbies%} {{item[0]}}, {%endfor%} {%endif%}">
+                                    <script src="../static/interests.js"></script>
                                     <div class="ui divider hidden"></div>
                                     <div class="ui grid container" name="interest-div" >
-                                        {% if intrests != none %} 
-                                        <div class=" ui labels teal">
-                                            {% for intrest in intrests%}
-                                                <div class="ui purple label">{{intrest[0]}}<i class="close icon"></i></div>
-                                                {%endfor%}
+                                        {% if interests != none %} 
+                                            {% for i in range(interests|length) %}
+                                            <script>addITag("{{ interests[i][0] }}")</script>
+                                            {%endfor%}
                                         {%endif%}
                                     </div>
                                     </div>
+                                    <button class="ui button submit">Save Changes</button>
                                 </div>
-
-                                <button class="ui button submit">Save Changes</button>
-
                             </form>
                         </div>
                         <div class="ui segment" id="socials">
@@ -329,11 +327,9 @@ filename='styles/semantic.css') }}>
 
 
 
-</script>
 
-<script src="../static/gender.js"></script>
-<script src="../static/hobbies.js"></script>
-<script src="../static/interests.js"></script>
+
+
 
 </html>
 
