@@ -212,8 +212,8 @@ def leaderboard() -> object:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM UserLevel; ")
-        if cur.fetchone() is not None:
-            top_users = cur.fetchall()
+        top_users = cur.fetchall()
+        if top_users is not None:
             total_user_count = len(top_users)
             # 0 = username, 1 = XP value
             top_users.sort(key=lambda x: x[1], reverse=True)
@@ -1413,6 +1413,18 @@ def profile(username: str) -> object:
             (session["username"], 1))
         if cur.fetchone() is None:
             apply_achievement(session["username"], 1)
+
+    # Award achievement ID 23 - Look at you if necessary
+    # Set meeting to True to allow for secret achievement to be earned
+    meeting_now = False                       
+    if session["username"] and meeting_now:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 23))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 23)
+
 
     # Award achievement ID 2 - Looking good if necessary
     if username != session["username"] and session["username"]:
