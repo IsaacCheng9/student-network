@@ -1,3 +1,4 @@
+
 	iTags = [];
 	interestInput = document.getElementsByName('interests_input')[0];
 	iValues = document.createElement('input');
