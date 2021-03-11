@@ -180,6 +180,9 @@
     </div>
 </div>
 
+<div id="postsContainer"></div>
+
+
 {% for post in posts.AllPosts %}
 <div class="ui segment">
     <div class="ui grid stackable">
@@ -187,10 +190,22 @@
             <img src="{{post.profile_pic}}" alt="" class="ui image centered round" style="border-radius: 100%" />
         </div>
         <div class="fifteen wide column">
+            {% if post.account_type == "staff" %}
+            <div class="ui label red">
+                {{ post.author }}
+                <div class="detail">{{ post.account_type }}</div>
+            </div>
+            {% elif post.account_type == "admin" %}
+            <div class="ui label purple">
+                {{ post.author }}
+                <div class="detail">{{ post.account_type }}</div>
+            </div>
+            {% else %}
             <div class="ui label">
                 {{ post.author }}
                 <div class="detail">{{ post.account_type }}</div>
             </div>
+            {% endif %}
             <div style="float: right">{{ post.date_posted }}</div>
         </div>
         <div class="sixteen wide column">
@@ -224,9 +239,10 @@
 -->
         <div class="sixteen wide column">
             <div>{{ post.comment_count }} comments &nbsp;&nbsp; {{ post.like_count }}
-                <i class="heart icon"></i></div>
+                <i class="heart icon"></i>
+            </div>
             {% if post.comment_count > 0 %}
-                <a href="/post_page/{{ post.postId }}">Show all comments</a>
+            <a href="/post_page/{{ post.postId }}">Show all comments</a>
             {% endif %}
             <div class="ui comments">
                 <div class="comment">
@@ -247,7 +263,7 @@
     </div>
 </div>
 {% endfor %}
-<button class="ui button red">Load more posts</button>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
@@ -279,6 +295,100 @@
     document.addEventListener("DOMContentLoaded", function() {
         SelectPostType("text", $("#default-post-btn"), 1);
     });
+
+    var maxPostId = '{{max_id}}';
+
+    function LoadNewPost(post) {
+        var content = ``;
+        
+        if (post.post_type == "Image"){
+            content = `<div class="sixteen wide column">
+                        <img src="${ post.content }" alt="" class="ui image centered" />
+                    </div>`;
+        } else if (post.post_type == "Link"){
+            content = `<div class="sixteen wide column">
+                            <iframe class="ui container" height="600" src="https://www.youtube.com/embed/${ post.content }" loading="lazy" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/${ post.content }?autoplay=1><img src=https://img.youtube.com/vi/${ post.content }/hqdefault.jpg alt='YouTube Thumbnail'><span>▶</span></a>"></iframe>
+                        </div>`;
+        }
+        
+        var html = `<div class="ui segment">
+            <div class="ui grid stackable">
+                <div class="one wide column">
+                    <img src="${post.profile_pic}" alt="" class="ui image centered round" style="border-radius: 100%" />
+                </div>
+                <div class="fifteen wide column">
+                    <div class="ui label">
+                        ${post.author}
+                        <div class="detail">${ post.account_type }</div>
+                    </div>
+                    <div style="float: right">${ post.date_posted }</div>
+                </div>
+                <div class="sixteen wide column">
+                    <h2><a href="/post_page/${ post.postId }">${ post.title }</a></h2>
+                </div>
+                <div class="sixteen wide column">
+                    <div class="ui segment">${ post.body }</div>
+                </div>
+                ${content}
+                <div class="sixteen wide column">
+                    <div>${ post.comment_count } comments &nbsp;&nbsp; ${ post.like_count }
+                        <i class="heart icon"></i></div>
+                    <a href="/post_page/${ post.postId }">Show all comments</a>
+                    <div class="ui comments">
+                        <div class="comment">
+                            <a class="avatar">
+                                <img src="https://via.placeholder.com/200" />
+                            </a>
+                            <div class="content">
+                                <a class="author">Matt</a>
+                                <div class="metadata">
+                                    <span class="date">Today</span>
+                                </div>
+                                <div class="text">I cant figue out how to get each posts comments on the feed</div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="/post_page/${ post.postId }">Write a comment</a>
+                </div>
+            </div>
+        </div>`;
+        
+        document.getElementById("postsContainer").innerHTML += html;
+    }
+
+    var loadingPost = false;
+
+    function LoadPosts(number) {
+        if (loadingPost) return;
+        loadingPost = true;
+        
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var json_response = JSON.parse(this.response);
+                
+                loadingPost = false;
+
+                for (var response of json_response.AllPosts) {
+                    LoadNewPost(response);
+                    maxPostId = Math.min(maxPostId, response.postId-1);
+                }
+            }
+        }
+
+        xhttp.open("GET", "fetch_posts?number="+number+"&starting_id="+maxPostId);
+        xhttp.send();
+    }
+    
+    $(window).on("scroll", function() {
+        var scrollHeight = $(document).height();
+        var scrollPosition = $(window).height() + $(window).scrollTop();
+        if (scrollPosition + 500 >= scrollHeight){
+            LoadPosts(5);
+        }
+    });
+    
+    LoadPosts(5);
 
 </script>
 
