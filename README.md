@@ -88,6 +88,19 @@ it easier to demo the product. This includes the users `barn354` and `ic324`,
 both with password `Password01`, have been set up with a full student profile
 and multiple posts.
 
+The following dummy accounts have been set up:
+
+- `student1`, `student2`, `student3`, and `student4` for student accounts.
+- `staffuser` and `staffusertwo` for staff accounts.
+- `adminuser` for an administrator account.
+
+## Poster
+
+A promotional poster has been designed for this project. It can be found in the
+following GitHub repository path below:
+
+[./product-documents/designs](./product-documents/designs)
+
 ## GitHub Repository
 
 The documentation and source files for our project can be found in our GitHub
