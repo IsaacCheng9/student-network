@@ -217,9 +217,15 @@ def quizzes() -> object:
 
         quizzes = sorted(row, key=lambda x: x[0], reverse=True)
 
-
-    return render_template("quizzes.html",
-                           requestCount=get_connection_request_count(), quizzes=quizzes)
+    # Displays any error messages.
+    if "error" in session:
+        errors = session["error"]
+        session.pop("error", None)
+        return render_template("quizzes.html",
+                               requestCount=get_connection_request_count(), quizzes=quizzes, errors=errors)
+    else:
+        return render_template("quizzes.html",
+                               requestCount=get_connection_request_count(), quizzes=quizzes)
 
 
 @application.route("/quiz/<quiz_id>", methods=["GET", "POST"])
@@ -1218,7 +1224,7 @@ def submit_post() -> object:
                 conn.commit()
         else:
             session["error"] = message
-            return redirect("feed")
+            return redirect("quizzes")
     else:
         post_title = request.form["post_title"]
         post_body = request.form["post_text"]
