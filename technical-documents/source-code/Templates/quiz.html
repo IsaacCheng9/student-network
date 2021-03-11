@@ -15,6 +15,9 @@
         <div class="ui grid quiz-question stackable compact" id="question-{{index}}">
             <input form="submitForm" type="hidden" class="userAnswer" value="" name="userAnswer{{index}}">
             <div class="ui sixteen wide column">
+                <h2>{{quiz_name}}</h2>
+            </div>
+            <div class="ui sixteen wide column">
                 <button class="ui fluid button blue">
                     <h1>{{questions[index]}}</h1>
                 </button>
