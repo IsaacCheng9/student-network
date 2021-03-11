@@ -1082,12 +1082,15 @@ def json_posts():
     number = request.args.get("number")
     starting_id = request.args.get("starting_id")
     content = ""    
-    all_posts, content = fetch_posts(number, starting_id)
+    all_posts, content, valid = fetch_posts(number, starting_id)
     return jsonify(all_posts)
 
 
 def fetch_posts(number, starting_id):
     content = ""
+    all_posts = {
+        "AllPosts": []
+    }
     if "username" in session:
         session["prev-page"] = request.url
         with sqlite3.connect("database.db") as conn:
@@ -1097,21 +1100,20 @@ def fetch_posts(number, starting_id):
             connections.append((session["username"],))
             row = []
             for user in connections:
-                print(user)
+                print("user",user)
                 cur.execute(
                     "SELECT * FROM POSTS "
-                    "WHERE username=? AND postId < ?"
-                    "AND privacy!='private' AND privacy!='close' LIMIT ?;", (user[0], starting_id, number))
+                    "WHERE username=? AND postId <= ?"
+                    "AND privacy!='private' AND privacy!='close' ORDER BY postId DESC LIMIT ?;", (user[0], starting_id, number))
                 row += cur.fetchall()
+                print("row",row)
             # Sort reverse chronologically
             row = sorted(row, key=lambda x: x[0], reverse=True)
             i = 0
-            all_posts = {
-                "AllPosts": []
-            }
+
             # account type differentiation in posts db
             for user_post in row:
-                if i == number:
+                if i == int(number):
                     break
                 add = ""
                 if len(user_post[2]) > 250:
@@ -1162,9 +1164,9 @@ def fetch_posts(number, starting_id):
                     "like_count": like_count,
                 })
                 i += 1
-        return all_posts, content
+        return all_posts, content, True
     else:
-        return False
+        return all_posts, content, False
         
 
 
@@ -1188,11 +1190,14 @@ def feed() -> object:
         connections.append((session["username"],))
         row = []
         cur.execute(
-            "SELECT MAX(post_id) FROM POSTS", (user[0], starting_id, offset))
+            "SELECT MAX(postId) FROM POSTS")
         row = cur.fetchone()
 
     all_posts, content, valid = fetch_posts(2,row[0])
     # Displays any error messages.
+
+    all_posts = []
+
     if valid:
         if "error" in session:
             errors = session["error"]
@@ -1201,13 +1206,13 @@ def feed() -> object:
             return render_template("feed.html", posts=all_posts,
                                     requestCount=get_connection_request_count(),
                                     allUsernames=get_all_usernames(),
-                                    errors=errors, content=content)
+                                    errors=errors, content=content, max_id=row[0])
         else:
             session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
                                     requestCount=get_connection_request_count(),
                                     allUsernames=get_all_usernames(),
-                                    content=content)
+                                    content=content, max_id=row[0])
     else:
         return redirect("/login")
 
