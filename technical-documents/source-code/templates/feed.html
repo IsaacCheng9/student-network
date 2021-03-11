@@ -408,10 +408,17 @@
                 </div>
               </h2>
               <a href="/profile/{{ post.author }}">
+                {% if post.account_type == 'student' %}
                 <div class="ui label blue">
                   {{ post.author }}
                   <div class="detail">{{ post.account_type }}</div>
                 </div>
+                {% else %}
+                <div class="ui label red">
+                  {{ post.author }}
+                  <div class="detail">{{ post.account_type }}</div>
+                </div>
+                {% endif %}
               </a>
               <br>
               {{ post.body }}
