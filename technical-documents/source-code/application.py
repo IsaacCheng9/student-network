@@ -814,7 +814,7 @@ def show_staff_requests() -> object:
                     requests.append(elem[0])
                     
             print(requests)
-            return render_template("admin.html", requests=requests, requestCount=get_connection_request_count())
+            return render_template("admin.html", requests=requests, requestCount=requestCount)
     else:
         return render_template("error.html", message=["You are not logged in to an admin account"], requestCount=get_connection_request_count())
 
@@ -1084,6 +1084,12 @@ def post(post_id: int) -> object:
              account_type, likes, post_type) = (data[0], data[1], data[2],
                                                 data[3], data[4], data[5],
                                                 data[6])
+            
+            cur.execute(
+                "SELECT username FROM ACCOUNTS WHERE username=?;",
+                (session["username"],))
+            user_account_type = cur.fetchone()[0]
+
             if post_type == "Image" or post_type == "Link":
                 cur.execute(
                     "SELECT contentUrl "
@@ -1100,8 +1106,9 @@ def post(post_id: int) -> object:
                 return render_template(
                     "post_page.html", author=author, postId=post_id,
                     title=title, body=body, username=username,
-                    date=date_posted, likes=likes, accountType=account_type,
-                    comments=None, requestCount=get_connection_request_count(),
+                    date=date_posted, likes=likes, account_type=account_type,
+                    user_account_type=user_account_type, comments=None,
+                    requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(),
                     avatar=get_profile_picture(username), type=post_type,
                     content=content)
@@ -1739,23 +1746,21 @@ def profile(username: str) -> object:
                 if conn_type == "close_friend":
                     cur.execute(
                         "SELECT * "
-                        "FROM POSTS WHERE username=? AND (privacy=='close' "
-                        "OR privacy=='protected' OR privacy=='public')",
-                        (username,))
-                    sort_posts = cur.fetchall()
-                elif conn_type == "connected":
-                    cur.execute(
-                        "SELECT * FROM POSTS WHERE username=? "
-                        "AND (privacy!='private' or privacy!='close') ",
+                        "FROM POSTS WHERE username=? AND (privacy!='private')",
                         (username,))
                     sort_posts = cur.fetchall()
                 else:
                     cur.execute(
                         "SELECT * FROM POSTS WHERE username=? "
-                        "AND (privacy!='private' OR privacy!='close' OR "
-                        "privacy!='protected') ",
+                        "AND (privacy!='private' or privacy!='close') ",
                         (username,))
                     sort_posts = cur.fetchall()
+            else:
+                cur.execute(
+                    "SELECT * FROM POSTS WHERE username=? "
+                    "AND (privacy=='public') ",
+                    (username,))
+                sort_posts = cur.fetchall()
 
         # Checks there are any achievements to reward
         # Award achievement ID 1 - Look at you if necessary

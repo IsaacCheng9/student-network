@@ -80,7 +80,7 @@
                         <a href="/profile/{{username}}" class="ui basic image label">
                             <img src="{{avatar}}" />
                             {{username}}
-                            <div class="detail">{{accountType}}</div>
+                            <div class="detail">{{account_type}}</div>
                         </a>
                         <a href="{{url_for('feed')}}" class="right floated meta">Back To Feed</a>
                         <div class="ui horizontal divider hidden"></div>
@@ -133,7 +133,7 @@
                                         <div class="metadata">
                                             <span class="date">{{comment.date}}</span>
                                         </div>
-                                        {% if session["username"] == comment.username %}
+                                        {% if session["username"] == comment.username or user_account_type == "staff" %}
                                         <button type="submit" form="deleteComment{{comment.commentId}}" class="ui mini red button icon">
                                             <i class="small trash alternate outline icon"></i>
                                         </button>
