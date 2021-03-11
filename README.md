@@ -81,7 +81,7 @@ the Quizzes page. From here, you can create a quiz consisting of five
 multiple-choice questions for others to complete. You can also view and take
 part in quizzes made from other people.
 
-## Test Instructions
+## Demo Instructions
 
 For testing purposes, we have created a lot of accounts and sample data to make
 it easier to demo the product. This includes the users `barn354` and `ic324`,
@@ -100,6 +100,28 @@ A promotional poster has been designed for this project. It can be found in the
 following GitHub repository path below:
 
 [./product-documents/designs](./product-documents/designs)
+
+## Tests
+
+All tests have been documented formally in a `.docx` file,
+`Test Documentation.docx`.
+
+### Unit Tests
+
+We have performed unit testing through the `pytest` library in Python. These
+have largely been focused towards auxiliary functions, as these are reused
+repeatedly in the Python application.
+
+### Integration Tests
+
+Integration tests have been performed to ensure that different components of
+our application work together in the system.
+
+### User Acceptance Tests
+
+We have evaluated the success criteria which we created before starting
+development of this project, and how our product aligns with this. This has
+ensured that our product meets the requirements of our stakeholders.
 
 ## GitHub Repository
 
