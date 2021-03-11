@@ -7,12 +7,12 @@ import os
 import re
 import sqlite3
 import uuid
-import re
-from urllib.parse import urlparse
-from urllib.parse import parse_qs
 from datetime import date, datetime
+from random import sample
 from string import capwords
 from typing import Tuple, List
+from urllib.parse import parse_qs
+from urllib.parse import urlparse
 
 from PIL import Image
 from email_validator import validate_email, EmailNotValidError
@@ -209,8 +209,56 @@ def quizzes() -> object:
                            requestCount=get_connection_request_count())
 
 
-@application.route("/quiz", methods=["GET"])
-def quiz() -> object:
+@application.route("/quiz/<quiz_id>", methods=["GET"])
+def quiz(quiz_id: int) -> object:
+    # Gets the quiz details from the database.
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT quiz_name, date_created, author, question_1, "
+            "question_1_ans_1, question_1_ans_2, question_1_ans_3, "
+            "question_1_ans_4, question_2, question_2_ans_1, "
+            "question_2_ans_2, question_2_ans_3, question_2_ans_4, "
+            "question_3, question_3_ans_1, question_3_ans_2, "
+            "question_3_ans_3, question_3_ans_4, question_4, "
+            "question_4_ans_1, question_4_ans_2, question_4_ans_3, "
+            "question_4_ans_4, question_5, question_5_ans_1, "
+            "question_5_ans_2, question_5_ans_3, question_5_ans_4, privacy "
+            "FROM Quiz WHERE quiz_id=?;", (quiz_id,))
+        quiz_details = cur.fetchall()
+        quiz_name = quiz_details[0][0]
+        question_1 = quiz_details[0][3]
+        question_1_options = sample(
+            [quiz_details[0][4], quiz_details[0][5],
+             quiz_details[0][6], quiz_details[0][7]], 4)
+        question_2 = quiz_details[0][8]
+        question_2_options = sample(
+            [quiz_details[0][9], quiz_details[0][10],
+             quiz_details[0][11], quiz_details[0][12]], 4)
+        question_3 = quiz_details[0][13]
+        question_3_options = sample(
+            [quiz_details[0][14], quiz_details[0][15],
+             quiz_details[0][16], quiz_details[0][17]], 4)
+        question_4 = quiz_details[0][18]
+        question_4_options = sample(
+            [quiz_details[0][19], quiz_details[0][20],
+             quiz_details[0][21], quiz_details[0][22]], 4)
+        question_5 = quiz_details[0][23]
+        question_5_options = sample(
+            [quiz_details[0][24], quiz_details[0][25],
+             quiz_details[0][26], quiz_details[0][27]], 4)
+        print(quiz_name)
+        print(question_1)
+        print(question_1_options)
+        print(question_2)
+        print(question_2_options)
+        print(question_3)
+        print(question_3_options)
+        print(question_4)
+        print(question_4_options)
+        print(question_5)
+        print(question_5_options)
+
     return render_template("quiz.html",
                            requestCount=get_connection_request_count())
 
@@ -957,7 +1005,7 @@ def feed() -> object:
                     cur.execute(
                         "SELECT contentUrl "
                         "FROM PostContent WHERE postId=?;", (post_id,))
-                    
+
                     content = cur.fetchone()
                     if content != None:
                         content = content[0]
@@ -1007,9 +1055,9 @@ def submit_post() -> object:
 
     if form_type == "Quiz":
         # Gets quiz details.
-        quiz_name = request.form.get("quiz_name")
         date_created = date.today()
         author = session["username"]
+        quiz_name = request.form.get("quiz_name")
         questions = [[request.form.get("question_1"),
                       request.form.get("question_1_ans_1"),
                       request.form.get("question_1_ans_2"),
@@ -1036,38 +1084,42 @@ def submit_post() -> object:
                       request.form.get("question_5_ans_3"),
                       request.form.get("question_5_ans_4")]]
 
-        valid, message = validate_quiz(questions)
+        print(request.form.get("quiz_name"))
+        print(request.form.get("question_1"))
+
+        valid, message = validate_quiz(quiz_name, questions)
         if valid:
             # Adds quiz to the database.
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
-                cur.execute("INSERT INTO Quiz (quiz_name, date_created, author, question_1, "
-                            "question_1_ans_1, question_1_ans_2, question_1_ans_3, "
-                            "question_1_ans_4, question_2, question_2_ans_1, "
-                            "question_2_ans_2, question_2_ans_3, question_2_ans_4, "
-                            "question_3, question_3_ans_1, question_3_ans_2, "
-                            "question_3_ans_3, question_3_ans_4, question_4, "
-                            "question_4_ans_1, question_4_ans_2, question_4_ans_3, "
-                            "question_4_ans_4, question_5, question_5_ans_1, "
-                            "question_5_ans_2, question_5_ans_3, question_5_ans_4, "
-                            "privacy) "
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-                            "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-                            (
-                                quiz_name, date_created, author, questions[0][0],
-                                questions[0][1], questions[0][2], questions[0][3],
-                                questions[0][4], questions[1][0], questions[1][1],
-                                questions[1][2], questions[1][3], questions[1][4],
-                                questions[2][0], questions[2][1], questions[2][2],
-                                questions[2][3], questions[2][4], questions[3][0],
-                                questions[3][1], questions[3][2], questions[3][3],
-                                questions[3][4], questions[4][0], questions[4][1],
-                                questions[4][2], questions[4][3], questions[4][4],
-                                post_privacy))
+                cur.execute(
+                    "INSERT INTO Quiz (quiz_name, date_created, author, question_1, "
+                    "question_1_ans_1, question_1_ans_2, question_1_ans_3, "
+                    "question_1_ans_4, question_2, question_2_ans_1, "
+                    "question_2_ans_2, question_2_ans_3, question_2_ans_4, "
+                    "question_3, question_3_ans_1, question_3_ans_2, "
+                    "question_3_ans_3, question_3_ans_4, question_4, "
+                    "question_4_ans_1, question_4_ans_2, question_4_ans_3, "
+                    "question_4_ans_4, question_5, question_5_ans_1, "
+                    "question_5_ans_2, question_5_ans_3, question_5_ans_4, "
+                    "privacy) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+                    "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                    (
+                        quiz_name, date_created, author, questions[0][0],
+                        questions[0][1], questions[0][2], questions[0][3],
+                        questions[0][4], questions[1][0], questions[1][1],
+                        questions[1][2], questions[1][3], questions[1][4],
+                        questions[2][0], questions[2][1], questions[2][2],
+                        questions[2][3], questions[2][4], questions[3][0],
+                        questions[3][1], questions[3][2], questions[3][3],
+                        questions[3][4], questions[4][0], questions[4][1],
+                        questions[4][2], questions[4][3], questions[4][4],
+                        post_privacy))
                 conn.commit()
         else:
             session["error"] = message
-            return redirect("feed.html")
+            return redirect("feed")
     else:
         post_title = request.form["post_title"]
         post_body = request.form["post_text"]
@@ -1084,7 +1136,7 @@ def submit_post() -> object:
                     file_name_hashed)
 
                 im = Image.open(file)
-                
+
                 fixed_height = 600
                 height_percent = (fixed_height / float(im.size[1]))
                 width_size = int((float(im.size[0]) * float(height_percent)))
@@ -1101,7 +1153,7 @@ def submit_post() -> object:
 
         elif form_type == "Link":
             link = request.form.get("link")
-            if youtube_validation(link): 
+            if youtube_validation(link):
                 data = urlparse(link)
                 query = parse_qs(data.query)
                 video_id = query["v"][0]
@@ -1172,8 +1224,6 @@ def submit_post() -> object:
             session["error"] = ["You must submit a post title!"]
 
     return redirect("/feed")
-
-
 
 
 def youtube_validation(url):
@@ -2119,11 +2169,12 @@ def validate_edit_profile(
     return valid, message
 
 
-def validate_quiz(questions: list) -> Tuple[bool, List[str]]:
+def validate_quiz(quiz_name: str, questions: list) -> Tuple[bool, List[str]]:
     """
     Validates the quiz creation details which have been input by a user.
 
     Args:
+        quiz_name: The name of the quiz input by the user.
         questions: The quiz question details input by the user.
 
     Returns:
@@ -2132,13 +2183,19 @@ def validate_quiz(questions: list) -> Tuple[bool, List[str]]:
     valid = True
     message = []
 
+    # Checks that a quiz name has been made.
+    if quiz_name.replace(" ", "") == "":
+        valid = False
+        message.append("You must enter a quiz name!")
+
     # Checks that all questions details have been filled in.
     for question in questions:
         for detail in question:
             if detail == "":
                 valid = False
-                message.append("You have not filled in all inputs for questions!")
-                break
+                message.append(
+                    "You have not filled in details for all questions!")
+                return valid, message
 
     return valid, message
 
