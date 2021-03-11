@@ -14,7 +14,7 @@ from typing import Tuple, List
 
 from PIL import Image
 from email_validator import validate_email, EmailNotValidError
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, jsonify
 from passlib.hash import sha256_crypt
 from werkzeug.utils import secure_filename
 
@@ -975,12 +975,19 @@ def search_query():
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         chars = request.args.get('chars')
-        pattern = chars + "%"
-        cur.execute("SELECT * FROM Accounts WHERE username LIKE ? LIMIT 5;",
+        pattern = "%" + chars + "%"
+        cur.execute("SELECT UserProfile.username, Degree.degree FROM UserProfile "
+                    "LEFT JOIN Degree ON Degree.degreeId = UserProfile.degree WHERE username LIKE ? LIMIT 10;",
                 (pattern,))
         row = cur.fetchall()
+
+        row.sort(key=lambda x: x[0])
+        row = list(map(lambda x: (x[0], x[1], get_profile_picture(x[0])), row))
+
         print(json.dumps(row))
-    return json.dumps(row)
+
+    #return json.dumps(row)
+    return jsonify(row)
 
 
 @application.route("/submit_post", methods=["POST"])
