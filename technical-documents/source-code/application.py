@@ -1191,7 +1191,7 @@ def fetch_posts(number, starting_id):
                 post_id = user_post[0]
                 post_type = user_post[8]
 
-                cur.execute("SELECT * FROM Comments WHERE postId=?;", (post_id,))
+                cur.execute("SELECT * FROM Comments WHERE postId=? LIMIT 5;", (post_id,))
                 comments = cur.fetchall()
 
                 comments = list(map(lambda x: (x[0], x[1], x[2], x[3], x[4], get_profile_picture(x[1])), comments))

@@ -337,6 +337,14 @@
                         </div>`;
         }
         
+        var postBody = ``;
+        
+        if (post.body != ""){
+            postBody = `<div class="sixteen wide column">
+                    <div class="ui segment">${ post.body }</div>
+                </div>`;
+        }
+        
         var html = `<div class="ui segment">
             <div class="ui grid stackable">
                 <div class="one wide column">
@@ -352,9 +360,7 @@
                 <div class="sixteen wide column">
                     <h2><a href="/post_page/${ post.postId }">${ post.title }</a></h2>
                 </div>
-                <div class="sixteen wide column">
-                    <div class="ui segment">${ post.body }</div>
-                </div>
+                ${postBody}
                 ${content}
                 <div class="sixteen wide column">
                     <div>${ post.comment_count } comments &nbsp;&nbsp; ${ post.like_count }
