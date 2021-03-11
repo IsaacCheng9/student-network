@@ -1099,12 +1099,19 @@ def submit_post() -> object:
         if post_title != "":
             with sqlite3.connect("database.db") as conn:
                 cur = conn.cursor()
+                # Get account type
+                cur.execute(
+                    "SELECT type FROM ACCOUNTS "
+                    "WHERE username=?;",
+                    (session["username"],))
+                account_type = cur.fetchone()[0]
+
                 cur.execute(
                     "INSERT INTO POSTS (title, body, username, post_type, "
-                    "privacy) VALUES (?, ?, ?, ?, ?);",
+                    "privacy, account_type) VALUES (?, ?, ?, ?, ?, ?);",
                     (
                         post_title, post_body, session["username"],
-                        form_type, post_privacy))
+                        form_type, post_privacy, account_type))
                 conn.commit()
 
                 if form_type == "Image" and valid is True:
@@ -1829,6 +1836,7 @@ def logout() -> object:
         return render_template("login.html")
     return redirect("/")
 
+#Aux functions
 
 def allowed_file(filename) -> bool:
     """
