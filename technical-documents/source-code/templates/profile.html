@@ -176,35 +176,43 @@
 
                 <div class="ui horizontal divider">Socials</div>
                 <div class="ui grid two column container stackable">
+                    
                     <div class="column">
+                        {% if socials.facebook!=Null %}
                         <button class="ui button facebook icon fluid mini"><i class="facebook icon"></i>
                             Facebook
                         </button>
-                    </div>
+                        {%endif%}
+                    </div>               
+                    
                     <div class="column">
-                        <button class="ui button google plus icon fluid mini">
-                            <i class="google icon"></i>
-                            Google
-                        </button>
-                    </div>
-                    <div class="column">
+                        {% if socials.linkedin!=Null %}
                         <button class="ui button linkedin icon fluid mini"><i class="linkedin icon"></i>
                             LinkedIn
                         </button>
+                        {%endif%}
                     </div>
+
                     <div class="column">
-                        <button class="ui button twitter icon fluid mini"><i class="twitter icon"></i> Twitter
-                        </button>
-                    </div>
+                        {% if socials.twitter!=Null %}
+                        <a href="https://twitter.com/{{twitter}}" class="twitter-follow-button" data-size="large" data-show-screen-name="false" data-dnt="true" data-show-count="false">{{twitter}}</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                        {%endif%}
+                    </div>                 
                     <div class="column">
+                        {% if socials.instagram!=Null %}
                         <button class="ui button instagram icon fluid mini"><i class="instagram icon"></i>
                             Instagram
                         </button>
+                        {%endif%}
                     </div>
+
                     <div class="column">
+                        {% if socials.youtube!=Null %}
                         <button class="ui button youtube icon fluid mini"><i class="youtube icon"></i> YouTube
                         </button>
+                        {%endif%}
                     </div>
+                    
                 </div>
             </div>
             <div class="eleven wide column">
@@ -234,10 +242,22 @@
                     </div>
                     <div class="item">
                         <h5>
+                            {% if account_type == "staff" %}
+                            <div class="ui label basic medium red">
+                                @{{username}}
+                                <div class="detail">{{ account_type }}</div>
+                            </div>
+                            {% elif account_type == "admin" %}
+                            <div class="ui label basic medium purple">
+                                @{{username}}
+                                <div class="detail">{{ account_type }}</div>
+                            </div>
+                            {% else %}
                             <div class="ui label basic medium blue">
                                 @{{username}}
-                                <div class="detail">{{account_type}}</div>
+                                <div class="detail">{{ account_type }}</div>
                             </div>
+                            {% endif %}
                         </h5>
                     </div>
                 </div>

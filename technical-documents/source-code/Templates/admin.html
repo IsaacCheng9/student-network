@@ -5,22 +5,25 @@ content %}
     <div class="ui horizontal divider">Staff Account Requests ({{requests|length}})</div>
     <div class="ui middle aligned list">
     {%if requests|length > 0:%}
-        {% for i in range(requests|length) %}
+        {% for request in requests %}
         <div class="item">
             <div class="ui mini buttons right floated">
-                <form action="{{ url_for('accept_connection_request', username=requests[i]) }}" method="GET">
+                <form action="{{ url_for('accept_connection_request', username=request) }}" method="GET">
                     <button class="ui green button tiny">
                         <i class="user icon"></i>
                         Accept
                     </button>
                 </form>
                 <div class="or"></div>
-                <form action="{{ url_for('remove_connection', username=requests[i]) }}" method="GET">
+                <form action="{{ url_for('remove_connection', username=request) }}" method="GET">
                     <button class="ui red button tiny">
                         <i class="user icon"></i>
                         Deny
                     </button>
                 </form>
+            </div>
+            <div class="content">
+                <a href="{{ url_for('profile', username=request) }}">{{ request }}</a>
             </div>
         </div>
         {% endfor %}
