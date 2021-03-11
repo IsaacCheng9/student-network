@@ -818,6 +818,28 @@ def show_staff_requests() -> object:
     else:
         return render_template("error.html", message=["You are not logged in to an admin account"], requestCount=get_connection_request_count())
 
+@application.route("/accept_staff/<username>", methods=["GET", "POST"])
+def accept_staff(username):
+    """
+    Accept user as staff member
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("UPDATE ACCOUNTS SET type=? "
+                    " WHERE username=? ;", ('staff', username))
+    return redirect('/admin')
+
+@application.route("/reject_staff/<username>", methods=["GET", "POST"])
+def reject_staff(username):
+    """
+    Reject user as staff member
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("UPDATE ACCOUNTS SET type=? "
+                    " WHERE username=? ;", ('student', username))
+    return redirect('/admin')
+
 
 @application.route("/terms", methods=["GET", "POST"])
 def terms_page() -> object:
