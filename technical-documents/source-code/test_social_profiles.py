@@ -54,10 +54,10 @@ def test_valid_profile_route():
     app = application.application
     client = app.test_client()
     with client.session_transaction() as session:
-        session["username"] = "barn354"
-    url = "/profile/barn354"
+        session["username"] = "student1"
+    url = "/profile/student1"
 
     with client:
         response = client.get(url)
         assert response.status_code == 200
-        assert request.path == url_for('profile', username='barn354')
+        assert request.path == url_for('profile', username='student1')
