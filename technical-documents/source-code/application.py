@@ -39,7 +39,7 @@ def index_page() -> object:
         return redirect("/profile")
     else:
         session["prev-page"] = request.url
-        return render_template("homepage.html")
+        return render_template("home_page.html")
 
 
 @application.route("/login", methods=["GET"])
