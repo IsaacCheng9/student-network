@@ -209,12 +209,14 @@ def members() -> object:
 def quizzes() -> object:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
+
         cur.execute(
             "SELECT quiz_id, date_created, author, quiz_name FROM Quiz")
 
         row = cur.fetchall()
 
         quiz_posts = sorted(row, key=lambda x: x[0], reverse=True)
+
 
     # Displays any error messages.
     if "error" in session:
@@ -919,6 +921,7 @@ def register_submit() -> object:
     password_confirm = request.form["psw_input_check"]
     email = request.form["email_input"]
     terms = request.form.get("terms")
+    account = request.form.get("optradio")
 
     # Connects to the database to perform validation.
     with sqlite3.connect("database.db") as conn:
@@ -932,7 +935,7 @@ def register_submit() -> object:
             cur.execute(
                 "INSERT INTO Accounts (username, password, email, type) "
                 "VALUES (?, ?, ?, ?);", (username, hash_password, email,
-                                         "student",))
+                                         account,))
             cur.execute(
                 "INSERT INTO UserProfile (username, name, bio, gender, "
                 "birthday, profilepicture) "
