@@ -14,11 +14,6 @@
         {%for index in range(questions|length)%}
         <div class="ui grid quiz-question stackable compact" id="question-{{index}}">
             <input form="submitForm" type="hidden" class="userAnswer" value="" name="userAnswer{{index}}">
-            <div class="ui sixteen wide column" style="text-align: center;">
-                <div class="ui statistic">
-                    <div class="value">{{index + 1}} <span style="font-size: 0.4em;">/{{questions|length}}</span></div>
-                </div>
-            </div>
             <div class="ui sixteen wide column">
                 <button class="ui fluid button blue">
                     <h1>{{questions[index]}}</h1>
@@ -50,11 +45,14 @@
         <div class="ui grid">
             <div class="sixteen wide column" style="text-align: center;">
                 <div class="ui button" id="prevQuestionBtn" onclick="PreviousQuestion();" style="float: left;"><i class="left arrow icon"></i> Previous</div>
+                <div class="ui statistic">
+                    <div class="value" id="questionNumber"></div>
+                </div>
                 <div class="ui button" id="nextQuestionBtn" onclick="NextQuestion();" style="float: right;">Next <i class="right arrow icon"></i></div>
             </div>
             <div class="sixteen wide column">
             <form id="submitForm" method="POST" action="/quiz/{{quiz_id}}">
-                <input value="Submit Answers" type="submit" class="ui button green icon" style="float: right;" id="submitBtn"><i class="icon check"></i>
+                <input value="Submit Answers" type="submit" class="ui button green icon" style="float: right;" id="submitBtn">
             </form>
             </div>
         </div>
@@ -132,6 +130,8 @@
         function DisplayQuestion(index) {
             $('.quiz-question').hide();
             $('#question-' + index).show();
+            
+            $('#questionNumber').html(`${index+1}<span style="font-size: 0.4em;">/${5}</span>`)
         }
     
         DisplayQuestion(0);
