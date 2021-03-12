@@ -1824,6 +1824,10 @@ def profile(username: str) -> object:
         # Award achievement ID 23 - Look at you if necessary
         # Set meeting to allow for secret achievement to be earned
         meeting_now = False
+        today = date.today()
+        if today.month == 3:
+            if today.day > 17 and today.day < 21:
+                meeting_now = True
         if session["username"] and meeting_now:
             cur.execute(
                 "SELECT * FROM CompleteAchievements "
