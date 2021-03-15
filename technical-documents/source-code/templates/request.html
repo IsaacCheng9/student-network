@@ -111,5 +111,31 @@
         {% endfor %}
     </div>
     {%endif%}
+    <div class="ui horizontal divider">Reccomended Connections</div>
+    <div class="ui middle aligned list">
+        {% if mutuals|length > 0 %}
+            {% for i in range(mutuals|length) %}
+            <div class="item">
+                <div class="ui mini buttons right floated">
+                    <form action="{{ url_for('connect_request', username=mutuals[i][0]) }}" method="POST" id="connect-request">
+                        <button class="ui blue button tiny">
+                            <i class="user icon"></i>
+                            Connect
+                        </button>
+                    </form>
+                </div>
+                <img class="ui avatar image" src="{{ mutual_avatars[i] }}" />
+                <div class="content">
+                    <a href="{{ url_for('profile', username=mutuals[i][0]) }}">{{mutuals[i][0]}}</a>
+                    <br>
+                    {% if mutuals[i][2] == "mutual connection" or mutuals[i][2] == "mutual connections" %} {{mutuals[i][1]}} {% endif %}
+                    {{mutuals[i][2]}}
+                </div>
+            </div>
+            {% endfor %}    
+        {% else %}
+            <div class="ui message orange"style="text-align: center;">Try connecting to more people or adding information to your profile to get connection recommendations</div>
+        {%endif%}
+    </div>
 </div>
 {%endblock%}
