@@ -2698,11 +2698,11 @@ def is_close_friend(username: str) -> bool:
 
 def get_recommended_conections(username: str) -> list:
     """
-    Gets recommended connections for a user based on mutual connections
+    Gets recommended connections for a user based on mutual connections and degree
 
     Returns:
         List of mutual connections for a user and the number of
-        shared connections
+        shared connections, as well as users with shared degree
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -2733,8 +2733,11 @@ def get_recommended_conections(username: str) -> list:
             shared_degree = cur.fetchall()
             recommend_type = "Studies " + str(degree[1]) 
             for user in shared_degree:
-                if user[0] != session["username"] and user[0] not in pending:
-                    mutuals = search_list(mutuals, user, recommend_type)
+                if len(mutuals) < 5:
+                    if user[0] != session["username"] and user[0] not in pending:
+                        mutuals = search_list(mutuals, user, recommend_type)
+                else:
+                    break
         
 
         return mutuals
