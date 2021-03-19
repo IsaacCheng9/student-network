@@ -244,6 +244,12 @@
                 </div>
 
                 <div class="ui horizontal divider">Socials</div>
+                <div style="text-align: center;">
+                    {% if socials|length == 0%}
+                    <p>No Socials</p>
+                    {%endif%}
+                </div>
+                {% if socials|length > 0 %}
                 <div class="ui grid two column container stackable">
                     {% if 'facebook' in socials %}  
                     <div class="column">
@@ -280,7 +286,10 @@
                         </button></a>
                     </div>
                     {%endif%}
+   
+
                 </div>
+                {%endif%}
             </div>
             <div class="eleven wide column">
                <div class="ui grid">
