@@ -184,35 +184,31 @@
                                 <div class="two fields">
                                     <div class="field">
                                         <label><i class="icon facebook"></i> Facebook</label>
-                                        <input type="text" name="facebook" id="facebook" placeholder="{{socials.facebook}}">
+                                        <input type="text" name="facebook" id="facebook" placeholder="Full URL" value="{{socials.get('facebook','')}}")>
                                     </div>
                                     <div class="field">
                                         <label><i class="icon twitter"></i> Twitter</label>
-                                        <input type="text" name="twitter" id="twitter" placeholder="{{socials.twitter}}">
+                                        <input type="text" name="twitter" id="twitter" placeholder="Username (eg. joebloggs10)" value="{{socials.get('twitter','')}}">
                                     </div>
                                 </div>
                                 <div class="two fields">
-                                   <div class="field">
-                                        <label><i class="icon facebook"></i> Facebook</label>
-                                        <input type="text" placeholder="Username">
+                                    <div class="field">
+                                        <label><i class="icon youtube"></i> YouTube</label>
+                                        <input type="text" name="youtube" id="youtube" placeholder="Full URL" value="{{socials.get('youtube','')}}">
                                     </div>
                                     <div class="field">
                                         <label><i class="icon linkedin"></i> LinkedIn</label>
-                                        <input type="text" name="linkedin" id="linkedin" placeholder="{{socials.linkedin}}">
+                                        <input type="text" name="linkedin" id="linkedin" placeholder="Username (eg. joebloggs10)" value="{{socials.get('linkedin', '')}}"> 
                                     </div>
 
                                 </div>
                                 <div class="two fields">
                                     <div class="field">
                                         <label><i class="icon instagram"></i> Instagram</label>
-                                        <input type="text" name="instagram" id="instagram" placeholder="{{socials.instagram}}">
-                                    </div>
-                                    <div class="field">
-                                        <label><i class="icon youtube"></i> YouTube</label>
-                                        <input type="text" name="youtube" id="youtube" placeholder="{{socials.youtube}}">
+                                        <input type="text" name="instagram" id="instagram" placeholder="Username (eg. joebloggs10)" value="{{socials.get('instagram','')}}">
                                     </div>
                                 </div>
-                                <div class="ui button submit" form="socials_edit">Save Changes</div>
+                                <input type="submit" class="ui button submit" value = "Save">
                             </form>
                         </div>
                         <div class="ui segment" id="notifications">

@@ -245,43 +245,41 @@
 
                 <div class="ui horizontal divider">Socials</div>
                 <div class="ui grid two column container stackable">
-                    
+                    {% if 'facebook' in socials %}  
                     <div class="column">
-                        {% if socials.facebook!=Null %}
-                        <button class="ui button facebook icon fluid mini"><i class="facebook icon"></i>
+                        <a href="{{ socials['facebook'] }}" target='_blank'></a><button class="ui button facebook icon fluid mini"><i class="facebook icon"></i>
                             Facebook
                         </button>
-                        {%endif%}
-                    </div>               
-                    
+                    </div>  
+                    {%endif%}             
+                    {% if 'linkedin' in socials %}                   
                     <div class="column">
-                        {% if socials.linkedin!=Null %}
-                        <button class="ui button linkedin icon fluid mini"><i class="linkedin icon"></i>
+                        <a href="https://www.linkedin.com/in/{{ socials['linkedin'] }}" target='_blank'><button class="ui button linkedin icon fluid mini"><i class="linkedin icon"></i>
                             LinkedIn
-                        </button>
-                        {%endif%}
+                        </button></a>
                     </div>
-
+                    {%endif%}
+                    {% if 'twitter' in socials %}
                     <div class="column">
-                        {% if socials.twitter!=Null %}
-                        <a href="https://twitter.com/{{twitter}}" class="twitter-follow-button" data-size="large" data-show-screen-name="false" data-dnt="true" data-show-count="false">{{twitter}}</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-                        {%endif%}
-                    </div>                 
+                        <a href="https://www.twitter.com/{{ socials['twitter'] }}" target='_blank'><button class="ui button twitter icon fluid mini"><i class="linkedin icon"></i>
+                            Twitter
+                        </button></a>
+                    </div>       
+                    {%endif%}    
+                    {% if 'instagram' in socials %}      
                     <div class="column">
-                        {% if socials.instagram!=Null %}
-                        <button class="ui button instagram icon fluid mini"><i class="instagram icon"></i>
+                        <a href="https://www.instagram.com/{{ socials['instagram'] }}" target='_blank'><button class="ui button instagram icon fluid mini"><i class="instagram icon"></i>
                             Instagram
-                        </button>
-                        {%endif%}
+                        </button></a>
                     </div>
-
+                    {%endif%}
+                    {% if 'youtube' in socials %}
                     <div class="column">
-                        {% if socials.youtube!=Null %}
-                        <button class="ui button youtube icon fluid mini"><i class="youtube icon"></i> YouTube
-                        </button>
-                        {%endif%}
+                        <a href="{{ socials['youtube'] }}" target='_blank'><button class="ui button youtube icon fluid mini"><i class="linkedin icon"></i>
+                            YouTube
+                        </button></a>
                     </div>
-                    
+                    {%endif%}
                 </div>
             </div>
             <div class="eleven wide column">
