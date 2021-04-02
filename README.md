@@ -15,42 +15,78 @@ Group members (contributors) include:
 - Oskar Oramus
 - Sam Shailer
 
-## Live Deployed Version
+## Installation
 
-This application has been deployed on Amazon Web Services (AWS). You can access
-it with the following link:
+### Python Version
 
-[http://reconnect-env.eba-6cuvfzp3.eu-west-2.elasticbeanstalk.com](http://reconnect-env.eba-6cuvfzp3.eu-west-2.elasticbeanstalk.com)
+The application has been developed and tested to work on Python 3.8 and
+onwards.
 
-## User Guide
+### Python Libraries
+
+This project uses several Python libraries. To run the application locally, you
+should `pip install` the following:
+
+- click
+- email-validator
+- Flask
+- itsdangerous
+- Jinja2
+- MarkupSafe
+- passlib
+- Werkzeug
+- Pillow
+
+For example, you should `pip install passlib`.
+
+### Virtual Environment
+
+Alternatively, a virtual environment has been included in the GitHub
+repository. This includes all the Python libraries required to run the
+application locally.
+
+### Running the Application
+
+To run the application, you should follow the following steps:
+
+1. Clone this GitHub repository.
+2. Navigate to the following directory in your terminal:
+   [./technical-documents/source-code](./technical-documents/source-code).
+3. Ensure that you have the prerequisites to run the application (as explained
+   in the previous section).
+4. Run the application with the command `python application.py`.
+5. Navigate to http://127.0.0.1:5000/ in your web browser.
+
+## Usage
 
 Upon opening the application, you will be greeted with a home page. From here,
 you can log into your existing account, or you can register a new account. It
-should be noted that registration will only work with University of Exeter email
-addresses, and academics will be sent for manual verification after signing up.
+should be noted that registration will only work with University of Exeter
+email addresses, and academics will be sent for manual verification after
+signing up.
 
 When you log in, you will be redirected to your profile page. This displays
-information about you, such as your hobbies, interests, your rarest achievements
-unlocked, and links to your social media profiles. Posts made by you are also
-displayed on this page.
+information about you, such as your hobbies, interests, your rarest
+achievements unlocked, and links to your social media profiles. Posts made by
+you are also displayed on this page.
 
 By default, some details will be filled in for you, such as your profile
 picture, bio, date of birth, and gender. You can edit all these details by
 pressing the 'Edit Profile' button.
 
 To search for other members on the Reconnect network, you can navigate to the
-'Members' page using the navigation bar on the top. From here, you can search by
-the username, with the option of searching by a common hobby and/or interest
-too. Search results will be displayed live with their username and their degree,
-enabling you to visit the profiles of people and make connections.
+'Members' page using the navigation bar on the top. From here, you can search
+by the username, with the option of searching by a common hobby and/or interest
+too. Search results will be displayed live with their username and their
+degree, enabling you to visit the profiles of people and make connections.
 
-Connections may be formed with people, with the option of marking connections as
-close friends. Whereas connections must be accepted by people, you are able to
-mark people as close friends without making a request. This also means that a
-user may be your close friend, but you may not be their close friend; the close
-friend system is one-way. If you wish to limit interaction with another user,
-then you can block them. All these options may be accessed by navigating to a
-user's profile.
+Connections may be formed with people, with the option of marking connections
+as close friends. Whereas connections must be accepted by people, you are able
+to mark people as close friends without making a request. This also means that
+a user may be your close friend, but you may not be their close friend; the
+close friend system is one-way. If you wish to limit interaction with another
+user, then you can block them. All these options may be accessed by navigating
+to a user's profile.
 
 You can view a list of your connections and pending connection requests on the
 Connections page. Users who you have marked as a close friend have an icon of a
@@ -58,17 +94,17 @@ handshake next to them.
 
 On your feed, you can view all the posts of people who you have connected with.
 This is sorted in chronological order, with the newest posts appearing at the
-top. You can also make new posts from this page; these are categorised as a text
-post, an image post, or a link post.
+top. You can also make new posts from this page; these are categorised as a
+text post, an image post, or a link post.
 
 Achievements may be unlocked by performing tasks on the Reconnect network. You
 can view these on the Achievements page, which displays your progress with
 achievements as a percentage, and the achievements you have completed, starting
-from the most recent. This page also shows you which achievements you are yet to
-unlock. Hovering over each achievement shows the title of the achievement,
-description, and number of XP gained by unlocking it. Each of these achievements
-has its own unique icon. Watch out for hidden achievements which are not
-displayed until you unlock them; these will reward you with extra XP!
+from the most recent. This page also shows you which achievements you are yet
+to unlock. Hovering over each achievement shows the title of the achievement,
+description, and number of XP gained by unlocking it. Each of these
+achievements has its own unique icon. Watch out for hidden achievements which
+are not displayed until you unlock them; these will reward you with extra XP!
 
 You will level up your profile based on how much XP you have gained. This
 encourages some healthy competition in the Reconnect network. By interacting
@@ -98,7 +134,7 @@ The following dummy accounts have been set up:
 A promotional poster has been designed for this project. It can be found in the
 following GitHub repository path below:
 
-[./product-documents/designs](./product-documents/designs)
+[./product-documents/designs/poster.pdf](./product-documents/designs/poster.pdf)
 
 ## Tests
 
@@ -113,8 +149,8 @@ repeatedly in the Python application.
 
 ### Integration Tests
 
-Integration tests have been performed to ensure that different components of our
-application work together in the system.
+Integration tests have been performed to ensure that different components of
+our application work together in the system.
 
 ### User Acceptance Tests
 
@@ -149,8 +185,8 @@ found in the following path:
 ### Product Documents
 
 These documents involve requirements analysis, which has been encapsulated
-through our research documents on potential solutions, design thinking plan, and
-MoSCoW matrix.
+through our research documents on potential solutions, design thinking plan,
+and MoSCoW matrix.
 
 They can be found in the following path:
 
@@ -164,44 +200,3 @@ back-end files.
 They can be found in the following path:
 
 [./technical-documents](./technical-documents)
-
-## Prerequisites
-
-### Python Version
-
-The application has been developed and tested to work on Python 3.8 and onwards.
-
-### Python Libraries
-
-This project uses several Python libraries. To run the application locally, you
-should `pip install` the following:
-
-- click
-- email-validator
-- Flask
-- itsdangerous
-- Jinja2
-- MarkupSafe
-- passlib
-- Werkzeug
-- Pillow
-
-For example, you should `pip install passlib`.
-
-### Virtual Environment
-
-Alternatively, a virtual environment has been included in the GitHub repository.
-This includes all the Python libraries required to run the application locally.
-
-## Installation Instructions
-
-If you prefer to run this application locally, you can follow the following
-steps:
-
-1. Clone this GitHub repository.
-2. Navigate to the following directory in your terminal:
-   [./technical-documents/source-code](./technical-documents/source-code).
-3. Ensure that you have the prerequisites to run the application (as explained
-   in the previous section).
-4. Run the application with the command `python application.py`.
-5. Navigate to http://127.0.0.1:5000/ in your web browser.
