@@ -1178,12 +1178,8 @@ def json_posts() -> dict:
     Returns:
         JSON dictionary file for posts.
     """
-    all_posts = {
-        "AllPosts": []
-    }
     number = request.args.get("number")
     starting_id = request.args.get("starting_id")
-    content = ""
     all_posts, content, valid = fetch_posts(number, starting_id)
     return jsonify(all_posts)
 
@@ -1196,17 +1192,12 @@ def feed() -> object:
     Returns:
         Redirection to their feed if they're logged in.
     """
-    all_posts = {
-        "AllPosts": []
-    }
-    content = ""
     session["prev-page"] = request.url
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
 
         connections = get_all_connections(session["username"])
         connections.append((session["username"],))
-        row = []
         cur.execute(
             "SELECT MAX(postId) FROM POSTS")
         row = cur.fetchone()
@@ -1368,13 +1359,15 @@ def submit_post() -> object:
                     secure_filename(file.filename)
                     file_name_hashed = str(uuid.uuid4())
                     file_path = os.path.join(
-                        "." + application.config["UPLOAD_FOLDER"] + "//post_imgs",
+                        "." + application.config[
+                            "UPLOAD_FOLDER"] + "//post_imgs",
                         file_name_hashed)
 
                     im = Image.open(file)
                     fixed_height = 600
                     height_percent = (fixed_height / float(im.size[1]))
-                    width_size = int((float(im.size[0]) * float(height_percent)))
+                    width_size = int(
+                        (float(im.size[0]) * float(height_percent)))
                     width_size = min(width_size, 800)
                     im = im.resize((width_size, fixed_height))
                     im = im.convert("RGB")
@@ -1458,7 +1451,8 @@ def submit_post() -> object:
                         apply_achievement(session["username"], 9)
         else:
             # Prints error message stating that the title is missing.
-            session["error"] = ["Make sure all fields are filled in correctly!"]
+            session["error"] = [
+                "Make sure all fields are filled in correctly!"]
 
     return redirect("/feed")
 
@@ -1708,7 +1702,6 @@ def profile(username: str) -> object:
     """
     email = ""
     conn_type = ""
-    sort_posts = []
     hobbies = []
     interests = []
     message = []
@@ -2038,9 +2031,6 @@ def edit_profile() -> object:
                 "degree": item[1]
             })
 
-        socials = {
-            "socials": []
-        }
         # get users social media names
         cur.execute(
             "SELECT * FROM UserSocial", )
