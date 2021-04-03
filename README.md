@@ -4,6 +4,17 @@ A student network which promotes interaction within the University of Exeter's
 student community. This aims to provide social opportunities by encouraging
 students to engage with each other in a fun and friendly online environment.
 
+## Screenshots
+![Profile](https://i.imgur.com/gvVlsvb.png)
+![Member List](https://i.imgur.com/7m3OdIb.png?1)
+![Connection Requests](https://i.imgur.com/mjyQ0it.png?1)
+![Posting to Feed](https://i.imgur.com/Dh43VH6.png?1)
+![Achievements](https://i.imgur.com/9wpoogO.png?1)
+![Leaderboard](https://i.imgur.com/tpaaVpK.png?1)
+![Taking Quizzes](https://i.imgur.com/mxKdQbC.png?1)
+![Quiz Results](https://i.imgur.com/1ox2mcu.png?1)
+
+
 ## Group N - Contributors
 
 Group members (contributors) include:
