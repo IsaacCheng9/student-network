@@ -1,36 +1,40 @@
-{% extends "base.html" %} 
-{% block title %}Staff Account Requests{% endblock %} 
+{% extends "base.html" %} {% block title %}Staff Account Requests{% endblock %}
 {% block content %}
 <div class="ui segment">
-
-    <div class="ui horizontal divider">Staff Account Requests ({{requests|length}})</div>
-    <div class="ui middle aligned list">
-    {%if requests|length > 0:%}
-        {% for request in requests %}
-        <div class="item">
-            <div class="ui mini buttons right floated">
-                <form action="{{ url_for('accept_staff', username=request) }}" method="GET">
-                    <button class="ui green button tiny">
-                        <i class="user icon"></i>
-                        Accept
-                    </button>
-                </form>
-                <div class="or"></div>
-                <form action="{{ url_for('reject_staff', username=request) }}" method="GET">
-                    <button class="ui red button tiny">
-                        <i class="user icon"></i>
-                        Deny
-                    </button>
-                </form>
-            </div>
-            <div class="content">
-                <a href="{{ url_for('profile', username=request) }}">{{ request }}</a>
-            </div>
-        </div>
-        {% endfor %}
-    {%else:%}
+  <div class="ui horizontal divider">
+    Staff Account Requests ({{requests|length}})
+  </div>
+  <div class="ui middle aligned list">
+    {%if requests|length > 0:%} {% for request in requests %}
+    <div class="item">
+      <div class="ui mini buttons right floated">
+        <form
+          action="{{ url_for('accept_staff', username=request) }}"
+          method="GET"
+        >
+          <button class="ui green button tiny">
+            <i class="user icon"></i>
+            Accept
+          </button>
+        </form>
+        <div class="or"></div>
+        <form
+          action="{{ url_for('reject_staff', username=request) }}"
+          method="GET"
+        >
+          <button class="ui red button tiny">
+            <i class="user icon"></i>
+            Deny
+          </button>
+        </form>
+      </div>
+      <div class="content">
+        <a href="{{ url_for('profile', username=request) }}">{{ request }}</a>
+      </div>
+    </div>
+    {% endfor %} {%else:%}
     <h1>No Requests</h1>
     {%endif%}
-    </div>
+  </div>
 </div>
 {%endblock%}

@@ -1,10 +1,8 @@
-{% extends "base.html" %} 
-{% block title %}Error{% endblock %} 
-{% block content %} 
-{% if message %}
+{% extends "base.html" %} {% block title %}Error{% endblock %} {% block content
+%} {% if message %}
 <div class="ui message red">
-    {% for item in message %}
-    <p>{{ item }}</p>
-    {% endfor %}
+  {% for item in message %}
+  <p>{{ item }}</p>
+  {% endfor %}
 </div>
 {% endif %} {% endblock %}

@@ -1,77 +1,71 @@
-{% extends "base.html" %} 
-{% block title %}Privacy Policy{% endblock %} 
-{% block content %}
+{% extends "base.html" %} {% block title %}Privacy Policy{% endblock %} {% block
+content %}
 <div class="ui segment basic">
-    <form action="/privacy_policy" method="POST">
-        <div class="ui card centered" style="min-width: 70%">
-            <div class="content">
-                <div class="header">Privacy Policy</div>
-            </div>
-            <div class="content">
-                <div class="ui form">
-                    <!--<img src="{{ url_for('static', filename='images/GSEP_ToS.png') }}"
+  <form action="/privacy_policy" method="POST">
+    <div class="ui card centered" style="min-width: 70%">
+      <div class="content">
+        <div class="header">Privacy Policy</div>
+      </div>
+      <div class="content">
+        <div class="ui form">
+          <!--<img src="{{ url_for('static', filename='images/GSEP_ToS.png') }}"
                              alt="Terms of Service" style="max-width: 100%">-->
-                    <h1>Group N – (Reconnect) Privacy Policy</h1>
-                    Please read this Privacy Policy carefully before agreeing
-                    to the (Reconnect) terms and conditions. (Reconnect) is
-                    operated by Exeter University Group Software Engineering
-                    Project Group N. The (Reconnect) team is a group of
-                    university computer science students with the goal of
-                    working alongside the Exeter University faculty, and more
-                    importantly the student body, to develop a brand new social
-                    media connecting students through these isolating times. We
-                    wont charge anyone for the use of (Reconnect).
-                    <h2>What Sort of Data Do We Collect?</h2>
-                    <h4>Content You Generate</h4>
-                    We collect content, communications, usage, and other
-                    information you provide when you use the (Reconnect)
-                    network application. This data is stored for the purposes
-                    of usage analysis, demographic analysis, and
-                    recommendations such as relevant content.
-                    <h4>Network and Connections</h4>
-                    We collect information about the people you are ‘connected’
-                    with or ‘close friends’ with and how you interact with them. This
-                    information may used for the purpose of statistics such as
-                    mutual friends, and relevant connection requests.
-                    <h4>Information and Opinions You Provide</h4>
-                    Occasionally, we may provide you with optional surveys
-                    asking for your opinion on certain parts of the (Reconnect)
-                    platform. This data is stored for us to ascertain general
-                    user opinions on our application and hopefully amend it to
-                    fix any issues or parts of the platform users seem unhappy
-                    with.
-                    <h2>Promoting Safety, Integrity, and Security</h2>
-                    We use the information we collect to verify authenticity of
-                    content shared from accounts and promote safety on the
-                    (Reconnect) platform.
-                    <h2>Protecting Your Data</h2>
-                    The (Reconnect) team wants to support you in protecting
-                    your data by helping you understand your rights according
-                    to the General Data Protection Regulation (GDPR). The GDPR
-                    states seven main principles for the lawful processing of
-                    personal data as follows:
-                    <ul>
-                        <li>Lawfulness, Fairness and Transparency</li>
-                        <li>Purpose Limitation</li>
-                        <li>Data Minimisation</li>
-                        <li>Accuracy</li>
-                        <li>Storage Limitation</li>
-                        <li>Integrity and Confidentiality (Security)</li>
-                        <li>Accountability</li>
-                    </ul>
-                    If you have any concerns that your data associated with any
-                    (Reconnect) product is not being processed legally and
-                    securely according to these data protection laws, please
-                    contact our legal team at bg354@exeter.ac.uk.
-                </div>
-                <input
-                    type="submit"
-                    value="Back to Terms of Service"
-                    class="ui button submit"
-                    style="float: right"
-                />
-            </div>
+          <h1>Group N – (Reconnect) Privacy Policy</h1>
+          Please read this Privacy Policy carefully before agreeing to the
+          (Reconnect) terms and conditions. (Reconnect) is operated by Exeter
+          University Group Software Engineering Project Group N. The (Reconnect)
+          team is a group of university computer science students with the goal
+          of working alongside the Exeter University faculty, and more
+          importantly the student body, to develop a brand new social media
+          connecting students through these isolating times. We wont charge
+          anyone for the use of (Reconnect).
+          <h2>What Sort of Data Do We Collect?</h2>
+          <h4>Content You Generate</h4>
+          We collect content, communications, usage, and other information you
+          provide when you use the (Reconnect) network application. This data is
+          stored for the purposes of usage analysis, demographic analysis, and
+          recommendations such as relevant content.
+          <h4>Network and Connections</h4>
+          We collect information about the people you are ‘connected’ with or
+          ‘close friends’ with and how you interact with them. This information
+          may used for the purpose of statistics such as mutual friends, and
+          relevant connection requests.
+          <h4>Information and Opinions You Provide</h4>
+          Occasionally, we may provide you with optional surveys asking for your
+          opinion on certain parts of the (Reconnect) platform. This data is
+          stored for us to ascertain general user opinions on our application
+          and hopefully amend it to fix any issues or parts of the platform
+          users seem unhappy with.
+          <h2>Promoting Safety, Integrity, and Security</h2>
+          We use the information we collect to verify authenticity of content
+          shared from accounts and promote safety on the (Reconnect) platform.
+          <h2>Protecting Your Data</h2>
+          The (Reconnect) team wants to support you in protecting your data by
+          helping you understand your rights according to the General Data
+          Protection Regulation (GDPR). The GDPR states seven main principles
+          for the lawful processing of personal data as follows:
+          <ul>
+            <li>Lawfulness, Fairness and Transparency</li>
+            <li>Purpose Limitation</li>
+            <li>Data Minimisation</li>
+            <li>Accuracy</li>
+            <li>Storage Limitation</li>
+            <li>Integrity and Confidentiality (Security)</li>
+            <li>Accountability</li>
+          </ul>
+          If you have any concerns that your data associated with any
+          (Reconnect) product is not being processed legally and securely
+          according to these data protection laws, please contact our legal team
+          at bg354@exeter.ac.uk.
         </div>
-    </form>
+        <input
+          type="submit"
+          value="Back to Terms of Service"
+          class="ui button submit"
+          style="float: right"
+        />
+      </div>
+    </div>
+  </form>
 </div>
 {%endblock%}
