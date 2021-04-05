@@ -47,6 +47,7 @@ def test_invalid_user_profile_route():
         response = client.get(url, follow_redirects=True)
         assert request.path == url_for('index_page')
 
+
 def test_valid_profile_route():
     """
     Tests whether valid profile routing is handled correctly.

@@ -1,7 +1,7 @@
 import sqlite3
-from flask import Flask
 
 import application
+
 
 def test_invalid_registration():
     """Tests that invalid registration details are rejected."""
@@ -51,6 +51,7 @@ def test_null_registration():
             cur, "", "", "", "", "", "")
         assert valid is False
 
+
 def test_login_route():
     app = application.application
     client = app.test_client()
@@ -58,6 +59,7 @@ def test_login_route():
 
     response = client.get(url)
     assert response.status_code == 200
+
 
 def test_register_route():
     app = application.application
