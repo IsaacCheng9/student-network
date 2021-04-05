@@ -1817,6 +1817,10 @@ def profile(username: str) -> object:
         # Award achievement ID 23 - Look at you if necessary
         # Set meeting to allow for secret achievement to be earned
         meeting_now = False
+        today = date.today()
+        if today.month == 3:
+            if today.day > 17 and today.day < 21:
+                meeting_now = True
         if session["username"] and meeting_now:
             cur.execute(
                 "SELECT * FROM CompleteAchievements "
@@ -1907,27 +1911,7 @@ def profile(username: str) -> object:
     if len(row) > 0:
         email = row[0][0]
 
-    socials = {
-        "socials": []
-    }
-    # Gets the user's socials
-    cur.execute("SELECT * from UserSocial WHERE username=?;",
-                (username,))
-    row = cur.fetchall()
-    if len(row) > 0:
-
-        # get users social media names
-        cur.execute(
-            "SELECT * FROM UserSocial", )
-        socials = cur.fetchall()
-        for item in socials:
-            socials["socials"].append({
-                "twitter": item[0],
-                "facebook": item[1],
-                "youtube": item[2],
-                "instagram": item[3],
-                "linkedin": item[4],
-            })
+    socials = read_socials(username)
 
     # Gets the user's six rarest achievements.
     unlocked_achievements, locked_achievements = get_achievements(username)
@@ -1953,7 +1937,7 @@ def profile(username: str) -> object:
         progress_color = "yellow"
     if percentage_level < 25:
         progress_color = "red"
-
+    print(socials)
     if session.get("username"):
         session["prev-page"] = request.url
         return render_template("profile.html", username=username,
@@ -1987,6 +1971,19 @@ def profile(username: str) -> object:
                                xp_next_level=int(xp_next_level),
                                progress_color=progress_color)
 
+
+def read_socials(username):
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        socials = {}
+        # Gets the user's socials
+        cur.execute("SELECT social, link from UserSocial WHERE username=?;",
+                    (username,))
+        row = cur.fetchall()
+        if len(row) > 0:
+            for item in row:
+                socials[item[0]] = item[1]
+    return socials
 
 @application.route("/edit-profile", methods=["GET", "POST"])
 def edit_profile() -> object:
@@ -2031,19 +2028,7 @@ def edit_profile() -> object:
                 "degree": item[1]
             })
 
-        # get users social media names
-        cur.execute(
-            "SELECT * FROM UserSocial", )
-        socials = cur.fetchall()
-        for item in socials:
-            socials["socials"].append({
-                "twitter": item[0],
-                "facebook": item[1],
-                "youtube": item[2],
-                "google": item[3],
-                "instagram": item[4],
-                "linkedin": item[5],
-            })
+    socials = read_socials(session['username'])
 
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
@@ -2185,18 +2170,23 @@ def edit_socials() -> object:
     Returns:
         The web page for the logged in user's profile page.
     """
-    twitter = request.form.get("twitter")
-    facebook = request.form.get("facebook")
-    youtube = request.form.get("youtube")
-    instagram = request.form.get("instagram")
-    linkedin = request.form.get("linkedin")
+    socials = {}
+    socials['twitter'] = request.form.get("twitter")
+    socials['facebook'] = request.form.get("facebook")
+    socials['youtube'] = request.form.get("youtube")
+    socials['instagram'] = request.form.get("instagram")
+    socials['linkedin'] = request.form.get("linkedin")
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "UPDATE UserSocial SET  twitter=?, facebook=?, youtube=?,"
-            "instagram = ?, linkedin=? WHERE username=?;",
-            (twitter, facebook, youtube, instagram, linkedin,
-             session["username"],))
+            "DELETE FROM UserSocial WHERE username=?;",
+            (session["username"],))
+        for key, value in socials.items():
+            if value is not "":
+                cur.execute(
+                    "INSERT INTO UserSocial (username, social, link) "
+                    "VALUES (?, ?, ?);",
+                    (session["username"], key, value))
 
     return redirect("/profile")
 
