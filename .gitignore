@@ -133,3 +133,6 @@ dmypy.json
 # IntelliJ
 .idea
 identifier.sqlite
+
+# Databases
+.db
