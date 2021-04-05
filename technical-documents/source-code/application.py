@@ -788,10 +788,10 @@ def show_connect_requests() -> object:
         blocked_connections = cur.fetchall()
 
         # Extracts mutual connections.
-        mutuals = get_recommended_conections(session["username"])
-        
+        mutual_connections = get_recommended_connections(session["username"])
+
         mutual_avatars = []
-        for mutual in mutuals:
+        for mutual in mutual_connections:
             mutual_avatars.append(get_profile_picture(mutual[0]))
 
         # Lists usernames of all connected people.
@@ -808,7 +808,8 @@ def show_connect_requests() -> object:
                            requestCount=get_connection_request_count(),
                            connections=connections,
                            pending=pending_connections,
-                           blocked=blocked_connections, mutuals=mutuals,
+                           blocked=blocked_connections,
+                           mutuals=mutual_connections,
                            mutual_avatars=mutual_avatars)
 
 
@@ -1827,7 +1828,7 @@ def profile(username: str) -> object:
         meeting_now = False
         today = date.today()
         if today.month == 3:
-            if today.day > 17 and today.day < 21:
+            if 17 < today.day < 21:
                 meeting_now = True
         if session["username"] and meeting_now:
             cur.execute(
@@ -1992,6 +1993,7 @@ def read_socials(username):
             for item in row:
                 socials[item[0]] = item[1]
     return socials
+
 
 @application.route("/edit-profile", methods=["GET", "POST"])
 def edit_profile() -> object:
@@ -2178,12 +2180,11 @@ def edit_socials() -> object:
     Returns:
         The web page for the logged in user's profile page.
     """
-    socials = {}
-    socials['twitter'] = request.form.get("twitter")
-    socials['facebook'] = request.form.get("facebook")
-    socials['youtube'] = request.form.get("youtube")
-    socials['instagram'] = request.form.get("instagram")
-    socials['linkedin'] = request.form.get("linkedin")
+    socials = {'twitter': request.form.get("twitter"),
+               'facebook': request.form.get("facebook"),
+               'youtube': request.form.get("youtube"),
+               'instagram': request.form.get("instagram"),
+               'linkedin': request.form.get("linkedin")}
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
@@ -2672,13 +2673,15 @@ def is_close_friend(username: str) -> bool:
 
     return False
 
-def get_recommended_conections(username: str) -> list:
+
+def get_recommended_connections(username: str) -> list:
     """
-    Gets recommended connections for a user based on mutual connections and degree
+    Gets recommended connections for a user based on mutual connections and
+    degree.
 
     Returns:
-        List of mutual connections for a user and the number of
-        shared connections, as well as users with shared degree
+        List of mutual connections for a user and the number of shared
+        connections, as well as users with shared degree.
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -2689,47 +2692,52 @@ def get_recommended_conections(username: str) -> list:
             "WHERE user2=? AND connection_type='request'",
             (username, username))
         pending = cur.fetchall()
-        recommend_type = "mutual connection" 
+        recommend_type = "mutual connection"
         for count, pend in enumerate(pending):
             pending[count] = pend[0]
         connections = get_all_connections(username)
-        mutuals = []
+        mutual_connections = []
         for user in connections:
             user_cons = get_all_connections(user[0])
             for mutual in user_cons:
-                if mutual[0] != session["username"] and mutual[0] not in pending:
-                    mutuals = search_list(mutuals, mutual, recommend_type)
-                   
-        if len(mutuals) < 5:
+                if (mutual[0] != session["username"] and
+                        mutual[0] not in pending):
+                    mutual_connections = search_list(mutual_connections,
+                                                     mutual, recommend_type)
+
+        if len(mutual_connections) < 5:
             degree = get_degree(session["username"])
             cur.execute(
                 "SELECT username FROM "
                 "UserProfile WHERE degree=?;",
                 (degree[0],))
             shared_degree = cur.fetchall()
-            recommend_type = "Studies " + str(degree[1]) 
+            recommend_type = "Studies " + str(degree[1])
             for user in shared_degree:
-                if len(mutuals) < 5:
-                    if user[0] != session["username"] and user[0] not in pending:
-                        mutuals = search_list(mutuals, user, recommend_type)
+                if len(mutual_connections) < 5:
+                    if (user[0] != session["username"] and
+                            user[0] not in pending):
+                        mutual_connections = search_list(mutual_connections,
+                                                         user, recommend_type)
                 else:
                     break
-        
 
-        return mutuals
+        return mutual_connections
 
-def search_list(mutuals: list, mutual: str, recommend_type: str):
+
+def search_list(mutual_connections: list, mutual: str, recommend_type: str):
     new = True
-    for count, found in enumerate(mutuals):
+    for count, found in enumerate(mutual_connections):
         if found[0] == mutual[0]:
-            mutuals[count][1] += 1
-            mutuals[count][2] = recommend_type + "s"
+            mutual_connections[count][1] += 1
+            mutual_connections[count][2] = recommend_type + "s"
             new = False
             break
     if new:
-        mutuals.append([mutual[0], 1, recommend_type])
+        mutual_connections.append([mutual[0], 1, recommend_type])
 
-    return mutuals
+    return mutual_connections
+
 
 def validate_edit_profile(
         bio: str, gender: str, dob: str,
@@ -2963,7 +2971,7 @@ def validate_youtube(url: str):
     """
     url_regex = (
         r"(https?://)?(www\.)?"
-        "(youtube|youtu|youtube-nocookie)\.(com)/"
+            "(youtube|youtu|youtube-nocookie)\.(com)/"
         "(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})")
     url_regex_match = re.match(url_regex, url)
 
