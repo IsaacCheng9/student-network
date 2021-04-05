@@ -1946,7 +1946,7 @@ def profile(username: str) -> object:
         progress_color = "yellow"
     if percentage_level < 25:
         progress_color = "red"
-    print(socials)
+
     if session.get("username"):
         session["prev-page"] = request.url
         return render_template("profile.html", username=username,
@@ -2191,7 +2191,7 @@ def edit_socials() -> object:
             "DELETE FROM UserSocial WHERE username=?;",
             (session["username"],))
         for key, value in socials.items():
-            if value is not "":
+            if value != "":
                 cur.execute(
                     "INSERT INTO UserSocial (username, social, link) "
                     "VALUES (?, ?, ?);",
