@@ -4,6 +4,17 @@ A student network which promotes interaction within the University of Exeter's
 student community. This aims to provide social opportunities by encouraging
 students to engage with each other in a fun and friendly online environment.
 
+## Screenshots
+![Profile](https://i.imgur.com/gvVlsvb.png)
+![Member List](https://i.imgur.com/7m3OdIb.png?1)
+![Connection Requests](https://i.imgur.com/mjyQ0it.png?1)
+![Posting to Feed](https://i.imgur.com/Dh43VH6.png?1)
+![Achievements](https://i.imgur.com/9wpoogO.png?1)
+![Leaderboard](https://i.imgur.com/tpaaVpK.png?1)
+![Taking Quizzes](https://i.imgur.com/mxKdQbC.png?1)
+![Quiz Results](https://i.imgur.com/1ox2mcu.png?1)
+
+
 ## Group N - Contributors
 
 Group members (contributors) include:
@@ -15,14 +26,49 @@ Group members (contributors) include:
 - Oskar Oramus
 - Sam Shailer
 
-## Live Deployed Version
+## Installation
 
-This application has been deployed on Amazon Web Services (AWS). You can access
-it with the following link:
+### Python Version
 
-[http://reconnect-env.eba-6cuvfzp3.eu-west-2.elasticbeanstalk.com](http://reconnect-env.eba-6cuvfzp3.eu-west-2.elasticbeanstalk.com)
+The application has been developed and tested to work on Python 3.8 and
+onwards.
 
-## User Guide
+### Python Libraries
+
+This project uses several Python libraries. To run the application locally, you
+should `pip install` the following:
+
+- click
+- email-validator
+- Flask
+- itsdangerous
+- Jinja2
+- MarkupSafe
+- passlib
+- Werkzeug
+- Pillow
+
+For example, you should `pip install passlib`.
+
+### Virtual Environment
+
+Alternatively, a virtual environment has been included in the GitHub
+repository. This includes all the Python libraries required to run the
+application locally.
+
+### Running the Application
+
+To run the application, you should follow the following steps:
+
+1. Clone this GitHub repository.
+2. Navigate to the following directory in your terminal:
+   [./technical-documents/source-code](./technical-documents/source-code).
+3. Ensure that you have the prerequisites to run the application (as explained
+   in the previous section).
+4. Run the application with the command `python application.py`.
+5. Navigate to http://127.0.0.1:5000/ in your web browser.
+
+## Usage
 
 Upon opening the application, you will be greeted with a home page. From here,
 you can log into your existing account, or you can register a new account. It
@@ -99,7 +145,7 @@ The following dummy accounts have been set up:
 A promotional poster has been designed for this project. It can be found in the
 following GitHub repository path below:
 
-[./product-documents/designs](./product-documents/designs)
+[./product-documents/designs/poster.pdf](./product-documents/designs/poster.pdf)
 
 ## Tests
 
@@ -165,33 +211,3 @@ back-end files.
 They can be found in the following path:
 
 [./technical-documents](./technical-documents)
-
-## Prerequisites
-
-### Python Version
-
-The application has been developed and tested to work on Python 3.8 and
-onwards.
-
-### Python Libraries
-
-This project uses several Python libraries. To run the application locally, you
-should `pip install` the following:
-
-- click
-- email-validator
-- Flask
-- itsdangerous
-- Jinja2
-- MarkupSafe
-- passlib
-- Werkzeug
-- Pillow
-
-For example, you should `pip install passlib`.
-
-### Virtual Environment
-
-Alternatively, a virtual environment has been included in the GitHub
-repository. This includes all the Python libraries required to run the
-application locally.
