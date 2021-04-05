@@ -787,6 +787,13 @@ def show_connect_requests() -> object:
             (session["username"], "block"))
         blocked_connections = cur.fetchall()
 
+        # Extracts mutual connections.
+        mutuals = get_recommended_conections(session["username"])
+        
+        mutual_avatars = []
+        for mutual in mutuals:
+            mutual_avatars.append(get_profile_picture(mutual[0]))
+
         # Lists usernames of all connected people.
         connections = connections1 + connections2
         # Adds a close friend to the list, and sorts by close friends first.
@@ -801,7 +808,8 @@ def show_connect_requests() -> object:
                            requestCount=get_connection_request_count(),
                            connections=connections,
                            pending=pending_connections,
-                           blocked=blocked_connections)
+                           blocked=blocked_connections, mutuals=mutuals,
+                           mutual_avatars=mutual_avatars)
 
 
 @application.route("/admin", methods=["GET", "POST"])
@@ -2664,6 +2672,64 @@ def is_close_friend(username: str) -> bool:
 
     return False
 
+def get_recommended_conections(username: str) -> list:
+    """
+    Gets recommended connections for a user based on mutual connections and degree
+
+    Returns:
+        List of mutual connections for a user and the number of
+        shared connections, as well as users with shared degree
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT user2 FROM Connection "
+            "WHERE user1=? AND connection_type='request' UNION ALL "
+            "SELECT user1 FROM Connection "
+            "WHERE user2=? AND connection_type='request'",
+            (username, username))
+        pending = cur.fetchall()
+        recommend_type = "mutual connection" 
+        for count, pend in enumerate(pending):
+            pending[count] = pend[0]
+        connections = get_all_connections(username)
+        mutuals = []
+        for user in connections:
+            user_cons = get_all_connections(user[0])
+            for mutual in user_cons:
+                if mutual[0] != session["username"] and mutual[0] not in pending:
+                    mutuals = search_list(mutuals, mutual, recommend_type)
+                   
+        if len(mutuals) < 5:
+            degree = get_degree(session["username"])
+            cur.execute(
+                "SELECT username FROM "
+                "UserProfile WHERE degree=?;",
+                (degree[0],))
+            shared_degree = cur.fetchall()
+            recommend_type = "Studies " + str(degree[1]) 
+            for user in shared_degree:
+                if len(mutuals) < 5:
+                    if user[0] != session["username"] and user[0] not in pending:
+                        mutuals = search_list(mutuals, user, recommend_type)
+                else:
+                    break
+        
+
+        return mutuals
+
+def search_list(mutuals: list, mutual: str, recommend_type: str):
+    new = True
+    for count, found in enumerate(mutuals):
+        if found[0] == mutual[0]:
+            mutuals[count][1] += 1
+            mutuals[count][2] = recommend_type + "s"
+            new = False
+            break
+    if new:
+        mutuals.append([mutual[0], 1, recommend_type])
+
+    return mutuals
 
 def validate_edit_profile(
         bio: str, gender: str, dob: str,
