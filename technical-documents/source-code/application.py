@@ -2971,7 +2971,7 @@ def validate_youtube(url: str):
     """
     url_regex = (
         r"(https?://)?(www\.)?"
-            "(youtube|youtu|youtube-nocookie)\.(com)/"
+        "(youtube|youtu|youtube-nocookie)\.(com)/"
         "(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})")
     url_regex_match = re.match(url_regex, url)
 
