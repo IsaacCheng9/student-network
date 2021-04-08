@@ -1135,7 +1135,7 @@ def post(post_id: int) -> object:
                 (session["username"],))
             user_account_type = cur.fetchone()[0]
 
-            if post_type == "Image" or post_type == "Link":
+            if post_type in ("Image", "Link"):
                 cur.execute(
                     "SELECT contentUrl "
                     "FROM PostContent WHERE postId=?;", (post_id,))
@@ -1372,15 +1372,15 @@ def submit_post() -> object:
                             "UPLOAD_FOLDER"] + "//post_imgs",
                         file_name_hashed)
 
-                    im = Image.open(file)
+                    img = Image.open(file)
                     fixed_height = 600
-                    height_percent = (fixed_height / float(im.size[1]))
+                    height_percent = (fixed_height / float(img.size[1]))
                     width_size = int(
-                        (float(im.size[0]) * float(height_percent)))
+                        (float(img.size[0]) * float(height_percent)))
                     width_size = min(width_size, 800)
-                    im = im.resize((width_size, fixed_height))
-                    im = im.convert("RGB")
-                    im.save(file_path + ".jpg")
+                    img = img.resize((width_size, fixed_height))
+                    img = img.convert("RGB")
+                    img.save(file_path + ".jpg")
             elif file:
                 valid = False
 
@@ -1982,6 +1982,13 @@ def profile(username: str) -> object:
 
 
 def read_socials(username):
+    """
+    Args:
+        username: The username whose socials to check.
+
+    Returns:
+        The social media accounts of that user.
+    """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         socials = {}
@@ -2057,7 +2064,7 @@ def edit_profile() -> object:
         bio = request.form.get("bio_input")
 
         # Award achievement ID 11 - Describe yourself if necessary
-        if bio != "Change your bio in the settings." and bio != "":
+        if bio not in ("Change your bio in the settings.", ""):
             cur.execute(
                 "SELECT * FROM CompleteAchievements "
                 "WHERE (username=? AND achievement_ID=?);",
@@ -2247,13 +2254,13 @@ def apply_achievement(username: str, achievement_id: int):
         cur.execute(
             "SELECT xp_value FROM Achievements WHERE achievement_ID=?;",
             (achievement_id,))
-        xp = cur.fetchone()[0]
+        exp = cur.fetchone()[0]
         check_level_exists(username, conn)
         cur.execute(
             "UPDATE UserLevel "
             "SET experience = experience + ? "
             "WHERE username=?;",
-            (xp, username))
+            (exp, username))
         conn.commit()
 
 
@@ -2408,7 +2415,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                                                get_profile_picture(x[1])),
                                     comments))
 
-                if post_type == "Image" or post_type == "Link":
+                if post_type in ("Image", "Link"):
                     cur.execute(
                         "SELECT contentUrl "
                         "FROM PostContent WHERE postId=?;", (post_id,))
@@ -2597,13 +2604,13 @@ def get_level(username: str) -> List[int]:
             "UserLevel WHERE username=?;", (username,))
         row = cur.fetchone()
 
-        xp = int(row[0])
-        while xp >= xp_next_level:
+        exp = int(row[0])
+        while exp >= xp_next_level:
             level += 1
-            xp -= xp_next_level
+            exp -= xp_next_level
             xp_next_level += xp_increase_per_level
 
-        return [level, xp, xp_next_level]
+        return [level, exp, xp_next_level]
 
 
 def get_profile_picture(username: str) -> str:
@@ -2718,8 +2725,9 @@ def get_recommended_connections(username: str) -> list:
                     if len(mutual_connections) < 5:
                         if (user[0] != session["username"] and
                                 user[0] not in pending):
-                            mutual_connections = search_list(mutual_connections,
-                                                            user, recommend_type)
+                            mutual_connections = search_list(
+                                mutual_connections,
+                                user, recommend_type)
                     else:
                         break
 
@@ -2727,6 +2735,15 @@ def get_recommended_connections(username: str) -> list:
 
 
 def search_list(mutual_connections: list, mutual: str, recommend_type: str):
+    """
+    Args:
+        mutual_connections: List of mutual connections with the user.
+        mutual: Mutual users based on other mutual connections and degree.
+        recommend_type: Reason why the user is a suggested connection.
+
+    Returns:
+        A list of mutual connections with the user.
+    """
     new = True
     for count, found in enumerate(mutual_connections):
         if found[0] == mutual[0]:
@@ -2950,10 +2967,10 @@ def validate_profile_pic(file) -> Tuple[bool, List[str], str]:
         file_path = os.path.join(
             "." + application.config["UPLOAD_FOLDER"] + "//avatars",
             file_name_hashed)
-        im = Image.open(file)
-        im = im.resize((400, 400))
-        im = im.convert("RGB")
-        im.save(file_path + ".jpg")
+        img = Image.open(file)
+        img = img.resize((400, 400))
+        img = img.convert("RGB")
+        img.save(file_path + ".jpg")
     elif file:
         valid = False
         message.append("Your file must be an image.")
