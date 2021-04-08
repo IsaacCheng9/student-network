@@ -2707,20 +2707,21 @@ def get_recommended_connections(username: str) -> list:
 
         if len(mutual_connections) < 5:
             degree = get_degree(session["username"])
-            cur.execute(
-                "SELECT username FROM "
-                "UserProfile WHERE degree=?;",
-                (degree[0],))
-            shared_degree = cur.fetchall()
-            recommend_type = "Studies " + str(degree[1])
-            for user in shared_degree:
-                if len(mutual_connections) < 5:
-                    if (user[0] != session["username"] and
-                            user[0] not in pending):
-                        mutual_connections = search_list(mutual_connections,
-                                                         user, recommend_type)
-                else:
-                    break
+            if degree[0] != 1:
+                cur.execute(
+                    "SELECT username FROM "
+                    "UserProfile WHERE degree=?;",
+                    (degree[0],))
+                shared_degree = cur.fetchall()
+                recommend_type = "Studies " + str(degree[1])
+                for user in shared_degree:
+                    if len(mutual_connections) < 5:
+                        if (user[0] != session["username"] and
+                                user[0] not in pending):
+                            mutual_connections = search_list(mutual_connections,
+                                                            user, recommend_type)
+                    else:
+                        break
 
         return mutual_connections
 
@@ -2730,7 +2731,8 @@ def search_list(mutual_connections: list, mutual: str, recommend_type: str):
     for count, found in enumerate(mutual_connections):
         if found[0] == mutual[0]:
             mutual_connections[count][1] += 1
-            mutual_connections[count][2] = recommend_type + "s"
+            if recommend_type == "mutual connection":
+                mutual_connections[count][2] = recommend_type + "s"
             new = False
             break
     if new:
