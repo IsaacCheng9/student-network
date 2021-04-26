@@ -15,9 +15,7 @@ students to engage with each other in a fun and friendly online environment.
 ![Quiz Results](https://i.imgur.com/1ox2mcu.png?1)
 
 
-## Group N - Contributors
-
-Group members (contributors) include:
+## Contributors
 
 - Isaac Cheng
 - Ryan Storey
@@ -62,7 +60,7 @@ To run the application, you should follow the following steps:
 
 1. Clone this GitHub repository.
 2. Navigate to the following directory in your terminal:
-   [./technical-documents/source-code](./technical-documents/source-code).
+   [src](src).
 3. Ensure that you have the prerequisites to run the application (as explained
    in the previous section).
 4. Run the application with the command `python application.py`.
@@ -143,14 +141,12 @@ The following dummy accounts have been set up:
 ## Poster
 
 A promotional poster has been designed for this project. It can be found in the
-following GitHub repository path below:
-
-[./product-documents/designs/poster.pdf](./product-documents/designs/poster.pdf)
+following GitHub repository path: [docs/designs/poster.pdf](docs/designs/poster.pdf)
 
 ## Tests
 
-All tests have been documented formally in a `.docx` file,
-`Test Documentation.docx`.
+All tests have been documented formally in a `.docx` file, which can be found
+at the following: [docs/test/Test Documentation.docx](docs/test/Test Documentation.docx)
 
 ### Unit Tests
 
@@ -176,38 +172,22 @@ repository as follows:
 
 [https://github.com/IsaacCheng9/student-network](https://github.com/IsaacCheng9/student-network)
 
-### Process Documents
+### Documentation
 
+#### Kanban Methodology
 Project management is handled using the Kanban methodology through a Trello
 board, which can be found below:
 
 [https://trello.com/b/xnKnkaxg/gsep-group-n](https://trello.com/b/xnKnkaxg/gsep-group-n)
 
 We have taken regular snapshots of the Kanban board in Trello to archive our
-progress. These can be found in the following path of the repository:
+progress. These can be found in the following path of the repository: [docs/kanban-snapshots](docs/kanban-snapshots)
 
-[./process-documents/kanban-snapshots](./process-documents/kanban-snapshots)
-
+#### Meeting Minutes
 In addition, minutes have been recorded for every group meeting. They can be
-found in the following path:
+found in the following path: [docs/meeting-notes](docs/meeting-notes)
 
-[./process-documents/meeting-notes](./process-documents/meeting-notes)
+#### Requirements Analysis
 
-### Product Documents
-
-These documents involve requirements analysis, which has been encapsulated
-through our research documents on potential solutions, design thinking plan,
-and MoSCoW matrix.
-
-They can be found in the following path:
-
-[./product-documents](./product-documents)
-
-### Technical Documents
-
-Technical documents consist of source code, broken down into the front-end and
-back-end files.
-
-They can be found in the following path:
-
-[./technical-documents](./technical-documents)
+Requirements analysis has been encapsulated through our research documents on
+potential solutions, design thinking plan, and MoSCoW matrix.  They can be found in the following path: [docs/requirements-analysis](docs/requirements-analysis)
