@@ -1502,14 +1502,23 @@ def like_post() -> object:
                         " WHERE postId=? ;", (likes, post_id,))
             conn.commit()
 
-            # 1 exp earned for the author of the post
-            check_level_exists(username, conn)
-            cur.execute(
-                "UPDATE UserLevel "
-                "SET experience = experience + ? "
-                "WHERE username=?;",
-                (1, username))
-            conn.commit()
+            cur.execute("SELECT username FROM AllUserLikes WHERE postId=?;",
+                        (post_id,))
+            row = cur.fetchall()
+            names = [x[0] for x in row]
+            print(row, names)
+            if session["username"] not in names:
+                # 1 exp earned for the author of the post
+                check_level_exists(username, conn)
+                cur.execute(
+                    "UPDATE UserLevel "
+                    "SET experience = experience + ? "
+                    "WHERE username=?;",
+                    (1, username))
+                cur.execute("INSERT INTO AllUserLikes (postId,username)"
+                        "VALUES (?, ?);", (post_id, session["username"]))
+                conn.commit()
+
 
             # Award achievement ID 20 - First like if necessary
             cur.execute(
