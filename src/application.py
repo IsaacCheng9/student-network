@@ -309,9 +309,9 @@ def quiz(quiz_id: int) -> object:
                 check_level_exists(quiz_author, conn)
                 cur.execute(
                     "UPDATE UserLevel "
-                    "SET experience = experience + ? "
+                    "SET experience = experience + 1 "
                     "WHERE username=?;",
-                    (1, quiz_author))
+                    (quiz_author,))
                 conn.commit()
             question_feedback = []
             for i in range(5):
@@ -1512,9 +1512,9 @@ def like_post() -> object:
                 check_level_exists(username, conn)
                 cur.execute(
                     "UPDATE UserLevel "
-                    "SET experience = experience + ? "
+                    "SET experience = experience + 1 "
                     "WHERE username=?;",
-                    (1, username))
+                    (username,))
                 cur.execute("INSERT INTO AllUserLikes (postId,username)"
                         "VALUES (?, ?);", (post_id, session["username"]))
                 conn.commit()
