@@ -249,37 +249,30 @@ def quiz(quiz_id: int) -> object:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT quiz_name, date_created, author, question_1, "
-            "question_1_ans_1, question_1_ans_2, question_1_ans_3, "
-            "question_1_ans_4, question_2, question_2_ans_1, "
-            "question_2_ans_2, question_2_ans_3, question_2_ans_4, "
-            "question_3, question_3_ans_1, question_3_ans_2, "
-            "question_3_ans_3, question_3_ans_4, question_4, "
-            "question_4_ans_1, question_4_ans_2, question_4_ans_3, "
-            "question_4_ans_4, question_5, question_5_ans_1, "
-            "question_5_ans_2, question_5_ans_3, question_5_ans_4, privacy "
+            "SELECT * "
             "FROM Quiz WHERE quiz_id=?;", (quiz_id,))
         quiz_details = cur.fetchall()
-        quiz_name = quiz_details[0][0]
-        question_1 = quiz_details[0][3]
+        quiz_name = quiz_details[0][1]
+        quiz_author = quiz_details[0][3]
+        question_1 = quiz_details[0][4]
         question_1_options = sample(
-            [quiz_details[0][4], quiz_details[0][5],
-             quiz_details[0][6], quiz_details[0][7]], 4)
-        question_2 = quiz_details[0][8]
+            [quiz_details[0][5], quiz_details[0][6],
+             quiz_details[0][7], quiz_details[0][8]], 4)
+        question_2 = quiz_details[0][9]
         question_2_options = sample(
-            [quiz_details[0][9], quiz_details[0][10],
+            [quiz_details[0][13], quiz_details[0][10],
              quiz_details[0][11], quiz_details[0][12]], 4)
-        question_3 = quiz_details[0][13]
+        question_3 = quiz_details[0][14]
         question_3_options = sample(
-            [quiz_details[0][14], quiz_details[0][15],
+            [quiz_details[0][18], quiz_details[0][15],
              quiz_details[0][16], quiz_details[0][17]], 4)
-        question_4 = quiz_details[0][18]
+        question_4 = quiz_details[0][19]
         question_4_options = sample(
-            [quiz_details[0][19], quiz_details[0][20],
+            [quiz_details[0][23], quiz_details[0][20],
              quiz_details[0][21], quiz_details[0][22]], 4)
-        question_5 = quiz_details[0][23]
+        question_5 = quiz_details[0][24]
         question_5_options = sample(
-            [quiz_details[0][24], quiz_details[0][25],
+            [quiz_details[0][28], quiz_details[0][25],
              quiz_details[0][26], quiz_details[0][27]], 4)
 
         # Gets a list of questions and answers to pass to the web page.
@@ -293,7 +286,8 @@ def quiz(quiz_id: int) -> object:
         return render_template("quiz.html",
                                requestCount=get_connection_request_count(),
                                quiz_name=quiz_name, quiz_id=quiz_id,
-                               questions=questions, answers=answers)
+                               questions=questions, answers=answers,
+                               quiz_author=quiz_author)
 
     elif request.method == "POST":
         score = 0
@@ -309,9 +303,18 @@ def quiz(quiz_id: int) -> object:
             session["error"] = "You have not answered all the questions!"
             return redirect(session["prev-page"])
         else:
+
+            # 1 exp earned for the author of the quiz
+            check_level_exists(quiz_author, conn)
+            cur.execute(
+                "UPDATE UserLevel "
+                "SET experience = experience + ? "
+                "WHERE username=?;",
+                (1, quiz_author))
+            conn.commit()
             question_feedback = []
             for i in range(5):
-                correct_answer = quiz_details[0][(5 * i) + 4]
+                correct_answer = quiz_details[0][(5 * i) + 5]
                 correct = user_answers[i] == correct_answer
                 question_feedback.append(
                     [questions[i], user_answers[i], correct_answer])
@@ -1496,6 +1499,15 @@ def like_post() -> object:
 
             cur.execute("UPDATE POSTS SET likes=? "
                         " WHERE postId=? ;", (likes, post_id,))
+            conn.commit()
+
+            # 1 exp earned for the author of the post
+            check_level_exists(username, conn)
+            cur.execute(
+                "UPDATE UserLevel "
+                "SET experience = experience + ? "
+                "WHERE username=?;",
+                (1, username))
             conn.commit()
 
             # Award achievement ID 20 - First like if necessary
