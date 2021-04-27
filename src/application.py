@@ -305,13 +305,14 @@ def quiz(quiz_id: int) -> object:
         else:
 
             # 1 exp earned for the author of the quiz
-            check_level_exists(quiz_author, conn)
-            cur.execute(
-                "UPDATE UserLevel "
-                "SET experience = experience + ? "
-                "WHERE username=?;",
-                (1, quiz_author))
-            conn.commit()
+            if quiz_author != session["username"]:
+                check_level_exists(quiz_author, conn)
+                cur.execute(
+                    "UPDATE UserLevel "
+                    "SET experience = experience + ? "
+                    "WHERE username=?;",
+                    (1, quiz_author))
+                conn.commit()
             question_feedback = []
             for i in range(5):
                 correct_answer = quiz_details[0][(5 * i) + 5]
