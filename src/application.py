@@ -217,9 +217,9 @@ def quizzes() -> object:
         cur = conn.cursor()
 
         cur.execute(
-            "SELECT quiz_id, date_created, author, quiz_name FROM Quiz")
+            "SELECT quiz_id, date_created, author, quiz_name, plays FROM Quiz")
         row = cur.fetchall()
-        quiz_posts = sorted(row, key=lambda x: x[0], reverse=True)
+        quiz_posts = sorted(row, key=lambda x: x[4], reverse=True)
 
     # Displays any error messages.
     if "error" in session:
@@ -338,6 +338,13 @@ def quiz(quiz_id: int) -> object:
                     (session["username"], 28))
                 if cur.fetchone() is None:
                     apply_achievement(session["username"], 28)
+
+            cur.execute(
+                "UPDATE Quiz "
+                "SET plays = plays + 1 "
+                "WHERE quiz_id=?;",
+                (quiz_id,))
+            conn.commit()
 
             return render_template("quiz_results.html",
                                    question_feedback=question_feedback,
