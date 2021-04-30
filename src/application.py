@@ -304,7 +304,7 @@ def quiz(quiz_id: int) -> object:
                 if correct:
                     score += 1
 
-            update_quiz_achievements(cur, score)
+            update_quiz_achievements(score)
 
             cur.execute(
                 "UPDATE Quiz "
@@ -1308,7 +1308,7 @@ def submit_comment() -> object:
                 "WHERE postID=?;", (post_id,))
             row = cur.fetchone()[0]
 
-            update_comment_achievements(cur, row, username)
+            update_comment_achievements(row, username)
 
     session["postId"] = post_id
     return redirect("/post_page/" + post_id)
@@ -1499,7 +1499,7 @@ def profile(username: str) -> object:
                     (username,))
                 sort_posts = cur.fetchall()
 
-        update_profile_achievements(cur, username)
+        update_profile_achievements(username)
     else:
         # Only public posts can be viewed when not logged in
         cur.execute(
@@ -1769,7 +1769,7 @@ def edit_profile() -> object:
                          + ".jpg", degree, username,))
                     conn.commit()
 
-                    update_profile_achievements(cur, username)
+                    update_profile_achievements(username)
 
                 else:
                     cur.execute(
@@ -2437,12 +2437,11 @@ def update_close_connection_achievements(cur):
         apply_achievement(session["username"], 13)
 
 
-def update_comment_achievements(cur, row, username):
+def update_comment_achievements(row: int, username: str):
     """
     Unlocks achievements for a user after making a comment.
 
     Args:
-        cur: Cursor for the SQLite database.
         row: Number of comments on the post.
         username: Author of the post.
     """
@@ -2454,7 +2453,7 @@ def update_comment_achievements(cur, row, username):
         apply_achievement(username, 21)
 
 
-def update_connection_achievements(cur, username):
+def update_connection_achievements(cur, username: str):
     """
     Updates achievements after interacting with a connection request.
 
@@ -2507,7 +2506,6 @@ def update_connection_achievements(cur, username):
             set(my_interests) - set(connection_interests))
     if common_interests:
         apply_achievement(session["username"], 16)
-
         # Award achievement ID 16 to connected user
         apply_achievement(username, 16)
 
@@ -2516,7 +2514,6 @@ def update_connection_achievements(cur, username):
             set(my_hobbies) - set(connection_hobbies))
     if common_hobbies:
         apply_achievement(session["username"], 26)
-
         # Award achievement ID 26 to connected user
         apply_achievement(username, 26)
 
@@ -2551,7 +2548,6 @@ def update_connection_achievements(cur, username):
     # Awards achievement ID 14 - Reaching out if necessary.
     if valid_user_count >= 1:
         apply_achievement(session["username"], 14)
-
     # Award achievement ID 14 to connected user
     if valid_user_count2 >= 1:
         apply_achievement(username, 14)
@@ -2559,7 +2555,6 @@ def update_connection_achievements(cur, username):
     # Award achievement ID 15 - Outside your bubble if necessary
     if valid_user_count >= 10:
         apply_achievement(session["username"], 15)
-
     # Award achievement ID 15 to connected user
     if valid_user_count2 >= 10:
         apply_achievement(username, 15)
@@ -2571,11 +2566,9 @@ def update_connection_achievements(cur, username):
     # Award achievement ID 5 - Popular if necessary
     if con_count_user >= 10:
         apply_achievement(session["username"], 5)
-
     # Award achievement ID 5 to connected user
     if con_count_user2 >= 10:
         apply_achievement(username, 5)
-
     # Award achievement ID 6 - Centre of Attention if necessary
     if con_count_user >= 100:
         apply_achievement(session["username"], 6)
@@ -2584,7 +2577,7 @@ def update_connection_achievements(cur, username):
         apply_achievement(username, 6)
 
 
-def update_post_achievements(cur, likes, username):
+def update_post_achievements(cur, likes: int, username: str):
     """
     Unlocks achievements for a user after interaction with a post.
 
@@ -2607,22 +2600,19 @@ def update_post_achievements(cur, likes, username):
     # Award achievement ID 19 - Liking that if necessary
     if row == 1:
         apply_achievement(session["username"], 19)
-
     # Award achievement ID 24 - Show the love if necessary
     elif row == 50:
         apply_achievement(session["username"], 24)
-
     # Award achievement ID 25 - Loving everything if necessary
     elif row == 500:
         apply_achievement(session["username"], 25)
 
 
-def update_profile_achievements(cur, username):
+def update_profile_achievements(username: str):
     """
     Unlocks achievements for a user after interaction with a profile.
 
     Args:
-        cur: Cursor for the SQLite database.
         username: Author of the post.
     """
     # Award achievement ID 1 - Look at you if necessary
@@ -2636,7 +2626,7 @@ def update_profile_achievements(cur, username):
     # Award achievement ID 23 - Secret meeting
     # Set meeting to allow for secret achievement to be earned
     meeting_now = False
-    special_day = (0,0)
+    special_day = (0, 0)
     today = date.today()
     if today.month == special_day[0]:
         if today.day == special_day[1]:
@@ -2645,12 +2635,11 @@ def update_profile_achievements(cur, username):
         apply_achievement(session["username"], 23)
 
 
-def update_quiz_achievements(cur, score):
+def update_quiz_achievements(score: int):
     """
     Updates achievements after completing a quiz.
 
     Args:
-        cur: Cursor for the SQLite database.
         score: Number of correct answers from the quiz.
     """
     # Award achievement ID 27 - Boffin if necessary
@@ -2671,20 +2660,15 @@ def update_submission_achievements(cur):
     # Award achievement ID 7 - Express yourself if necessary
     apply_achievement(session["username"], 7)
 
+    cur.execute(
+        "SELECT * FROM POSTS WHERE username=?;",
+        (session["username"],))
+    num_posts = cur.fetchall()
     # Award achievement ID 8 - 5 posts if necessary
-    cur.execute(
-        "SELECT * FROM POSTS WHERE username=?;",
-        (session["username"],))
-    results = cur.fetchall()
-    if len(results) >= 5:
+    if len(num_posts) >= 5:
         apply_achievement(session["username"], 8)
-
-    # Award achievement ID 9 - 20 posts if necessary
-    cur.execute(
-        "SELECT * FROM POSTS WHERE username=?;",
-        (session["username"],))
-    results = cur.fetchall()
-    if len(results) >= 20:
+    # Award achievement ID 9 - 20 posts, if necessary
+    if len(num_posts) >= 20:
         apply_achievement(session["username"], 9)
 
 
@@ -2734,7 +2718,6 @@ def validate_edit_profile(
             valid = False
             message.append("Hobbies must not exceed 24 characters!")
             break
-
     # Checks that each interest has a maximum of 24 characters.
     for interest in interests:
         if len(interest) > 24:
@@ -2812,7 +2795,6 @@ def validate_registration(
     if username.isalnum() is False:
         message.append("Username must only contain letters and numbers!")
         valid = False
-
     # Checks that the username hasn't already been registered.
     cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
     if cur.fetchone() is not None:
@@ -2823,7 +2805,6 @@ def validate_registration(
     if len(full_name) > 40:
         message.append("Full name exceeds 40 characters!")
         valid = False
-
     # Checks that the full name only contains valid characters.
     if not all(x.isalpha() or x.isspace() for x in full_name):
         message.append("Full name must only contain letters and spaces!")
@@ -2834,7 +2815,6 @@ def validate_registration(
     if cur.fetchone() is not None:
         message.append("Email has already been registered!")
         valid = False
-
     # Checks that the email address has the correct format, checks whether it
     # exists, and isn't a blacklist email.
     try:
@@ -2844,7 +2824,6 @@ def validate_registration(
     except EmailNotValidError:
         message.append("Email is invalid!")
         valid = False
-
     # If the format is valid, checks that the email address has the
     # University of Exeter domain.
     if re.search("@.*", email) is not None:
@@ -2862,7 +2841,6 @@ def validate_registration(
                        "at least eight characters, including at least one "
                        "number.")
         valid = False
-
     # Checks that the passwords match.
     if password != password_confirm:
         message.append("Passwords do not match!")
@@ -2881,7 +2859,7 @@ def validate_profile_pic(file) -> Tuple[bool, List[str], str]:
     Validates the file to check that it's a valid image.
 
     Args:
-        file: The he file uploaded by the user.
+        file: The file uploaded by the user.
 
     Returns:
         Whether the file uploaded is a valid image, and any error messages.
