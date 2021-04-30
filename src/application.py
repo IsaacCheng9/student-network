@@ -20,11 +20,15 @@ from flask import Flask, render_template, request, redirect, session, jsonify
 from passlib.hash import sha256_crypt
 from werkzeug.utils import secure_filename
 
+from flask_socketio import SocketIO
+
 application = Flask(__name__)
 application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
                           "xa2\xa0\x9fR\xa1\xa8")
 application.url_map.strict_slashes = False
 application.config["UPLOAD_FOLDER"] = "/static/images"
+
+socketio = SocketIO(application)
 
 
 @application.route("/", methods=["GET"])
@@ -3024,6 +3028,23 @@ def validate_youtube(url: str):
     url_regex_match = re.match(url_regex, url)
 
     return url_regex_match
+
+@application.route("/chat")
+def chat():
+    return render_template("chat.html",
+                           requestCount=get_connection_request_count(), username=session["username"])
+
+def on_new_chat_message(methods=["GET","POST"]):
+    print("message was received!")
+
+
+@socketio.on("chat_message_event")
+def chat_message_event(json, methods=["GET","POST"]):
+    json["username"] = session["username"]
+    json["isMine"] = session["username"] == json["sender_username"]
+
+    socketio.emit("my response", json, callback=on_new_chat_message)
+
 
 
 if __name__ == "__main__":

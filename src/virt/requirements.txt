@@ -7,3 +7,4 @@ MarkupSafe==1.1.1
 passlib==1.7.4
 Werkzeug==1.0.1
 Pillow==8.1.1
+flask-socketio==5.0.1
