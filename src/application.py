@@ -2495,6 +2495,7 @@ def update_connection_achievements(cur, username):
         (username, 4))
     if cur.fetchone() is None:
         apply_achievement(username, 4)
+
     # Get user interests and hobbies
     cur.execute(
         "SELECT interest FROM UserInterests "
@@ -2539,7 +2540,6 @@ def update_connection_achievements(cur, username):
             (session["username"], 16))
         if cur.fetchone() is None:
             apply_achievement(session["username"], 16)
-
         # Award achievement ID 16 to connected user
         cur.execute(
             "SELECT * FROM CompleteAchievements "
@@ -2547,6 +2547,7 @@ def update_connection_achievements(cur, username):
             (username, 16))
         if cur.fetchone() is None:
             apply_achievement(username, 16)
+
     # Award achievement ID 26 - Shared hobbies if necessary
     common_hobbies = set(my_hobbies) - (
             set(my_hobbies) - set(connection_hobbies))
@@ -2565,6 +2566,7 @@ def update_connection_achievements(cur, username):
             (username, 26))
         if cur.fetchone() is None:
             apply_achievement(username, 26)
+
     # Get connections
     cons_user = get_all_connections(session["username"])
     # Get connections
@@ -2609,6 +2611,7 @@ def update_connection_achievements(cur, username):
             (username, 14))
         if cur.fetchone() is None:
             apply_achievement(username, 14)
+
     # Award achievement ID 15 - Outside your bubble if necessary
     if valid_user_count >= 10:
         cur.execute(
@@ -2625,6 +2628,7 @@ def update_connection_achievements(cur, username):
             (username, 15))
         if cur.fetchone() is None:
             apply_achievement(username, 15)
+
     # Get number of connections
     con_count_user = len(cons_user)
     # Get number of connections
@@ -2637,6 +2641,7 @@ def update_connection_achievements(cur, username):
             (session["username"], 5))
         if cur.fetchone() is None:
             apply_achievement(session["username"], 5)
+
     # Award achievement ID 5 to connected user
     if con_count_user2 >= 10:
         cur.execute(
@@ -2645,6 +2650,7 @@ def update_connection_achievements(cur, username):
             (username, 5))
         if cur.fetchone() is None:
             apply_achievement(username, 5)
+
     # Award achievement ID 6 - Centre of Attention if necessary
     if con_count_user >= 100:
         cur.execute(
@@ -2679,6 +2685,7 @@ def update_post_achievements(cur, likes, username):
         (username, 20))
     if cur.fetchone() is None:
         apply_achievement(username, 20)
+
     # Award achievement ID 22 - Everyone loves you if necessary
     if likes >= 50:
         cur.execute(
@@ -2687,6 +2694,7 @@ def update_post_achievements(cur, likes, username):
             (username, 22))
         if cur.fetchone() is None:
             apply_achievement(username, 22)
+
     # Checks how many posts user has liked.
     cur.execute("SELECT COUNT(postId) FROM UserLikes"
                 " WHERE username=? ;", (session["username"],))
@@ -2735,6 +2743,7 @@ def update_profile_achievements(cur, username):
             (session["username"], 1))
         if cur.fetchone() is None:
             apply_achievement(session["username"], 1)
+
     # Award achievement ID 2 - Looking good if necessary
     if username != session["username"] and session["username"]:
         cur.execute(
@@ -2743,6 +2752,7 @@ def update_profile_achievements(cur, username):
             (session["username"], 2))
         if cur.fetchone() is None:
             apply_achievement(session["username"], 2)
+
     # Award achievement ID 23 - Look at you if necessary
     # Set meeting to allow for secret achievement to be earned
     meeting_now = False
@@ -2757,6 +2767,7 @@ def update_profile_achievements(cur, username):
             (session["username"], 23))
         if cur.fetchone() is None:
             apply_achievement(session["username"], 23)
+
     # Award achievement ID 18 - Show yourself if necessary
     cur.execute(
         "SELECT * FROM CompleteAchievements "
@@ -2781,6 +2792,7 @@ def update_quiz_achievements(cur, score):
         (session["username"], 27))
     if cur.fetchone() is None:
         apply_achievement(session["username"], 27)
+
     # Award achievement ID 28 - Brainiac if necessary
     if score == 5:
         cur.execute(
