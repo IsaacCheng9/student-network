@@ -1436,7 +1436,7 @@ def submit_post() -> object:
                                 (cur.lastrowid, video_id))
                     conn.commit()
 
-                update_achievements(cur)
+                update_submission_achievements(cur)
         else:
             # Prints error message stating that the title is missing.
             session["error"] = [
@@ -1445,9 +1445,9 @@ def submit_post() -> object:
     return redirect("/feed")
 
 
-def update_achievements(cur):
+def update_submission_achievements(cur):
     """
-    Unlocks achievements for a user if they have completed the given task.
+    Unlocks achievements for a user after they make a submission.
 
     Args:
         cur: Cursor for the SQLite database.
@@ -1536,55 +1536,7 @@ def like_post() -> object:
                             "VALUES (?, ?);", (post_id, session["username"]))
                 conn.commit()
 
-            update_achievements(cur)
-            # Award achievement ID 20 - First like if necessary
-            cur.execute(
-                "SELECT * FROM CompleteAchievements "
-                "WHERE (username=? AND achievement_ID=?);",
-                (username, 20))
-            if cur.fetchone() is None:
-                apply_achievement(username, 20)
-
-            # Award achievement ID 22 - Everyone loves you if necessary
-            if likes >= 50:
-                cur.execute(
-                    "SELECT * FROM CompleteAchievements "
-                    "WHERE (username=? AND achievement_ID=?);",
-                    (username, 22))
-                if cur.fetchone() is None:
-                    apply_achievement(username, 22)
-
-            # Checks how many posts user has liked.
-            cur.execute("SELECT COUNT(postId) FROM UserLikes"
-                        " WHERE username=? ;", (session["username"],))
-            row = cur.fetchone()[0]
-
-            # Award achievement ID 19 - Liking that if necessary
-            if row == 1:
-                cur.execute(
-                    "SELECT * FROM CompleteAchievements "
-                    "WHERE (username=? AND achievement_ID=?);",
-                    (session["username"], 19))
-                if cur.fetchone() is None:
-                    apply_achievement(session["username"], 19)
-
-            # Award achievement ID 24 - Show the love if necessary
-            elif row == 50:
-                cur.execute(
-                    "SELECT * FROM CompleteAchievements "
-                    "WHERE (username=? AND achievement_ID=?);",
-                    (session["username"], 24))
-                if cur.fetchone() is None:
-                    apply_achievement(session["username"], 24)
-
-            # Award achievement ID 25 - Loving everything if necessary
-            elif row == 500:
-                cur.execute(
-                    "SELECT * FROM CompleteAchievements "
-                    "WHERE (username=? AND achievement_ID=?);",
-                    (session["username"], 25))
-                if cur.fetchone() is None:
-                    apply_achievement(session["username"], 25)
+            update_post_achievements(cur, likes, username)
         else:
             # Gets number of current likes.
             cur.execute("SELECT likes FROM POSTS WHERE postId=?;",
@@ -1602,6 +1554,62 @@ def like_post() -> object:
             conn.commit()
 
     return redirect("/post_page/" + post_id)
+
+
+def update_post_achievements(cur, likes, username):
+    """
+    Unlocks achievements for a user after interaction with a post.
+
+    Args:
+        cur: Cursor for the SQLite database.
+        likes: Number of likes on the post.
+        username: Author of the post.
+    """
+    # Award achievement ID 20 - First like if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (username, 20))
+    if cur.fetchone() is None:
+        apply_achievement(username, 20)
+    # Award achievement ID 22 - Everyone loves you if necessary
+    if likes >= 50:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (username, 22))
+        if cur.fetchone() is None:
+            apply_achievement(username, 22)
+    # Checks how many posts user has liked.
+    cur.execute("SELECT COUNT(postId) FROM UserLikes"
+                " WHERE username=? ;", (session["username"],))
+    row = cur.fetchone()[0]
+    # Award achievement ID 19 - Liking that if necessary
+    if row == 1:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 19))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 19)
+
+    # Award achievement ID 24 - Show the love if necessary
+    elif row == 50:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 24))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 24)
+
+    # Award achievement ID 25 - Loving everything if necessary
+    elif row == 500:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 25))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 25)
 
 
 @application.route("/submit_comment", methods=["POST"])
@@ -1624,14 +1632,6 @@ def submit_comment() -> object:
                         (post_id, comment_body, session["username"]))
             conn.commit()
 
-            # Award achievement ID 10 - Commentary if necessary
-            cur.execute(
-                "SELECT * FROM CompleteAchievements "
-                "WHERE (username=? AND achievement_ID=?);",
-                (session["username"], 10))
-            if cur.fetchone() is None:
-                apply_achievement(session["username"], 10)
-
             # Get username on post
             cur.execute(
                 "SELECT username FROM POSTS "
@@ -1645,17 +1645,36 @@ def submit_comment() -> object:
                 "WHERE postID=?;", (post_id,))
             row = cur.fetchone()[0]
 
-            # Award achievement ID 21 - Hot topic if necessary
-            if row >= 10:
-                cur.execute(
-                    "SELECT * FROM CompleteAchievements "
-                    "WHERE (username=? AND achievement_ID=?);",
-                    (username, 21))
-                if cur.fetchone() is None:
-                    apply_achievement(username, 21)
+            update_comment_achievements(cur, row, username)
 
     session["postId"] = post_id
     return redirect("/post_page/" + post_id)
+
+
+def update_comment_achievements(cur, row, username):
+    """
+    Unlocks achievements for a user after making a comment.
+
+    Args:
+        cur: Cursor for the SQLite database.
+        row: Number of comments on the post.
+        username: Author of the post.
+    """
+    # Award achievement ID 10 - Commentary if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (session["username"], 10))
+    if cur.fetchone() is None:
+        apply_achievement(session["username"], 10)
+    # Award achievement ID 21 - Hot topic if necessary
+    if row >= 10:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (username, 21))
+        if cur.fetchone() is None:
+            apply_achievement(username, 21)
 
 
 @application.route("/delete_post", methods=["POST"])
