@@ -1436,45 +1436,55 @@ def submit_post() -> object:
                                 (cur.lastrowid, video_id))
                     conn.commit()
 
-                # Award achievement ID 7 - Express yourself if necessary
-                cur.execute(
-                    "SELECT * FROM CompleteAchievements "
-                    "WHERE (username=? AND achievement_ID=?);",
-                    (session["username"], 7))
-                if cur.fetchone() is None:
-                    apply_achievement(session["username"], 7)
-
-                # Award achievement ID 8 - 5 posts if necessary
-                cur.execute(
-                    "SELECT * FROM CompleteAchievements "
-                    "WHERE (username=? AND achievement_ID=?);",
-                    (session["username"], 8))
-                if cur.fetchone() is None:
-                    cur.execute(
-                        "SELECT * FROM POSTS WHERE username=?;",
-                        (session["username"],))
-                    results = cur.fetchall()
-                    if len(results) >= 5:
-                        apply_achievement(session["username"], 8)
-
-                # Award achievement ID 9 - 20 posts if necessary
-                cur.execute(
-                    "SELECT * FROM CompleteAchievements "
-                    "WHERE (username=? AND achievement_ID=?);",
-                    (session["username"], 9))
-                if cur.fetchone() is None:
-                    cur.execute(
-                        "SELECT * FROM POSTS WHERE username=?;",
-                        (session["username"],))
-                    results = cur.fetchall()
-                    if len(results) >= 20:
-                        apply_achievement(session["username"], 9)
+                update_achievements(cur)
         else:
             # Prints error message stating that the title is missing.
             session["error"] = [
                 "Make sure all fields are filled in correctly!"]
 
     return redirect("/feed")
+
+
+def update_achievements(cur):
+    """
+    Unlocks achievements for a user if they have completed the given task.
+
+    Args:
+        cur: Cursor for the SQLite database.
+    """
+    # Award achievement ID 7 - Express yourself if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (session["username"], 7))
+    if cur.fetchone() is None:
+        apply_achievement(session["username"], 7)
+
+    # Award achievement ID 8 - 5 posts if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (session["username"], 8))
+    if cur.fetchone() is None:
+        cur.execute(
+            "SELECT * FROM POSTS WHERE username=?;",
+            (session["username"],))
+        results = cur.fetchall()
+        if len(results) >= 5:
+            apply_achievement(session["username"], 8)
+
+    # Award achievement ID 9 - 20 posts if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (session["username"], 9))
+    if cur.fetchone() is None:
+        cur.execute(
+            "SELECT * FROM POSTS WHERE username=?;",
+            (session["username"],))
+        results = cur.fetchall()
+        if len(results) >= 20:
+            apply_achievement(session["username"], 9)
 
 
 @application.route("/like_post", methods=["POST"])
@@ -1523,10 +1533,10 @@ def like_post() -> object:
                     "WHERE username=?;",
                     (username,))
                 cur.execute("INSERT INTO AllUserLikes (postId,username)"
-                        "VALUES (?, ?);", (post_id, session["username"]))
+                            "VALUES (?, ?);", (post_id, session["username"]))
                 conn.commit()
 
-
+            update_achievements(cur)
             # Award achievement ID 20 - First like if necessary
             cur.execute(
                 "SELECT * FROM CompleteAchievements "
