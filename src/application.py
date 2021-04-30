@@ -3034,16 +3034,17 @@ def chat():
     return render_template("chat.html",
                            requestCount=get_connection_request_count(), username=session["username"])
 
-def on_new_chat_message(methods=["GET","POST"]):
-    print("message was received!")
-
 
 @socketio.on("chat_message_event")
 def chat_message_event(json, methods=["GET","POST"]):
     json["username"] = session["username"]
     json["isMine"] = session["username"] == json["sender_username"]
 
-    socketio.emit("my response", json, callback=on_new_chat_message)
+    socketio.emit("message_received", json)
+
+@socketio.on("chat_typing_event")
+def chat_typing_event(json, methods=["GET","POST"]):
+    socketio.emit("typing_toggle", json)
 
 
 

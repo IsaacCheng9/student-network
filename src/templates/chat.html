@@ -3,8 +3,14 @@ content %}
 
 <style>
     .chat-message-body {
-        width: 45%;
+        max-width: 45%;
         display: block;
+        font-family: "Open Sans";
+    }
+
+    .chat-message-body img {
+        width: 100%;
+        max-height: 25em;
     }
 
     .chat-message-body>.username {
@@ -12,9 +18,14 @@ content %}
     }
 
     .chat-message {
-        background-color: #e8e8e9;
+        background-color: #F0F3F4;
         padding: 1em;
         border-radius: 1em;
+        word-break: break-all;
+    }
+
+    .chat-message-body.right-floated .chat-message {
+        background-color: #D6EAF8;
     }
 
     .left-floated {
@@ -25,14 +36,23 @@ content %}
     .right-floated {
         margin-left: auto;
         margin-right: 1em;
-    }
-
-    .right-floated>.username {
         text-align: right;
     }
 
     .no-resize {
         resize: none !important;
+    }
+
+    #message-container {
+        padding: 1em;
+        height: auto;
+        max-height: 70vh;
+        overflow: auto;
+    }
+
+    #message-container>.row {
+        margin: 0.1em;
+        padding: 0.1em;
     }
 
 </style>
@@ -45,7 +65,7 @@ content %}
             </div>
             <div class="ui horizontal divider"></div>
             <div class="ui grid">
-<!--
+                <!--
                 <div class="ui seven wide column">
                     <img src="https://via.placeholder.com/150" class="ui image rounded fluid" alt="">
                 </div>
@@ -56,26 +76,37 @@ content %}
                     </div>
                 </div>
 -->
-               <div class="ui vertical menu secondary">
-                   <a href="" class="item active">
-                       <img src="https://via.placeholder.com/150" class="ui avatar image" alt="">
-                       Username
-                   </a>
-               </div>
+                <div class="ui vertical menu secondary">
+                    <a href="" class="item active">
+                        <img src="https://via.placeholder.com/150" class="ui avatar image" alt="">
+                        Username
+                    </a>
+                </div>
             </div>
         </div>
         <div class="one wide column"></div>
-        <div class="twelve wide column">
-            <div class="ui grid" id="message-container"></div>
-            <div class="ui horizontal divider"></div>
-            <form class="ui form" method="POST" action="" id="chat-message-form">
-                <div class="field">
-                    <textarea name="" id="" rows="2" class="no-resize"></textarea>
+        <div class="twelve wide column" style="border-left: 1px solid rgb(240, 240, 240);">
+            <div class="ui grid">
+                <div class="sixteen wide column">
+                    <div class="ui grid compact" id="message-container"></div>
                 </div>
-                <div class="field">
-                    <input class="ui button" type="submit" value="Send">
+                <div class="ui horizontal divider"></div>
+                <div class="sixteen wide column">
+                    <div id="typing-text"></div>
+
+                    <form class="ui form" method="POST" action="" id="chat-message-form"></form>
+
+                    <div class="ui input icon fluid">
+                        <i class="icon arrow up"></i>
+                        <input name="" rows=1 class="no-resize" id="message-input" form="chat-message-form" required>
+                    </div>
+                    <div class="ui horizontal list big">
+                        <div class="item"><a href="#"><i class="icon paperclip"></i></a></div>
+                        <div class="item"><a href="#"><i class="icon file image"></i></a></div>
+                        <div class="item"><a href="#"><i class="icon file video"></i></a></div>
+                    </div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
@@ -84,52 +115,122 @@ content %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 
 <script>
-    var socket = io.connect("http://"+document.domain+":"+location.port);
-    
+    var socket = io.connect("http://" + document.domain + ":" + location.port);
+
     const username = '{{username}}';
-    
-    socket.on("connect", function(){
-//        socket.emit("chat_message_event", {
-//            data: "User connected!"
-//        });
-        
-        var form = $('#chat-message-form').on("submit", function(e){
-            var message = $('#chat-message-form textarea').val()
-            
-            if (message.length == 0) return;
-            
+
+    var lastMessageUsername;
+    var sentTypingSocket = false;
+
+    var peopleTyping = [];
+
+    socket.on("connect", function() {
+        //        socket.emit("chat_message_event", {
+        //            data: "User connected!"
+        //        });
+
+        var form = $('#chat-message-form').on("submit", function(e) {
+            var message = $('#message-input').val()
+
+            if (message == "") return;
+
             e.preventDefault();
-            socket.emit( 'chat_message_event', {
-              message : message,
-              sender_username: username
+            socket.emit('chat_message_event', {
+                message: message,
+                sender_username: username
             })
-            $('#chat-message-form textarea').val("").focus()
+            socket.emit('chat_typing_event', {
+                value: false,
+                who: username
+            })
+            $('#message-input').val("").focus()
         })
     })
-    
-    socket.on("my response", function(msg){
+
+    socket.on("message_received", function(msg) {
         NewChatMessage(msg, false);
+        lastMessageUsername = msg.sender_username;
+    })
+
+    socket.on("typing_toggle", function(msg) {
+        var state = msg.value;
+
+        // do not notify that we are typing
+        if (msg.who == username) return;
+
+        if (state) {
+            peopleTyping.push(msg.who);
+        } else {
+            var index = peopleTyping.indexOf(msg.who);
+            if (index > -1) {
+                peopleTyping.splice(index, 1);
+            }
+        }
+
+        var typingText = "";
+        if (peopleTyping.length > 0) {
+            typingText = peopleTyping.join(" and ") + ` ${peopleTyping.length == 1 ? "is" : "are"} typing...`;
+        }
+
+        document.getElementById("typing-text").innerHTML = typingText;
     })
     
-    document.addEventListener("keydown", function(e){
-        if (e.keyCode == 13){
+    $('#message-input').keypress(function(event) {
+        if (event.keyCode == 13) {
+            event.preventDefault();
+        }
+    })
+
+    $('#message-input').on("input", function(event) {
+        var newValue = $(this).val();
+
+        if (newValue.length > 0) {
+            if (!sentTypingSocket) {
+                sentTypingSocket = true;
+
+                socket.emit("chat_typing_event", {
+                    value: true,
+                    who: username
+                });
+            }
+        } else if (sentTypingSocket) {
+            sentTypingSocket = false;
+
+            socket.emit("chat_typing_event", {
+                value: false,
+                who: username
+            });
+        }
+    })
+
+    document.addEventListener("keydown", function(e) {
+        if (e.keyCode == 13) {
             $('#chat-message-form').submit();
         }
     })
-    
-    function NewChatMessage(msg){
+
+    function NewChatMessage(msg) {
         var extra = msg.sender_username == username ? "right-floated" : "left-floated";
+        var usernameHTML = `<div class="username">${msg.username}</div>`;
+
+        if (lastMessageUsername == msg.sender_username) {
+            usernameHTML = "";
+        }
+
         var html = `<div class="row">
                     <div class="chat-message-body ${extra}">
-                        <div class="username">${msg.username}</div>
+                        ${usernameHTML}
                         <div class="chat-message">
                             ${msg.message}
                         </div>
                     </div>
                 </div>`;
-        
+
         document.getElementById("message-container").innerHTML += html;
+        
+        $('#message-container').scrollTop($('#message-container')[0].scrollHeight);
     }
+
 </script>
 
 {% endblock %}
