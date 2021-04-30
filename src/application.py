@@ -100,33 +100,6 @@ def close_connection(username: str) -> object:
     return redirect("/profile/" + username)
 
 
-def update_close_connection_achievements(cur):
-    """
-    Updates achievements after interacting with close connections.
-
-    Args:
-        cur: Cursor for the SQLite database.
-    """
-    # Award achievement ID 12 - Friends if necessary
-    cur.execute(
-        "SELECT * FROM CompleteAchievements "
-        "WHERE (username=? AND achievement_ID=?);",
-        (session["username"], 12))
-    if cur.fetchone() is None:
-        apply_achievement(session["username"], 12)
-    # Award achievement ID 13 - Friend Group if necessary
-    cur.execute(
-        "SELECT * FROM CompleteAchievements "
-        "WHERE (username=? AND achievement_ID=?);",
-        (session["username"], 13))
-    if cur.fetchone() is None:
-        cur.execute(
-            "SELECT * FROM CloseFriend WHERE user1=?;",
-            (session["username"],))
-        if len(cur.fetchall()) >= 10:
-            apply_achievement(session["username"], 13)
-
-
 @application.route("/connect_request/<username>", methods=["GET", "POST"])
 def connect_request(username: str) -> object:
     """
@@ -346,31 +319,6 @@ def quiz(quiz_id: int) -> object:
                                    score=score)
 
 
-def update_quiz_achievements(cur, score):
-    """
-    Updates achievements after completing a quiz.
-
-    Args:
-        cur: Cursor for the SQLite database.
-        score: Number of correct answers from the quiz.
-    """
-    # Award achievement ID 27 - Boffin if necessary
-    cur.execute(
-        "SELECT * FROM CompleteAchievements "
-        "WHERE (username=? AND achievement_ID=?);",
-        (session["username"], 27))
-    if cur.fetchone() is None:
-        apply_achievement(session["username"], 27)
-    # Award achievement ID 28 - Brainiac if necessary
-    if score == 5:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 28))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 28)
-
-
 @application.route("/leaderboard", methods=["GET"])
 def leaderboard() -> object:
     """
@@ -486,196 +434,6 @@ def accept_connection_request(username: str) -> object:
         session["add"] = "You can't connect with yourself!"
 
     return redirect(session["prev-page"])
-
-
-def update_connection_achievements(cur, username):
-    """
-    Updates achievements after interacting with a connection request.
-
-    Args:
-        cur: Cursor for the SQLite database.
-        username: The username of the person who requested a connection.
-    """
-    # Award achievement ID 4 - Connected if necessary
-    cur.execute(
-        "SELECT * FROM CompleteAchievements "
-        "WHERE (username=? AND achievement_ID=?);",
-        (session["username"], 4))
-    if cur.fetchone() is None:
-        apply_achievement(session["username"], 4)
-    # Award achievement ID 4 to connected user
-    cur.execute(
-        "SELECT * FROM CompleteAchievements "
-        "WHERE (username=? AND achievement_ID=?);",
-        (username, 4))
-    if cur.fetchone() is None:
-        apply_achievement(username, 4)
-    # Get user interests and hobbies
-    cur.execute(
-        "SELECT interest FROM UserInterests "
-        "WHERE username=?;",
-        (session["username"],))
-    row = cur.fetchall()
-    my_interests = []
-    for interest in row:
-        my_interests.append(interest[0])
-    cur.execute(
-        "SELECT hobby FROM UserHobby "
-        "WHERE username=?;",
-        (session["username"],))
-    row = cur.fetchall()
-    my_hobbies = []
-    for hobby in row:
-        my_hobbies.append(hobby[0])
-    # Get connected user interests and hobbies
-    cur.execute(
-        "SELECT interest FROM UserInterests "
-        "WHERE username=?;",
-        (username,))
-    row = cur.fetchall()
-    connection_interests = []
-    for interest in row:
-        connection_interests.append(interest[0])
-    cur.execute(
-        "SELECT hobby FROM UserHobby "
-        "WHERE username=?;",
-        (username,))
-    row = cur.fetchall()
-    connection_hobbies = []
-    for hobby in row:
-        connection_hobbies.append(hobby[0])
-    # Awards achievement ID 16 - Shared interests if necessary.
-    common_interests = set(my_interests) - (
-            set(my_interests) - set(connection_interests))
-    if common_interests:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 16))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 16)
-
-        # Award achievement ID 16 to connected user
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (username, 16))
-        if cur.fetchone() is None:
-            apply_achievement(username, 16)
-    # Award achievement ID 26 - Shared hobbies if necessary
-    common_hobbies = set(my_hobbies) - (
-            set(my_hobbies) - set(connection_hobbies))
-    if common_hobbies:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 26))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 26)
-
-        # Award achievement ID 26 to connected user
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (username, 26))
-        if cur.fetchone() is None:
-            apply_achievement(username, 26)
-    # Get connections
-    cons_user = get_all_connections(session["username"])
-    # Get connections
-    cons_user2 = get_all_connections(username)
-    # Get user degree and connections degree
-    degree = get_degree(session["username"])[0]
-    degree_user2 = get_degree(username)[0]
-    # Get count of connections who study a different degree
-    valid_user_count = 0
-    for user in cons_user:
-        cur.execute(
-            "SELECT username from UserProfile "
-            "WHERE degree!=? AND username=?;",
-            (degree, user[0])
-        )
-        if cur.fetchone():
-            valid_user_count += 1
-    # Gets count of other user connections who study a
-    # different degree.
-    valid_user_count2 = 0
-    for user in cons_user2:
-        cur.execute(
-            "SELECT username from UserProfile "
-            "WHERE degree!=? AND username=?;",
-            (degree_user2, user[0])
-        )
-        if cur.fetchone():
-            valid_user_count2 += 1
-    # Awards achievement ID 14 - Reaching out if necessary.
-    if valid_user_count >= 1:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 14))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 14)
-    # Award achievement ID 14 to connected user
-    if valid_user_count2 >= 1:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (username, 14))
-        if cur.fetchone() is None:
-            apply_achievement(username, 14)
-    # Award achievement ID 15 - Outside your bubble if necessary
-    if valid_user_count >= 10:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 15))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 15)
-    # Award achievement ID 15 to connected user
-    if valid_user_count2 >= 10:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (username, 15))
-        if cur.fetchone() is None:
-            apply_achievement(username, 15)
-    # Get number of connections
-    con_count_user = len(cons_user)
-    # Get number of connections
-    con_count_user2 = len(cons_user2)
-    # Award achievement ID 5 - Popular if necessary
-    if con_count_user >= 10:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 5))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 5)
-    # Award achievement ID 5 to connected user
-    if con_count_user2 >= 10:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (username, 5))
-        if cur.fetchone() is None:
-            apply_achievement(username, 5)
-    # Award achievement ID 6 - Centre of Attention if necessary
-    if con_count_user >= 100:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 6))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 6)
-    # Award achievement ID 6 to connected user
-    if con_count_user2 >= 100:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (username, 6))
-        if cur.fetchone() is None:
-            apply_achievement(username, 6)
 
 
 @application.route("/block_user/<username>")
@@ -1454,48 +1212,6 @@ def submit_post() -> object:
     return redirect("/feed")
 
 
-def update_submission_achievements(cur):
-    """
-    Unlocks achievements for a user after they make a submission.
-
-    Args:
-        cur: Cursor for the SQLite database.
-    """
-    # Award achievement ID 7 - Express yourself if necessary
-    cur.execute(
-        "SELECT * FROM CompleteAchievements "
-        "WHERE (username=? AND achievement_ID=?);",
-        (session["username"], 7))
-    if cur.fetchone() is None:
-        apply_achievement(session["username"], 7)
-
-    # Award achievement ID 8 - 5 posts if necessary
-    cur.execute(
-        "SELECT * FROM CompleteAchievements "
-        "WHERE (username=? AND achievement_ID=?);",
-        (session["username"], 8))
-    if cur.fetchone() is None:
-        cur.execute(
-            "SELECT * FROM POSTS WHERE username=?;",
-            (session["username"],))
-        results = cur.fetchall()
-        if len(results) >= 5:
-            apply_achievement(session["username"], 8)
-
-    # Award achievement ID 9 - 20 posts if necessary
-    cur.execute(
-        "SELECT * FROM CompleteAchievements "
-        "WHERE (username=? AND achievement_ID=?);",
-        (session["username"], 9))
-    if cur.fetchone() is None:
-        cur.execute(
-            "SELECT * FROM POSTS WHERE username=?;",
-            (session["username"],))
-        results = cur.fetchall()
-        if len(results) >= 20:
-            apply_achievement(session["username"], 9)
-
-
 @application.route("/like_post", methods=["POST"])
 def like_post() -> object:
     """
@@ -1565,62 +1281,6 @@ def like_post() -> object:
     return redirect("/post_page/" + post_id)
 
 
-def update_post_achievements(cur, likes, username):
-    """
-    Unlocks achievements for a user after interaction with a post.
-
-    Args:
-        cur: Cursor for the SQLite database.
-        likes: Number of likes on the post.
-        username: Author of the post.
-    """
-    # Award achievement ID 20 - First like if necessary
-    cur.execute(
-        "SELECT * FROM CompleteAchievements "
-        "WHERE (username=? AND achievement_ID=?);",
-        (username, 20))
-    if cur.fetchone() is None:
-        apply_achievement(username, 20)
-    # Award achievement ID 22 - Everyone loves you if necessary
-    if likes >= 50:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (username, 22))
-        if cur.fetchone() is None:
-            apply_achievement(username, 22)
-    # Checks how many posts user has liked.
-    cur.execute("SELECT COUNT(postId) FROM UserLikes"
-                " WHERE username=? ;", (session["username"],))
-    row = cur.fetchone()[0]
-    # Award achievement ID 19 - Liking that if necessary
-    if row == 1:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 19))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 19)
-
-    # Award achievement ID 24 - Show the love if necessary
-    elif row == 50:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 24))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 24)
-
-    # Award achievement ID 25 - Loving everything if necessary
-    elif row == 500:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 25))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 25)
-
-
 @application.route("/submit_comment", methods=["POST"])
 def submit_comment() -> object:
     """
@@ -1658,32 +1318,6 @@ def submit_comment() -> object:
 
     session["postId"] = post_id
     return redirect("/post_page/" + post_id)
-
-
-def update_comment_achievements(cur, row, username):
-    """
-    Unlocks achievements for a user after making a comment.
-
-    Args:
-        cur: Cursor for the SQLite database.
-        row: Number of comments on the post.
-        username: Author of the post.
-    """
-    # Award achievement ID 10 - Commentary if necessary
-    cur.execute(
-        "SELECT * FROM CompleteAchievements "
-        "WHERE (username=? AND achievement_ID=?);",
-        (session["username"], 10))
-    if cur.fetchone() is None:
-        apply_achievement(session["username"], 10)
-    # Award achievement ID 21 - Hot topic if necessary
-    if row >= 10:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (username, 21))
-        if cur.fetchone() is None:
-            apply_achievement(username, 21)
 
 
 @application.route("/delete_post", methods=["POST"])
@@ -2013,53 +1647,6 @@ def profile(username: str) -> object:
                                level=level, current_xp=int(current_xp),
                                xp_next_level=int(xp_next_level),
                                progress_color=progress_color)
-
-
-def update_profile_achievements(cur, username):
-    """
-    Unlocks achievements for a user after interaction with a profile.
-
-    Args:
-        cur: Cursor for the SQLite database.
-        username: Author of the post.
-    """
-    # Award achievement ID 1 - Look at you if necessary
-    if username == session["username"]:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 1))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 1)
-    # Award achievement ID 2 - Looking good if necessary
-    if username != session["username"] and session["username"]:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 2))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 2)
-    # Award achievement ID 23 - Look at you if necessary
-    # Set meeting to allow for secret achievement to be earned
-    meeting_now = False
-    today = date.today()
-    if today.month == 3:
-        if 17 < today.day < 21:
-            meeting_now = True
-    if session["username"] and meeting_now:
-        cur.execute(
-            "SELECT * FROM CompleteAchievements "
-            "WHERE (username=? AND achievement_ID=?);",
-            (session["username"], 23))
-        if cur.fetchone() is None:
-            apply_achievement(session["username"], 23)
-    # Award achievement ID 18 - Show yourself if necessary
-    cur.execute(
-        "SELECT * FROM CompleteAchievements "
-        "WHERE (username=? AND achievement_ID=?);",
-        (session["username"], 18))
-    if cur.fetchone() is None:
-        apply_achievement(username, 18)
 
 
 def read_socials(username):
@@ -2831,6 +2418,419 @@ def search_list(mutual_connections: list, mutual: str, recommend_type: str):
         mutual_connections.append([mutual[0], 1, recommend_type])
 
     return mutual_connections
+
+
+def update_close_connection_achievements(cur):
+    """
+    Updates achievements after interacting with close connections.
+
+    Args:
+        cur: Cursor for the SQLite database.
+    """
+    # Award achievement ID 12 - Friends if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (session["username"], 12))
+    if cur.fetchone() is None:
+        apply_achievement(session["username"], 12)
+    # Award achievement ID 13 - Friend Group if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (session["username"], 13))
+    if cur.fetchone() is None:
+        cur.execute(
+            "SELECT * FROM CloseFriend WHERE user1=?;",
+            (session["username"],))
+        if len(cur.fetchall()) >= 10:
+            apply_achievement(session["username"], 13)
+
+
+def update_comment_achievements(cur, row, username):
+    """
+    Unlocks achievements for a user after making a comment.
+
+    Args:
+        cur: Cursor for the SQLite database.
+        row: Number of comments on the post.
+        username: Author of the post.
+    """
+    # Award achievement ID 10 - Commentary if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (session["username"], 10))
+    if cur.fetchone() is None:
+        apply_achievement(session["username"], 10)
+    # Award achievement ID 21 - Hot topic if necessary
+    if row >= 10:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (username, 21))
+        if cur.fetchone() is None:
+            apply_achievement(username, 21)
+
+
+def update_connection_achievements(cur, username):
+    """
+    Updates achievements after interacting with a connection request.
+
+    Args:
+        cur: Cursor for the SQLite database.
+        username: The username of the person who requested a connection.
+    """
+    # Award achievement ID 4 - Connected if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (session["username"], 4))
+    if cur.fetchone() is None:
+        apply_achievement(session["username"], 4)
+    # Award achievement ID 4 to connected user
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (username, 4))
+    if cur.fetchone() is None:
+        apply_achievement(username, 4)
+    # Get user interests and hobbies
+    cur.execute(
+        "SELECT interest FROM UserInterests "
+        "WHERE username=?;",
+        (session["username"],))
+    row = cur.fetchall()
+    my_interests = []
+    for interest in row:
+        my_interests.append(interest[0])
+    cur.execute(
+        "SELECT hobby FROM UserHobby "
+        "WHERE username=?;",
+        (session["username"],))
+    row = cur.fetchall()
+    my_hobbies = []
+    for hobby in row:
+        my_hobbies.append(hobby[0])
+    # Get connected user interests and hobbies
+    cur.execute(
+        "SELECT interest FROM UserInterests "
+        "WHERE username=?;",
+        (username,))
+    row = cur.fetchall()
+    connection_interests = []
+    for interest in row:
+        connection_interests.append(interest[0])
+    cur.execute(
+        "SELECT hobby FROM UserHobby "
+        "WHERE username=?;",
+        (username,))
+    row = cur.fetchall()
+    connection_hobbies = []
+    for hobby in row:
+        connection_hobbies.append(hobby[0])
+    # Awards achievement ID 16 - Shared interests if necessary.
+    common_interests = set(my_interests) - (
+            set(my_interests) - set(connection_interests))
+    if common_interests:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 16))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 16)
+
+        # Award achievement ID 16 to connected user
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (username, 16))
+        if cur.fetchone() is None:
+            apply_achievement(username, 16)
+    # Award achievement ID 26 - Shared hobbies if necessary
+    common_hobbies = set(my_hobbies) - (
+            set(my_hobbies) - set(connection_hobbies))
+    if common_hobbies:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 26))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 26)
+
+        # Award achievement ID 26 to connected user
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (username, 26))
+        if cur.fetchone() is None:
+            apply_achievement(username, 26)
+    # Get connections
+    cons_user = get_all_connections(session["username"])
+    # Get connections
+    cons_user2 = get_all_connections(username)
+    # Get user degree and connections degree
+    degree = get_degree(session["username"])[0]
+    degree_user2 = get_degree(username)[0]
+    # Get count of connections who study a different degree
+    valid_user_count = 0
+    for user in cons_user:
+        cur.execute(
+            "SELECT username from UserProfile "
+            "WHERE degree!=? AND username=?;",
+            (degree, user[0])
+        )
+        if cur.fetchone():
+            valid_user_count += 1
+    # Gets count of other user connections who study a
+    # different degree.
+    valid_user_count2 = 0
+    for user in cons_user2:
+        cur.execute(
+            "SELECT username from UserProfile "
+            "WHERE degree!=? AND username=?;",
+            (degree_user2, user[0])
+        )
+        if cur.fetchone():
+            valid_user_count2 += 1
+    # Awards achievement ID 14 - Reaching out if necessary.
+    if valid_user_count >= 1:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 14))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 14)
+    # Award achievement ID 14 to connected user
+    if valid_user_count2 >= 1:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (username, 14))
+        if cur.fetchone() is None:
+            apply_achievement(username, 14)
+    # Award achievement ID 15 - Outside your bubble if necessary
+    if valid_user_count >= 10:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 15))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 15)
+    # Award achievement ID 15 to connected user
+    if valid_user_count2 >= 10:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (username, 15))
+        if cur.fetchone() is None:
+            apply_achievement(username, 15)
+    # Get number of connections
+    con_count_user = len(cons_user)
+    # Get number of connections
+    con_count_user2 = len(cons_user2)
+    # Award achievement ID 5 - Popular if necessary
+    if con_count_user >= 10:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 5))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 5)
+    # Award achievement ID 5 to connected user
+    if con_count_user2 >= 10:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (username, 5))
+        if cur.fetchone() is None:
+            apply_achievement(username, 5)
+    # Award achievement ID 6 - Centre of Attention if necessary
+    if con_count_user >= 100:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 6))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 6)
+    # Award achievement ID 6 to connected user
+    if con_count_user2 >= 100:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (username, 6))
+        if cur.fetchone() is None:
+            apply_achievement(username, 6)
+
+
+def update_post_achievements(cur, likes, username):
+    """
+    Unlocks achievements for a user after interaction with a post.
+
+    Args:
+        cur: Cursor for the SQLite database.
+        likes: Number of likes on the post.
+        username: Author of the post.
+    """
+    # Award achievement ID 20 - First like if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (username, 20))
+    if cur.fetchone() is None:
+        apply_achievement(username, 20)
+    # Award achievement ID 22 - Everyone loves you if necessary
+    if likes >= 50:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (username, 22))
+        if cur.fetchone() is None:
+            apply_achievement(username, 22)
+    # Checks how many posts user has liked.
+    cur.execute("SELECT COUNT(postId) FROM UserLikes"
+                " WHERE username=? ;", (session["username"],))
+    row = cur.fetchone()[0]
+    # Award achievement ID 19 - Liking that if necessary
+    if row == 1:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 19))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 19)
+
+    # Award achievement ID 24 - Show the love if necessary
+    elif row == 50:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 24))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 24)
+
+    # Award achievement ID 25 - Loving everything if necessary
+    elif row == 500:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 25))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 25)
+
+
+def update_profile_achievements(cur, username):
+    """
+    Unlocks achievements for a user after interaction with a profile.
+
+    Args:
+        cur: Cursor for the SQLite database.
+        username: Author of the post.
+    """
+    # Award achievement ID 1 - Look at you if necessary
+    if username == session["username"]:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 1))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 1)
+    # Award achievement ID 2 - Looking good if necessary
+    if username != session["username"] and session["username"]:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 2))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 2)
+    # Award achievement ID 23 - Look at you if necessary
+    # Set meeting to allow for secret achievement to be earned
+    meeting_now = False
+    today = date.today()
+    if today.month == 3:
+        if 17 < today.day < 21:
+            meeting_now = True
+    if session["username"] and meeting_now:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 23))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 23)
+    # Award achievement ID 18 - Show yourself if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (session["username"], 18))
+    if cur.fetchone() is None:
+        apply_achievement(username, 18)
+
+
+def update_quiz_achievements(cur, score):
+    """
+    Updates achievements after completing a quiz.
+
+    Args:
+        cur: Cursor for the SQLite database.
+        score: Number of correct answers from the quiz.
+    """
+    # Award achievement ID 27 - Boffin if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (session["username"], 27))
+    if cur.fetchone() is None:
+        apply_achievement(session["username"], 27)
+    # Award achievement ID 28 - Brainiac if necessary
+    if score == 5:
+        cur.execute(
+            "SELECT * FROM CompleteAchievements "
+            "WHERE (username=? AND achievement_ID=?);",
+            (session["username"], 28))
+        if cur.fetchone() is None:
+            apply_achievement(session["username"], 28)
+
+
+def update_submission_achievements(cur):
+    """
+    Unlocks achievements for a user after they make a submission.
+
+    Args:
+        cur: Cursor for the SQLite database.
+    """
+    # Award achievement ID 7 - Express yourself if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (session["username"], 7))
+    if cur.fetchone() is None:
+        apply_achievement(session["username"], 7)
+
+    # Award achievement ID 8 - 5 posts if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (session["username"], 8))
+    if cur.fetchone() is None:
+        cur.execute(
+            "SELECT * FROM POSTS WHERE username=?;",
+            (session["username"],))
+        results = cur.fetchall()
+        if len(results) >= 5:
+            apply_achievement(session["username"], 8)
+
+    # Award achievement ID 9 - 20 posts if necessary
+    cur.execute(
+        "SELECT * FROM CompleteAchievements "
+        "WHERE (username=? AND achievement_ID=?);",
+        (session["username"], 9))
+    if cur.fetchone() is None:
+        cur.execute(
+            "SELECT * FROM POSTS WHERE username=?;",
+            (session["username"],))
+        results = cur.fetchall()
+        if len(results) >= 20:
+            apply_achievement(session["username"], 9)
 
 
 def validate_edit_profile(
