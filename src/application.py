@@ -197,7 +197,6 @@ def quizzes() -> object:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-
         cur.execute(
             "SELECT quiz_id, date_created, author, quiz_name, plays FROM Quiz")
         row = cur.fetchall()
@@ -222,7 +221,7 @@ def quiz(quiz_id: int) -> object:
     Loads the quiz and processes the user's answers.
 
     Args:
-        quiz_id: The quiz
+        quiz_id: The ID of the quiz to load.
 
     Returns:
         The web page for answering the questions, or feedback for your answers.
@@ -230,39 +229,8 @@ def quiz(quiz_id: int) -> object:
     # Gets the quiz details from the database.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute(
-            "SELECT * "
-            "FROM Quiz WHERE quiz_id=?;", (quiz_id,))
-        quiz_details = cur.fetchall()
-        quiz_name = quiz_details[0][1]
-        quiz_author = quiz_details[0][3]
-        question_1 = quiz_details[0][4]
-        question_1_options = sample(
-            [quiz_details[0][5], quiz_details[0][6],
-             quiz_details[0][7], quiz_details[0][8]], 4)
-        question_2 = quiz_details[0][9]
-        question_2_options = sample(
-            [quiz_details[0][13], quiz_details[0][10],
-             quiz_details[0][11], quiz_details[0][12]], 4)
-        question_3 = quiz_details[0][14]
-        question_3_options = sample(
-            [quiz_details[0][18], quiz_details[0][15],
-             quiz_details[0][16], quiz_details[0][17]], 4)
-        question_4 = quiz_details[0][19]
-        question_4_options = sample(
-            [quiz_details[0][23], quiz_details[0][20],
-             quiz_details[0][21], quiz_details[0][22]], 4)
-        question_5 = quiz_details[0][24]
-        question_5_options = sample(
-            [quiz_details[0][28], quiz_details[0][25],
-             quiz_details[0][26], quiz_details[0][27]], 4)
-
-        # Gets a list of questions and answers to pass to the web page.
-        questions = [question_1, question_2, question_3, question_4,
-                     question_5]
-        answers = [question_1_options, question_2_options,
-                   question_3_options, question_4_options,
-                   question_5_options]
+        (answers, questions, quiz_author,
+         quiz_details, quiz_name) = get_quiz_details(cur, quiz_id)
 
     if request.method == "GET":
         return render_template("quiz.html",
@@ -317,6 +285,47 @@ def quiz(quiz_id: int) -> object:
                                    question_feedback=question_feedback,
                                    requestCount=get_connection_request_count(),
                                    score=score)
+
+
+def get_quiz_details(cur, quiz_id) -> Tuple[list, list, str, list, str]:
+    """
+    Gets the details for the quiz being taken.
+    Args:
+        cur: Cursor for the SQLite database.
+        quiz_id: The ID of the quiz being taken.
+
+    Returns:
+        Answer options, questions, and author, details, and name of the quiz.
+    """
+    cur.execute("SELECT * FROM Quiz WHERE quiz_id=?;", (quiz_id,))
+    quiz_details = cur.fetchall()
+    quiz_name = quiz_details[0][1]
+    quiz_author = quiz_details[0][3]
+    question_1 = quiz_details[0][4]
+    question_1_options = sample(
+        [quiz_details[0][5], quiz_details[0][6],
+         quiz_details[0][7], quiz_details[0][8]], 4)
+    question_2 = quiz_details[0][9]
+    question_2_options = sample(
+        [quiz_details[0][13], quiz_details[0][10],
+         quiz_details[0][11], quiz_details[0][12]], 4)
+    question_3 = quiz_details[0][14]
+    question_3_options = sample(
+        [quiz_details[0][18], quiz_details[0][15],
+         quiz_details[0][16], quiz_details[0][17]], 4)
+    question_4 = quiz_details[0][19]
+    question_4_options = sample(
+        [quiz_details[0][23], quiz_details[0][20],
+         quiz_details[0][21], quiz_details[0][22]], 4)
+    question_5 = quiz_details[0][24]
+    question_5_options = sample(
+        [quiz_details[0][28], quiz_details[0][25],
+         quiz_details[0][26], quiz_details[0][27]], 4)
+    # Gets a list of questions and answers to pass to the web page.
+    questions = [question_1, question_2, question_3, question_4, question_5]
+    answers = [question_1_options, question_2_options, question_3_options,
+               question_4_options, question_5_options]
+    return answers, questions, quiz_author, quiz_details, quiz_name
 
 
 @application.route("/leaderboard", methods=["GET"])
@@ -1061,7 +1070,7 @@ def submit_post() -> object:
     post_privacy = request.form.get("privacy")
 
     if form_type == "Quiz":
-        date_created, author, quiz_name, questions = get_quiz_details()
+        date_created, author, quiz_name, questions = save_quiz_details()
         valid, message = validate_quiz(quiz_name, questions)
         if valid:
             add_quiz(author, date_created, post_privacy, questions, quiz_name)
@@ -1189,7 +1198,7 @@ def add_quiz(author, date_created, post_privacy, questions, quiz_name):
         conn.commit()
 
 
-def get_quiz_details() -> Tuple[date, str, str, list]:
+def save_quiz_details() -> Tuple[date, str, str, list]:
     """
     Gets details about questions and metadata for the quiz.
 
