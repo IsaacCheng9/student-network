@@ -238,7 +238,6 @@ def quiz(quiz_id: int) -> object:
                                quiz_name=quiz_name, quiz_id=quiz_id,
                                questions=questions, answers=answers,
                                quiz_author=quiz_author)
-
     elif request.method == "POST":
         score = 0
         # Gets the answers selected by the user.
@@ -253,7 +252,6 @@ def quiz(quiz_id: int) -> object:
             session["error"] = "You have not answered all the questions!"
             return redirect(session["prev-page"])
         else:
-
             # 1 exp earned for the author of the quiz
             if quiz_author != session["username"]:
                 check_level_exists(quiz_author, conn)
@@ -271,14 +269,11 @@ def quiz(quiz_id: int) -> object:
                     [questions[i], user_answers[i], correct_answer])
                 if correct:
                     score += 1
-
             update_quiz_achievements(score)
 
-            cur.execute(
-                "UPDATE Quiz "
-                "SET plays = plays + 1 "
-                "WHERE quiz_id=?;",
-                (quiz_id,))
+            # Updates the number of times a quiz has been played.
+            cur.execute("UPDATE Quiz SET plays = plays + 1 WHERE quiz_id=?;",
+                        (quiz_id,))
             conn.commit()
 
             return render_template("quiz_results.html",
@@ -570,7 +565,6 @@ def show_connect_requests() -> object:
 
         # Extracts mutual connections.
         mutual_connections = get_recommended_connections(session["username"])
-
         mutual_avatars = []
         for mutual in mutual_connections:
             mutual_avatars.append(get_profile_picture(mutual[0]))
@@ -583,7 +577,6 @@ def show_connect_requests() -> object:
         connections = sorted(connections, key=lambda x: x[2], reverse=True)
 
     session["prev-page"] = request.url
-
     return render_template("request.html", requests=requests, avatars=avatars,
                            allUsernames=get_all_usernames(),
                            requestCount=get_connection_request_count(),
@@ -612,9 +605,8 @@ def show_staff_requests() -> object:
             requests = []
             cur = conn.cursor()
             # Extracts incoming requests.
-            cur.execute(
-                "SELECT username FROM ACCOUNTS "
-                "WHERE type='pending_staff';")
+            cur.execute("SELECT username FROM ACCOUNTS "
+                        "WHERE type='pending_staff';")
             conn.commit()
             row = cur.fetchall()
             request_count = get_connection_request_count()
@@ -644,8 +636,8 @@ def accept_staff(username: str):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute("UPDATE ACCOUNTS SET type=? "
-                    " WHERE username=? ;", ('staff', username))
-    return redirect('/admin')
+                    " WHERE username=? ;", ("staff", username))
+    return redirect("/admin")
 
 
 @application.route("/reject_staff/<username>", methods=["GET", "POST"])
@@ -662,8 +654,8 @@ def reject_staff(username: str):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute("UPDATE ACCOUNTS SET type=? "
-                    " WHERE username=? ;", ('student', username))
-    return redirect('/admin')
+                    " WHERE username=? ;", ("student", username))
+    return redirect("/admin")
 
 
 @application.route("/terms", methods=["GET", "POST"])
@@ -815,14 +807,11 @@ def register_submit() -> object:
                 "VALUES (?, ?, ?, ?, ?, ?);", (
                     username, full_name, "Change your bio in the settings.",
                     "Male", date.today(), "/static/images/default-pfp.jpg",))
-
             check_level_exists(username, conn)
-
             conn.commit()
 
             session["notifications"] = ["register"]
             session["username"] = username
-
             return redirect("/register")
         # Displays error message(s) stating why their details are invalid.
         else:
@@ -838,7 +827,6 @@ def post(post_id: int) -> object:
     Returns:
         Redirection to the post page.
     """
-
     comments = {"comments": []}
     message = []
     author = ""
@@ -1086,25 +1074,7 @@ def submit_post() -> object:
             if not file:
                 valid = False
             if valid:
-                file_name_hashed = ""
-                # Hashes the name of the file and resizes it.
-                if allowed_file(file.filename):
-                    secure_filename(file.filename)
-                    file_name_hashed = str(uuid.uuid4())
-                    file_path = os.path.join(
-                        "." + application.config[
-                            "UPLOAD_FOLDER"] + "//post_imgs",
-                        file_name_hashed)
-
-                    img = Image.open(file)
-                    fixed_height = 600
-                    height_percent = (fixed_height / float(img.size[1]))
-                    width_size = int(
-                        (float(img.size[0]) * float(height_percent)))
-                    width_size = min(width_size, 800)
-                    img = img.resize((width_size, fixed_height))
-                    img = img.convert("RGB")
-                    img.save(file_path + ".jpg")
+                file_name_hashed = upload_image(file)
             elif file:
                 valid = False
 
@@ -1156,6 +1126,38 @@ def submit_post() -> object:
                 "Make sure all fields are filled in correctly!"]
 
     return redirect("/feed")
+
+
+def upload_image(file):
+    """
+    Uploads the image to the website.
+
+    Args:
+        file: The file uploaded by the user.
+
+    Returns:
+        The hashed file name.
+    """
+    file_name_hashed = ""
+    # Hashes the name of the file and resizes it.
+    if allowed_file(file.filename):
+        secure_filename(file.filename)
+        file_name_hashed = str(uuid.uuid4())
+        file_path = os.path.join(
+            "." + application.config[
+                "UPLOAD_FOLDER"] + "//post_imgs",
+            file_name_hashed)
+
+        img = Image.open(file)
+        fixed_height = 600
+        height_percent = (fixed_height / float(img.size[1]))
+        width_size = int(
+            (float(img.size[0]) * float(height_percent)))
+        width_size = min(width_size, 800)
+        img = img.resize((width_size, fixed_height))
+        img = img.convert("RGB")
+        img.save(file_path + ".jpg")
+    return file_name_hashed
 
 
 def add_quiz(author, date_created, post_privacy, questions, quiz_name):
