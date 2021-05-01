@@ -282,47 +282,6 @@ def quiz(quiz_id: int) -> object:
                                    score=score)
 
 
-def get_quiz_details(cur, quiz_id) -> Tuple[list, list, str, list, str]:
-    """
-    Gets the details for the quiz being taken.
-    Args:
-        cur: Cursor for the SQLite database.
-        quiz_id: The ID of the quiz being taken.
-
-    Returns:
-        Answer options, questions, and author, details, and name of the quiz.
-    """
-    cur.execute("SELECT * FROM Quiz WHERE quiz_id=?;", (quiz_id,))
-    quiz_details = cur.fetchall()
-    quiz_name = quiz_details[0][1]
-    quiz_author = quiz_details[0][3]
-    question_1 = quiz_details[0][4]
-    question_1_options = sample(
-        [quiz_details[0][5], quiz_details[0][6],
-         quiz_details[0][7], quiz_details[0][8]], 4)
-    question_2 = quiz_details[0][9]
-    question_2_options = sample(
-        [quiz_details[0][13], quiz_details[0][10],
-         quiz_details[0][11], quiz_details[0][12]], 4)
-    question_3 = quiz_details[0][14]
-    question_3_options = sample(
-        [quiz_details[0][18], quiz_details[0][15],
-         quiz_details[0][16], quiz_details[0][17]], 4)
-    question_4 = quiz_details[0][19]
-    question_4_options = sample(
-        [quiz_details[0][23], quiz_details[0][20],
-         quiz_details[0][21], quiz_details[0][22]], 4)
-    question_5 = quiz_details[0][24]
-    question_5_options = sample(
-        [quiz_details[0][28], quiz_details[0][25],
-         quiz_details[0][26], quiz_details[0][27]], 4)
-    # Gets a list of questions and answers to pass to the web page.
-    questions = [question_1, question_2, question_3, question_4, question_5]
-    answers = [question_1_options, question_2_options, question_3_options,
-               question_4_options, question_5_options]
-    return answers, questions, quiz_author, quiz_details, quiz_name
-
-
 @application.route("/leaderboard", methods=["GET"])
 def leaderboard() -> object:
     """
@@ -1128,117 +1087,6 @@ def submit_post() -> object:
     return redirect("/feed")
 
 
-def upload_image(file):
-    """
-    Uploads the image to the website.
-
-    Args:
-        file: The file uploaded by the user.
-
-    Returns:
-        The hashed file name.
-    """
-    file_name_hashed = ""
-    # Hashes the name of the file and resizes it.
-    if allowed_file(file.filename):
-        secure_filename(file.filename)
-        file_name_hashed = str(uuid.uuid4())
-        file_path = os.path.join(
-            "." + application.config[
-                "UPLOAD_FOLDER"] + "//post_imgs",
-            file_name_hashed)
-
-        img = Image.open(file)
-        fixed_height = 600
-        height_percent = (fixed_height / float(img.size[1]))
-        width_size = int(
-            (float(img.size[0]) * float(height_percent)))
-        width_size = min(width_size, 800)
-        img = img.resize((width_size, fixed_height))
-        img = img.convert("RGB")
-        img.save(file_path + ".jpg")
-    return file_name_hashed
-
-
-def add_quiz(author, date_created, post_privacy, questions, quiz_name):
-    """
-    Adds quiz to the database.
-
-    Args:
-        author: Person who created the quiz.
-        date_created: Date the quiz was created (YYYY/MM/DD).
-        post_privacy: Privacy setting for the quiz.
-        questions: Questions and answers for the quiz.
-        quiz_name: Name of the quiz.
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "INSERT INTO Quiz (quiz_name, date_created, author,"
-            "question_1, question_1_ans_1, question_1_ans_2,"
-            "question_1_ans_3, question_1_ans_4, question_2,"
-            "question_2_ans_1, question_2_ans_2, question_2_ans_3,"
-            "question_2_ans_4, question_3, question_3_ans_1,"
-            "question_3_ans_2, question_3_ans_3, question_3_ans_4,"
-            "question_4, question_4_ans_1, question_4_ans_2,"
-            "question_4_ans_3, question_4_ans_4, question_5,"
-            "question_5_ans_1, question_5_ans_2, question_5_ans_3,"
-            "question_5_ans_4, privacy) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-            "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-            (
-                quiz_name, date_created, author, questions[0][0],
-                questions[0][1], questions[0][2], questions[0][3],
-                questions[0][4], questions[1][0], questions[1][1],
-                questions[1][2], questions[1][3], questions[1][4],
-                questions[2][0], questions[2][1], questions[2][2],
-                questions[2][3], questions[2][4], questions[3][0],
-                questions[3][1], questions[3][2], questions[3][3],
-                questions[3][4], questions[4][0], questions[4][1],
-                questions[4][2], questions[4][3], questions[4][4],
-                post_privacy))
-        conn.commit()
-
-
-def save_quiz_details() -> Tuple[date, str, str, list]:
-    """
-    Gets details about questions and metadata for the quiz.
-
-    Returns:
-        Author, date created, questions, and quiz name.
-    """
-    # Gets quiz details.
-    date_created = date.today()
-    author = session["username"]
-    quiz_name = request.form.get("quiz_name")
-    questions = [[request.form.get("question_1"),
-                  request.form.get("question_1_ans_1"),
-                  request.form.get("question_1_ans_2"),
-                  request.form.get("question_1_ans_3"),
-                  request.form.get("question_1_ans_4")],
-                 [request.form.get("question_2"),
-                  request.form.get("question_2_ans_1"),
-                  request.form.get("question_2_ans_2"),
-                  request.form.get("question_2_ans_3"),
-                  request.form.get("question_2_ans_4")],
-                 [request.form.get("question_3"),
-                  request.form.get("question_3_ans_1"),
-                  request.form.get("question_3_ans_2"),
-                  request.form.get("question_3_ans_3"),
-                  request.form.get("question_3_ans_4")],
-                 [request.form.get("question_4"),
-                  request.form.get("question_4_ans_1"),
-                  request.form.get("question_4_ans_2"),
-                  request.form.get("question_4_ans_3"),
-                  request.form.get("question_4_ans_4")],
-                 [request.form.get("question_5"),
-                  request.form.get("question_5_ans_1"),
-                  request.form.get("question_5_ans_2"),
-                  request.form.get("question_5_ans_3"),
-                  request.form.get("question_5_ans_4")]]
-    return date_created, author, quiz_name, questions
-
-
 @application.route("/like_post", methods=["POST"])
 def like_post() -> object:
     """
@@ -1676,27 +1524,6 @@ def profile(username: str) -> object:
                                progress_color=progress_color)
 
 
-def read_socials(username):
-    """
-    Args:
-        username: The username whose socials to check.
-
-    Returns:
-        The social media accounts of that user.
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        socials = {}
-        # Gets the user's socials
-        cur.execute("SELECT social, link from UserSocial WHERE username=?;",
-                    (username,))
-        row = cur.fetchall()
-        if len(row) > 0:
-            for item in row:
-                socials[item[0]] = item[1]
-    return socials
-
-
 @application.route("/edit-profile", methods=["GET", "POST"])
 def edit_profile() -> object:
     """
@@ -1907,6 +1734,46 @@ def logout() -> object:
         session["prev-page"] = request.url
         return render_template("login.html")
     return redirect("/")
+
+
+def add_quiz(author, date_created, post_privacy, questions, quiz_name):
+    """
+    Adds quiz to the database.
+
+    Args:
+        author: Person who created the quiz.
+        date_created: Date the quiz was created (YYYY/MM/DD).
+        post_privacy: Privacy setting for the quiz.
+        questions: Questions and answers for the quiz.
+        quiz_name: Name of the quiz.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO Quiz (quiz_name, date_created, author,"
+            "question_1, question_1_ans_1, question_1_ans_2,"
+            "question_1_ans_3, question_1_ans_4, question_2,"
+            "question_2_ans_1, question_2_ans_2, question_2_ans_3,"
+            "question_2_ans_4, question_3, question_3_ans_1,"
+            "question_3_ans_2, question_3_ans_3, question_3_ans_4,"
+            "question_4, question_4_ans_1, question_4_ans_2,"
+            "question_4_ans_3, question_4_ans_4, question_5,"
+            "question_5_ans_1, question_5_ans_2, question_5_ans_3,"
+            "question_5_ans_4, privacy) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+            "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            (
+                quiz_name, date_created, author, questions[0][0],
+                questions[0][1], questions[0][2], questions[0][3],
+                questions[0][4], questions[1][0], questions[1][1],
+                questions[1][2], questions[1][3], questions[1][4],
+                questions[2][0], questions[2][1], questions[2][2],
+                questions[2][3], questions[2][4], questions[3][0],
+                questions[3][1], questions[3][2], questions[3][3],
+                questions[3][4], questions[4][0], questions[4][1],
+                questions[4][2], questions[4][3], questions[4][4],
+                post_privacy))
+        conn.commit()
 
 
 def allowed_file(file_name) -> bool:
@@ -2272,6 +2139,47 @@ def get_connection_type(username: str):
                 return None
 
 
+def get_quiz_details(cur, quiz_id: int) -> Tuple[list, list, str, list, str]:
+    """
+    Gets the details for the quiz being taken.
+    Args:
+        cur: Cursor for the SQLite database.
+        quiz_id: The ID of the quiz being taken.
+
+    Returns:
+        Answer options, questions, and author, details, and name of the quiz.
+    """
+    cur.execute("SELECT * FROM Quiz WHERE quiz_id=?;", (quiz_id,))
+    quiz_details = cur.fetchall()
+    quiz_name = quiz_details[0][1]
+    quiz_author = quiz_details[0][3]
+    question_1 = quiz_details[0][4]
+    question_1_options = sample(
+        [quiz_details[0][5], quiz_details[0][6],
+         quiz_details[0][7], quiz_details[0][8]], 4)
+    question_2 = quiz_details[0][9]
+    question_2_options = sample(
+        [quiz_details[0][13], quiz_details[0][10],
+         quiz_details[0][11], quiz_details[0][12]], 4)
+    question_3 = quiz_details[0][14]
+    question_3_options = sample(
+        [quiz_details[0][18], quiz_details[0][15],
+         quiz_details[0][16], quiz_details[0][17]], 4)
+    question_4 = quiz_details[0][19]
+    question_4_options = sample(
+        [quiz_details[0][23], quiz_details[0][20],
+         quiz_details[0][21], quiz_details[0][22]], 4)
+    question_5 = quiz_details[0][24]
+    question_5_options = sample(
+        [quiz_details[0][28], quiz_details[0][25],
+         quiz_details[0][26], quiz_details[0][27]], 4)
+    # Gets a list of questions and answers to pass to the web page.
+    questions = [question_1, question_2, question_3, question_4, question_5]
+    answers = [question_1_options, question_2_options, question_3_options,
+               question_4_options, question_5_options]
+    return answers, questions, quiz_author, quiz_details, quiz_name
+
+
 def get_level(username: str) -> List[int]:
     """
     Gets the current user experience points, the experience points
@@ -2424,6 +2332,66 @@ def get_recommended_connections(username: str) -> list:
                         break
 
         return mutual_connections
+
+
+def read_socials(username: str):
+    """
+    Args:
+        username: The username whose socials to check.
+
+    Returns:
+        The social media accounts of that user.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        socials = {}
+        # Gets the user's socials
+        cur.execute("SELECT social, link from UserSocial WHERE username=?;",
+                    (username,))
+        row = cur.fetchall()
+        if len(row) > 0:
+            for item in row:
+                socials[item[0]] = item[1]
+    return socials
+
+
+def save_quiz_details() -> Tuple[date, str, str, list]:
+    """
+    Gets details about questions and metadata for the quiz.
+
+    Returns:
+        Author, date created, questions, and quiz name.
+    """
+    # Gets quiz details.
+    date_created = date.today()
+    author = session["username"]
+    quiz_name = request.form.get("quiz_name")
+    questions = [[request.form.get("question_1"),
+                  request.form.get("question_1_ans_1"),
+                  request.form.get("question_1_ans_2"),
+                  request.form.get("question_1_ans_3"),
+                  request.form.get("question_1_ans_4")],
+                 [request.form.get("question_2"),
+                  request.form.get("question_2_ans_1"),
+                  request.form.get("question_2_ans_2"),
+                  request.form.get("question_2_ans_3"),
+                  request.form.get("question_2_ans_4")],
+                 [request.form.get("question_3"),
+                  request.form.get("question_3_ans_1"),
+                  request.form.get("question_3_ans_2"),
+                  request.form.get("question_3_ans_3"),
+                  request.form.get("question_3_ans_4")],
+                 [request.form.get("question_4"),
+                  request.form.get("question_4_ans_1"),
+                  request.form.get("question_4_ans_2"),
+                  request.form.get("question_4_ans_3"),
+                  request.form.get("question_4_ans_4")],
+                 [request.form.get("question_5"),
+                  request.form.get("question_5_ans_1"),
+                  request.form.get("question_5_ans_2"),
+                  request.form.get("question_5_ans_3"),
+                  request.form.get("question_5_ans_4")]]
+    return date_created, author, quiz_name, questions
 
 
 def search_list(mutual_connections: list, mutual: str, recommend_type: str):
@@ -2681,6 +2649,38 @@ def update_quiz_achievements(score: int):
         apply_achievement(session["username"], 28)
 
 
+def upload_image(file):
+    """
+    Uploads the image to the website.
+
+    Args:
+        file: The file uploaded by the user.
+
+    Returns:
+        The hashed file name.
+    """
+    file_name_hashed = ""
+    # Hashes the name of the file and resizes it.
+    if allowed_file(file.filename):
+        secure_filename(file.filename)
+        file_name_hashed = str(uuid.uuid4())
+        file_path = os.path.join(
+            "." + application.config[
+                "UPLOAD_FOLDER"] + "//post_imgs",
+            file_name_hashed)
+
+        img = Image.open(file)
+        fixed_height = 600
+        height_percent = (fixed_height / float(img.size[1]))
+        width_size = int(
+            (float(img.size[0]) * float(height_percent)))
+        width_size = min(width_size, 800)
+        img = img.resize((width_size, fixed_height))
+        img = img.convert("RGB")
+        img.save(file_path + ".jpg")
+    return file_name_hashed
+
+
 def update_submission_achievements(cur):
     """
     Unlocks achievements for a user after they make a submission.
@@ -2804,7 +2804,7 @@ def validate_registration(
         full_name: The full name input by the user in the form.
         password: The password input by the user in the form.
         password_confirm: The password confirmation input by the user in the
-            form.
+                          form.
         email: The email address input by the user in the form.
         terms: The terms and conditions input checkbox.
 
