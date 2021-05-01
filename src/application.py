@@ -10,7 +10,7 @@ import uuid
 from datetime import date, datetime
 from random import sample
 from string import capwords
-from typing import Tuple, List
+from typing import Tuple, List, Sized
 from urllib.parse import parse_qs
 from urllib.parse import urlparse
 
@@ -2135,7 +2135,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
         return all_posts, content, False
 
 
-def get_achievements(username: str) -> Tuple[object, object]:
+def get_achievements(username: str) -> Tuple[Sized, Sized]:
     """
     Gets unlocked and locked achievements for the user.
 
