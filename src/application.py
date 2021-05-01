@@ -1061,70 +1061,13 @@ def submit_post() -> object:
     post_privacy = request.form.get("privacy")
 
     if form_type == "Quiz":
-        # Gets quiz details.
-        date_created = date.today()
-        author = session["username"]
-        quiz_name = request.form.get("quiz_name")
-        questions = [[request.form.get("question_1"),
-                      request.form.get("question_1_ans_1"),
-                      request.form.get("question_1_ans_2"),
-                      request.form.get("question_1_ans_3"),
-                      request.form.get("question_1_ans_4")],
-                     [request.form.get("question_2"),
-                      request.form.get("question_2_ans_1"),
-                      request.form.get("question_2_ans_2"),
-                      request.form.get("question_2_ans_3"),
-                      request.form.get("question_2_ans_4")],
-                     [request.form.get("question_3"),
-                      request.form.get("question_3_ans_1"),
-                      request.form.get("question_3_ans_2"),
-                      request.form.get("question_3_ans_3"),
-                      request.form.get("question_3_ans_4")],
-                     [request.form.get("question_4"),
-                      request.form.get("question_4_ans_1"),
-                      request.form.get("question_4_ans_2"),
-                      request.form.get("question_4_ans_3"),
-                      request.form.get("question_4_ans_4")],
-                     [request.form.get("question_5"),
-                      request.form.get("question_5_ans_1"),
-                      request.form.get("question_5_ans_2"),
-                      request.form.get("question_5_ans_3"),
-                      request.form.get("question_5_ans_4")]]
-
+        date_created, author, quiz_name, questions = get_quiz_details()
         valid, message = validate_quiz(quiz_name, questions)
         if valid:
-            # Adds quiz to the database.
-            with sqlite3.connect("database.db") as conn:
-                cur = conn.cursor()
-                cur.execute(
-                    "INSERT INTO Quiz (quiz_name, date_created, author,"
-                    "question_1, question_1_ans_1, question_1_ans_2,"
-                    "question_1_ans_3, question_1_ans_4, question_2,"
-                    "question_2_ans_1, question_2_ans_2, question_2_ans_3,"
-                    "question_2_ans_4, question_3, question_3_ans_1,"
-                    "question_3_ans_2, question_3_ans_3, question_3_ans_4,"
-                    "question_4, question_4_ans_1, question_4_ans_2,"
-                    "question_4_ans_3, question_4_ans_4, question_5,"
-                    "question_5_ans_1, question_5_ans_2, question_5_ans_3,"
-                    "question_5_ans_4, privacy) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-                    "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-                    (
-                        quiz_name, date_created, author, questions[0][0],
-                        questions[0][1], questions[0][2], questions[0][3],
-                        questions[0][4], questions[1][0], questions[1][1],
-                        questions[1][2], questions[1][3], questions[1][4],
-                        questions[2][0], questions[2][1], questions[2][2],
-                        questions[2][3], questions[2][4], questions[3][0],
-                        questions[3][1], questions[3][2], questions[3][3],
-                        questions[3][4], questions[4][0], questions[4][1],
-                        questions[4][2], questions[4][3], questions[4][4],
-                        post_privacy))
-                conn.commit()
+            add_quiz(author, date_created, post_privacy, questions, quiz_name)
         else:
             session["error"] = message
             return redirect("quizzes")
-
     else:
         post_title = request.form["post_title"]
         post_body = request.form["post_text"]
@@ -1204,6 +1147,85 @@ def submit_post() -> object:
                 "Make sure all fields are filled in correctly!"]
 
     return redirect("/feed")
+
+
+def add_quiz(author, date_created, post_privacy, questions, quiz_name):
+    """
+    Adds quiz to the database.
+
+    Args:
+        author: Person who created the quiz.
+        date_created: Date the quiz was created (YYYY/MM/DD).
+        post_privacy: Privacy setting for the quiz.
+        questions: Questions and answers for the quiz.
+        quiz_name: Name of the quiz.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO Quiz (quiz_name, date_created, author,"
+            "question_1, question_1_ans_1, question_1_ans_2,"
+            "question_1_ans_3, question_1_ans_4, question_2,"
+            "question_2_ans_1, question_2_ans_2, question_2_ans_3,"
+            "question_2_ans_4, question_3, question_3_ans_1,"
+            "question_3_ans_2, question_3_ans_3, question_3_ans_4,"
+            "question_4, question_4_ans_1, question_4_ans_2,"
+            "question_4_ans_3, question_4_ans_4, question_5,"
+            "question_5_ans_1, question_5_ans_2, question_5_ans_3,"
+            "question_5_ans_4, privacy) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
+            "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            (
+                quiz_name, date_created, author, questions[0][0],
+                questions[0][1], questions[0][2], questions[0][3],
+                questions[0][4], questions[1][0], questions[1][1],
+                questions[1][2], questions[1][3], questions[1][4],
+                questions[2][0], questions[2][1], questions[2][2],
+                questions[2][3], questions[2][4], questions[3][0],
+                questions[3][1], questions[3][2], questions[3][3],
+                questions[3][4], questions[4][0], questions[4][1],
+                questions[4][2], questions[4][3], questions[4][4],
+                post_privacy))
+        conn.commit()
+
+
+def get_quiz_details() -> Tuple[date, str, str, list]:
+    """
+    Gets details about questions and metadata for the quiz.
+
+    Returns:
+        Author, date created, questions, and quiz name.
+    """
+    # Gets quiz details.
+    date_created = date.today()
+    author = session["username"]
+    quiz_name = request.form.get("quiz_name")
+    questions = [[request.form.get("question_1"),
+                  request.form.get("question_1_ans_1"),
+                  request.form.get("question_1_ans_2"),
+                  request.form.get("question_1_ans_3"),
+                  request.form.get("question_1_ans_4")],
+                 [request.form.get("question_2"),
+                  request.form.get("question_2_ans_1"),
+                  request.form.get("question_2_ans_2"),
+                  request.form.get("question_2_ans_3"),
+                  request.form.get("question_2_ans_4")],
+                 [request.form.get("question_3"),
+                  request.form.get("question_3_ans_1"),
+                  request.form.get("question_3_ans_2"),
+                  request.form.get("question_3_ans_3"),
+                  request.form.get("question_3_ans_4")],
+                 [request.form.get("question_4"),
+                  request.form.get("question_4_ans_1"),
+                  request.form.get("question_4_ans_2"),
+                  request.form.get("question_4_ans_3"),
+                  request.form.get("question_4_ans_4")],
+                 [request.form.get("question_5"),
+                  request.form.get("question_5_ans_1"),
+                  request.form.get("question_5_ans_2"),
+                  request.form.get("question_5_ans_3"),
+                  request.form.get("question_5_ans_4")]]
+    return date_created, author, quiz_name, questions
 
 
 @application.route("/like_post", methods=["POST"])
@@ -1726,7 +1748,7 @@ def edit_profile() -> object:
         bio = request.form.get("bio_input")
 
         # Award achievement ID 11 - Describe yourself if necessary
-        if bio not in ("Change your bio in the settings.", ""): 
+        if bio not in ("Change your bio in the settings.", ""):
             apply_achievement(username, 11)
 
         gender = request.form.get("gender_input")
@@ -1753,8 +1775,6 @@ def edit_profile() -> object:
                 if valid:
                     # Award achievement ID 18 - Show yourself if necessary
                     apply_achievement(username, 18)
-
-
 
             # Updates the user profile if details are valid.
             if valid:
@@ -2616,7 +2636,7 @@ def update_profile_achievements(username: str):
         username: Author of the post.
     """
     # Award achievement ID 1 - Look at you if necessary
-    if username == session["username"]: 
+    if username == session["username"]:
         apply_achievement(session["username"], 1)
 
     # Award achievement ID 2 - Looking good if necessary
