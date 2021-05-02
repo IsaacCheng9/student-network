@@ -858,6 +858,15 @@ def post(post_id: int) -> object:
                                                 data[3], data[4], data[5],
                                                 data[6])
 
+            # Check if user has liked post.
+            cur.execute("SELECT username FROM UserLikes "
+                "WHERE postId=? AND username=?;", (post_id,session["username"]))
+            row = cur.fetchone()
+            if row:
+                liked = True
+            else:
+                liked = False
+
             cur.execute(
                 "SELECT username FROM ACCOUNTS WHERE username=?;",
                 (session["username"],))
@@ -879,9 +888,9 @@ def post(post_id: int) -> object:
                 return render_template(
                     "post_page.html", author=author, postId=post_id,
                     title=title, body=body, username=username,
-                    date=date_posted, likes=likes, account_type=account_type,
-                    user_account_type=user_account_type, comments=None,
-                    requestCount=get_connection_request_count(),
+                    date=date_posted, likes=likes, liked=liked, 
+                    account_type=account_type, user_account_type=user_account_type,
+                    comments=None, requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(),
                     avatar=get_profile_picture(username), type=post_type,
                     content=content)

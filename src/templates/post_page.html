@@ -112,12 +112,18 @@
           {% endif %}
           <div>
             <div class="ui right floated mini labeled button" tabindex="0">
-              <button class="ui mini red button" form="likes">
-                <i class="heart icon"></i>
-              </button>
-              <a class="ui basic mini red left pointing label">
-                {{ likes }}
-              </a>
+              {% if liked == True %}
+                <button class="ui mini red button" form="likes">
+                  <i class="heart icon"></i>
+                </button>
+              {% else %}
+                <button class="ui mini button" form="likes">
+                  <i class="heart icon"></i>
+                </button>
+              {% endif %}
+                <a class="ui basic mini red left pointing label">
+                  {{ likes }}
+                </a>
             </div>
           </div>
           <div class="content">
