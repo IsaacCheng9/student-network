@@ -130,6 +130,16 @@
                         {% endif %}
                         {% if "username" in session %}
                         <div class="ui simple dropdown item">
+                            <i class="bell icon"></i>
+                            <div class="ui red label">
+                                2
+                            </div>
+                            <div class="menu">
+                                <a href="" class="item">Someone liked your post!</a>
+                                <a href="" class="item">You've been tagged by @User in a post</a>
+                            </div>
+                        </div>
+                        <div class="ui simple dropdown item">
                            <i class="user circle icon"></i>
                             Logged in as {{ session["username"] }}
                             <i class="icon dropdown"></i>
