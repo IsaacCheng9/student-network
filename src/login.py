@@ -204,3 +204,18 @@ def register_submit() -> object:
         else:
             session["error"] = message
             return redirect("/register")
+
+
+@login_blueprint.route("/logout", methods=["GET"])
+def logout() -> object:
+    """
+    Clears the user's session if they are logged in.
+
+    Returns:
+        The web page for logging in if the user logged out of an account.
+    """
+    if "username" in session:
+        session.clear()
+        session["prev-page"] = request.url
+        return render_template("login.html")
+    return redirect("/")
