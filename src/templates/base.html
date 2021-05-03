@@ -61,10 +61,16 @@
                     <div class="ui simple dropdown item">
                         <i class="icon sitemap"></i>
                         Connections
+                        {% if requestCount > 0 %}
+                        <div class="ui label red mini">{{ requestCount }}</div>
+                        {% endif %}
                         <div class="menu">
                             <a href="" class="item">
                                 <i class="icon sitemap"></i>
                                 My Connections
+                                {% if requestCount > 0 %}
+                                <div class="ui label red mini">{{ requestCount }}</div>
+                                {% endif %}
                             </a>
                             <a href="" class="item">
                                 <i class="icon users"></i>
@@ -103,6 +109,14 @@
                             </a>
                         </div>
                     </div>
+
+                    <div class="right menu">
+                        <a href="{{ url_for('user_profile') }}" class="ui item">
+                            Logged in as {{ session["username"] }}
+                        </a>
+                        <a href="/logout" class="ui item"><i class="key icon"></i>Logout</a>
+                    </div>
+
                 </div>
             </div>
         </div>
