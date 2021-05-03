@@ -951,6 +951,8 @@ def feed() -> object:
     all_posts, content, valid = fetch_posts(2, row[0])
     # Displays any error messages.
 
+    new_notification("You opened the feed!")
+
     all_posts = []
 
     if valid:
@@ -2943,6 +2945,17 @@ def validate_youtube(url: str):
     url_regex_match = re.match(url_regex, url)
 
     return url_regex_match
+
+def new_notification(body):
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT (username, body, date) FROM notification WHERE username=?;",
+            (session["username"], ))
+        
+        row = cur.fetchall()
+
+        print(row)
 
 
 if __name__ == "__main__":
