@@ -179,7 +179,7 @@ content %}
 
         document.getElementById("message-container").innerHTML += html;
         
-        document.getElementById(room+"-last-msg").innerHTML = "<b>"+msg.sender_username+"</b>: "+msg.message;
+        document.getElementById(room+"-last-msg").innerText = msg.sender_username+": "+msg.message;
         
         $('#message-container').scrollTop($('#message-container')[0].scrollHeight);
     }
