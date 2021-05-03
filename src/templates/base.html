@@ -54,7 +54,7 @@
                     <div class="item">
                         <img src="../static/images/logo/chatboxes_stretch_png.png" onclick="location.href = &quot;/&quot;" alt="">
                     </div>
-                    <a href="" class="item">
+                    <a href="/" class="item">
                         <i class="user icon"></i>
                         My Profile
                     </a>
@@ -65,21 +65,21 @@
                         <div class="ui label red mini">{{ requestCount }}</div>
                         {% endif %}
                         <div class="menu">
-                            <a href="" class="item">
+                            <a href="/requests" class="item">
                                 <i class="icon sitemap"></i>
                                 My Connections
                                 {% if requestCount > 0 %}
                                 <div class="ui label red mini">{{ requestCount }}</div>
                                 {% endif %}
                             </a>
-                            <a href="" class="item">
+                            <a href="/members" class="item">
                                 <i class="icon users"></i>
                                 Find Users
                             </a>
                         </div>
                         <i class="icon dropdown"></i>
                     </div>
-                    <a href="" class="item">
+                    <a href="/feed" class="item">
                         <i class="icon newspaper outline"></i>
                         Feed
                     </a>
@@ -88,11 +88,11 @@
                         Stats
                         <i class="icon dropdown"></i>
                         <div class="menu">
-                            <a href="" class="item">
+                            <a href="/achievements" class="item">
                                 <i class="icon trophy"></i>
                                 Achievements
                             </a>
-                            <a href="" class="item">
+                            <a href="/leaderboard" class="item">
                                 <i class="icon table"></i>
                                 Leaderboard
                             </a>
@@ -111,14 +111,30 @@
                     </div>
 
                     <div class="right menu">
-                        <a href="{{ url_for('user_profile') }}" class="ui item">
+                        <div class="ui simple dropdown item">
                             Logged in as {{ session["username"] }}
-                        </a>
-                        <a href="/logout" class="ui item"><i class="key icon"></i>Logout</a>
+                            <i class="icon dropdown"></i>
+                            <div class="menu">
+                                <a href="/edit-profile" class="item">
+                                    <i class="icon cogs"></i>
+                                    Profile Settings
+                                </a>
+                                <a href="/edit-profile" class="item">
+                                    <i class="icon cog"></i>
+                                    Customization
+                                </a>
+                                <a href="/logout" class="item">
+                                    <i class="icon key"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
             </div>
+            {% block content %}
+            {% endblock %}
         </div>
     </div>
 </body>
