@@ -59,32 +59,27 @@ content %}
 
 <div class="ui segment">
     <div class="ui grid">
-        <div class="three wide column">
+        <div class="four wide column">
             <div class="ui input fluid small">
                 <input type="text" placeholder="Search">
             </div>
             <div class="ui horizontal divider"></div>
             <div class="ui grid">
-                <!--
-                <div class="ui seven wide column">
-                    <img src="https://via.placeholder.com/150" class="ui image rounded fluid" alt="">
-                </div>
-                <div class="nine wide column">
-                    <div class="ui grid">
-                        <div class="row">Username</div>
-                        <div class="row">Last message • 7h</div>
-                    </div>
-                </div>
--->
-                <div class="ui vertical menu secondary">
-                    <a href="" class="item active">
-                        <img src="https://via.placeholder.com/150" class="ui avatar image" alt="">
-                        Username
+                <div class="ui vertical menu secondary fluid">
+                    {% for user in rooms %}
+                    <a href="/chat/{{user[0]}}" class="item">
+                        <img src="{{user[1]}}" class="ui avatar image" alt="">
+                        <span style="font-size: 1.3em;">{{user[0]}}</span>
+                        <br>
+                        <p style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quia, inventore dolores illum doloribus veritatis laboriosam culpa eligendi nobis voluptate sunt commodi quas, beatae dignissimos minima tempore vitae consectetur at impedit!
+                        </p>
                     </a>
+                    {% endfor %}
                 </div>
             </div>
         </div>
-        <div class="one wide column"></div>
+        {% if showChat %}
         <div class="twelve wide column" style="border-left: 1px solid rgb(240, 240, 240);">
             <div class="ui grid">
                 <div class="sixteen wide column">
@@ -108,6 +103,11 @@ content %}
                 </div>
             </div>
         </div>
+        {% else %}
+        <div class="twelve wide column">
+            <div class="ui orange message">Click a user on the left to begin chatting with them.</div>
+        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -145,6 +145,8 @@ content %}
             })
             $('#message-input').val("").focus()
         })
+        
+        socket.emit("joined", {})
     })
 
     socket.on("message_received", function(msg) {

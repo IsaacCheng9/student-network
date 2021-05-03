@@ -20,7 +20,7 @@ from flask import Flask, render_template, request, redirect, session, jsonify
 from passlib.hash import sha256_crypt
 from werkzeug.utils import secure_filename
 
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, join_room, leave_room
 
 application = Flask(__name__)
 application.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
@@ -30,6 +30,8 @@ application.config["UPLOAD_FOLDER"] = "/static/images"
 
 socketio = SocketIO(application)
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, "database.db")
 
 @application.route("/", methods=["GET"])
 def index_page() -> object:
@@ -78,7 +80,7 @@ def close_connection(username: str) -> object:
         Redirection to the profile of the user they want to connect with.
     """
     if session["username"] != username:
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect(db_path) as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;",
                         (username,))
@@ -134,7 +136,7 @@ def connect_request(username: str) -> object:
         Redirection to the profile of the user they want to connect with.
     """
     if session["username"] != username:
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect(db_path) as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;",
                         (username,))
@@ -182,7 +184,7 @@ def unblock_user(username: str) -> object:
     Returns:
         Redirection to the unblocked user's profile page.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM Accounts WHERE username=?;",
                     (username,))
@@ -217,7 +219,7 @@ def quizzes() -> object:
     Returns:
         The web page of quizzes created.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
 
         cur.execute(
@@ -250,7 +252,7 @@ def quiz(quiz_id: int) -> object:
         The web page for answering the questions, or feedback for your answers.
     """
     # Gets the quiz details from the database.
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * "
@@ -364,7 +366,7 @@ def leaderboard() -> object:
     Returns:
         The web page for viewing rankings.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM UserLevel")
         top_users = cur.fetchall()
@@ -413,7 +415,7 @@ def achievements() -> object:
         percentage_color = "red"
 
     # Award achievement ID 3 - Show it off if necessary
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM CompleteAchievements "
@@ -444,7 +446,7 @@ def accept_connection_request(username: str) -> object:
         Redirection to the profile of the user they want to connect with.
     """
     if session["username"] != username:
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect(db_path) as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;",
                         (username,))
@@ -687,7 +689,7 @@ def block_user(username: str) -> object:
     deleted = delete_connection(username)
     if deleted:
         if username != session["username"]:
-            with sqlite3.connect("database.db") as conn:
+            with sqlite3.connect(db_path) as conn:
                 cur = conn.cursor()
                 # Gets user from database using username.
                 cur.execute(
@@ -712,7 +714,7 @@ def remove_close_friend(username: str) -> object:
     # Checks that the user isn't trying to remove a connection with
     # themselves.
     if username != session['username']:
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect(db_path) as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;",
                         (username,))
@@ -753,7 +755,7 @@ def show_connect_requests() -> object:
     Returns:
         The web page for viewing connect requests.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         # Loads the list of connection requests and their avatars.
         requests = []
         avatars = []
@@ -841,7 +843,7 @@ def show_staff_requests() -> object:
             return render_template("error.html", message=[
                 "You are not logged in to an admin account"],
                                    requestCount=get_connection_request_count())
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect(db_path) as conn:
             # Loads the list of connection requests and their avatars.
             requests = []
             cur = conn.cursor()
@@ -875,7 +877,7 @@ def accept_staff(username: str):
     Returns:
         Redirection to the administration page.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute("UPDATE ACCOUNTS SET type=? "
                     " WHERE username=? ;", ('staff', username))
@@ -893,7 +895,7 @@ def reject_staff(username: str):
     Returns:
         Redirection to the administration page.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute("UPDATE ACCOUNTS SET type=? "
                     " WHERE username=? ;", ('student', username))
@@ -943,7 +945,7 @@ def login_submit() -> object:
     username = request.form["username_input"].lower()
     psw = request.form["psw_input"]
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
@@ -1031,7 +1033,7 @@ def register_submit() -> object:
     account = request.form.get("optradio")
 
     # Connects to the database to perform validation.
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         valid, message = validate_registration(cur, username, full_name,
                                                password, password_confirm,
@@ -1079,7 +1081,7 @@ def post(post_id: int) -> object:
     session["prev-page"] = request.url
     content = None
     # check post restrictions
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT privacy, username "
@@ -1217,7 +1219,7 @@ def feed() -> object:
         Redirection to their feed if they're logged in.
     """
     session["prev-page"] = request.url
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
 
         connections = get_all_connections(session["username"])
@@ -1260,7 +1262,7 @@ def search_query() -> dict:
         JSON dictionary of search results of users, and their hobbies
         and interests.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         chars = request.args.get("chars")
         hobby = request.args.get("hobby")
@@ -1337,7 +1339,7 @@ def submit_post() -> object:
         valid, message = validate_quiz(quiz_name, questions)
         if valid:
             # Adds quiz to the database.
-            with sqlite3.connect("database.db") as conn:
+            with sqlite3.connect(db_path) as conn:
                 cur = conn.cursor()
                 cur.execute(
                     "INSERT INTO Quiz (quiz_name, date_created, author,"
@@ -1410,7 +1412,7 @@ def submit_post() -> object:
 
         # Only adds the post if a title has been input.
         if post_title != "" and valid is True:
-            with sqlite3.connect("database.db") as conn:
+            with sqlite3.connect(db_path) as conn:
                 cur = conn.cursor()
                 # Get account type
                 cur.execute(
@@ -1491,7 +1493,7 @@ def like_post() -> object:
     """
     post_id = request.form["postId"]
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         # check user hasn't liked post already
         cur.execute("SELECT username, postId FROM UserLikes"
@@ -1611,7 +1613,7 @@ def submit_comment() -> object:
 
     # Only submits the comment if it is not empty.
     if comment_body.replace(" ", "") != "":
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect(db_path) as conn:
             cur = conn.cursor()
             cur.execute("INSERT INTO Comments (postId, body, username) "
                         "VALUES (?, ?, ?);",
@@ -1663,7 +1665,7 @@ def delete_post() -> object:
     post_id = request.form["postId"]
     message = []
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT postId FROM POSTS WHERE postId=?;", (post_id,))
@@ -1694,7 +1696,7 @@ def delete_comment() -> object:
     post_id = request.form["postId"]
     comment_id = request.form["commentId"]
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM Comments WHERE commentId=? ",
                     (comment_id,))
@@ -1748,7 +1750,7 @@ def profile(username: str) -> object:
     interests = []
     message = []
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
@@ -2022,7 +2024,7 @@ def read_socials(username):
     Returns:
         The social media accounts of that user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         socials = {}
         # Gets the user's socials
@@ -2046,7 +2048,7 @@ def edit_profile() -> object:
     degrees = {
         "degrees": []
     }
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT birthday, bio, degree, privacy, gender FROM UserProfile "
@@ -2117,7 +2119,7 @@ def edit_profile() -> object:
         interests_unformatted = interests_input.split(",")
         interests = [interest.lower() for interest in interests_unformatted]
         # Connects to the database to perform validation.
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect(db_path) as conn:
             cur = conn.cursor()
 
             # Validates user profile details and uploaded image.
@@ -2203,7 +2205,7 @@ def profile_privacy() -> object:
         The web page to edit the user's profile details.
     """
     privacy = request.form.get("privacy")
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "UPDATE UserProfile SET privacy=? WHERE username=?;",
@@ -2225,7 +2227,7 @@ def edit_socials() -> object:
                'youtube': request.form.get("youtube"),
                'instagram': request.form.get("instagram"),
                'linkedin': request.form.get("linkedin")}
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "DELETE FROM UserSocial WHERE username=?;",
@@ -2277,7 +2279,7 @@ def apply_achievement(username: str, achievement_id: int):
         username: The user who unlocked the achievement.
         achievement_id: The ID of the achievement unlocked.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO CompleteAchievements "
@@ -2343,7 +2345,7 @@ def delete_connection(username: str) -> bool:
     # Checks that the user isn't trying to remove a connection with
     # themselves.
     if username != session["username"]:
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect(db_path) as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;",
                         (username,))
@@ -2401,7 +2403,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
     }
     if "username" in session:
         session["prev-page"] = request.url
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect(db_path) as conn:
             cur = conn.cursor()
 
             connections = get_all_connections(session["username"])
@@ -2494,7 +2496,7 @@ def get_achievements(username: str) -> Tuple[object, object]:
     Returns:
         A list of unlocked and locked achievements and their details.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         # Gets unlocked achievements, sorted by XP descending.
         cur.execute(
@@ -2526,7 +2528,7 @@ def get_all_connections(username: str) -> list:
     Returns:
         A list of all usernames that are connected to the logged in user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT user2 FROM Connection "
@@ -2547,7 +2549,7 @@ def get_all_usernames() -> list:
     Returns:
         A list of all usernames that have been registered.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT username FROM Accounts")
 
@@ -2567,7 +2569,7 @@ def get_connection_request_count() -> int:
     if "username" not in session:
         return 0
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM Connection WHERE user2=? AND "
@@ -2586,7 +2588,7 @@ def get_connection_type(username: str):
     Returns:
         The type of connection with the specified user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT connection_type FROM Connection WHERE user1=? "
@@ -2628,7 +2630,7 @@ def get_level(username: str) -> List[int]:
     xp_next_level = 100
     xp_increase_per_level = 15
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         check_level_exists(username, conn)
         # Get user experience
@@ -2656,7 +2658,7 @@ def get_profile_picture(username: str) -> str:
     Returns:
         The profile picture of the user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT profilepicture FROM UserProfile WHERE username=?;",
@@ -2678,7 +2680,7 @@ def get_degree(username: str) -> Tuple[int, str]:
         The degree of the user.
         The degreeID of the user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT degree FROM UserProfile WHERE username=?;",
@@ -2701,7 +2703,7 @@ def is_close_friend(username: str) -> bool:
     Returns:
         Whether the user is a close friend of the user (True/False).
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
@@ -2723,7 +2725,7 @@ def get_recommended_connections(username: str) -> list:
         List of mutual connections for a user and the number of shared
         connections, as well as users with shared degree.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT user2 FROM Connection "
@@ -3031,8 +3033,35 @@ def validate_youtube(url: str):
 
 @application.route("/chat")
 def chat():
+    chat_rooms = get_all_connections(session["username"])
+    chat_rooms = list(map(lambda x: (x[0], get_profile_picture(x[0])), chat_rooms))
+
     return render_template("chat.html",
-                           requestCount=get_connection_request_count(), username=session["username"])
+                           requestCount=get_connection_request_count(), username=session["username"],
+                           rooms=chat_rooms, showChat=False)
+
+@application.route("/chat/<username>")
+def chat_username(username):
+    chat_rooms = get_all_connections(session["username"])
+    chat_rooms = list(map(lambda x: (x[0], get_profile_picture(x[0])), chat_rooms))
+
+    return render_template("chat.html",
+                           requestCount=get_connection_request_count(), username=session["username"],
+                           rooms=chat_rooms, showChat=True)
+
+@socketio.on("join")
+def on_join(data):
+    username = data["username"]
+    room = data["room"]
+    join_room(room)
+    send(username + " has entered the room.", to=room)
+
+@socketio.on("leave")
+def on_leave(data):
+    username = data["username"]
+    room = data["room"]
+    leave_room(room)
+    send(username+" has left the room.", to=room)
 
 
 @socketio.on("chat_message_event")
@@ -3045,8 +3074,6 @@ def chat_message_event(json, methods=["GET","POST"]):
 @socketio.on("chat_typing_event")
 def chat_typing_event(json, methods=["GET","POST"]):
     socketio.emit("typing_toggle", json)
-
-
 
 if __name__ == "__main__":
     application.run(debug=True)
