@@ -1,12 +1,12 @@
 from flask import Flask
 
-from src.views.achievements import achievements_blueprint
-from src.views.connections import connections_blueprint
-from src.views.login import login_blueprint
-from src.views.posts import posts_blueprint
-from src.views.profile import profile_blueprint
-from src.views.quizzes import quizzes_blueprint
-from src.views.staff import staff_blueprint
+from .views.achievements import achievements_blueprint
+from .views.connections import connections_blueprint
+from .views.login import login_blueprint
+from .views.posts import posts_blueprint
+from .views.profile import profile_blueprint
+from .views.quizzes import quizzes_blueprint
+from .views.staff import staff_blueprint
 
 app = Flask(__name__)
 app.register_blueprint(achievements_blueprint, url_prefix="")
