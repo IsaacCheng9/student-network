@@ -132,6 +132,7 @@ content %}
         
         socket.emit("user_connect", {
             username: username,
+            sessionID: socket.id
         })
 
         var form = $('#chat-message-form').on("submit", function(e) {

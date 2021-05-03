@@ -3061,7 +3061,7 @@ class Client:
 
 @socketio.on("user_connect")
 def user_connect(data):
-    active_clients.append(Client(data["username"], request.sessionID))
+    active_clients.append(Client(data["username"], data["sessionID"]))
 
     for client in active_clients:
         print(client.ToString())
