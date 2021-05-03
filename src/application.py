@@ -3045,52 +3045,44 @@ def chat_username(username):
     chat_rooms = get_all_connections(session["username"])
     chat_rooms = list(map(lambda x: (x[0], get_profile_picture(x[0])), chat_rooms))
 
+    '''with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT sender, receiver, message FROM "
+            "PrivateMessages WHERE (sender=? OR receiver=?);", (session["username"], username))'''
+
     return render_template("chat.html",
                            requestCount=get_connection_request_count(), username=session["username"],
-                           rooms=chat_rooms, showChat=True)
-
-active_clients = []
-
-class Client:
-    def __init__(self, username, sessionID):
-        self.username = username
-        self.sessionID = sessionID
-
-    def ToString(self):
-        return str(self.username)+" "+str(self.sessionID)
-
-@socketio.on("user_connect")
-def user_connect(data):
-    active_clients.append(Client(data["username"], data["sessionID"]))
-
-    for client in active_clients:
-        print(client.ToString())
-
-@socketio.on("join")
-def on_join(data):
-    username = data["username"]
-    room = data["room"]
-    join_room(room)
-    send(username + " has entered the room.", to=room)
-
-@socketio.on("leave")
-def on_leave(data):
-    username = data["username"]
-    room = data["room"]
-    leave_room(room)
-    send(username+" has left the room.", to=room)
+                           rooms=chat_rooms, showChat=True, room=username)
 
 
-@socketio.on("chat_message_event")
-def chat_message_event(json, methods=["GET","POST"]):
-    json["username"] = session["username"]
-    json["isMine"] = session["username"] == json["sender_username"]
+users = {}
 
-    socketio.emit("message_received", json)
+@socketio.on("username", namespace="/private")
+def receive_username(username):
+    users[username] = request.sid
 
-@socketio.on("chat_typing_event")
-def chat_typing_event(json, methods=["GET","POST"]):
-    socketio.emit("typing_toggle", json)
+@socketio.on("private_message", namespace="/private")
+def private_message(payload):
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+
+        now = datetime.now()
+
+        cur.execute("INSERT INTO PrivateMessages "
+            "(sender, receiver, message, date) VALUES (?, ?, ?, ?);",
+            (session["username"], payload["username"], payload["message"], now.strftime("%Y-%m-%d %H:%M:%S")))
+
+        conn.commit()
+
+    if payload["username"] in users:
+        recipient_session_id = users[payload['username']]
+
+        socketio.emit('new_private_message', payload, room=recipient_session_id, namespace="/private")
+    # user is not online at the moment
+    else:
+        pass
+
 
 if __name__ == "__main__":
     application.run(debug=True)

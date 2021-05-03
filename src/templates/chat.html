@@ -67,12 +67,13 @@ content %}
             <div class="ui grid">
                 <div class="ui vertical menu secondary fluid">
                     {% for user in rooms %}
-                    <a href="/chat/{{user[0]}}" class="item">
+                    <a href="/chat/{{user[0]}}" class="item {% if user[0] == room %}active{% endif %}">
                         <img src="{{user[1]}}" class="ui avatar image" alt="">
                         <span style="font-size: 1.3em;">{{user[0]}}</span>
                         <span style="float: right;">1h</span>
                         <br>
-                        <p style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <p style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
+                           id="{{user[0]}}-last-msg">
                             Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quia, inventore dolores illum doloribus veritatis laboriosam culpa eligendi nobis voluptate sunt commodi quas, beatae dignissimos minima tempore vitae consectetur at impedit!
                         </p>
                     </a>
@@ -117,104 +118,44 @@ content %}
 
 <script>
     var socket = io.connect("http://" + document.domain + ":" + location.port);
+    
+    var private_socket = io("http://"+document.domain+":"+location.port+"/private");
 
     const username = '{{username}}';
-
-    var lastMessageUsername;
-    var sentTypingSocket = false;
-
-    var peopleTyping = [];
-
-    socket.on("connect", function() {
-        //        socket.emit("chat_message_event", {
-        //            data: "User connected!"
-        //        });
+    const room = '{{room}}';
+    
+    var lastMessageUsername = '';
+    
+    $('#chat-message-form').on("submit", function(e){
+        e.preventDefault();
         
-        socket.emit("user_connect", {
-            username: username,
-            sessionID: socket.id
-        })
-
-        var form = $('#chat-message-form').on("submit", function(e) {
-            var message = $('#message-input').val()
-
-            if (message == "") return;
-
-            e.preventDefault();
-            socket.emit('chat_message_event', {
-                message: message,
-                sender_username: username
-            })
-            socket.emit('chat_typing_event', {
-                value: false,
-                who: username
-            })
-            $('#message-input').val("").focus()
-        })
+        var message = $('#message-input').val();
         
-        socket.emit("joined", {})
-    })
-
-    socket.on("message_received", function(msg) {
-        NewChatMessage(msg, false);
-        lastMessageUsername = msg.sender_username;
-    })
-
-    socket.on("typing_toggle", function(msg) {
-        var state = msg.value;
-
-        // do not notify that we are typing
-        if (msg.who == username) return;
-
-        if (state) {
-            peopleTyping.push(msg.who);
-        } else {
-            var index = peopleTyping.indexOf(msg.who);
-            if (index > -1) {
-                peopleTyping.splice(index, 1);
-            }
+        var packet = {
+            sender_username: username,
+            username: room,
+            message: message
         }
-
-        var typingText = "";
-        if (peopleTyping.length > 0) {
-            typingText = peopleTyping.join(" and ") + ` ${peopleTyping.length == 1 ? "is" : "are"} typing...`;
-        }
-
-        document.getElementById("typing-text").innerHTML = typingText;
+        
+        $('#message-input').val("");
+        
+        private_socket.emit('private_message', packet)
+        NewChatMessage(packet);
     })
     
-    $('#message-input').keypress(function(event) {
-        if (event.keyCode == 13) {
-            event.preventDefault();
-        }
-    })
-
-    $('#message-input').on("input", function(event) {
-        var newValue = $(this).val();
-
-        if (newValue.length > 0) {
-            if (!sentTypingSocket) {
-                sentTypingSocket = true;
-
-                socket.emit("chat_typing_event", {
-                    value: true,
-                    who: username
-                });
-            }
-        } else if (sentTypingSocket) {
-            sentTypingSocket = false;
-
-            socket.emit("chat_typing_event", {
-                value: false,
-                who: username
-            });
-        }
+    $(document).ready(function(){
+        private_socket.emit('username', username);
     })
 
     document.addEventListener("keydown", function(e) {
         if (e.keyCode == 13) {
+            e.preventDefault();
             $('#chat-message-form').submit();
         }
+    })
+    
+    private_socket.on("new_private_message", function(msg){
+        NewChatMessage(msg);
     })
 
     function NewChatMessage(msg) {
@@ -224,6 +165,8 @@ content %}
         if (lastMessageUsername == msg.sender_username) {
             usernameHTML = "";
         }
+        
+        lastMessageUsername = msg.sender_username;
 
         var html = `<div class="row">
                     <div class="chat-message-body ${extra}">
@@ -235,6 +178,8 @@ content %}
                 </div>`;
 
         document.getElementById("message-container").innerHTML += html;
+        
+        document.getElementById(room+"-last-msg").innerHTML = "<b>"+msg.sender_username+"</b>: "+msg.message;
         
         $('#message-container').scrollTop($('#message-container')[0].scrollHeight);
     }
