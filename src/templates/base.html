@@ -58,6 +58,7 @@
                         <i class="user icon"></i>
                         My Profile
                     </a>
+                    {% if session["username"] %}
                     <div class="ui simple dropdown item">
                         <i class="icon sitemap"></i>
                         Connections
@@ -79,6 +80,7 @@
                         </div>
                         <i class="icon dropdown"></i>
                     </div>
+                    {% endif %}
                     <a href="/feed" class="item">
                         <i class="icon newspaper outline"></i>
                         Feed
@@ -111,6 +113,21 @@
                     </div>
 
                     <div class="right menu">
+                        {% if "admin" in session %}
+                            {% if session["admin"] %}
+                               <div class="ui simple dropdown item">
+                                    <i class="lock icon"></i>
+                                    Admin Panel
+                                    <i class="icon dropdown"></i>
+                                    <div class="menu">
+                                        <a href="{{url_for('show_staff_requests')}}" class="item">
+                                            <i class="user icon"></i>
+                                            Staff Requests
+                                        </a>
+                                    </div>
+                               </div>
+                            {% endif %}
+                        {% endif %}
                         <div class="ui simple dropdown item">
                             Logged in as {{ session["username"] }}
                             <i class="icon dropdown"></i>
