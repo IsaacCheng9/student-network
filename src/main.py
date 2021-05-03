@@ -3,6 +3,7 @@ from flask import Flask
 from achievements import achievements_blueprint
 from connections import connections_blueprint
 from login import login_blueprint
+from posts import posts_blueprint
 from profile import profile_blueprint
 from quizzes import quizzes_blueprint
 from staff import staff_blueprint
@@ -11,6 +12,7 @@ app = Flask(__name__)
 app.register_blueprint(achievements_blueprint, url_prefix="")
 app.register_blueprint(connections_blueprint, url_prefix="")
 app.register_blueprint(login_blueprint, url_prefix="")
+app.register_blueprint(posts_blueprint, url_prefix="")
 app.register_blueprint(profile_blueprint, url_prefix="")
 app.register_blueprint(quizzes_blueprint, url_prefix="")
 app.register_blueprint(staff_blueprint, url_prefix="")
