@@ -692,18 +692,6 @@ def login_submit() -> object:
             return redirect("/login")
 
 
-@application.route("/error", methods=["GET"])
-def error_test() -> object:
-    """
-    Redirects the user back to the login page if an error occurred.
-
-    Returns:
-        Redirection to the login page.
-    """
-    session["error"] = ["login"]
-    return redirect("/login")
-
-
 @application.route("/register", methods=["GET"])
 def register_page() -> object:
     """
