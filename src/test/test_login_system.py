@@ -1,11 +1,11 @@
 import sqlite3
 
-import application
+from src import application
 
 
 def test_invalid_registration():
     """Tests that invalid registration details are rejected."""
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("./database.db") as conn:
         cur = conn.cursor()
 
         username = ["goodname", "goodname", "goodname", "goodname", "goodname",
@@ -33,7 +33,7 @@ def test_invalid_registration():
 
 def test_valid_registration():
     """Tests that valid registration details are accepted."""
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("./database.db") as conn:
         cur = conn.cursor()
 
         valid, message = application.validate_registration(
@@ -44,7 +44,7 @@ def test_valid_registration():
 
 def test_null_registration():
     """Tests that null registration details are rejected."""
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("./database.db") as conn:
         cur = conn.cursor()
 
         valid, message = application.validate_registration(

@@ -1,3 +1,6 @@
+<meta property="og:title" content="Reconnect | Feed" />
+<meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
+<meta property="og:description" content="The Student Network. Connecting students in and outside the classroom." />
 {% extends "base.html" %} {% block title %}Feed{% endblock %} {% block content
 %}
 
@@ -78,105 +81,136 @@
         <p>{{ item }}</p>
         {% endfor %}
     </div>
-    {% endif %}
-    <div class="ui grid stackable">
-        <div class="sixteen wide column" style="margin-bottom: -3em !important">
-            <div class="ui segment basic">
-                <div class="ui buttons teal icon" id="post-type-buttons">
-                    <div class="ui teal button basic">Post Type</div>
-                    <button class="ui button" onclick='SelectPostType("text", this);' id="default-post-btn">
-                        <i class="file alternate outline icon"></i> Text
-                    </button>
-                    <button class="ui button basic" onclick='SelectPostType("image", this);'>
-                        <i class="file image outline icon"></i> Image
-                    </button>
-                    <button class="ui button basic icon" onclick='SelectPostType("link", this);'>
-                        <i class="linkify icon"></i> YouTube Video
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="sixteen wide column">
-            <div class="ui segment basic" id="text-post-input">
-                <form action="{{ url_for('submit_post') }}" class="ui form" method="POST">
-                    <input hidden name="form_type" value="Text" />
-                    <div class="required field">
-                        <label>Title</label>
-                        <input placeholder="Your post needs a title" type="text" name="post_title" />
-                    </div>
-                    <div class="field">
-                        <label>Content</label>
-                        <textarea placeholder="Write an optional body for your post here" name="post_text" id="" cols="3" rows="5"></textarea>
-                    </div>
-                    <div class="field">
-                        <label>Visibility</label>
-                        <select id="privacy" name="privacy">
-                            <option value="private">Private</option>
-                            <option value="close">Close Friends</option>
-                            <option value="protected">Connections</option>
-                            <option value="public" selected>Public</option>
-                        </select>
-                    </div>
-                    <input type="submit" value="Post Text" class="ui button teal" />
-                </form>
-            </div>
+    <div class="sixteen wide column">
+      <div class="ui segment basic" id="text-post-input">
+        <form
+          action="{{ url_for('posts.submit_post') }}"
+          class="ui form"
+          method="POST"
+        >
+          <input hidden name="form_type" value="Text" />
+          <div class="required field">
+            <label>Title</label>
+            <input
+              placeholder="Your post needs a title"
+              type="text"
+              name="post_title"
+            />
+          </div>
+          <div class="field">
+            <label>Content</label>
+            <textarea
+              placeholder="Write an optional body for your post here"
+              name="post_text"
+              id=""
+              cols="3"
+              rows="5"
+            ></textarea>
+          </div>
+          <div class="field">
+            <label>Visibility</label>
+            <select id="privacy" name="privacy">
+              <option value="private">Private</option>
+              <option value="close">Close Friends</option>
+              <option value="protected">Connections</option>
+              <option value="public" selected>Public</option>
+            </select>
+          </div>
+          <input type="submit" value="Post Text" class="ui button teal" />
+        </form>
+      </div>
 
-            <div class="ui segment basic" id="image-post-input">
-                <form action="{{ url_for('submit_post') }}" class="ui form" method="POST" enctype="multipart/form-data">
-                    <input hidden name="form_type" value="Image" />
-                    <div class="required field">
-                        <label>Title</label>
-                        <input placeholder="Your post needs a title" type="text" name="post_title" />
-                    </div>
-                    <div class="required field">
-                        <label>Image</label>
-                        <input type="file" name="file" />
-                    </div>
-                    <div class="field">
-                        <label>Content</label>
-                        <textarea placeholder="Write an optional body for your post here" name="post_text" id="" cols="3" rows="5"></textarea>
-                    </div>
-                    <div class="field">
-                        <label>Visibility</label>
-                        <select id="privacy" name="privacy">
-                            <option value="private">Private</option>
-                            <option value="close">Close Friends</option>
-                            <option value="protected">Connections</option>
-                            <option value="public" selected>Public</option>
-                        </select>
-                    </div>
-                    <input type="submit" value="Post Image" class="ui button teal" />
-                </form>
-            </div>
+      <div class="ui segment basic" id="image-post-input">
+        <form
+          action="{{ url_for('posts.submit_post') }}"
+          class="ui form"
+          method="POST"
+          enctype="multipart/form-data"
+        >
+          <input hidden name="form_type" value="Image" />
+          <div class="required field">
+            <label>Title</label>
+            <input
+              placeholder="Your post needs a title"
+              type="text"
+              name="post_title"
+            />
+          </div>
+          <div class="required field">
+            <label>Image</label>
+            <input type="file" name="file" />
+          </div>
+          <div class="field">
+            <label>Content</label>
+            <textarea
+              placeholder="Write an optional body for your post here"
+              name="post_text"
+              id=""
+              cols="3"
+              rows="5"
+            ></textarea>
+          </div>
+          <div class="field">
+            <label>Visibility</label>
+            <select id="privacy" name="privacy">
+              <option value="private">Private</option>
+              <option value="close">Close Friends</option>
+              <option value="protected">Connections</option>
+              <option value="public" selected>Public</option>
+            </select>
+          </div>
+          <input type="submit" value="Post Image" class="ui button teal" />
+        </form>
+      </div>
 
-            <div class="ui segment basic" id="link-post-input">
-                <form action="{{ url_for('submit_post') }}" class="ui form" method="POST">
-                    <input hidden name="form_type" value="Link" />
-                    <div class="required field">
-                        <label>Title</label>
-                        <input placeholder="Your post needs a title" type="text" name="post_title" />
-                    </div>
-                    <div class="required field">
-                        <label>URL</label>
-                        <input type="text" placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ" name="link" />
-                    </div>
-                    <div class="field">
-                        <label>Content</label>
-                        <textarea placeholder="Write an optional body for your post here" name="post_text" cols="3" rows="5"></textarea>
-                    </div>
-                    <div class="field">
-                        <label>Visibility</label>
-                        <select id="privacy" name="privacy">
-                            <option value="private">Private</option>
-                            <option value="close">Close Friends</option>
-                            <option value="protected">Connections</option>
-                            <option value="public" selected>Public</option>
-                        </select>
-                    </div>
-                    <input type="submit" value="Post YouTube Video" class="ui button teal" />
-                </form>
-            </div>
-        </div>
+      <div class="ui segment basic" id="link-post-input">
+        <form
+          action="{{ url_for('posts.submit_post') }}"
+          class="ui form"
+          method="POST"
+        >
+          <input hidden name="form_type" value="Link" />
+          <div class="required field">
+            <label>Title</label>
+            <input
+              placeholder="Your post needs a title"
+              type="text"
+              name="post_title"
+            />
+          </div>
+          <div class="required field">
+            <label>URL</label>
+            <input
+              type="text"
+              placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+              name="link"
+            />
+          </div>
+          <div class="field">
+            <label>Content</label>
+            <textarea
+              placeholder="Write an optional body for your post here"
+              name="post_text"
+              cols="3"
+              rows="5"
+            ></textarea>
+          </div>
+          <div class="field">
+            <label>Visibility</label>
+            <select id="privacy" name="privacy">
+              <option value="private">Private</option>
+              <option value="close">Close Friends</option>
+              <option value="protected">Connections</option>
+              <option value="public" selected>Public</option>
+            </select>
+          </div>
+          <input
+            type="submit"
+            value="Post YouTube Video"
+            class="ui button teal"
+          />
+        </form>
+      </div>
     </div>
 </div>
 

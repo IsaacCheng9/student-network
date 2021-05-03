@@ -1,3 +1,6 @@
+<meta property="og:title" content="Reconnect | Connections" />
+<meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
+<meta property="og:description" content="The Student Network. Connecting students in and outside the classroom." />
 {% extends "base.html" %} {% block title %}Request{% endblock %} {% block
 content %}
 <div class="ui segment">
@@ -14,7 +17,7 @@ content %}
     <div class="item">
       <div class="ui mini buttons right floated">
         <form
-          action="{{ url_for('accept_connection_request', username=requests[i]) }}"
+          action="{{ url_for('connections.accept_connection_request', username=requests[i]) }}"
           method="GET"
         >
           <button class="ui green button tiny">
@@ -24,7 +27,7 @@ content %}
         </form>
         <div class="or"></div>
         <form
-          action="{{ url_for('remove_connection', username=requests[i]) }}"
+          action="{{ url_for('connections.remove_connection', username=requests[i]) }}"
           method="GET"
         >
           <button class="ui red button tiny">
@@ -35,7 +38,7 @@ content %}
       </div>
       <img class="ui avatar image" src="{{ avatars[i] }}" />
       <div class="content">
-        <a href="{{ url_for('profile', username=requests[i]) }}"
+        <a href="{{ url_for('profile.profile', username=requests[i]) }}"
           >{{ requests[i] }}</a
         >
       </div>
@@ -51,7 +54,7 @@ content %}
     <div class="item">
       <div class="ui mini buttons right floated">
         <form
-          action="{{ url_for('remove_connection', username=connection[0]) }}"
+          action="{{ url_for('connections.remove_connection', username=connection[0]) }}"
           method="GET"
         >
           <button class="ui red button tiny">
@@ -67,7 +70,7 @@ content %}
           <i class="handshake outline icon"></i>
         </span>
         {%endif%}
-        <a href="{{ url_for('profile', username=connection[0]) }}"
+        <a href="{{ url_for('profile.profile', username=connection[0]) }}"
           >{{ connection[0] }}</a
         >
       </div>
@@ -83,7 +86,7 @@ content %}
     <div class="item">
       <div class="ui mini buttons right floated">
         <form
-          action="{{ url_for('remove_connection', username=connection[0]) }}"
+          action="{{ url_for('connections.remove_connection', username=connection[0]) }}"
           method="GET"
         >
           <button class="ui red button tiny">
@@ -99,7 +102,7 @@ content %}
           <i class="handshake outline icon"></i>
         </span>
         {%endif%}
-        <a href="{{ url_for('profile', username=connection[0]) }}"
+        <a href="{{ url_for('profile.profile', username=connection[0]) }}"
           >{{ connection[0] }}</a
         >
       </div>
@@ -115,7 +118,7 @@ content %}
     <div class="item">
       <div class="ui mini buttons right floated">
         <form
-          action="{{ url_for('unblock_user', username=connection[0]) }}"
+          action="{{ url_for('connections.unblock_user', username=connection[0]) }}"
           method="GET"
         >
           <button class="ui red button tiny">
@@ -131,7 +134,7 @@ content %}
           <i class="handshake outline icon"></i>
         </span>
         {%endif%}
-        <a href="{{ url_for('profile', username=connection[0]) }}"
+        <a href="{{ url_for('profile.profile', username=connection[0]) }}"
           >{{ connection[0] }}</a
         >
       </div>
@@ -145,7 +148,7 @@ content %}
     <div class="item">
       <div class="ui mini buttons right floated">
         <form
-          action="{{ url_for('connect_request', username=mutuals[i][0]) }}"
+          action="{{ url_for('connections.connect_request', username=mutuals[i][0]) }}"
           method="POST"
           id="connect-request"
         >
@@ -157,7 +160,7 @@ content %}
       </div>
       <img class="ui avatar image" src="{{ mutual_avatars[i] }}" />
       <div class="content">
-        <a href="{{ url_for('profile', username=mutuals[i][0]) }}"
+        <a href="{{ url_for('profile.profile', username=mutuals[i][0]) }}"
           >{{mutuals[i][0]}}</a
         >
         <br />

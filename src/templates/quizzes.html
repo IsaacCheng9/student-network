@@ -1,3 +1,6 @@
+<meta property="og:title" content="Reconnect | Quiz" />
+<meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
+<meta property="og:description" content="The Student Network. Connecting students in and outside the classroom." />
 {% extends "base.html" %}
 {% block title %}Quiz list{% endblock %}
 {% block content %}
@@ -32,8 +35,91 @@
         <!--                    <button class="ui green button icon"><i class="plus icon"></i></button>-->
     </div>
     <div class="ui horizontal divider hidden"></div>
-    <form action="{{ url_for('submit_post') }}" class="ui form" method="POST">
-        <input hidden name="form_type" value="Quiz" />
+    <form action="{{ url_for('posts.submit_post') }}" class="ui form" method="POST">
+      <input hidden name="form_type" value="Quiz"/>
+      <div class="field">
+        <label>Quiz Name</label>
+        <input type="text" name="quiz_name"/>
+      </div>
+      <div class="ui segment basic question-input" id="question1">
+        <div class="field">
+          <label>Question</label>
+          <input type="text" name="question_1" autocomplete="off"/>
+        </div>
+        <div class="two fields">
+          <div class="field">
+            <label>Correct Answer</label>
+            <input type="text" name="question_1_ans_1" autocomplete="off"/>
+          </div>
+          <div class="field">
+            <label>Answer</label>
+            <input type="text" name="question_1_ans_2" autocomplete="off"/>
+          </div>
+        </div>
+        <div class="two fields">
+          <div class="field">
+            <label>Answer</label>
+            <input type="text" name="question_1_ans_3" autocomplete="off"/>
+          </div>
+          <div class="field">
+            <label>Answer</label>
+            <input type="text" name="question_1_ans_4" autocomplete="off"/>
+          </div>
+        </div>
+      </div>
+      <div class="ui segment basic question-input" id="question2">
+        <div class="field">
+          <label>Question</label>
+          <input type="text" name="question_2" autocomplete="off"/>
+        </div>
+        <div class="two fields">
+          <div class="field">
+            <label>Correct Answer</label>
+            <input type="text" name="question_2_ans_1" autocomplete="off"/>
+          </div>
+          <div class="field">
+            <label>Answer</label>
+            <input type="text" name="question_2_ans_2" autocomplete="off"/>
+          </div>
+        </div>
+        <div class="two fields">
+          <div class="field">
+            <label>Answer</label>
+            <input type="text" name="question_2_ans_3" autocomplete="off"/>
+          </div>
+          <div class="field">
+            <label>Answer</label>
+            <input type="text" name="question_2_ans_4" autocomplete="off"/>
+          </div>
+        </div>
+      </div>
+      <div class="ui segment basic question-input" id="question3">
+        <div class="field">
+          <label>Question</label>
+          <input type="text" name="question_3" autocomplete="off"/>
+        </div>
+        <div class="two fields">
+          <div class="field">
+            <label>Correct Answer</label>
+            <input type="text" name="question_3_ans_1" autocomplete="off"/>
+          </div>
+          <div class="field">
+            <label>Answer</label>
+            <input type="text" name="question_3_ans_2" autocomplete="off"/>
+          </div>
+        </div>
+        <div class="two fields">
+          <div class="field">
+            <label>Answer</label>
+            <input type="text" name="question_3_ans_3" autocomplete="off"/>
+          </div>
+          <div class="field">
+            <label>Answer</label>
+            <input type="text" name="question_3_ans_4" autocomplete="off"/>
+          </div>
+        </div>
+      </div>
+      <div class="ui segment basic question-input" id="question4">
         <div class="field">
             <label>Quiz Name</label>
             <input type="text" name="quiz_name" />
