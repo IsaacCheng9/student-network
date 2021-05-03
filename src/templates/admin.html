@@ -9,7 +9,7 @@
     <div class="item">
       <div class="ui mini buttons right floated">
         <form
-          action="{{ url_for('accept_staff', username=request) }}"
+          action="{{ url_for('staff.accept_staff', username=request) }}"
           method="GET"
         >
           <button class="ui green button tiny">
@@ -19,7 +19,7 @@
         </form>
         <div class="or"></div>
         <form
-          action="{{ url_for('reject_staff', username=request) }}"
+          action="{{ url_for('staff.reject_staff', username=request) }}"
           method="GET"
         >
           <button class="ui red button tiny">
@@ -29,7 +29,7 @@
         </form>
       </div>
       <div class="content">
-        <a href="{{ url_for('profile', username=request) }}">{{ request }}</a>
+        <a href="{{ url_for('profile.profile', username=request) }}">{{ request }}</a>
       </div>
     </div>
     {% endfor %} {%else:%}

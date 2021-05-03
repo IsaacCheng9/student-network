@@ -85,7 +85,7 @@
             {{ username }}
             <div class="detail">{{ account_type }}</div>
           </a>
-          <a href="{{ url_for('feed') }}" class="right floated">Back To Feed</a>
+          <a href="{{ url_for('posts.feed') }}" class="right floated">Back To Feed</a>
           <div class="ui horizontal divider hidden"></div>
           <div class="header">
             {{ title }}
@@ -131,7 +131,7 @@
           </div>
           <div class="content">
             <div class="ui comments">
-              <form action="{{ url_for('like_post') }}" class="ui reply form"
+              <form action="{{ url_for('posts.like_post') }}" class="ui reply form"
                     id="likes" , method="POST">
                 <input type="hidden" name="postId" value="{{ postId }}">
               </form>
@@ -154,7 +154,7 @@
                         <i class="small trash alternate outline icon"></i>
                       </button>
                     {% endif %}
-                    <form action="{{ url_for('delete_comment') }}"
+                    <form action="{{ url_for('posts.delete_comment') }}"
                           class="ui reply form"
                           id="deleteComment{{ comment.commentId }}" ,
                           method="POST">
@@ -174,14 +174,14 @@
             </div>
             <div class="hidden content">
               <div>
-                <form action="{{ url_for('submit_comment') }}"
+                <form action="{{ url_for('posts.submit_comment') }}"
                       class="ui reply form" id="comment" , method="POST">
                   <input type="hidden" name="postId" value="{{ postId }}">
                   <div class="field">
                     <textarea placeholder="Comment here"
                               name="comment_text"></textarea>
                 </form>
-                <form action="{{ url_for('delete_post') }}" class="ui form"
+                <form action="{{ url_for('posts.delete_post') }}" class="ui form"
                       id="deletePost" , method="POST">
                   <input type="hidden" name="postId" value="{{ postId }}">
                 </form>

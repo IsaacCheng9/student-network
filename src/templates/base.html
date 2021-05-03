@@ -77,10 +77,10 @@
                     "/privacy_policy", "/terms", "/logout"] %}
         {% if session["username"] %}
           {% if request.path == ("/profile/" + session["username"]) %}
-            <a href="{{ url_for('user_profile') }}"
+            <a href="{{ url_for('profile.user_profile') }}"
                class="active item"><i class="user icon"></i>Profile</a>
           {% else %}
-            <a href="{{ url_for('user_profile') }}" class="item"><i
+            <a href="{{ url_for('profile.user_profile') }}" class="item"><i
                 class="user icon"></i> Profile</a>
           {% endif %}
           <a href="/members"
@@ -117,18 +117,18 @@
           {% if "admin" in session: %}
             {% if session["admin"]: %}
               {% if request.path == "/admin": %}
-                <a href="{{ url_for('show_staff_requests'
+                <a href="{{ url_for('staff.show_staff_requests'
                                 ) }}" class="active item"><i
                     class="lock icon"></i>Admin</a>
               {% else: %}
-                <a href="{{ url_for('show_staff_requests'
+                <a href="{{ url_for('staff.show_staff_requests'
                                 ) }}" class="item"><i class="lock icon"></i>Admin</a>
               {% endif %}
             {% endif %}
           {% endif %}
 
           <div class="right menu">
-            <a href="{{ url_for('user_profile') }}"
+            <a href="{{ url_for('profile.user_profile') }}"
                class="ui item">
               Logged in as {{ session["username"] }}
             </a>

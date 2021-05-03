@@ -111,7 +111,7 @@
     <div class="sixteen wide column">
       <div class="ui segment basic" id="text-post-input">
         <form
-          action="{{ url_for('submit_post') }}"
+          action="{{ url_for('posts.submit_post') }}"
           class="ui form"
           method="POST"
         >
@@ -149,7 +149,7 @@
 
       <div class="ui segment basic" id="image-post-input">
         <form
-          action="{{ url_for('submit_post') }}"
+          action="{{ url_for('posts.submit_post') }}"
           class="ui form"
           method="POST"
           enctype="multipart/form-data"
@@ -192,7 +192,7 @@
 
       <div class="ui segment basic" id="link-post-input">
         <form
-          action="{{ url_for('submit_post') }}"
+          action="{{ url_for('posts.submit_post') }}"
           class="ui form"
           method="POST"
         >

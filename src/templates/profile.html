@@ -443,7 +443,7 @@ content %}
                 Connect
               </button>
               <form
-                action="{{ url_for('connect_request', username=username) }}"
+                action="{{ url_for('connections.connect_request', username=username) }}"
                 method="POST"
                 id="connect-request"
               ></form>
@@ -456,7 +456,7 @@ content %}
                 Pending
               </button>
               <form
-                action="{{ url_for('remove_connection', username=username) }}"
+                action="{{ url_for('connections.remove_connection', username=username) }}"
                 method="GET"
                 id="pending-remove-connection"
               ></form>
@@ -466,7 +466,7 @@ content %}
                 Accept Request
               </button>
               <form
-                action="{{ url_for('accept_connection_request', username=username) }}"
+                action="{{ url_for('connections.accept_connection_request', username=username) }}"
                 method="GET"
                 id="accept"
               ></form>
@@ -476,7 +476,7 @@ content %}
                 Mark as Close Friend
               </button>
               <form
-                action="{{ url_for('close_connection', username=username) }}"
+                action="{{ url_for('connections.close_connection', username=username) }}"
                 method="GET"
                 id="close-connection"
               ></form>
@@ -486,7 +486,7 @@ content %}
                 Close Friends
               </button>
               <form
-                action="{{ url_for('remove_close_friend', username=username) }}"
+                action="{{ url_for('connections.remove_close_friend', username=username) }}"
                 method="GET"
                 id="remove-close"
               ></form>
@@ -499,7 +499,7 @@ content %}
                 Connected
               </button>
               <form
-                action="{{ url_for('remove_connection', username=username) }}"
+                action="{{ url_for('connections.remove_connection', username=username) }}"
                 method="GET"
                 id="connected-remove-connection"
               ></form>
@@ -509,7 +509,7 @@ content %}
                 Blocked
               </button>
               <form
-                action="{{ url_for('unblock_user', username=username) }}"
+                action="{{ url_for('connections.unblock_user', username=username) }}"
                 method="GET"
                 id="unblock-button"
               ></form>
@@ -519,7 +519,7 @@ content %}
                 Block
               </button>
               <form
-                action="{{ url_for('block_user', username=username) }}"
+                action="{{ url_for('connections.block_user', username=username) }}"
                 method="GET"
                 id="block-button"
               ></form>
