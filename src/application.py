@@ -3049,6 +3049,23 @@ def chat_username(username):
                            requestCount=get_connection_request_count(), username=session["username"],
                            rooms=chat_rooms, showChat=True)
 
+active_clients = []
+
+class Client:
+    def __init__(self, username, sessionID):
+        self.username = username
+        self.sessionID = sessionID
+
+    def ToString(self):
+        return str(self.username)+" "+str(self.sessionID)
+
+@socketio.on("user_connect")
+def user_connect(data):
+    active_clients.append(Client(data["username"], request.sessionID))
+
+    for client in active_clients:
+        print(client.ToString())
+
 @socketio.on("join")
 def on_join(data):
     username = data["username"]

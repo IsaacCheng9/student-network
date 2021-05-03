@@ -70,6 +70,7 @@ content %}
                     <a href="/chat/{{user[0]}}" class="item">
                         <img src="{{user[1]}}" class="ui avatar image" alt="">
                         <span style="font-size: 1.3em;">{{user[0]}}</span>
+                        <span style="float: right;">1h</span>
                         <br>
                         <p style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quia, inventore dolores illum doloribus veritatis laboriosam culpa eligendi nobis voluptate sunt commodi quas, beatae dignissimos minima tempore vitae consectetur at impedit!
@@ -128,6 +129,10 @@ content %}
         //        socket.emit("chat_message_event", {
         //            data: "User connected!"
         //        });
+        
+        socket.emit("user_connect", {
+            username: username,
+        })
 
         var form = $('#chat-message-form').on("submit", function(e) {
             var message = $('#message-input').val()
