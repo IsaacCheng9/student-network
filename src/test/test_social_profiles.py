@@ -1,6 +1,6 @@
 from flask import url_for, request
 
-import application
+from src import application
 
 
 def test_invalid_edit_profile():
