@@ -40,3 +40,37 @@ def achievements() -> object:
                            allUsernames=get_all_usernames(),
                            percentage=percentage,
                            percentage_color=percentage_color)
+
+
+@achievements_blueprint.route("/leaderboard", methods=["GET"])
+def leaderboard() -> object:
+    """
+    Displays leaderboard of users with the most experience.
+
+    Returns:
+        The web page for viewing rankings.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM UserLevel")
+        top_users = cur.fetchall()
+        if top_users is not None:
+            total_user_count = len(top_users)
+            # 0 = username, 1 = XP value
+            top_users.sort(key=lambda x: x[1], reverse=True)
+            my_ranking = 0
+            for user in top_users:
+                my_ranking += 1
+                if user[0] == session["username"]:
+                    break
+            top_users = top_users[0:min(25, len(top_users))]
+            top_users = list(map(lambda x: (
+                x[0], x[1], get_profile_picture(x[0]), get_level(x[0]),
+                get_degree(x[0])[1]),
+                                 top_users))
+    session["prev-page"] = request.url
+    return render_template("leaderboard.html", leaderboard=top_users,
+                           requestCount=get_connection_request_count(),
+                           allUsernames=get_all_usernames(),
+                           myRanking=my_ranking,
+                           totalUserCount=total_user_count)
