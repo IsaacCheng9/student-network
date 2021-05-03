@@ -1,0 +1,189 @@
+{% extends "base.html" %} {% block title %}Home Page{% endblock %} {% block
+content %}
+
+<style>
+    .chat-message-body {
+        max-width: 45%;
+        display: block;
+        font-family: "Open Sans";
+    }
+
+    .chat-message-body img {
+        width: 100%;
+        max-height: 25em;
+    }
+
+    .chat-message-body>.username {
+        color: gray;
+    }
+
+    .chat-message {
+        background-color: #F0F3F4;
+        padding: 1em;
+        border-radius: 1em;
+        word-break: break-all;
+    }
+
+    .chat-message-body.right-floated .chat-message {
+        background-color: #D6EAF8;
+    }
+
+    .left-floated {
+        margin-right: auto;
+        margin-left: 1em;
+    }
+
+    .right-floated {
+        margin-left: auto;
+        margin-right: 1em;
+        text-align: right;
+    }
+
+    .no-resize {
+        resize: none !important;
+    }
+
+    #message-container {
+        padding: 1em;
+        height: auto;
+        max-height: 70vh;
+        overflow: auto;
+    }
+
+    #message-container>.row {
+        margin: 0.1em;
+        padding: 0.1em;
+    }
+
+</style>
+
+<div class="ui segment">
+    <div class="ui grid">
+        <div class="four wide column">
+            <div class="ui input fluid small">
+                <input type="text" placeholder="Search">
+            </div>
+            <div class="ui horizontal divider"></div>
+            <div class="ui grid">
+                <div class="ui vertical menu secondary fluid">
+                    {% for user in rooms %}
+                    <a href="/chat/{{user[0]}}" class="item {% if user[0] == room %}active{% endif %}">
+                        <img src="{{user[1]}}" class="ui avatar image" alt="">
+                        <span style="font-size: 1.3em;">{{user[0]}}</span>
+                        <span style="float: right;">1h</span>
+                        <br>
+                        <p style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
+                           id="{{user[0]}}-last-msg">
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quia, inventore dolores illum doloribus veritatis laboriosam culpa eligendi nobis voluptate sunt commodi quas, beatae dignissimos minima tempore vitae consectetur at impedit!
+                        </p>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% if showChat %}
+        <div class="twelve wide column" style="border-left: 1px solid rgb(240, 240, 240);">
+            <div class="ui grid">
+                <div class="sixteen wide column">
+                    <div class="ui grid compact" id="message-container"></div>
+                </div>
+                <div class="ui horizontal divider"></div>
+                <div class="sixteen wide column">
+                    <div id="typing-text"></div>
+
+                    <form class="ui form" method="POST" action="" id="chat-message-form"></form>
+
+                    <div class="ui input icon fluid">
+                        <i class="icon arrow up"></i>
+                        <input name="" rows=1 class="no-resize" id="message-input" form="chat-message-form" required>
+                    </div>
+                    <div class="ui horizontal list big">
+                        <div class="item"><a href="#"><i class="icon paperclip"></i></a></div>
+                        <div class="item"><a href="#"><i class="icon image"></i></a></div>
+                        <div class="item"><a href="#"><i class="icon video"></i></a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="twelve wide column">
+            <div class="ui orange message">Click a user on the left to begin chatting with them.</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+
+<script>
+    var socket = io.connect("http://" + document.domain + ":" + location.port);
+    
+    var private_socket = io("http://"+document.domain+":"+location.port+"/private");
+
+    const username = '{{username}}';
+    const room = '{{room}}';
+    
+    var lastMessageUsername = '';
+    
+    $('#chat-message-form').on("submit", function(e){
+        e.preventDefault();
+        
+        var message = $('#message-input').val();
+        
+        var packet = {
+            sender_username: username,
+            username: room,
+            message: message
+        }
+        
+        $('#message-input').val("");
+        
+        private_socket.emit('private_message', packet)
+        NewChatMessage(packet);
+    })
+    
+    $(document).ready(function(){
+        private_socket.emit('username', username);
+    })
+
+    document.addEventListener("keydown", function(e) {
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            $('#chat-message-form').submit();
+        }
+    })
+    
+    private_socket.on("new_private_message", function(msg){
+        NewChatMessage(msg);
+    })
+
+    function NewChatMessage(msg) {
+        var extra = msg.sender_username == username ? "right-floated" : "left-floated";
+        var usernameHTML = `<div class="username">${msg.username}</div>`;
+
+        if (lastMessageUsername == msg.sender_username) {
+            usernameHTML = "";
+        }
+        
+        lastMessageUsername = msg.sender_username;
+
+        var html = `<div class="row">
+                    <div class="chat-message-body ${extra}">
+                        ${usernameHTML}
+                        <div class="chat-message">
+                            ${msg.message}
+                        </div>
+                    </div>
+                </div>`;
+
+        document.getElementById("message-container").innerHTML += html;
+        
+        document.getElementById(room+"-last-msg").innerText = msg.sender_username+": "+msg.message;
+        
+        $('#message-container').scrollTop($('#message-container')[0].scrollHeight);
+    }
+
+</script>
+
+{% endblock %}
