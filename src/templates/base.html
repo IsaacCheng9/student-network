@@ -137,12 +137,18 @@
                         {% if "username" in session %}
                         <div class="ui simple dropdown item">
                             <i class="bell icon"></i>
+                            {% if notifications|length > 0 %}
                             <div class="ui red label">
-                                2
+                                {{notifications|length}}
                             </div>
-                            <div class="menu">
-                                <a href="" class="item">Someone liked your post!</a>
-                                <a href="" class="item">You've been tagged by @User in a post</a>
+                            {% endif %}
+                            <div class="menu" style="max-height: 30vh; overflow-y: auto;">
+                                {% for notification in notifications %}
+                                <a href="{{notification[2]}}" class="item">
+                                    {{notification[0]}}
+                                    <span style="color: gray;"> {{notification[1]}}</span>
+                                </a>
+                                {% endfor %}
                             </div>
                         </div>
                         <div class="ui simple dropdown item">
