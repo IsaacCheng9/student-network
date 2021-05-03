@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect
 
-from helper import *
+from src.helper import *
 
 connections_blueprint = Blueprint("connections", __name__,
                                   static_folder="static",

@@ -1,4 +1,4 @@
-from ..views.helper import *
+from src.helper import *
 
 
 def test_allowed_file():

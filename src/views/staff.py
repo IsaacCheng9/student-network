@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect
 
-from helper import *
+from src.helper import *
 
 staff_blueprint = Blueprint("staff", __name__, static_folder="static",
                             template_folder="templates")

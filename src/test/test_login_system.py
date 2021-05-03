@@ -1,6 +1,6 @@
 import sqlite3
 
-from .. import application
+from src import application
 
 
 def test_invalid_registration():

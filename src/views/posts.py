@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 
 from flask import Blueprint, render_template, redirect, jsonify
 
-from helper import *
+from src.helper import *
 
 posts_blueprint = Blueprint("posts", __name__, static_folder="static",
                             template_folder="templates")

@@ -4,7 +4,7 @@ from flask import Blueprint
 from flask import render_template, redirect
 from passlib.hash import sha256_crypt
 
-from helper import *
+from src.helper import *
 
 login_blueprint = Blueprint("login", __name__, static_folder="static",
                             template_folder="templates")

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 
-from helper import *
+from src.helper import *
 
 achievements_blueprint = Blueprint("achievements", __name__,
                                    static_folder="static",
