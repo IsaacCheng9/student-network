@@ -14,6 +14,8 @@ from typing import Tuple, List, Sized
 from urllib.parse import parse_qs
 from urllib.parse import urlparse
 
+from math import floor
+
 from PIL import Image
 from email_validator import validate_email, EmailNotValidError
 from flask import Flask, render_template, request, redirect, session, jsonify
@@ -184,7 +186,7 @@ def members() -> object:
     """
     session["prev-page"] = request.url
     return render_template("members.html",
-                           requestCount=get_connection_request_count())
+                           requestCount=get_connection_request_count(), notifications=get_notifications())
 
 
 @application.route("/quizzes", methods=["GET"])
@@ -208,11 +210,11 @@ def quizzes() -> object:
         session.pop("error", None)
         return render_template("quizzes.html",
                                requestCount=get_connection_request_count(),
-                               quizzes=quiz_posts, errors=errors)
+                               quizzes=quiz_posts, errors=errors, notifications=get_notifications())
     else:
         return render_template("quizzes.html",
                                requestCount=get_connection_request_count(),
-                               quizzes=quiz_posts)
+                               quizzes=quiz_posts, notifications=get_notifications())
 
 
 @application.route("/quiz/<quiz_id>", methods=["GET", "POST"])
@@ -237,7 +239,7 @@ def quiz(quiz_id: int) -> object:
                                requestCount=get_connection_request_count(),
                                quiz_name=quiz_name, quiz_id=quiz_id,
                                questions=questions, answers=answers,
-                               quiz_author=quiz_author)
+                               quiz_author=quiz_author, notifications=get_notifications())
     elif request.method == "POST":
         score = 0
         # Gets the answers selected by the user.
@@ -279,7 +281,7 @@ def quiz(quiz_id: int) -> object:
             return render_template("quiz_results.html",
                                    question_feedback=question_feedback,
                                    requestCount=get_connection_request_count(),
-                                   score=score)
+                                   score=score, notifications=get_notifications())
 
 
 @application.route("/leaderboard", methods=["GET"])
@@ -313,7 +315,7 @@ def leaderboard() -> object:
                            requestCount=get_connection_request_count(),
                            allUsernames=get_all_usernames(),
                            myRanking=my_ranking,
-                           totalUserCount=total_user_count)
+                           totalUserCount=total_user_count, notifications=get_notifications())
 
 
 @application.route("/achievements", methods=["GET"])
@@ -348,7 +350,7 @@ def achievements() -> object:
                            requestCount=get_connection_request_count(),
                            allUsernames=get_all_usernames(),
                            percentage=percentage,
-                           percentage_color=percentage_color)
+                           percentage_color=percentage_color, notifications=get_notifications())
 
 
 @application.route("/accept_connection_request/<username>",
@@ -543,7 +545,7 @@ def show_connect_requests() -> object:
                            pending=pending_connections,
                            blocked=blocked_connections,
                            mutuals=mutual_connections,
-                           mutual_avatars=mutual_avatars)
+                           mutual_avatars=mutual_avatars, notifications=get_notifications())
 
 
 @application.route("/admin", methods=["GET", "POST"])
@@ -558,7 +560,7 @@ def show_staff_requests() -> object:
         if not session["admin"]:
             return render_template("error.html", message=[
                 "You are not logged in to an admin account"],
-                                   requestCount=get_connection_request_count())
+                                   requestCount=get_connection_request_count(), notifications=get_notifications())
         with sqlite3.connect("database.db") as conn:
             # Loads the list of connection requests and their avatars.
             requests = []
@@ -574,11 +576,11 @@ def show_staff_requests() -> object:
                     requests.append(elem[0])
 
             return render_template("admin.html", requests=requests,
-                                   requestCount=request_count)
+                                   requestCount=request_count, notifications=get_notifications())
     else:
         return render_template("error.html", message=[
             "You are not logged in to an admin account"],
-                               requestCount=get_connection_request_count())
+                               requestCount=get_connection_request_count(), notifications=get_notifications())
 
 
 @application.route("/accept_staff/<username>", methods=["GET", "POST"])
@@ -628,7 +630,7 @@ def terms_page() -> object:
     if request.method == "GET":
         session["prev-page"] = request.url
         return render_template("terms.html",
-                               requestCount=get_connection_request_count())
+                               requestCount=get_connection_request_count(), notifications=get_notifications())
     else:
         return redirect("/register")
 
@@ -644,7 +646,7 @@ def privacy_policy_page() -> object:
     if request.method == "GET":
         session["prev-page"] = request.url
         return render_template("privacy_policy.html",
-                               requestCount=get_connection_request_count())
+                               requestCount=get_connection_request_count(), notifications=get_notifications())
     else:
         return redirect("/terms")
 
@@ -800,7 +802,8 @@ def post(post_id: int) -> object:
         row = cur.fetchone()
         if row is None:
             return render_template("error.html",
-                                   message=["This post does not exist."], )
+                                   message=["This post does not exist."],
+                                   requestCount=get_connection_request_count(), notifications=get_notifications())
         privacy = row[0]
         username = row[1]
         # check its if its an anonymous user or a logged in user
@@ -850,7 +853,7 @@ def post(post_id: int) -> object:
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames())
+                                   allUsernames=get_all_usernames(), notifications=get_notifications())
         else:
             data = row[0]
             (title, body, username, date_posted,
@@ -893,7 +896,7 @@ def post(post_id: int) -> object:
                     comments=None, requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(),
                     avatar=get_profile_picture(username), type=post_type,
-                    content=content)
+                    content=content, notifications=get_notifications())
             for comment in row:
                 time = datetime.strptime(
                     comment[3], "%Y-%m-%d %H:%M:%S").strftime("%d-%m-%y %H:%M")
@@ -913,7 +916,7 @@ def post(post_id: int) -> object:
                 requestCount=get_connection_request_count(),
                 allUsernames=get_all_usernames(),
                 avatar=get_profile_picture(username), type=post_type,
-                content=content)
+                content=content, notifications=get_notifications())
 
 
 @application.route("/fetch_posts/", methods=['GET'])
@@ -951,8 +954,6 @@ def feed() -> object:
     all_posts, content, valid = fetch_posts(2, row[0])
     # Displays any error messages.
 
-    new_notification("You opened the feed!")
-
     all_posts = []
 
     if valid:
@@ -964,13 +965,13 @@ def feed() -> object:
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
                                    errors=errors, content=content,
-                                   max_id=row[0])
+                                   max_id=row[0], notifications=get_notifications())
         else:
             session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
-                                   content=content, max_id=row[0])
+                                   content=content, max_id=row[0], notifications=get_notifications())
     else:
         return redirect("/login")
 
@@ -1233,7 +1234,7 @@ def delete_post() -> object:
     session["prev-page"] = request.url
     return render_template("error.html", message=message,
                            requestCount=get_connection_request_count(),
-                           allUsernames=get_all_usernames())
+                           allUsernames=get_all_usernames(), notifications=get_notifications())
 
 
 @application.route("/delete_comment", methods=["POST"])
@@ -1259,7 +1260,7 @@ def delete_comment() -> object:
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames())
+                                   allUsernames=get_all_usernames(), notifications=get_notifications())
         else:
             cur.execute("DELETE FROM Comments WHERE commentId =? ",
                         (comment_id,))
@@ -1316,7 +1317,7 @@ def profile(username: str) -> object:
             session["prev-page"] = request.url
             return render_template(
                 "error.html", message=message,
-                requestCount=get_connection_request_count())
+                requestCount=get_connection_request_count(), notifications=get_notifications())
         else:
             data = row[0]
             name, bio, gender, birthday, profile_picture, privacy = (
@@ -1344,7 +1345,7 @@ def profile(username: str) -> object:
                     session["prev-page"] = request.url
                     return render_template(
                         "error.html", message=message,
-                        requestCount=get_connection_request_count())
+                        requestCount=get_connection_request_count(), notifications=get_notifications())
             elif conn_type == "blocked":
                 message.append(
                     "Unable to view this profile since " + username +
@@ -1352,7 +1353,7 @@ def profile(username: str) -> object:
                 session["prev-page"] = request.url
                 return render_template(
                     "error.html", message=message,
-                    requestCount=get_connection_request_count())
+                    requestCount=get_connection_request_count(), notifications=get_notifications())
             else:
                 conn_type = "close_friend"
                 if privacy == "private":
@@ -1362,7 +1363,7 @@ def profile(username: str) -> object:
                     session["prev-page"] = request.url
                     return render_template(
                         "error.html", message=message,
-                        requestCount=get_connection_request_count())
+                        requestCount=get_connection_request_count(), notifications=get_notifications())
 
             session["prev-page"] = request.url
             connections = get_all_connections(username)
@@ -1517,7 +1518,7 @@ def profile(username: str) -> object:
                                requestCount=get_connection_request_count(),
                                level=level, current_xp=int(current_xp),
                                xp_next_level=int(xp_next_level),
-                               progress_color=progress_color)
+                               progress_color=progress_color, notifications=get_notifications())
     else:
         session["prev-page"] = request.url
         return render_template("profile.html", username=username,
@@ -1532,7 +1533,7 @@ def profile(username: str) -> object:
                                unlocked_achievements=first_six,
                                level=level, current_xp=int(current_xp),
                                xp_next_level=int(xp_next_level),
-                               progress_color=progress_color)
+                               progress_color=progress_color, notifications=get_notifications())
 
 
 @application.route("/edit-profile", methods=["GET", "POST"])
@@ -1587,7 +1588,7 @@ def edit_profile() -> object:
                                date=dob, bio=bio, degrees=degrees,
                                gender=gender,
                                degree=degree, socials=socials, privacy=privacy,
-                               hobbies=hobbies, interests=interests, errors=[])
+                               hobbies=hobbies, interests=interests, errors=[], notifications=get_notifications())
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -1683,7 +1684,7 @@ def edit_profile() -> object:
                     "settings.html", errors=message,
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(), degrees=degrees,
-                    degree=degree, date=dob, bio=bio, privacy=privacy)
+                    degree=degree, date=dob, bio=bio, privacy=privacy, notifications=get_notifications())
 
 
 @application.route("/profile_privacy", methods=["POST"])
@@ -2946,17 +2947,41 @@ def validate_youtube(url: str):
 
     return url_regex_match
 
-def new_notification(body):
+def new_notification(body, url):
+    now = datetime.now()
+
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
+
         cur.execute(
-            "SELECT (username, body, date) FROM notification WHERE username=?;",
+            "INSERT INTO notification (username, body, date, url) VALUES (?, ?, ?, ?);",
+            (session["username"], body, now.strftime("%Y-%m-%d %H:%M:%S"), url)
+        )
+
+def get_notifications():
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+
+        cur.execute("SELECT body, date, url FROM notification WHERE username=? ORDER BY date DESC", 
             (session["username"], ))
-        
+
         row = cur.fetchall()
 
-        print(row)
+        row = list(map(lambda x: (x[0], TimeStringify(datetime.now() - datetime.strptime(x[1], "%Y-%m-%d %H:%M:%S")), x[2]), row))
 
+        return row
+
+def TimeStringify(datetimeObj):
+    seconds = datetimeObj.total_seconds()
+
+    prefixes = ["y","m","d","h", "m","s"]
+    values = [3600 * 24 * 365, 3600 * 31 * 24, 3600 * 24, 3600, 60, 1]
+
+    for i in range(len(prefixes)):
+        if seconds >= values[i]:
+            return str(floor(seconds/values[i]))+prefixes[i]
+
+    return "Just Now"
 
 if __name__ == "__main__":
     application.run(debug=True)
