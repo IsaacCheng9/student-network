@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask import render_template, redirect
 
-from src.helper import *
+from student_network.helper import *
 
 profile_blueprint = Blueprint("profile", __name__, static_folder="static",
                               template_folder="templates")

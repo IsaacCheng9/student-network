@@ -4,15 +4,14 @@ from datetime import datetime
 
 from flask import Flask, request, session
 from flask_socketio import SocketIO
-
-from src.views.achievements import achievements_blueprint
-from src.views.chat import chat_blueprint
-from src.views.connections import connections_blueprint
-from src.views.login import login_blueprint
-from src.views.posts import posts_blueprint
-from src.views.profile import profile_blueprint
-from src.views.quizzes import quizzes_blueprint
-from src.views.staff import staff_blueprint
+from student_network.views.achievements import achievements_blueprint
+from student_network.views.chat import chat_blueprint
+from student_network.views.connections import connections_blueprint
+from student_network.views.login import login_blueprint
+from student_network.views.posts import posts_blueprint
+from student_network.views.profile import profile_blueprint
+from student_network.views.quizzes import quizzes_blueprint
+from student_network.views.staff import staff_blueprint
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(BASE_DIR, "database.db")

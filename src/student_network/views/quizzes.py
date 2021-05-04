@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect
 
-from src.helper import *
+from student_network.helper import *
 
 quizzes_blueprint = Blueprint("quizzes", __name__, static_folder="static",
                               template_folder="templates")

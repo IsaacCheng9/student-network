@@ -12,7 +12,7 @@ from flask import request, session
 from werkzeug.utils import secure_filename
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(BASE_DIR, "database.db")
+db_path = os.path.join(BASE_DIR, "../database.db")
 
 
 def add_quiz(author, date_created, post_privacy, questions, quiz_name):

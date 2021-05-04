@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 
-from src.helper import *
+from student_network.helper import *
 
 chat_blueprint = Blueprint("chat", __name__,
                            static_folder="static",

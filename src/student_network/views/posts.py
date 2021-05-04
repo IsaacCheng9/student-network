@@ -2,8 +2,7 @@ from urllib.parse import parse_qs
 from urllib.parse import urlparse
 
 from flask import Blueprint, render_template, redirect, jsonify
-
-from src.helper import *
+from student_network.helper import *
 
 posts_blueprint = Blueprint("posts", __name__, static_folder="static",
                             template_folder="templates")
