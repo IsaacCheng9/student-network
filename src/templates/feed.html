@@ -81,6 +81,7 @@
         <p>{{ item }}</p>
         {% endfor %}
     </div>
+    {% endif %}
     <div class="sixteen wide column">
       <div class="ui segment basic" id="text-post-input">
         <form
@@ -357,7 +358,6 @@
         var comments = ``;
 
         for (var comment of post.comments) {
-            console.log(comment);
             comments += `<div class="comment">
                             <a class="avatar">
                                 <img src="${comment[5]}" />
