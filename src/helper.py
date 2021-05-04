@@ -11,6 +11,9 @@ from email_validator import validate_email, EmailNotValidError
 from flask import request, session
 from werkzeug.utils import secure_filename
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, "database.db")
+
 
 def add_quiz(author, date_created, post_privacy, questions, quiz_name):
     """
@@ -23,7 +26,7 @@ def add_quiz(author, date_created, post_privacy, questions, quiz_name):
         questions: Questions and answers for the quiz.
         quiz_name: Name of the quiz.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO Quiz (quiz_name, date_created, author,"
@@ -74,7 +77,7 @@ def apply_achievement(username: str, achievement_id: int):
         username: The user who unlocked the achievement.
         achievement_id: The ID of the achievement unlocked.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM CompleteAchievements "
@@ -145,7 +148,7 @@ def delete_connection(username: str) -> bool:
     # Checks that the user isn't trying to remove a connection with
     # themselves.
     if username != session["username"]:
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect(db_path) as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;",
                         (username,))
@@ -185,6 +188,17 @@ def delete_connection(username: str) -> bool:
                 return False
 
 
+def display_short_notification_age(seconds):
+    prefixes = ["y", "m", "d", "h", "m", "s"]
+    values = [3600 * 24 * 365, 3600 * 31 * 24, 3600 * 24, 3600, 60, 1]
+
+    for i in range(len(prefixes)):
+        if seconds >= values[i]:
+            return str(floor(seconds / values[i])) + prefixes[i]
+
+    return "Just Now"
+
+
 def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
     """
     Fetches posts which are visible by the user logged in.
@@ -203,7 +217,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
     }
     if "username" in session:
         session["prev-page"] = request.url
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect(db_path) as conn:
             cur = conn.cursor()
 
             connections = get_all_connections(session["username"])
@@ -296,7 +310,7 @@ def get_achievements(username: str) -> Tuple[Sized, Sized]:
     Returns:
         A list of unlocked and locked achievements and their details.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         # Gets unlocked achievements, sorted by XP descending.
         cur.execute(
@@ -328,7 +342,7 @@ def get_all_connections(username: str) -> list:
     Returns:
         A list of all usernames that are connected to the logged in user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT user2 FROM Connection "
@@ -349,7 +363,7 @@ def get_all_usernames() -> list:
     Returns:
         A list of all usernames that have been registered.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute("SELECT username FROM Accounts")
 
@@ -369,7 +383,7 @@ def get_connection_request_count() -> int:
     if "username" not in session:
         return 0
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM Connection WHERE user2=? AND "
@@ -388,7 +402,7 @@ def get_connection_type(username: str):
     Returns:
         The type of connection with the specified user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT connection_type FROM Connection WHERE user1=? "
@@ -413,6 +427,87 @@ def get_connection_type(username: str):
                 return "incoming"
             else:
                 return None
+
+
+def get_degree(username: str) -> Tuple[int, str]:
+    """
+    Gets the degree of a user.
+
+    Args:
+        username: The username of the user's profile picture.
+
+    Returns:
+        The degree of the user.
+        The degreeID of the user.
+    """
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT degree FROM UserProfile WHERE username=?;",
+            (username,)
+        )
+        degree_id = cur.fetchone()
+        if degree_id:
+            cur.execute(
+                "SELECT degree FROM Degree WHERE degreeId=?;",
+                (degree_id[0],)
+            )
+            degree = cur.fetchone()
+            return degree_id[0], degree[0]
+
+
+def get_level(username: str) -> List[int]:
+    """
+    Gets the current user experience points, the experience points
+    for the next level and the user's current level from the database.
+
+    Args:
+        username: The username of the user logged in.
+
+    Returns:
+        The user's level, XP, and XP to reach the next level.
+    """
+    level = 1
+    xp_next_level = 100
+    xp_increase_per_level = 15
+
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+        check_level_exists(username, conn)
+        # Get user experience
+        cur.execute(
+            "SELECT experience FROM "
+            "UserLevel WHERE username=?;", (username,))
+        row = cur.fetchone()
+
+        exp = int(row[0])
+        while exp >= xp_next_level:
+            level += 1
+            exp -= xp_next_level
+            xp_next_level += xp_increase_per_level
+
+        return [level, exp, xp_next_level]
+
+
+def get_profile_picture(username: str) -> str:
+    """
+    Gets the profile picture of a user.
+
+    Args:
+        username: The username of the user's profile picture.
+
+    Returns:
+        The profile picture of the user.
+    """
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT profilepicture FROM UserProfile WHERE username=?;",
+            (username,)
+        )
+        row = cur.fetchone()
+        if row:
+            return row[0]
 
 
 def get_quiz_details(cur, quiz_id: int) -> Tuple[list, list, str, list, str]:
@@ -456,105 +551,25 @@ def get_quiz_details(cur, quiz_id: int) -> Tuple[list, list, str, list, str]:
     return answers, questions, quiz_author, quiz_details, quiz_name
 
 
-def get_level(username: str) -> List[int]:
-    """
-    Gets the current user experience points, the experience points
-    for the next level and the user's current level from the database.
-
-    Args:
-        username: The username of the user logged in.
-
-    Returns:
-        The user's level, XP, and XP to reach the next level.
-    """
-    level = 1
-    xp_next_level = 100
-    xp_increase_per_level = 15
-
-    with sqlite3.connect("database.db") as conn:
+def get_notifications():
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
-        check_level_exists(username, conn)
-        # Get user experience
+
         cur.execute(
-            "SELECT experience FROM "
-            "UserLevel WHERE username=?;", (username,))
-        row = cur.fetchone()
+            "SELECT body, date, url FROM notification WHERE username=? ORDER "
+            "BY date DESC",
+            (session["username"],))
 
-        exp = int(row[0])
-        while exp >= xp_next_level:
-            level += 1
-            exp -= xp_next_level
-            xp_next_level += xp_increase_per_level
+        row = cur.fetchall()
 
-        return [level, exp, xp_next_level]
+        time_difference = datetime.now() - datetime.strptime(x[1],
+                                                             "%Y-%m-%d "
+                                                             "%H:%M:%S")
+        notification_metadata = list(
+            map(lambda x: (x[0], display_short_notification_age(
+                time_difference.total_seconds()), x[2]), row))
 
-
-def get_profile_picture(username: str) -> str:
-    """
-    Gets the profile picture of a user.
-
-    Args:
-        username: The username of the user's profile picture.
-
-    Returns:
-        The profile picture of the user.
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT profilepicture FROM UserProfile WHERE username=?;",
-            (username,)
-        )
-        row = cur.fetchone()
-        if row:
-            return row[0]
-
-
-def get_degree(username: str) -> Tuple[int, str]:
-    """
-    Gets the degree of a user.
-
-    Args:
-        username: The username of the user's profile picture.
-
-    Returns:
-        The degree of the user.
-        The degreeID of the user.
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT degree FROM UserProfile WHERE username=?;",
-            (username,)
-        )
-        degree_id = cur.fetchone()
-        if degree_id:
-            cur.execute(
-                "SELECT degree FROM Degree WHERE degreeId=?;",
-                (degree_id[0],)
-            )
-            degree = cur.fetchone()
-            return degree_id[0], degree[0]
-
-
-def is_close_friend(username: str) -> bool:
-    """
-    Gets whether the selected user has the logged in as a close friend.
-
-    Returns:
-        Whether the user is a close friend of the user (True/False).
-    """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
-            (session["username"], username)
-        )
-        row = cur.fetchone()
-        if row is not None:
-            return True
-
-    return False
+        return notification_metadata
 
 
 def get_recommended_connections(username: str) -> list:
@@ -566,7 +581,7 @@ def get_recommended_connections(username: str) -> list:
         List of mutual connections for a user and the number of shared
         connections, as well as users with shared degree.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT user2 FROM Connection "
@@ -610,6 +625,39 @@ def get_recommended_connections(username: str) -> list:
         return mutual_connections
 
 
+def is_close_friend(username: str) -> bool:
+    """
+    Gets whether the selected user has the logged in as a close friend.
+
+    Returns:
+        Whether the user is a close friend of the user (True/False).
+    """
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
+            (session["username"], username)
+        )
+        row = cur.fetchone()
+        if row is not None:
+            return True
+
+    return False
+
+
+def new_notification(body, url):
+    now = datetime.now()
+
+    with sqlite3.connect(db_path) as conn:
+        cur = conn.cursor()
+
+        cur.execute(
+            "INSERT INTO notification (username, body, date, url) VALUES (?, "
+            "?, ?, ?);",
+            (session["username"], body, now.strftime("%Y-%m-%d %H:%M:%S"), url)
+        )
+
+
 def read_socials(username: str):
     """
     Args:
@@ -618,7 +666,7 @@ def read_socials(username: str):
     Returns:
         The social media accounts of that user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         socials = {}
         # Gets the user's socials
