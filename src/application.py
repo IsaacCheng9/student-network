@@ -1754,7 +1754,7 @@ def add_quiz(author, date_created, post_privacy, questions, quiz_name):
         questions: Questions and answers for the quiz.
         quiz_name: Name of the quiz.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO Quiz (quiz_name, date_created, author,"
@@ -2349,7 +2349,7 @@ def read_socials(username: str):
     Returns:
         The social media accounts of that user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
         socials = {}
         # Gets the user's socials
@@ -2999,7 +2999,7 @@ def private_message(payload):
 def new_notification(body, url):
     now = datetime.now()
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
 
         cur.execute(
@@ -3008,7 +3008,7 @@ def new_notification(body, url):
         )
 
 def get_notifications():
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
 
         cur.execute("SELECT body, date, url FROM notification WHERE username=? ORDER BY date DESC", 
