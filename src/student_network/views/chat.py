@@ -20,7 +20,8 @@ def chat():
     return render_template("chat.html",
                            requestCount=get_connection_request_count(),
                            username=session["username"],
-                           rooms=chat_rooms, showChat=False)
+                           rooms=chat_rooms, showChat=False,
+                           notifications=get_notifications())
 
 
 @chat_blueprint.route("/chat/<username>")
@@ -39,4 +40,5 @@ def chat_username(username):
     return render_template("chat.html",
                            requestCount=get_connection_request_count(),
                            username=session["username"],
-                           rooms=chat_rooms, showChat=True, room=username)
+                           rooms=chat_rooms, showChat=True, room=username,
+                           notifications=get_notifications())

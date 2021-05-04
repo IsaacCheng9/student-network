@@ -6,13 +6,15 @@ from datetime import date, datetime
 from random import sample
 from typing import Tuple, List, Sized
 
+from math import floor
+
 from PIL import Image
 from email_validator import validate_email, EmailNotValidError
 from flask import request, session
 from werkzeug.utils import secure_filename
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(BASE_DIR, "../database.db")
+db_path = os.path.join(BASE_DIR, "database.db")
 
 
 def add_quiz(author, date_created, post_privacy, questions, quiz_name):
@@ -100,6 +102,8 @@ def apply_achievement(username: str, achievement_id: int):
                 "WHERE username=?;",
                 (exp, username))
             conn.commit()
+
+            new_notification("You have received an achievement badge!", "/achievements")
 
 
 def calculate_age(born: datetime) -> int:
@@ -562,12 +566,9 @@ def get_notifications():
 
         row = cur.fetchall()
 
-        time_difference = datetime.now() - datetime.strptime(x[1],
-                                                             "%Y-%m-%d "
-                                                             "%H:%M:%S")
         notification_metadata = list(
             map(lambda x: (x[0], display_short_notification_age(
-                time_difference.total_seconds()), x[2]), row))
+                (datetime.now() - datetime.strptime(x[1], "%Y-%m-%d %H:%M:%S")).total_seconds()), x[2]), row))
 
         return notification_metadata
 
@@ -656,6 +657,8 @@ def new_notification(body, url):
             "?, ?, ?);",
             (session["username"], body, now.strftime("%Y-%m-%d %H:%M:%S"), url)
         )
+
+        conn.commit()
 
 
 def read_socials(username: str):

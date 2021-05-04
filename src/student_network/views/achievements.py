@@ -39,7 +39,8 @@ def achievements() -> object:
                            requestCount=get_connection_request_count(),
                            allUsernames=get_all_usernames(),
                            percentage=percentage,
-                           percentage_color=percentage_color)
+                           percentage_color=percentage_color,
+                           notifications=get_notifications())
 
 
 @achievements_blueprint.route("/leaderboard", methods=["GET"])
@@ -73,4 +74,5 @@ def leaderboard() -> object:
                            requestCount=get_connection_request_count(),
                            allUsernames=get_all_usernames(),
                            myRanking=my_ranking,
-                           totalUserCount=total_user_count)
+                           totalUserCount=total_user_count,
+                           notifications=get_notifications())

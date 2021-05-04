@@ -132,7 +132,8 @@ def members() -> object:
     """
     session["prev-page"] = request.url
     return render_template("members.html",
-                           requestCount=get_connection_request_count())
+                           requestCount=get_connection_request_count(),
+                           notifications=get_notifications())
 
 
 @connections_blueprint.route("/accept_connection_request/<username>",
@@ -327,4 +328,5 @@ def show_connect_requests() -> object:
                            pending=pending_connections,
                            blocked=blocked_connections,
                            mutuals=mutual_connections,
-                           mutual_avatars=mutual_avatars)
+                           mutual_avatars=mutual_avatars,
+                           notifications=get_notifications())

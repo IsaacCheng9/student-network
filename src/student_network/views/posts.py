@@ -80,7 +80,8 @@ def post(post_id: int) -> object:
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames())
+                                   allUsernames=get_all_usernames(),
+                           notifications=get_notifications())
         else:
             data = row[0]
             (title, body, username, date_posted,
@@ -125,7 +126,8 @@ def post(post_id: int) -> object:
                     comments=None, requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(),
                     avatar=get_profile_picture(username), type=post_type,
-                    content=content)
+                    content=content,
+                           notifications=get_notifications())
             for comment in row:
                 time = datetime.strptime(
                     comment[3], "%Y-%m-%d %H:%M:%S").strftime("%d-%m-%y %H:%M")
@@ -145,7 +147,8 @@ def post(post_id: int) -> object:
                 requestCount=get_connection_request_count(),
                 allUsernames=get_all_usernames(),
                 avatar=get_profile_picture(username), type=post_type,
-                content=content)
+                content=content,
+                           notifications=get_notifications())
 
 
 @posts_blueprint.route("/fetch_posts/", methods=['GET'])
@@ -194,13 +197,15 @@ def feed() -> object:
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
                                    errors=errors, content=content,
-                                   max_id=row[0])
+                                   max_id=row[0],
+                           notifications=get_notifications())
         else:
             session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
-                                   content=content, max_id=row[0])
+                                   content=content, max_id=row[0],
+                           notifications=get_notifications())
     else:
         return redirect("/login")
 
@@ -462,7 +467,8 @@ def delete_post() -> object:
     session["prev-page"] = request.url
     return render_template("error.html", message=message,
                            requestCount=get_connection_request_count(),
-                           allUsernames=get_all_usernames())
+                           allUsernames=get_all_usernames(),
+                           notifications=get_notifications())
 
 
 @posts_blueprint.route("/delete_comment", methods=["POST"])
@@ -488,7 +494,8 @@ def delete_comment() -> object:
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames())
+                                   allUsernames=get_all_usernames(),
+                           notifications=get_notifications())
         else:
             cur.execute("DELETE FROM Comments WHERE commentId =? ",
                         (comment_id,))
