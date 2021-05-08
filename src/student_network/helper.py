@@ -202,6 +202,26 @@ def display_short_notification_age(seconds):
 
     return "Just Now"
 
+def check_if_liked(cur, post_id: int, username: str) -> bool:
+    """
+    Checks if the given user has liked the post.
+
+    Args:
+        cur: Cursor for the SQLite database.
+        post_id: ID of the post to check
+        username: username to check if post is liked from
+    
+    Returns:
+        True if post has been liked by user, False if not
+    """
+    cur.execute("SELECT username FROM UserLikes "
+                "WHERE postId=? AND username=?;",
+                (post_id, username))
+    row = cur.fetchone()
+    if row:
+        return True
+    return False
+
 
 def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
     """
@@ -287,6 +307,8 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                     "FROM POSTS WHERE postId=?;", (post_id,))
                 like_count = cur.fetchone()[0]
 
+                liked = check_if_liked(cur, post_id, session["username"])
+
                 all_posts["AllPosts"].append({
                     "postId": user_post[0],
                     "title": user_post[1],
@@ -299,6 +321,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                     "content": content,
                     "comment_count": comment_count,
                     "like_count": like_count,
+                    "liked": liked,
                     "comments": comments
                 })
                 i += 1

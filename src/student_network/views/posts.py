@@ -90,14 +90,15 @@ def post(post_id: int) -> object:
                                                 data[6])
 
             # Check if user has liked post.
-            cur.execute("SELECT username FROM UserLikes "
-                        "WHERE postId=? AND username=?;",
-                        (post_id, session["username"]))
-            row = cur.fetchone()
-            if row:
-                liked = True
-            else:
-                liked = False
+            #cur.execute("SELECT username FROM UserLikes "
+            #            "WHERE postId=? AND username=?;",
+            #            (post_id, session["username"]))
+            #row = cur.fetchone()
+            #if row:
+            #    liked = True
+            #else:
+            #    liked = False
+            liked = check_if_liked(cur, post_id, session["username"])
 
             cur.execute(
                 "SELECT username FROM ACCOUNTS WHERE username=?;",
@@ -141,7 +142,7 @@ def post(post_id: int) -> object:
             session["prev-page"] = request.url
             return render_template(
                 "post_page.html", author=author, postId=post_id,
-                title=title, body=body, username=username,
+                title=title, body=body, username=username, liked=liked,
                 date=date_posted, likes=likes, accountType=account_type,
                 user_account_type=user_account_type, comments=comments,
                 requestCount=get_connection_request_count(),
@@ -345,11 +346,12 @@ def like_post() -> object:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # check user hasn't liked post already
-        cur.execute("SELECT username, postId FROM UserLikes"
-                    " WHERE postId=? AND username=? ;",
-                    (post_id, session["username"]))
-        row = cur.fetchone()
-        if row is None:
+        #cur.execute("SELECT username, postId FROM UserLikes"
+        #            " WHERE postId=? AND username=? ;",
+        #            (post_id, session["username"]))
+        #row = cur.fetchone()
+        liked = check_if_liked(cur, post_id, session["username"])
+        if not liked:
             cur.execute("INSERT INTO UserLikes (postId,username)"
                         "VALUES (?, ?);", (post_id, session["username"]))
 
