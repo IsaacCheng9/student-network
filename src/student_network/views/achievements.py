@@ -55,7 +55,7 @@ def leaderboard() -> object:
         cur = conn.cursor()
         cur.execute("SELECT * FROM UserLevel")
         top_users = cur.fetchall()
-        if top_users is not None:
+        if top_users:
             total_user_count = len(top_users)
             # 0 = username, 1 = XP value
             top_users.sort(key=lambda x: x[1], reverse=True)

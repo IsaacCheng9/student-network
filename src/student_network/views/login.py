@@ -95,13 +95,13 @@ def login_submit() -> object:
             (username,))
         conn.commit()
         row = cur.fetchone()
-        if row is not None:
+        if row:
             hashed_psw = row[0]
             account_type = row[1]
         else:
             session["error"] = ["login"]
             return redirect("/login")
-        if hashed_psw is not None:
+        if hashed_psw:
             if sha256_crypt.verify(psw, hashed_psw):
                 session["username"] = username
                 session["prev-page"] = request.url

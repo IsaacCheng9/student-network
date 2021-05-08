@@ -165,7 +165,7 @@ def delete_connection(username: str) -> bool:
                     (username, session["username"], session["username"],
                      username))
                 # Removes the connection from the database if it exists.
-                if row is not None:
+                if row:
                     cur.execute(
                         "DELETE FROM Connection WHERE (user1=? AND user2=?) "
                         "OR (user1=? AND user2=?);",
@@ -177,7 +177,7 @@ def delete_connection(username: str) -> bool:
                         "OR (user1=? AND user2=?);",
                         (username, session["username"], session["username"],
                          username))
-                    if row is not None:
+                    if row:
                         cur.execute(
                             "DELETE FROM CloseFriend "
                             "WHERE (user1=? AND user2=?) "
@@ -217,8 +217,7 @@ def check_if_liked(cur, post_id: int, username: str) -> bool:
     cur.execute("SELECT username FROM UserLikes "
                 "WHERE postId=? AND username=?;",
                 (post_id, username))
-    row = cur.fetchone()
-    if row:
+    if cur.fetchone():
         return True
     return False
 
@@ -438,7 +437,7 @@ def get_connection_type(username: str):
 
         # Checks if there is a connection between the two users.
         row = cur.fetchone()
-        if row is not None:
+        if row:
             return row[0]
         else:
             cur.execute(
@@ -446,7 +445,7 @@ def get_connection_type(username: str):
                 "user2=?", (username, session["username"],))
             conn.commit()
             row = cur.fetchone()
-            if row is not None:
+            if row:
                 if row[0] == "connected":
                     return "connected"
                 elif row[0] == "block":
@@ -662,8 +661,7 @@ def is_close_friend(username: str) -> bool:
             "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
             (session["username"], username)
         )
-        row = cur.fetchone()
-        if row is not None:
+        if cur.fetchone():
             return True
 
     return False

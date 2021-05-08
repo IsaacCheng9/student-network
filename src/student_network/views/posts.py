@@ -89,15 +89,6 @@ def post(post_id: int) -> object:
                                                 data[3], data[4], data[5],
                                                 data[6])
 
-            # Check if user has liked post.
-            #cur.execute("SELECT username FROM UserLikes "
-            #            "WHERE postId=? AND username=?;",
-            #            (post_id, session["username"]))
-            #row = cur.fetchone()
-            #if row:
-            #    liked = True
-            #else:
-            #    liked = False
             liked = check_if_liked(cur, post_id, session["username"])
 
             cur.execute(
@@ -110,7 +101,7 @@ def post(post_id: int) -> object:
                     "SELECT contentUrl "
                     "FROM PostContent WHERE postId=?;", (post_id,))
                 content = cur.fetchone()
-                if content is not None:
+                if content:
                     content = content[0]
             cur.execute(
                 "SELECT *"
