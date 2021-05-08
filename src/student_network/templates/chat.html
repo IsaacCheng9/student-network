@@ -160,7 +160,7 @@ content %}
 
     function NewChatMessage(msg) {
         var extra = msg.sender_username == username ? "right-floated" : "left-floated";
-        var usernameHTML = `<div class="username">${username}</div>`;
+        var usernameHTML = `<div class="username">${msg.sender_username}</div>`;
 
         if (lastMessageUsername == msg.sender_username) {
             usernameHTML = "";
