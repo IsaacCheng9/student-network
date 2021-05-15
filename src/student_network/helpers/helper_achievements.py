@@ -7,10 +7,10 @@ from datetime import date
 from typing import Tuple, Sized
 
 from flask import session
-from student_network.helper_general import get_all_connections, \
+from student_network.helpers.helper_general import get_all_connections, \
     new_notification
-from student_network.helper_login import check_level_exists
-from student_network.helper_profile import get_degree
+from student_network.helpers.helper_login import check_level_exists
+from student_network.helpers.helper_profile import get_degree
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")

@@ -8,14 +8,14 @@ from datetime import datetime
 from flask import Blueprint
 from flask import render_template, redirect
 from flask import request, session
-from student_network.helper_achievements import apply_achievement, \
+from student_network.helpers.helper_achievements import apply_achievement, \
     get_achievements, update_profile_achievements
-from student_network.helper_connections import get_connection_request_count, \
-    get_connection_type
-from student_network.helper_general import get_all_connections, \
+from student_network.helpers.helper_connections import \
+    get_connection_request_count, get_connection_type
+from student_network.helpers.helper_general import get_all_connections, \
     get_all_usernames, get_notifications
-from student_network.helper_login import check_level_exists
-from student_network.helper_profile import calculate_age, \
+from student_network.helpers.helper_login import check_level_exists
+from student_network.helpers.helper_profile import calculate_age, \
     get_level, read_socials, validate_edit_profile, validate_profile_pic
 
 profile_blueprint = Blueprint("profile", __name__, static_folder="static",

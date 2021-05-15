@@ -10,8 +10,8 @@ from typing import Tuple, List
 from PIL import Image
 from werkzeug.utils import secure_filename
 
-from student_network.helper_general import allowed_file
-from student_network.helper_login import check_level_exists
+from student_network.helpers.helper_general import allowed_file
+from student_network.helpers.helper_login import check_level_exists
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")

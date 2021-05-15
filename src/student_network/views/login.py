@@ -10,8 +10,9 @@ from flask import Blueprint
 from flask import render_template, redirect
 from flask import request, session
 from passlib.hash import sha256_crypt
-from student_network.helper_connections import get_connection_request_count
-from student_network.helper_login import check_level_exists, \
+from student_network.helpers.helper_connections import \
+    get_connection_request_count
+from student_network.helpers.helper_login import check_level_exists, \
     validate_registration
 
 login_blueprint = Blueprint("login", __name__, static_folder="static",

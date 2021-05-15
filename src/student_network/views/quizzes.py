@@ -5,11 +5,13 @@ import sqlite3
 
 from flask import Blueprint, render_template, redirect
 from flask import request, session
-from student_network.helper_achievements import update_quiz_achievements
-from student_network.helper_connections import get_connection_request_count
-from student_network.helper_general import get_notifications
-from student_network.helper_login import check_level_exists
-from student_network.helper_quizzes import get_quiz_details
+from student_network.helpers.helper_achievements import \
+    update_quiz_achievements
+from student_network.helpers.helper_connections import \
+    get_connection_request_count
+from student_network.helpers.helper_general import get_notifications
+from student_network.helpers.helper_login import check_level_exists
+from student_network.helpers.helper_quizzes import get_quiz_details
 
 quizzes_blueprint = Blueprint("quizzes", __name__, static_folder="static",
                               template_folder="templates")

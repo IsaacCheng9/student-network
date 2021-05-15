@@ -9,19 +9,20 @@ from urllib.parse import urlparse
 
 from flask import Blueprint, render_template, redirect, jsonify
 from flask import request, session
-from student_network.helper_achievements import update_post_achievements
-from student_network.helper_connections import get_connection_request_count, \
-    get_connection_type, is_close_friend
-from student_network.helper_general import get_all_connections, \
+from student_network.helpers.helper_achievements import \
+    update_post_achievements
+from student_network.helpers.helper_connections import \
+    get_connection_request_count, get_connection_type, is_close_friend
+from student_network.helpers.helper_general import get_all_connections, \
     get_all_usernames, get_notifications
-from student_network.helper_login import check_level_exists
-from student_network.helper_posts import check_if_liked, \
-    fetch_posts, update_comment_achievements, \
-    upload_image, update_submission_achievements, \
-    validate_youtube
-from student_network.helper_profile import get_degree, get_profile_picture
-from student_network.helper_quizzes import add_quiz, save_quiz_details, \
-    validate_quiz
+from student_network.helpers.helper_login import check_level_exists
+from student_network.helpers.helper_posts import check_if_liked, \
+    fetch_posts, update_comment_achievements, upload_image, \
+    update_submission_achievements, validate_youtube
+from student_network.helpers.helper_profile import get_degree, \
+    get_profile_picture
+from student_network.helpers.helper_quizzes import add_quiz, \
+    save_quiz_details, validate_quiz
 
 posts_blueprint = Blueprint("posts", __name__, static_folder="static",
                             template_folder="templates")

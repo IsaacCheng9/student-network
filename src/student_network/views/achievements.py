@@ -6,11 +6,13 @@ import sqlite3
 
 from flask import Blueprint, render_template
 from flask import request, session
-from student_network.helper_achievements import apply_achievement, \
+from student_network.helpers.helper_achievements import apply_achievement, \
     get_achievements
-from student_network.helper_connections import get_connection_request_count
-from student_network.helper_general import get_all_usernames, get_notifications
-from student_network.helper_profile import get_degree, get_level, \
+from student_network.helpers.helper_connections import \
+    get_connection_request_count
+from student_network.helpers.helper_general import get_all_usernames, \
+    get_notifications
+from student_network.helpers.helper_profile import get_degree, get_level, \
     get_profile_picture
 
 achievements_blueprint = Blueprint("achievements", __name__,

@@ -10,9 +10,10 @@ from typing import Tuple
 
 from PIL import Image
 from flask import request, session
-from student_network.helper_achievements import apply_achievement
-from student_network.helper_general import allowed_file, get_all_connections
-from student_network.helper_profile import get_profile_picture
+from student_network.helpers.helper_achievements import apply_achievement
+from student_network.helpers.helper_general import allowed_file, \
+    get_all_connections
+from student_network.helpers.helper_profile import get_profile_picture
 from werkzeug.utils import secure_filename
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

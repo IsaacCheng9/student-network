@@ -1,11 +1,13 @@
 """
 Handles the view for staff administration tools and related functionality.
 """
+
 import sqlite3
 
 from flask import Blueprint, render_template, redirect
 from flask import session
-from student_network.helper_connections import get_connection_request_count
+from student_network.helpers.helper_connections import \
+    get_connection_request_count
 
 staff_blueprint = Blueprint("staff", __name__, static_folder="static",
                             template_folder="templates")
