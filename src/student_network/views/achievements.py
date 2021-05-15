@@ -1,13 +1,17 @@
 """
 Handles the view for achievements and related functionality.
 """
+
 import sqlite3
 
 from flask import Blueprint, render_template
 from flask import request, session
-from student_network.helper import apply_achievement, get_achievements, \
-    get_all_usernames, get_connection_request_count, get_degree, get_level, \
-    get_notifications, get_profile_picture
+from student_network.helper_achievements import apply_achievement, \
+    get_achievements
+from student_network.helper_connections import get_connection_request_count
+from student_network.helper_general import get_all_usernames, get_notifications
+from student_network.helper_profile import get_degree, get_level, \
+    get_profile_picture
 
 achievements_blueprint = Blueprint("achievements", __name__,
                                    static_folder="static",

@@ -5,8 +5,10 @@ import os
 
 from flask import Blueprint, render_template
 from flask import session
-from student_network.helper import get_all_connections, \
-    get_connection_request_count, get_notifications, get_profile_picture
+from student_network.helper_connections import get_connection_request_count
+from student_network.helper_general import get_all_connections, \
+    get_notifications
+from student_network.helper_profile import get_profile_picture
 
 chat_blueprint = Blueprint("chat", __name__,
                            static_folder="static",

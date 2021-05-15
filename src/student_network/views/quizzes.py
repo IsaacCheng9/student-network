@@ -5,9 +5,11 @@ import sqlite3
 
 from flask import Blueprint, render_template, redirect
 from flask import request, session
-from student_network.helper import check_level_exists, \
-    get_connection_request_count, get_quiz_details, get_notifications, \
-    update_quiz_achievements
+from student_network.helper_achievements import update_quiz_achievements
+from student_network.helper_connections import get_connection_request_count
+from student_network.helper_general import get_notifications
+from student_network.helper_login import check_level_exists
+from student_network.helper_quizzes import get_quiz_details
 
 quizzes_blueprint = Blueprint("quizzes", __name__, static_folder="static",
                               template_folder="templates")
