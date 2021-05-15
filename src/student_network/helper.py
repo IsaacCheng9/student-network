@@ -3,10 +3,9 @@ import re
 import sqlite3
 import uuid
 from datetime import date, datetime
+from math import floor
 from random import sample
 from typing import Tuple, List, Sized
-
-from math import floor
 
 from PIL import Image
 from email_validator import validate_email, EmailNotValidError
@@ -103,7 +102,8 @@ def apply_achievement(username: str, achievement_id: int):
                 (exp, username))
             conn.commit()
 
-            new_notification("You have received an achievement badge!", "/achievements")
+            new_notification("You have received an achievement badge!",
+                             "/achievements")
 
 
 def calculate_age(born: datetime) -> int:
@@ -119,6 +119,26 @@ def calculate_age(born: datetime) -> int:
     today = date.today()
     return today.year - born.year - (
             (today.month, today.day) < (born.month, born.day))
+
+
+def check_if_liked(cur, post_id: int, username: str) -> bool:
+    """
+    Checks if the given user has liked the post.
+
+    Args:
+        cur: Cursor for the SQLite database.
+        post_id: ID of the post to check
+        username: username to check if post is liked from
+
+    Returns:
+        True if post has been liked by user, False if not
+    """
+    cur.execute("SELECT username FROM UserLikes "
+                "WHERE postId=? AND username=?;",
+                (post_id, username))
+    if cur.fetchone():
+        return True
+    return False
 
 
 def check_level_exists(username: str, conn):
@@ -201,25 +221,6 @@ def display_short_notification_age(seconds):
             return str(floor(seconds / values[i])) + prefixes[i]
 
     return "Just Now"
-
-def check_if_liked(cur, post_id: int, username: str) -> bool:
-    """
-    Checks if the given user has liked the post.
-
-    Args:
-        cur: Cursor for the SQLite database.
-        post_id: ID of the post to check
-        username: username to check if post is liked from
-    
-    Returns:
-        True if post has been liked by user, False if not
-    """
-    cur.execute("SELECT username FROM UserLikes "
-                "WHERE postId=? AND username=?;",
-                (post_id, username))
-    if cur.fetchone():
-        return True
-    return False
 
 
 def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
@@ -590,7 +591,10 @@ def get_notifications():
 
         notification_metadata = list(
             map(lambda x: (x[0], display_short_notification_age(
-                (datetime.now() - datetime.strptime(x[1], "%Y-%m-%d %H:%M:%S")).total_seconds()), x[2]), row))
+                (datetime.now() - datetime.strptime(x[1],
+                                                    "%Y-%m-%d "
+                                                    "%H:%M:%S")).total_seconds()),
+                           x[2]), row))
 
         return notification_metadata
 
