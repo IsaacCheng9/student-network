@@ -1,3 +1,6 @@
+"""
+Handles the view for user profiles and related functionality.
+"""
 from flask import Blueprint
 from flask import render_template, redirect
 

@@ -1,3 +1,6 @@
+"""
+Handles the view for staff administration tools and related functionality.
+"""
 from flask import Blueprint, render_template, redirect
 
 from student_network.helper import *

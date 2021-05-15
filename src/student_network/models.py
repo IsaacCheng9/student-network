@@ -1,3 +1,8 @@
+"""
+A student network application which is presented as a web application using
+the Flask module. Students each have their own profile page, and they can post
+on their feed.
+"""
 import os
 import sqlite3
 from datetime import datetime
@@ -14,7 +19,7 @@ from student_network.views.quizzes import quizzes_blueprint
 from student_network.views.staff import staff_blueprint
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(BASE_DIR, "database.db")
+DB_PATH = os.path.join(BASE_DIR, "database.db")
 app = Flask(__name__)
 socketio = SocketIO(app)
 app.register_blueprint(achievements_blueprint, url_prefix="")
@@ -38,7 +43,7 @@ def receive_username(username):
 
 @socketio.on("private_message", namespace="/private")
 def private_message(payload):
-    with sqlite3.connect(db_path) as conn:
+    with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
 
         now = datetime.now()

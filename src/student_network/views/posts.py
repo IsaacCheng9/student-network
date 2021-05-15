@@ -1,3 +1,6 @@
+"""
+Handles the view for posts on the feed and related functionality.
+"""
 from urllib.parse import parse_qs
 from urllib.parse import urlparse
 
@@ -81,7 +84,7 @@ def post(post_id: int) -> object:
             return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
-                           notifications=get_notifications())
+                                   notifications=get_notifications())
         else:
             data = row[0]
             (title, body, username, date_posted,
@@ -119,7 +122,7 @@ def post(post_id: int) -> object:
                     allUsernames=get_all_usernames(),
                     avatar=get_profile_picture(username), type=post_type,
                     content=content,
-                           notifications=get_notifications())
+                    notifications=get_notifications())
             for comment in row:
                 time = datetime.strptime(
                     comment[3], "%Y-%m-%d %H:%M:%S").strftime("%d-%m-%y %H:%M")
@@ -140,7 +143,7 @@ def post(post_id: int) -> object:
                 allUsernames=get_all_usernames(),
                 avatar=get_profile_picture(username), type=post_type,
                 content=content,
-                           notifications=get_notifications())
+                notifications=get_notifications())
 
 
 @posts_blueprint.route("/fetch_posts/", methods=['GET'])
@@ -190,14 +193,14 @@ def feed() -> object:
                                    allUsernames=get_all_usernames(),
                                    errors=errors, content=content,
                                    max_id=row[0],
-                           notifications=get_notifications())
+                                   notifications=get_notifications())
         else:
             session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
                                    content=content, max_id=row[0],
-                           notifications=get_notifications())
+                                   notifications=get_notifications())
     else:
         return redirect("/login")
 
@@ -337,10 +340,10 @@ def like_post() -> object:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # check user hasn't liked post already
-        #cur.execute("SELECT username, postId FROM UserLikes"
+        # cur.execute("SELECT username, postId FROM UserLikes"
         #            " WHERE postId=? AND username=? ;",
         #            (post_id, session["username"]))
-        #row = cur.fetchone()
+        # row = cur.fetchone()
         liked = check_if_liked(cur, post_id, session["username"])
         if not liked:
             cur.execute("INSERT INTO UserLikes (postId,username)"
@@ -488,7 +491,7 @@ def delete_comment() -> object:
             return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
-                           notifications=get_notifications())
+                                   notifications=get_notifications())
         else:
             cur.execute("DELETE FROM Comments WHERE commentId =? ",
                         (comment_id,))

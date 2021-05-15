@@ -1,3 +1,6 @@
+"""
+Handles the view for achievements and related functionality.
+"""
 from flask import Blueprint, render_template
 
 from student_network.helper import *

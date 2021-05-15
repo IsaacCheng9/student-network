@@ -1,3 +1,6 @@
+"""
+Handles the view for the login system and related functionality.
+"""
 from string import capwords
 
 from flask import Blueprint
