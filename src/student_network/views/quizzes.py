@@ -5,13 +5,12 @@ import sqlite3
 
 from flask import Blueprint, render_template, redirect
 from flask import request, session
-from student_network.helpers.helper_achievements import \
-    update_quiz_achievements
-from student_network.helpers.helper_connections import \
-    get_connection_request_count
-from student_network.helpers.helper_general import get_notifications
-from student_network.helpers.helper_login import check_level_exists
-from student_network.helpers.helper_quizzes import get_quiz_details
+
+import student_network.helpers.helper_achievements as helper_achievements
+import student_network.helpers.helper_connections as helper_connections
+import student_network.helpers.helper_general as helper_general
+import student_network.helpers.helper_login as helper_login
+import student_network.helpers.helper_quizzes as helper_quizzes
 
 quizzes_blueprint = Blueprint("quizzes", __name__, static_folder="static",
                               template_folder="templates")
@@ -37,14 +36,18 @@ def quizzes() -> object:
         errors = session["error"]
         session.pop("error", None)
         return render_template("quizzes.html",
-                               requestCount=get_connection_request_count(),
+                               requestCount=
+                               helper_connections.get_connection_request_count(),
                                quizzes=quiz_posts, errors=errors,
-                               notifications=get_notifications())
+                               notifications=
+                               helper_general.get_notifications())
     else:
         return render_template("quizzes.html",
-                               requestCount=get_connection_request_count(),
+                               requestCount=
+                               helper_connections.get_connection_request_count(),
                                quizzes=quiz_posts,
-                               notifications=get_notifications())
+                               notifications=
+                               helper_general.get_notifications())
 
 
 @quizzes_blueprint.route("/quiz/<quiz_id>", methods=["GET", "POST"])
@@ -62,15 +65,18 @@ def quiz(quiz_id: int) -> object:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         (answers, questions, quiz_author,
-         quiz_details, quiz_name) = get_quiz_details(cur, quiz_id)
+         quiz_details, quiz_name) = helper_quizzes.get_quiz_details(cur,
+                                                                    quiz_id)
 
     if request.method == "GET":
         return render_template("quiz.html",
-                               requestCount=get_connection_request_count(),
+                               requestCount=
+                               helper_connections.get_connection_request_count(),
                                quiz_name=quiz_name, quiz_id=quiz_id,
                                questions=questions, answers=answers,
                                quiz_author=quiz_author,
-                               notifications=get_notifications())
+                               notifications=
+                               helper_general.get_notifications())
     elif request.method == "POST":
         score = 0
         # Gets the answers selected by the user.
@@ -87,7 +93,7 @@ def quiz(quiz_id: int) -> object:
         else:
             # 1 exp earned for the author of the quiz
             if quiz_author != session["username"]:
-                check_level_exists(quiz_author, conn)
+                helper_login.check_level_exists(quiz_author, conn)
                 cur.execute(
                     "UPDATE UserLevel "
                     "SET experience = experience + 1 "
@@ -102,7 +108,7 @@ def quiz(quiz_id: int) -> object:
                     [questions[i], user_answers[i], correct_answer])
                 if correct:
                     score += 1
-            update_quiz_achievements(score)
+            helper_achievements.update_quiz_achievements(score)
 
             # Updates the number of times a quiz has been played.
             cur.execute("UPDATE Quiz SET plays = plays + 1 WHERE quiz_id=?;",
@@ -111,6 +117,8 @@ def quiz(quiz_id: int) -> object:
 
             return render_template("quiz_results.html",
                                    question_feedback=question_feedback,
-                                   requestCount=get_connection_request_count(),
+                                   requestCount=
+                                   helper_connections.get_connection_request_count(),
                                    score=score,
-                                   notifications=get_notifications())
+                                   notifications=
+                                   helper_general.get_notifications())

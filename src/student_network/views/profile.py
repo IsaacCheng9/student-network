@@ -8,15 +8,12 @@ from datetime import datetime
 from flask import Blueprint
 from flask import render_template, redirect
 from flask import request, session
-from student_network.helpers.helper_achievements import apply_achievement, \
-    get_achievements, update_profile_achievements
-from student_network.helpers.helper_connections import \
-    get_connection_request_count, get_connection_type
-from student_network.helpers.helper_general import get_all_connections, \
-    get_all_usernames, get_notifications
-from student_network.helpers.helper_login import check_level_exists
-from student_network.helpers.helper_profile import calculate_age, \
-    get_level, read_socials, validate_edit_profile, validate_profile_pic
+
+import student_network.helpers.helper_achievements as helper_achievements
+import student_network.helpers.helper_connections as helper_connections
+import student_network.helpers.helper_general as helper_general
+import student_network.helpers.helper_login as helper_login
+import student_network.helpers.helper_profile as helper_profile
 
 profile_blueprint = Blueprint("profile", __name__, static_folder="static",
                               template_folder="templates")
@@ -70,8 +67,8 @@ def profile(username: str) -> object:
             session["prev-page"] = request.url
             return render_template(
                 "error.html", message=message,
-                requestCount=get_connection_request_count(),
-                notifications=get_notifications())
+                requestCount=helper_connections.get_connection_request_count(),
+                notifications=helper_general.get_notifications())
         else:
             data = row[0]
             name, bio, gender, birthday, profile_picture, privacy = (
@@ -92,15 +89,16 @@ def profile(username: str) -> object:
                 "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
                 (session["username"], username))
             if cur.fetchone() is None:
-                conn_type = get_connection_type(username)
+                conn_type = helper_connections.get_connection_type(username)
                 if conn_type == "connected" and privacy == "close_friends":
                     message.append(
                         "This profile is available only to connections")
                     session["prev-page"] = request.url
                     return render_template(
                         "error.html", message=message,
-                        requestCount=get_connection_request_count(),
-                        notifications=get_notifications())
+                        requestCount=
+                        helper_connections.get_connection_request_count(),
+                        notifications=helper_general.get_notifications())
             elif conn_type == "blocked":
                 message.append(
                     "Unable to view this profile since " + username +
@@ -108,8 +106,9 @@ def profile(username: str) -> object:
                 session["prev-page"] = request.url
                 return render_template(
                     "error.html", message=message,
-                    requestCount=get_connection_request_count(),
-                    notifications=get_notifications())
+                    requestCount=
+                    helper_connections.get_connection_request_count(),
+                    notifications=helper_general.get_notifications())
             else:
                 conn_type = "close_friend"
                 if privacy == "private":
@@ -119,11 +118,12 @@ def profile(username: str) -> object:
                     session["prev-page"] = request.url
                     return render_template(
                         "error.html", message=message,
-                        requestCount=get_connection_request_count(),
-                        notifications=get_notifications())
+                        requestCount=
+                        helper_connections.get_connection_request_count(),
+                        notifications=helper_general.get_notifications())
 
             session["prev-page"] = request.url
-            connections = get_all_connections(username)
+            connections = helper_general.get_all_connections(username)
             count = 0
             for connection in connections:
                 connections[count] = connection[0]
@@ -149,7 +149,7 @@ def profile(username: str) -> object:
                     (username,))
                 sort_posts = cur.fetchall()
 
-        update_profile_achievements(username)
+        helper_achievements.update_profile_achievements(username)
     else:
         # Only public posts can be viewed when not logged in
         cur.execute(
@@ -232,20 +232,20 @@ def profile(username: str) -> object:
     if len(row) > 0:
         email = row[0][0]
 
-    socials = read_socials(username)
+    socials = helper_profile.read_socials(username)
 
     # Gets the user's six rarest achievements.
-    unlocked_achievements, _ = get_achievements(username)
+    unlocked_achievements, _ = helper_achievements.get_achievements(username)
     first_six = unlocked_achievements[0:min(6, len(unlocked_achievements))]
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
-    age = calculate_age(datetime_object)
+    age = helper_profile.calculate_age(datetime_object)
 
     # get user level
-    check_level_exists(username, conn)
+    helper_login.check_level_exists(username, conn)
 
-    level_data = get_level(username)
+    level_data = helper_profile.get_level(username)
     level = level_data[0]
     current_xp = level_data[1]
     xp_next_level = level_data[2]
@@ -271,12 +271,14 @@ def profile(username: str) -> object:
                                email=email, socials=socials, posts=user_posts,
                                type=conn_type,
                                unlocked_achievements=first_six,
-                               allUsernames=get_all_usernames(),
-                               requestCount=get_connection_request_count(),
+                               allUsernames=helper_general.get_all_usernames(),
+                               requestCount=
+                               helper_connections.get_connection_request_count(),
                                level=level, current_xp=int(current_xp),
                                xp_next_level=int(xp_next_level),
                                progress_color=progress_color,
-                               notifications=get_notifications())
+                               notifications=
+                               helper_general.get_notifications())
     else:
         session["prev-page"] = request.url
         return render_template("profile.html", username=username,
@@ -292,7 +294,8 @@ def profile(username: str) -> object:
                                level=level, current_xp=int(current_xp),
                                xp_next_level=int(xp_next_level),
                                progress_color=progress_color,
-                               notifications=get_notifications())
+                               notifications=
+                               helper_general.get_notifications())
 
 
 @profile_blueprint.route("/edit-profile", methods=["GET", "POST"])
@@ -338,17 +341,19 @@ def edit_profile() -> object:
                 "degree": item[1]
             })
 
-    socials = read_socials(session['username'])
+    socials = helper_profile.read_socials(session['username'])
 
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
         return render_template("settings.html",
-                               requestCount=get_connection_request_count(),
+                               requestCount=
+                               helper_connections.get_connection_request_count(),
                                date=dob, bio=bio, degrees=degrees,
                                gender=gender,
                                degree=degree, socials=socials, privacy=privacy,
                                hobbies=hobbies, interests=interests, errors=[],
-                               notifications=get_notifications())
+                               notifications=
+                               helper_general.get_notifications())
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -359,7 +364,7 @@ def edit_profile() -> object:
 
         # Award achievement ID 11 - Describe yourself if necessary
         if bio not in ("Change your bio in the settings.", ""):
-            apply_achievement(username, 11)
+            helper_achievements.apply_achievement(username, 11)
 
         gender = request.form.get("gender_input")
         dob_input = request.form.get("dob_input")
@@ -377,14 +382,16 @@ def edit_profile() -> object:
             cur = conn.cursor()
 
             # Validates user profile details and uploaded image.
-            valid, message = validate_edit_profile(bio, gender, dob, hobbies,
-                                                   interests)
+            valid, message = helper_profile.validate_edit_profile(bio, gender,
+                                                                  dob, hobbies,
+                                                                  interests)
             if valid:
                 file = request.files["file"]
-                valid, message, file_name_hashed = validate_profile_pic(file)
+                (valid, message,
+                 file_name_hashed) = helper_profile.validate_profile_pic(file)
                 if valid:
                     # Award achievement ID 18 - Show yourself if necessary
-                    apply_achievement(username, 18)
+                    helper_achievements.apply_achievement(username, 18)
 
             # Updates the user profile if details are valid.
             if valid:
@@ -398,7 +405,7 @@ def edit_profile() -> object:
                          + ".jpg", degree, username,))
                     conn.commit()
 
-                    update_profile_achievements(username)
+                    helper_achievements.update_profile_achievements(username)
 
                 else:
                     cur.execute(
@@ -441,10 +448,12 @@ def edit_profile() -> object:
                 session["error"] = message
                 return render_template(
                     "settings.html", errors=message,
-                    requestCount=get_connection_request_count(),
-                    allUsernames=get_all_usernames(), degrees=degrees,
-                    degree=degree, date=dob, bio=bio, privacy=privacy,
-                    notifications=get_notifications())
+                    requestCount=
+                    helper_connections.get_connection_request_count(),
+                    allUsernames=helper_general.get_all_usernames(),
+                    degrees=degrees, degree=degree, date=dob, bio=bio,
+                    privacy=privacy,
+                    notifications=helper_general.get_notifications())
 
 
 @profile_blueprint.route("/profile_privacy", methods=["POST"])

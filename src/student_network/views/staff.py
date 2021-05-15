@@ -6,8 +6,8 @@ import sqlite3
 
 from flask import Blueprint, render_template, redirect
 from flask import session
-from student_network.helpers.helper_connections import \
-    get_connection_request_count
+
+import student_network.helpers.helper_connections as helper_connections
 
 staff_blueprint = Blueprint("staff", __name__, static_folder="static",
                             template_folder="templates")
@@ -25,7 +25,8 @@ def show_staff_requests() -> object:
         if not session["admin"]:
             return render_template("error.html", message=[
                 "You are not logged in to an admin account"],
-                                   requestCount=get_connection_request_count())
+                                   requestCount=
+                                   helper_connections.get_connection_request_count())
         with sqlite3.connect("database.db") as conn:
             # Loads the list of connection requests and their avatars.
             requests = []
@@ -35,7 +36,7 @@ def show_staff_requests() -> object:
                         "WHERE type='pending_staff';")
             conn.commit()
             row = cur.fetchall()
-            request_count = get_connection_request_count()
+            request_count = helper_connections.get_connection_request_count()
             if len(row) > 0:
                 for elem in row:
                     requests.append(elem[0])
@@ -45,7 +46,8 @@ def show_staff_requests() -> object:
     else:
         return render_template("error.html", message=[
             "You are not logged in to an admin account"],
-                               requestCount=get_connection_request_count())
+                               requestCount=
+                               helper_connections.get_connection_request_count())
 
 
 @staff_blueprint.route("/accept_staff/<username>", methods=["GET", "POST"])

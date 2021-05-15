@@ -6,8 +6,8 @@ import sqlite3
 
 from flask import session
 
-from student_network.helpers.helper_general import get_all_connections
-from student_network.helpers.helper_profile import get_degree
+import student_network.helpers.helper_general as helper_general
+import student_network.helpers.helper_profile as helper_profile
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
@@ -26,7 +26,7 @@ def delete_connection(username: str) -> bool:
     # Checks that the user isn't trying to remove a connection with
     # themselves.
     if username != session["username"]:
-        with sqlite3.connect(DB_PATH) as conn:
+        with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;",
                         (username,))
@@ -77,7 +77,7 @@ def get_connection_request_count() -> int:
     if "username" not in session:
         return 0
 
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM Connection WHERE user2=? AND "
@@ -96,7 +96,7 @@ def get_connection_type(username: str):
     Returns:
         The type of connection with the specified user.
     """
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT connection_type FROM Connection WHERE user1=? "
@@ -157,7 +157,7 @@ def get_recommended_connections(username: str) -> list:
         List of mutual connections for a user and the number of shared
         connections, as well as users with shared degree.
     """
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT user2 FROM Connection "
@@ -169,10 +169,10 @@ def get_recommended_connections(username: str) -> list:
         recommend_type = "mutual connection"
         for count, pend in enumerate(pending):
             pending[count] = pend[0]
-        connections = get_all_connections(username)
+        connections = helper_general.get_all_connections(username)
         mutual_connections = []
         for user in connections:
-            user_cons = get_all_connections(user[0])
+            user_cons = helper_general.get_all_connections(user[0])
             for mutual in user_cons:
                 if (mutual[0] != session["username"] and
                         mutual[0] not in pending):
@@ -181,7 +181,7 @@ def get_recommended_connections(username: str) -> list:
                         mutual, recommend_type)
 
         if len(mutual_connections) < 5:
-            degree = get_degree(session["username"])
+            degree = helper_profile.get_degree(session["username"])
             if degree[0] != 1:
                 cur.execute(
                     "SELECT username FROM "
@@ -209,7 +209,7 @@ def is_close_friend(username: str) -> bool:
     Returns:
         Whether the user is a close friend of the user (True/False).
     """
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",

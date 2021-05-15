@@ -8,12 +8,11 @@ import uuid
 from datetime import datetime
 from typing import Tuple
 
+import student_network.helpers.helper_achievements as helper_achievements
+import student_network.helpers.helper_general as helper_general
+import student_network.helpers.helper_profile as helper_profile
 from PIL import Image
 from flask import request, session
-from student_network.helpers.helper_achievements import apply_achievement
-from student_network.helpers.helper_general import allowed_file, \
-    get_all_connections
-from student_network.helpers.helper_profile import get_profile_picture
 from werkzeug.utils import secure_filename
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -58,10 +57,11 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
     }
     if "username" in session:
         session["prev-page"] = request.url
-        with sqlite3.connect(DB_PATH) as conn:
+        with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
 
-            connections = get_all_connections(session["username"])
+            connections = helper_general.get_all_connections(
+                session["username"])
             connections.append((session["username"],))
             row = []
             for user in connections:
@@ -102,7 +102,8 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                 comments = cur.fetchall()
 
                 comments = list(map(lambda x: (x[0], x[1], x[2], x[3], x[4],
-                                               get_profile_picture(x[1])),
+                                               helper_profile.get_profile_picture(
+                                                   x[1])),
                                     comments))
 
                 if post_type in ("Image", "Link"):
@@ -129,7 +130,8 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                 all_posts["AllPosts"].append({
                     "postId": user_post[0],
                     "title": user_post[1],
-                    "profile_pic": get_profile_picture(user_post[3]),
+                    "profile_pic": helper_profile.get_profile_picture(
+                        user_post[3]),
                     "author": user_post[3],
                     "account_type": account_type,
                     "date_posted": time,
@@ -156,11 +158,11 @@ def update_comment_achievements(row: int, username: str):
         username: Author of the post.
     """
     # Award achievement ID 10 - Commentary if necessary
-    apply_achievement(session["username"], 10)
+    helper_achievements.apply_achievement(session["username"], 10)
 
     # Award achievement ID 21 - Hot topic if necessary
     if row >= 10:
-        apply_achievement(username, 21)
+        helper_achievements.apply_achievement(username, 21)
 
 
 def upload_image(file):
@@ -175,7 +177,7 @@ def upload_image(file):
     """
     file_name_hashed = ""
     # Hashes the name of the file and resizes it.
-    if allowed_file(file.filename):
+    if helper_general.allowed_file(file.filename):
         secure_filename(file.filename)
         file_name_hashed = str(uuid.uuid4())
         file_path = os.path.join(
@@ -202,7 +204,7 @@ def update_submission_achievements(cur):
         cur: Cursor for the SQLite database.
     """
     # Award achievement ID 7 - Express yourself if necessary
-    apply_achievement(session["username"], 7)
+    helper_achievements.apply_achievement(session["username"], 7)
 
     cur.execute(
         "SELECT * FROM POSTS WHERE username=?;",
@@ -210,10 +212,10 @@ def update_submission_achievements(cur):
     num_posts = cur.fetchall()
     # Award achievement ID 8 - 5 posts if necessary
     if len(num_posts) >= 5:
-        apply_achievement(session["username"], 8)
+        helper_achievements.apply_achievement(session["username"], 8)
     # Award achievement ID 9 - 20 posts, if necessary
     if len(num_posts) >= 20:
-        apply_achievement(session["username"], 9)
+        helper_achievements.apply_achievement(session["username"], 9)
 
 
 def validate_youtube(url: str):

@@ -10,8 +10,8 @@ from typing import Tuple, List
 from PIL import Image
 from werkzeug.utils import secure_filename
 
-from student_network.helpers.helper_general import allowed_file
-from student_network.helpers.helper_login import check_level_exists
+import student_network.helpers.helper_general as helper_general
+import student_network.helpers.helper_login as helper_login
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
@@ -43,7 +43,7 @@ def get_degree(username: str) -> Tuple[int, str]:
         The degree of the user.
         The degreeID of the user.
     """
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT degree FROM UserProfile WHERE username=?;",
@@ -74,9 +74,9 @@ def get_level(username: str) -> List[int]:
     xp_next_level = 100
     xp_increase_per_level = 15
 
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        check_level_exists(username, conn)
+        helper_login.check_level_exists(username, conn)
         # Get user experience
         cur.execute(
             "SELECT experience FROM "
@@ -102,7 +102,7 @@ def get_profile_picture(username: str) -> str:
     Returns:
         The profile picture of the user.
     """
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT profilepicture FROM UserProfile WHERE username=?;",
@@ -121,7 +121,7 @@ def read_socials(username: str):
     Returns:
         The social media accounts of that user.
     """
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         socials = {}
         # Gets the user's socials
@@ -205,7 +205,7 @@ def validate_profile_pic(file) -> Tuple[bool, List[str], str]:
     file_name_hashed = ""
 
     # Hashes the name of the file and resizes it.
-    if allowed_file(file.filename):
+    if helper_general.allowed_file(file.filename):
         secure_filename(file.filename)
         file_name_hashed = str(uuid.uuid4())
         file_path = os.path.join(

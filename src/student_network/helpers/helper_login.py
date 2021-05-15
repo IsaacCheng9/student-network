@@ -1,14 +1,10 @@
 """
 Performs checks and actions to help the login system work effectively.
 """
-import os
 import re
 from typing import Tuple, List
 
 from email_validator import validate_email, EmailNotValidError
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "database.db")
 
 
 def check_level_exists(username: str, conn):

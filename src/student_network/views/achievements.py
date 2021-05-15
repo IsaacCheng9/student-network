@@ -4,16 +4,11 @@ Handles the view for achievements and related functionality.
 
 import sqlite3
 
+import student_network.helpers.helper_achievements as helper_achievements
+import student_network.helpers.helper_connections as helper_connections
+import student_network.helpers.helper_general as helper_general
 from flask import Blueprint, render_template
 from flask import request, session
-from student_network.helpers.helper_achievements import apply_achievement, \
-    get_achievements
-from student_network.helpers.helper_connections import \
-    get_connection_request_count
-from student_network.helpers.helper_general import get_all_usernames, \
-    get_notifications
-from student_network.helpers.helper_profile import get_degree, get_level, \
-    get_profile_picture
 
 achievements_blueprint = Blueprint("achievements", __name__,
                                    static_folder="static",
@@ -28,8 +23,9 @@ def achievements() -> object:
     Returns:
         The web page for viewing achievements.
     """
-    unlocked_achievements, locked_achievements = get_achievements(
-        session["username"])
+    unlocked_achievements, locked_achievements = \
+        helper_achievements.get_achievements(
+            session["username"])
 
     # Displays the percentage of achievements unlocked.
     percentage = int(100 * len(unlocked_achievements) /
@@ -43,17 +39,18 @@ def achievements() -> object:
         percentage_color = "red"
 
     # Award achievement ID 3 - Show it off if necessary
-    apply_achievement(session["username"], 3)
+    helper_achievements.apply_achievement(session["username"], 3)
 
     session["prev-page"] = request.url
     return render_template("achievements.html",
                            unlocked_achievements=unlocked_achievements,
                            locked_achievements=locked_achievements,
-                           requestCount=get_connection_request_count(),
-                           allUsernames=get_all_usernames(),
+                           requestCount=
+                           helper_connections.get_connection_request_count(),
+                           allUsernames=helper_general.get_all_usernames(),
                            percentage=percentage,
                            percentage_color=percentage_color,
-                           notifications=get_notifications())
+                           notifications=helper_general.get_notifications())
 
 
 @achievements_blueprint.route("/leaderboard", methods=["GET"])
@@ -79,13 +76,17 @@ def leaderboard() -> object:
                     break
             top_users = top_users[0:min(25, len(top_users))]
             top_users = list(map(lambda x: (
-                x[0], x[1], get_profile_picture(x[0]), get_level(x[0]),
-                get_degree(x[0])[1]),
+                x[0], x[1],
+                student_network.helpers.helper_profile.get_profile_picture(
+                    x[0]),
+                student_network.helpers.helper_profile.get_level(x[0]),
+                student_network.helpers.helper_profile.get_degree(x[0])[1]),
                                  top_users))
     session["prev-page"] = request.url
     return render_template("leaderboard.html", leaderboard=top_users,
-                           requestCount=get_connection_request_count(),
-                           allUsernames=get_all_usernames(),
+                           requestCount=
+                           helper_connections.get_connection_request_count(),
+                           allUsernames=helper_general.get_all_usernames(),
                            myRanking=my_ranking,
                            totalUserCount=total_user_count,
-                           notifications=get_notifications())
+                           notifications=helper_general.get_notifications())

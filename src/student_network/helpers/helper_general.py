@@ -44,7 +44,7 @@ def get_all_connections(username: str) -> list:
     Returns:
         A list of all usernames that are connected to the logged in user.
     """
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT user2 FROM Connection "
@@ -65,7 +65,7 @@ def get_all_usernames() -> list:
     Returns:
         A list of all usernames that have been registered.
     """
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute("SELECT username FROM Accounts")
 
@@ -75,7 +75,7 @@ def get_all_usernames() -> list:
 
 
 def get_notifications():
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
 
         cur.execute(
@@ -98,7 +98,7 @@ def get_notifications():
 def new_notification(body, url):
     now = datetime.now()
 
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
 
         cur.execute(

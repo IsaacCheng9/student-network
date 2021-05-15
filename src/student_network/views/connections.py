@@ -8,14 +8,11 @@ from datetime import date
 from flask import Blueprint, render_template
 from flask import redirect
 from flask import request, session
-from student_network.helpers.helper_achievements import \
-    update_close_connection_achievements, update_connection_achievements
-from student_network.helpers.helper_connections import delete_connection, \
-    get_connection_request_count, get_connection_type, \
-    get_recommended_connections, is_close_friend
-from student_network.helpers.helper_general import get_all_usernames, \
-    get_notifications
-from student_network.helpers.helper_profile import get_profile_picture
+
+import student_network.helpers.helper_achievements as helper_achievements
+import student_network.helpers.helper_connections as helper_connections
+import student_network.helpers.helper_general as helper_general
+import student_network.helpers.helper_profile as helper_profile
 
 connections_blueprint = Blueprint("connections", __name__,
                                   static_folder="static",
@@ -40,7 +37,7 @@ def close_connection(username: str) -> object:
             cur.execute("SELECT * FROM Accounts WHERE username=?;",
                         (username,))
             if cur.fetchone():
-                conn_type = get_connection_type(username)
+                conn_type = helper_connections.get_connection_type(username)
                 if conn_type == "connected":
                     cur.execute(
                         "SELECT * FROM CloseFriend WHERE "
@@ -55,7 +52,8 @@ def close_connection(username: str) -> object:
                         conn.commit()
                         session["add"] = True
 
-                        update_close_connection_achievements(cur)
+                        helper_achievements.update_close_connection_achievements(
+                            cur)
         session["add"] = "You can't connect with yourself!"
 
     return redirect("/profile/" + username)
@@ -128,7 +126,7 @@ def unblock_user(username: str) -> object:
         cur.execute("SELECT * FROM Accounts WHERE username=?;",
                     (username,))
         if cur.fetchone():
-            if get_connection_type(username) == "block":
+            if helper_connections.get_connection_type(username) == "block":
                 if username != session['username']:
                     cur.execute(
                         "DELETE FROM Connection WHERE (user1=? AND user2=?);",
@@ -147,8 +145,10 @@ def members() -> object:
     """
     session["prev-page"] = request.url
     return render_template("members.html",
-                           requestCount=get_connection_request_count(),
-                           notifications=get_notifications())
+                           requestCount=
+                           helper_connections.get_connection_request_count(),
+                           notifications=
+                           helper_general.get_notifications())
 
 
 @connections_blueprint.route("/accept_connection_request/<username>",
@@ -186,7 +186,8 @@ def accept_connection_request(username: str) -> object:
                     conn.commit()
                     session["add"] = True
 
-                    update_connection_achievements(cur, username)
+                    helper_achievements.update_connection_achievements(
+                        cur, username)
     else:
         session["add"] = "You can't connect with yourself!"
 
@@ -204,7 +205,7 @@ def block_user(username: str) -> object:
     Returns:
         Redirection to the profile page of the user who has been blocked.
     """
-    deleted = delete_connection(username)
+    deleted = helper_connections.delete_connection(username)
     if deleted:
         if username != session["username"]:
             with sqlite3.connect("database.db") as conn:
@@ -237,7 +238,7 @@ def remove_close_friend(username: str) -> object:
             cur.execute("SELECT * FROM Accounts WHERE username=?;",
                         (username,))
             # Searches for the connection in the database.
-        if get_connection_type(username) == "connected":
+        if helper_connections.get_connection_type(username) == "connected":
             cur.execute(
                 "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
                 (session["username"], username))
@@ -261,7 +262,7 @@ def remove_connection(username: str) -> object:
     Returns:
         Redirection to the previous page the user was on.
     """
-    delete_connection(username)
+    helper_connections.delete_connection(username)
     return redirect(session["prev-page"])
 
 
@@ -323,25 +324,30 @@ def show_connect_requests() -> object:
         blocked_connections = cur.fetchall()
 
         # Extracts mutual connections.
-        mutual_connections = get_recommended_connections(session["username"])
+        mutual_connections = helper_connections.get_recommended_connections(
+            session["username"])
         mutual_avatars = []
         for mutual in mutual_connections:
-            mutual_avatars.append(get_profile_picture(mutual[0]))
+            mutual_avatars.append(
+                helper_profile.get_profile_picture(mutual[0]))
 
         # Lists usernames of all connected people.
         connections = connections1 + connections2
         # Adds a close friend to the list, and sorts by close friends first.
         connections = list(
-            map(lambda x: (x[0], x[1], is_close_friend(x[0])), connections))
+            map(lambda x: (
+                x[0], x[1], helper_connections.is_close_friend(x[0])),
+                connections))
         connections = sorted(connections, key=lambda x: x[2], reverse=True)
 
     session["prev-page"] = request.url
     return render_template("request.html", requests=requests, avatars=avatars,
-                           allUsernames=get_all_usernames(),
-                           requestCount=get_connection_request_count(),
+                           allUsernames=helper_general.get_all_usernames(),
+                           requestCount=
+                           helper_connections.get_connection_request_count(),
                            connections=connections,
                            pending=pending_connections,
                            blocked=blocked_connections,
                            mutuals=mutual_connections,
                            mutual_avatars=mutual_avatars,
-                           notifications=get_notifications())
+                           notifications=helper_general.get_notifications())

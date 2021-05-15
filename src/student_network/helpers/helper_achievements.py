@@ -6,11 +6,10 @@ import sqlite3
 from datetime import date
 from typing import Tuple, Sized
 
+import student_network.helpers.helper_general as helper_general
+import student_network.helpers.helper_login as helper_login
+import student_network.helpers.helper_profile as helper_profile
 from flask import session
-from student_network.helpers.helper_general import get_all_connections, \
-    new_notification
-from student_network.helpers.helper_login import check_level_exists
-from student_network.helpers.helper_profile import get_degree
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
@@ -24,7 +23,7 @@ def apply_achievement(username: str, achievement_id: int):
         username: The user who unlocked the achievement.
         achievement_id: The ID of the achievement unlocked.
     """
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM CompleteAchievements "
@@ -40,7 +39,7 @@ def apply_achievement(username: str, achievement_id: int):
                 "SELECT xp_value FROM Achievements WHERE achievement_ID=?;",
                 (achievement_id,))
             exp = cur.fetchone()[0]
-            check_level_exists(username, conn)
+            helper_login.check_level_exists(username, conn)
             cur.execute(
                 "UPDATE UserLevel "
                 "SET experience = experience + ? "
@@ -48,8 +47,9 @@ def apply_achievement(username: str, achievement_id: int):
                 (exp, username))
             conn.commit()
 
-            new_notification("You have received an achievement badge!",
-                             "/achievements")
+            helper_general.new_notification(
+                "You have received an achievement badge!",
+                "/achievements")
 
 
 def get_achievements(username: str) -> Tuple[Sized, Sized]:
@@ -59,7 +59,7 @@ def get_achievements(username: str) -> Tuple[Sized, Sized]:
     Returns:
         A list of unlocked and locked achievements and their details.
     """
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets unlocked achievements, sorted by XP descending.
         cur.execute(
@@ -167,11 +167,11 @@ def update_connection_achievements(cur, username: str):
         apply_achievement(username, 26)
 
     # Get connections
-    cons_user = get_all_connections(session["username"])
-    cons_user2 = get_all_connections(username)
+    cons_user = helper_general.get_all_connections(session["username"])
+    cons_user2 = helper_general.get_all_connections(username)
     # Get user degree and connections degree
-    degree = get_degree(session["username"])[0]
-    degree_user2 = get_degree(username)[0]
+    degree = helper_profile.get_degree(session["username"])[0]
+    degree_user2 = helper_profile.get_degree(username)[0]
     # Get count of connections who study a different degree
     valid_user_count = 0
     for user in cons_user:

@@ -7,29 +7,30 @@ import os
 import sqlite3
 from datetime import datetime
 
+import student_network.views.achievements as achievements
+import student_network.views.chat as chat
+import student_network.views.connections as connections
+import student_network.views.login as login
+import student_network.views.posts as posts
+import student_network.views.profile as profile
+import student_network.views.quizzes as quizzes
+import student_network.views.staff as staff
 from flask import Flask, request, session
 from flask_socketio import SocketIO
-from student_network.views.achievements import achievements_blueprint
-from student_network.views.chat import chat_blueprint
-from student_network.views.connections import connections_blueprint
-from student_network.views.login import login_blueprint
-from student_network.views.posts import posts_blueprint
-from student_network.views.profile import profile_blueprint
-from student_network.views.quizzes import quizzes_blueprint
-from student_network.views.staff import staff_blueprint
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
+
 app = Flask(__name__)
 socketio = SocketIO(app)
-app.register_blueprint(achievements_blueprint, url_prefix="")
-app.register_blueprint(chat_blueprint, url_prefix="")
-app.register_blueprint(connections_blueprint, url_prefix="")
-app.register_blueprint(login_blueprint, url_prefix="")
-app.register_blueprint(posts_blueprint, url_prefix="")
-app.register_blueprint(profile_blueprint, url_prefix="")
-app.register_blueprint(quizzes_blueprint, url_prefix="")
-app.register_blueprint(staff_blueprint, url_prefix="")
+app.register_blueprint(achievements.achievements_blueprint, url_prefix="")
+app.register_blueprint(chat.chat_blueprint, url_prefix="")
+app.register_blueprint(connections.connections_blueprint, url_prefix="")
+app.register_blueprint(login.login_blueprint, url_prefix="")
+app.register_blueprint(posts.posts_blueprint, url_prefix="")
+app.register_blueprint(profile.profile_blueprint, url_prefix="")
+app.register_blueprint(quizzes.quizzes_blueprint, url_prefix="")
+app.register_blueprint(staff.staff_blueprint, url_prefix="")
 app.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
                   "xa2\xa0\x9fR\xa1\xa8")
 app.url_map.strict_slashes = False

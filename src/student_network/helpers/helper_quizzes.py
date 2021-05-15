@@ -24,7 +24,7 @@ def add_quiz(author, date_created, post_privacy, questions, quiz_name):
         questions: Questions and answers for the quiz.
         quiz_name: Name of the quiz.
     """
-    with sqlite3.connect(DB_PATH) as conn:
+    with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO Quiz (quiz_name, date_created, author,"

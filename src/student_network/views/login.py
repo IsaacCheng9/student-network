@@ -10,10 +10,9 @@ from flask import Blueprint
 from flask import render_template, redirect
 from flask import request, session
 from passlib.hash import sha256_crypt
-from student_network.helpers.helper_connections import \
-    get_connection_request_count
-from student_network.helpers.helper_login import check_level_exists, \
-    validate_registration
+
+import student_network.helpers.helper_connections as helper_connections
+import student_network.helpers.helper_login as helper_login
 
 login_blueprint = Blueprint("login", __name__, static_folder="static",
                             template_folder="templates")
@@ -65,7 +64,8 @@ def terms_page() -> object:
     if request.method == "GET":
         session["prev-page"] = request.url
         return render_template("terms.html",
-                               requestCount=get_connection_request_count())
+                               requestCount=
+                               helper_connections.get_connection_request_count())
     else:
         return redirect("/register")
 
@@ -81,7 +81,8 @@ def privacy_policy_page() -> object:
     if request.method == "GET":
         session["prev-page"] = request.url
         return render_template("privacy_policy.html",
-                               requestCount=get_connection_request_count())
+                               requestCount=
+                               helper_connections.get_connection_request_count())
     else:
         return redirect("/terms")
 
@@ -152,7 +153,8 @@ def register_page() -> object:
 
         return render_template("register.html", notifications=notifications,
                                errors=errors,
-                               requestCount=get_connection_request_count())
+                               requestCount=
+                               helper_connections.get_connection_request_count())
 
 
 @login_blueprint.route("/register", methods=["POST"])
@@ -175,9 +177,11 @@ def register_submit() -> object:
     # Connects to the database to perform validation.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        valid, message = validate_registration(cur, username, full_name,
-                                               password, password_confirm,
-                                               email, terms)
+        valid, message = helper_login.validate_registration(cur, username,
+                                                            full_name,
+                                                            password,
+                                                            password_confirm,
+                                                            email, terms)
         # Registers the user if the details are valid.
         if valid is True:
             hash_password = sha256_crypt.hash(password)
@@ -191,7 +195,7 @@ def register_submit() -> object:
                 "VALUES (?, ?, ?, ?, ?, ?);", (
                     username, full_name, "Change your bio in the settings.",
                     "Male", date.today(), "/static/images/default-pfp.jpg",))
-            check_level_exists(username, conn)
+            helper_login.check_level_exists(username, conn)
             conn.commit()
 
             session["notifications"] = ["register"]

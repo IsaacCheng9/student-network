@@ -9,20 +9,14 @@ from urllib.parse import urlparse
 
 from flask import Blueprint, render_template, redirect, jsonify
 from flask import request, session
-from student_network.helpers.helper_achievements import \
-    update_post_achievements
-from student_network.helpers.helper_connections import \
-    get_connection_request_count, get_connection_type, is_close_friend
-from student_network.helpers.helper_general import get_all_connections, \
-    get_all_usernames, get_notifications
-from student_network.helpers.helper_login import check_level_exists
-from student_network.helpers.helper_posts import check_if_liked, \
-    fetch_posts, update_comment_achievements, upload_image, \
-    update_submission_achievements, validate_youtube
-from student_network.helpers.helper_profile import get_degree, \
-    get_profile_picture
-from student_network.helpers.helper_quizzes import add_quiz, \
-    save_quiz_details, validate_quiz
+
+import student_network.helpers.helper_achievements as helper_achievements
+import student_network.helpers.helper_connections as helper_connections
+import student_network.helpers.helper_general as helper_general
+import student_network.helpers.helper_login as helper_login
+import student_network.helpers.helper_posts as helper_posts
+import student_network.helpers.helper_profile as helper_profile
+import student_network.helpers.helper_quizzes as helper_quizzes
 
 posts_blueprint = Blueprint("posts", __name__, static_folder="static",
                             template_folder="templates")
@@ -66,7 +60,8 @@ def post(post_id: int) -> object:
                 else:
                     # Checks if user trying to view the post has a connection
                     # with the post author.
-                    conn_type = get_connection_type(username)
+                    conn_type = helper_connections.get_connection_type(
+                        username)
                     if conn_type is not True:
                         if privacy == "protected":
                             return render_template(
@@ -76,7 +71,8 @@ def post(post_id: int) -> object:
                     else:
                         # If the user and author are connected, check that they
                         # are close friends.
-                        connection = is_close_friend(username)
+                        connection = helper_connections.is_close_friend(
+                            username)
                         if connection is not True:
                             if privacy == "close":
                                 return render_template(
@@ -99,9 +95,12 @@ def post(post_id: int) -> object:
                 "Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
-                                   requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames(),
-                                   notifications=get_notifications())
+                                   requestCount=
+                                   helper_connections.get_connection_request_count(),
+                                   allUsernames=
+                                   helper_general.get_all_usernames(),
+                                   notifications=
+                                   helper_general.get_notifications())
         else:
             data = row[0]
             (title, body, username, date_posted,
@@ -109,7 +108,8 @@ def post(post_id: int) -> object:
                                                 data[3], data[4], data[5],
                                                 data[6])
 
-            liked = check_if_liked(cur, post_id, session["username"])
+            liked = helper_posts.check_if_liked(cur, post_id,
+                                                session["username"])
 
             cur.execute(
                 "SELECT username FROM ACCOUNTS WHERE username=?;",
@@ -135,11 +135,13 @@ def post(post_id: int) -> object:
                     date=date_posted, likes=likes, liked=liked,
                     account_type=account_type,
                     user_account_type=user_account_type,
-                    comments=None, requestCount=get_connection_request_count(),
-                    allUsernames=get_all_usernames(),
-                    avatar=get_profile_picture(username), type=post_type,
-                    content=content,
-                    notifications=get_notifications())
+                    comments=None,
+                    requestCount=
+                    helper_connections.get_connection_request_count(),
+                    allUsernames=helper_general.get_all_usernames(),
+                    avatar=helper_profile.get_profile_picture(username),
+                    type=post_type, content=content,
+                    notifications=helper_general.get_notifications())
             for comment in row:
                 time = datetime.strptime(
                     comment[3], "%Y-%m-%d %H:%M:%S").strftime("%d-%m-%y %H:%M")
@@ -148,7 +150,8 @@ def post(post_id: int) -> object:
                     "username": comment[1],
                     "body": comment[2],
                     "date": time,
-                    "profilePic": get_profile_picture(comment[1])
+                    "profilePic": helper_profile.get_profile_picture(
+                        comment[1])
                 })
             session["prev-page"] = request.url
             return render_template(
@@ -156,11 +159,11 @@ def post(post_id: int) -> object:
                 title=title, body=body, username=username, liked=liked,
                 date=date_posted, likes=likes, accountType=account_type,
                 user_account_type=user_account_type, comments=comments,
-                requestCount=get_connection_request_count(),
-                allUsernames=get_all_usernames(),
-                avatar=get_profile_picture(username), type=post_type,
-                content=content,
-                notifications=get_notifications())
+                requestCount=helper_connections.get_connection_request_count(),
+                allUsernames=helper_general.get_all_usernames(),
+                avatar=helper_profile.get_profile_picture(username),
+                type=post_type, content=content,
+                notifications=helper_general.get_notifications())
 
 
 @posts_blueprint.route("/fetch_posts/", methods=['GET'])
@@ -173,7 +176,7 @@ def json_posts() -> dict:
     """
     number = request.args.get("number")
     starting_id = request.args.get("starting_id")
-    all_posts, _, _ = fetch_posts(number, starting_id)
+    all_posts, _, _ = helper_posts.fetch_posts(number, starting_id)
     return jsonify(all_posts)
 
 
@@ -189,13 +192,13 @@ def feed() -> object:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
 
-        connections = get_all_connections(session["username"])
+        connections = helper_general.get_all_connections(session["username"])
         connections.append((session["username"],))
         cur.execute(
             "SELECT MAX(postId) FROM POSTS")
         row = cur.fetchone()
 
-    all_posts, content, valid = fetch_posts(2, row[0])
+    all_posts, content, valid = helper_posts.fetch_posts(2, row[0])
     # Displays any error messages.
 
     all_posts = []
@@ -206,18 +209,24 @@ def feed() -> object:
             session.pop("error", None)
             session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
-                                   requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames(),
+                                   requestCount=
+                                   helper_connections.get_connection_request_count(),
+                                   allUsernames=
+                                   helper_general.get_all_usernames(),
                                    errors=errors, content=content,
                                    max_id=row[0],
-                                   notifications=get_notifications())
+                                   notifications=
+                                   helper_general.get_notifications())
         else:
             session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
-                                   requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames(),
+                                   requestCount=
+                                   helper_connections.get_connection_request_count(),
+                                   allUsernames=
+                                   helper_general.get_all_usernames(),
                                    content=content, max_id=row[0],
-                                   notifications=get_notifications())
+                                   notifications=
+                                   helper_general.get_notifications())
     else:
         return redirect("/login")
 
@@ -256,8 +265,9 @@ def search_query() -> dict:
         usernames.sort(key=lambda x: x[0])  # [(username, degree)]
         # Adds a profile picture to each user.
         usernames = list(map(lambda x: (
-            x[0], x[1], x[2], get_profile_picture(x[0]), get_degree(x[0])[1]),
-                             usernames))
+            x[0], x[1], x[2],
+            helper_profile.get_profile_picture(x[0]),
+            helper_profile.get_degree(x[0])[1]), usernames))
 
     return jsonify(usernames)
 
@@ -275,10 +285,12 @@ def submit_post() -> object:
     post_privacy = request.form.get("privacy")
 
     if form_type == "Quiz":
-        date_created, author, quiz_name, questions = save_quiz_details()
-        valid, message = validate_quiz(quiz_name, questions)
+        (date_created, author,
+         quiz_name, questions) = helper_quizzes.save_quiz_details()
+        valid, message = helper_quizzes.validate_quiz(quiz_name, questions)
         if valid:
-            add_quiz(author, date_created, post_privacy, questions, quiz_name)
+            helper_quizzes.add_quiz(author, date_created, post_privacy,
+                                    questions, quiz_name)
         else:
             session["error"] = message
             return redirect("quizzes")
@@ -291,13 +303,13 @@ def submit_post() -> object:
             if not file:
                 valid = False
             if valid:
-                file_name_hashed = upload_image(file)
+                file_name_hashed = helper_posts.upload_image(file)
             elif file:
                 valid = False
 
         elif form_type == "Link":
             link = request.form.get("link")
-            if validate_youtube(link):
+            if helper_posts.validate_youtube(link):
                 data = urlparse(link)
                 query = parse_qs(data.query)
                 video_id = query["v"][0]
@@ -335,7 +347,7 @@ def submit_post() -> object:
                                 (cur.lastrowid, video_id))
                     conn.commit()
 
-                update_submission_achievements(cur)
+                helper_posts.update_submission_achievements(cur)
         else:
             # Prints error message stating that the title is missing.
             session["error"] = [
@@ -361,7 +373,7 @@ def like_post() -> object:
         #            " WHERE postId=? AND username=? ;",
         #            (post_id, session["username"]))
         # row = cur.fetchone()
-        liked = check_if_liked(cur, post_id, session["username"])
+        liked = helper_posts.check_if_liked(cur, post_id, session["username"])
         if not liked:
             cur.execute("INSERT INTO UserLikes (postId,username)"
                         "VALUES (?, ?);", (post_id, session["username"]))
@@ -384,7 +396,7 @@ def like_post() -> object:
             print(row, names)
             if session["username"] not in names:
                 # 1 exp earned for the author of the post
-                check_level_exists(username, conn)
+                helper_login.check_level_exists(username, conn)
                 cur.execute(
                     "UPDATE UserLevel "
                     "SET experience = experience + 1 "
@@ -394,7 +406,7 @@ def like_post() -> object:
                             "VALUES (?, ?);", (post_id, session["username"]))
                 conn.commit()
 
-            update_post_achievements(cur, likes, username)
+            helper_achievements.update_post_achievements(cur, likes, username)
         else:
             # Gets number of current likes.
             cur.execute("SELECT likes FROM POSTS WHERE postId=?;",
@@ -447,7 +459,7 @@ def submit_comment() -> object:
                 "WHERE postID=?;", (post_id,))
             row = cur.fetchone()[0]
 
-            update_comment_achievements(row, username)
+            helper_posts.update_comment_achievements(row, username)
 
     session["postId"] = post_id
     return redirect("/post_page/" + post_id)
@@ -479,9 +491,10 @@ def delete_post() -> object:
     message.append("Post has been deleted successfully.")
     session["prev-page"] = request.url
     return render_template("error.html", message=message,
-                           requestCount=get_connection_request_count(),
-                           allUsernames=get_all_usernames(),
-                           notifications=get_notifications())
+                           requestCount=
+                           helper_connections.get_connection_request_count(),
+                           allUsernames=helper_general.get_all_usernames(),
+                           notifications=helper_general.get_notifications())
 
 
 @posts_blueprint.route("/delete_comment", methods=["POST"])
@@ -506,9 +519,10 @@ def delete_comment() -> object:
             message.append("Comment does not exist.")
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
-                                   requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames(),
-                                   notifications=get_notifications())
+                                   requestCount=
+                                   helper_connections.get_connection_request_count(),
+                                   allUsernames=helper_general.get_all_usernames(),
+                                   notifications=helper_general.get_notifications())
         else:
             cur.execute("DELETE FROM Comments WHERE commentId =? ",
                         (comment_id,))
