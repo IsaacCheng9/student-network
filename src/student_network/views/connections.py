@@ -24,7 +24,7 @@ def close_connection(username: str) -> object:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;",
                         (username,))
-            if cur.fetchone() is not None:
+            if cur.fetchone():
                 conn_type = get_connection_type(username)
                 if conn_type == "connected":
                     cur.execute(
@@ -63,7 +63,7 @@ def connect_request(username: str) -> object:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;",
                         (username,))
-            if cur.fetchone() is not None:
+            if cur.fetchone():
                 cur.execute(
                     "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
                     "(user1=? AND user2=?);",
@@ -112,7 +112,7 @@ def unblock_user(username: str) -> object:
         cur = conn.cursor()
         cur.execute("SELECT * FROM Accounts WHERE username=?;",
                     (username,))
-        if cur.fetchone() is not None:
+        if cur.fetchone():
             if get_connection_type(username) == "block":
                 if username != session['username']:
                     cur.execute(
@@ -132,7 +132,8 @@ def members() -> object:
     """
     session["prev-page"] = request.url
     return render_template("members.html",
-                           requestCount=get_connection_request_count())
+                           requestCount=get_connection_request_count(),
+                           notifications=get_notifications())
 
 
 @connections_blueprint.route("/accept_connection_request/<username>",
@@ -152,13 +153,13 @@ def accept_connection_request(username: str) -> object:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;",
                         (username,))
-            if cur.fetchone() is not None:
+            if cur.fetchone():
                 row = cur.execute(
                     "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
                     "(user1=? AND user2=?);",
                     (username, session["username"], session["username"],
                      username))
-                if row is not None:
+                if row:
                     # Gets user from database using username.
                     cur.execute(
                         "UPDATE Connection SET connection_type = ? "
@@ -225,7 +226,7 @@ def remove_close_friend(username: str) -> object:
             cur.execute(
                 "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
                 (session["username"], username))
-            if cur.fetchone() is not None:
+            if cur.fetchone():
                 cur.execute(
                     "DELETE FROM CloseFriend WHERE (user1=? AND user2=?);",
                     (session["username"], username))
@@ -327,4 +328,5 @@ def show_connect_requests() -> object:
                            pending=pending_connections,
                            blocked=blocked_connections,
                            mutuals=mutual_connections,
-                           mutual_avatars=mutual_avatars)
+                           mutual_avatars=mutual_avatars,
+                           notifications=get_notifications())

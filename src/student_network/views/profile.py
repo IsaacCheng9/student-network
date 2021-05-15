@@ -55,7 +55,8 @@ def profile(username: str) -> object:
             session["prev-page"] = request.url
             return render_template(
                 "error.html", message=message,
-                requestCount=get_connection_request_count())
+                requestCount=get_connection_request_count(),
+                           notifications=get_notifications())
         else:
             data = row[0]
             name, bio, gender, birthday, profile_picture, privacy = (
@@ -83,7 +84,8 @@ def profile(username: str) -> object:
                     session["prev-page"] = request.url
                     return render_template(
                         "error.html", message=message,
-                        requestCount=get_connection_request_count())
+                        requestCount=get_connection_request_count(),
+                           notifications=get_notifications())
             elif conn_type == "blocked":
                 message.append(
                     "Unable to view this profile since " + username +
@@ -91,7 +93,8 @@ def profile(username: str) -> object:
                 session["prev-page"] = request.url
                 return render_template(
                     "error.html", message=message,
-                    requestCount=get_connection_request_count())
+                    requestCount=get_connection_request_count(),
+                           notifications=get_notifications())
             else:
                 conn_type = "close_friend"
                 if privacy == "private":
@@ -101,7 +104,8 @@ def profile(username: str) -> object:
                     session["prev-page"] = request.url
                     return render_template(
                         "error.html", message=message,
-                        requestCount=get_connection_request_count())
+                        requestCount=get_connection_request_count(),
+                           notifications=get_notifications())
 
             session["prev-page"] = request.url
             connections = get_all_connections(username)
@@ -256,7 +260,8 @@ def profile(username: str) -> object:
                                requestCount=get_connection_request_count(),
                                level=level, current_xp=int(current_xp),
                                xp_next_level=int(xp_next_level),
-                               progress_color=progress_color)
+                               progress_color=progress_color,
+                           notifications=get_notifications())
     else:
         session["prev-page"] = request.url
         return render_template("profile.html", username=username,
@@ -271,7 +276,8 @@ def profile(username: str) -> object:
                                unlocked_achievements=first_six,
                                level=level, current_xp=int(current_xp),
                                xp_next_level=int(xp_next_level),
-                               progress_color=progress_color)
+                               progress_color=progress_color,
+                           notifications=get_notifications())
 
 
 @profile_blueprint.route("/edit-profile", methods=["GET", "POST"])
@@ -326,7 +332,8 @@ def edit_profile() -> object:
                                date=dob, bio=bio, degrees=degrees,
                                gender=gender,
                                degree=degree, socials=socials, privacy=privacy,
-                               hobbies=hobbies, interests=interests, errors=[])
+                               hobbies=hobbies, interests=interests, errors=[],
+                           notifications=get_notifications())
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -421,7 +428,8 @@ def edit_profile() -> object:
                     "settings.html", errors=message,
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(), degrees=degrees,
-                    degree=degree, date=dob, bio=bio, privacy=privacy)
+                    degree=degree, date=dob, bio=bio, privacy=privacy,
+                           notifications=get_notifications())
 
 
 @profile_blueprint.route("/profile_privacy", methods=["POST"])

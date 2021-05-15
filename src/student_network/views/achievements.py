@@ -39,7 +39,8 @@ def achievements() -> object:
                            requestCount=get_connection_request_count(),
                            allUsernames=get_all_usernames(),
                            percentage=percentage,
-                           percentage_color=percentage_color)
+                           percentage_color=percentage_color,
+                           notifications=get_notifications())
 
 
 @achievements_blueprint.route("/leaderboard", methods=["GET"])
@@ -54,7 +55,7 @@ def leaderboard() -> object:
         cur = conn.cursor()
         cur.execute("SELECT * FROM UserLevel")
         top_users = cur.fetchall()
-        if top_users is not None:
+        if top_users:
             total_user_count = len(top_users)
             # 0 = username, 1 = XP value
             top_users.sort(key=lambda x: x[1], reverse=True)
@@ -73,4 +74,5 @@ def leaderboard() -> object:
                            requestCount=get_connection_request_count(),
                            allUsernames=get_all_usernames(),
                            myRanking=my_ranking,
-                           totalUserCount=total_user_count)
+                           totalUserCount=total_user_count,
+                           notifications=get_notifications())

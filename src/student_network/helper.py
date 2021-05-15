@@ -6,13 +6,15 @@ from datetime import date, datetime
 from random import sample
 from typing import Tuple, List, Sized
 
+from math import floor
+
 from PIL import Image
 from email_validator import validate_email, EmailNotValidError
 from flask import request, session
 from werkzeug.utils import secure_filename
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(BASE_DIR, "../database.db")
+db_path = os.path.join(BASE_DIR, "database.db")
 
 
 def add_quiz(author, date_created, post_privacy, questions, quiz_name):
@@ -101,6 +103,8 @@ def apply_achievement(username: str, achievement_id: int):
                 (exp, username))
             conn.commit()
 
+            new_notification("You have received an achievement badge!", "/achievements")
+
 
 def calculate_age(born: datetime) -> int:
     """
@@ -161,7 +165,7 @@ def delete_connection(username: str) -> bool:
                     (username, session["username"], session["username"],
                      username))
                 # Removes the connection from the database if it exists.
-                if row is not None:
+                if row:
                     cur.execute(
                         "DELETE FROM Connection WHERE (user1=? AND user2=?) "
                         "OR (user1=? AND user2=?);",
@@ -173,7 +177,7 @@ def delete_connection(username: str) -> bool:
                         "OR (user1=? AND user2=?);",
                         (username, session["username"], session["username"],
                          username))
-                    if row is not None:
+                    if row:
                         cur.execute(
                             "DELETE FROM CloseFriend "
                             "WHERE (user1=? AND user2=?) "
@@ -197,6 +201,25 @@ def display_short_notification_age(seconds):
             return str(floor(seconds / values[i])) + prefixes[i]
 
     return "Just Now"
+
+def check_if_liked(cur, post_id: int, username: str) -> bool:
+    """
+    Checks if the given user has liked the post.
+
+    Args:
+        cur: Cursor for the SQLite database.
+        post_id: ID of the post to check
+        username: username to check if post is liked from
+    
+    Returns:
+        True if post has been liked by user, False if not
+    """
+    cur.execute("SELECT username FROM UserLikes "
+                "WHERE postId=? AND username=?;",
+                (post_id, username))
+    if cur.fetchone():
+        return True
+    return False
 
 
 def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
@@ -283,6 +306,8 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                     "FROM POSTS WHERE postId=?;", (post_id,))
                 like_count = cur.fetchone()[0]
 
+                liked = check_if_liked(cur, post_id, session["username"])
+
                 all_posts["AllPosts"].append({
                     "postId": user_post[0],
                     "title": user_post[1],
@@ -295,6 +320,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                     "content": content,
                     "comment_count": comment_count,
                     "like_count": like_count,
+                    "liked": liked,
                     "comments": comments
                 })
                 i += 1
@@ -411,7 +437,7 @@ def get_connection_type(username: str):
 
         # Checks if there is a connection between the two users.
         row = cur.fetchone()
-        if row is not None:
+        if row:
             return row[0]
         else:
             cur.execute(
@@ -419,7 +445,7 @@ def get_connection_type(username: str):
                 "user2=?", (username, session["username"],))
             conn.commit()
             row = cur.fetchone()
-            if row is not None:
+            if row:
                 if row[0] == "connected":
                     return "connected"
                 elif row[0] == "block":
@@ -562,12 +588,9 @@ def get_notifications():
 
         row = cur.fetchall()
 
-        time_difference = datetime.now() - datetime.strptime(x[1],
-                                                             "%Y-%m-%d "
-                                                             "%H:%M:%S")
         notification_metadata = list(
             map(lambda x: (x[0], display_short_notification_age(
-                time_difference.total_seconds()), x[2]), row))
+                (datetime.now() - datetime.strptime(x[1], "%Y-%m-%d %H:%M:%S")).total_seconds()), x[2]), row))
 
         return notification_metadata
 
@@ -638,8 +661,7 @@ def is_close_friend(username: str) -> bool:
             "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
             (session["username"], username)
         )
-        row = cur.fetchone()
-        if row is not None:
+        if cur.fetchone():
             return True
 
     return False
@@ -656,6 +678,8 @@ def new_notification(body, url):
             "?, ?, ?);",
             (session["username"], body, now.strftime("%Y-%m-%d %H:%M:%S"), url)
         )
+
+        conn.commit()
 
 
 def read_socials(username: str):

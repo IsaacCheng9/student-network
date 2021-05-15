@@ -380,6 +380,13 @@
                 </div>`;
         }
 
+        var icon = ``
+        if (post.liked == true) {
+          icon = `<i class="heart icon red"></i>`
+        } else {
+          icon = `<i class="heart icon"></i>`
+        }
+
         var html = `<div class="ui segment">
             <div class="ui grid stackable">
                 <div class="one wide column">
@@ -399,7 +406,7 @@
                 ${content}
                 <div class="sixteen wide column">
                     <div>${post.comment_count} comments &nbsp;&nbsp; ${post.like_count}
-                        <i class="heart icon"></i></div>
+                      ${icon}</div>
                     <div class="ui comments">
                         ${comments}
                     </div>

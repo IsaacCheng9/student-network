@@ -80,7 +80,8 @@ def post(post_id: int) -> object:
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames())
+                                   allUsernames=get_all_usernames(),
+                           notifications=get_notifications())
         else:
             data = row[0]
             (title, body, username, date_posted,
@@ -88,15 +89,7 @@ def post(post_id: int) -> object:
                                                 data[3], data[4], data[5],
                                                 data[6])
 
-            # Check if user has liked post.
-            cur.execute("SELECT username FROM UserLikes "
-                        "WHERE postId=? AND username=?;",
-                        (post_id, session["username"]))
-            row = cur.fetchone()
-            if row:
-                liked = True
-            else:
-                liked = False
+            liked = check_if_liked(cur, post_id, session["username"])
 
             cur.execute(
                 "SELECT username FROM ACCOUNTS WHERE username=?;",
@@ -108,7 +101,7 @@ def post(post_id: int) -> object:
                     "SELECT contentUrl "
                     "FROM PostContent WHERE postId=?;", (post_id,))
                 content = cur.fetchone()
-                if content is not None:
+                if content:
                     content = content[0]
             cur.execute(
                 "SELECT *"
@@ -125,7 +118,8 @@ def post(post_id: int) -> object:
                     comments=None, requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(),
                     avatar=get_profile_picture(username), type=post_type,
-                    content=content)
+                    content=content,
+                           notifications=get_notifications())
             for comment in row:
                 time = datetime.strptime(
                     comment[3], "%Y-%m-%d %H:%M:%S").strftime("%d-%m-%y %H:%M")
@@ -139,13 +133,14 @@ def post(post_id: int) -> object:
             session["prev-page"] = request.url
             return render_template(
                 "post_page.html", author=author, postId=post_id,
-                title=title, body=body, username=username,
+                title=title, body=body, username=username, liked=liked,
                 date=date_posted, likes=likes, accountType=account_type,
                 user_account_type=user_account_type, comments=comments,
                 requestCount=get_connection_request_count(),
                 allUsernames=get_all_usernames(),
                 avatar=get_profile_picture(username), type=post_type,
-                content=content)
+                content=content,
+                           notifications=get_notifications())
 
 
 @posts_blueprint.route("/fetch_posts/", methods=['GET'])
@@ -194,13 +189,15 @@ def feed() -> object:
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
                                    errors=errors, content=content,
-                                   max_id=row[0])
+                                   max_id=row[0],
+                           notifications=get_notifications())
         else:
             session["prev-page"] = request.url
             return render_template("feed.html", posts=all_posts,
                                    requestCount=get_connection_request_count(),
                                    allUsernames=get_all_usernames(),
-                                   content=content, max_id=row[0])
+                                   content=content, max_id=row[0],
+                           notifications=get_notifications())
     else:
         return redirect("/login")
 
@@ -340,11 +337,12 @@ def like_post() -> object:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # check user hasn't liked post already
-        cur.execute("SELECT username, postId FROM UserLikes"
-                    " WHERE postId=? AND username=? ;",
-                    (post_id, session["username"]))
-        row = cur.fetchone()
-        if row is None:
+        #cur.execute("SELECT username, postId FROM UserLikes"
+        #            " WHERE postId=? AND username=? ;",
+        #            (post_id, session["username"]))
+        #row = cur.fetchone()
+        liked = check_if_liked(cur, post_id, session["username"])
+        if not liked:
             cur.execute("INSERT INTO UserLikes (postId,username)"
                         "VALUES (?, ?);", (post_id, session["username"]))
 
@@ -462,7 +460,8 @@ def delete_post() -> object:
     session["prev-page"] = request.url
     return render_template("error.html", message=message,
                            requestCount=get_connection_request_count(),
-                           allUsernames=get_all_usernames())
+                           allUsernames=get_all_usernames(),
+                           notifications=get_notifications())
 
 
 @posts_blueprint.route("/delete_comment", methods=["POST"])
@@ -488,7 +487,8 @@ def delete_comment() -> object:
             session["prev-page"] = request.url
             return render_template("error.html", message=message,
                                    requestCount=get_connection_request_count(),
-                                   allUsernames=get_all_usernames())
+                                   allUsernames=get_all_usernames(),
+                           notifications=get_notifications())
         else:
             cur.execute("DELETE FROM Comments WHERE commentId =? ",
                         (comment_id,))

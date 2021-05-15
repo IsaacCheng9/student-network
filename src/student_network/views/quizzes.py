@@ -27,11 +27,13 @@ def quizzes() -> object:
         session.pop("error", None)
         return render_template("quizzes.html",
                                requestCount=get_connection_request_count(),
-                               quizzes=quiz_posts, errors=errors)
+                               quizzes=quiz_posts, errors=errors,
+                           notifications=get_notifications())
     else:
         return render_template("quizzes.html",
                                requestCount=get_connection_request_count(),
-                               quizzes=quiz_posts)
+                               quizzes=quiz_posts,
+                           notifications=get_notifications())
 
 
 @quizzes_blueprint.route("/quiz/<quiz_id>", methods=["GET", "POST"])
@@ -56,7 +58,8 @@ def quiz(quiz_id: int) -> object:
                                requestCount=get_connection_request_count(),
                                quiz_name=quiz_name, quiz_id=quiz_id,
                                questions=questions, answers=answers,
-                               quiz_author=quiz_author)
+                               quiz_author=quiz_author,
+                           notifications=get_notifications())
     elif request.method == "POST":
         score = 0
         # Gets the answers selected by the user.
@@ -98,4 +101,5 @@ def quiz(quiz_id: int) -> object:
             return render_template("quiz_results.html",
                                    question_feedback=question_feedback,
                                    requestCount=get_connection_request_count(),
-                                   score=score)
+                                   score=score,
+                           notifications=get_notifications())
