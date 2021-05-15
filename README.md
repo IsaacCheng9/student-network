@@ -44,6 +44,7 @@ should `pip install` the following:
 - passlib
 - Werkzeug
 - Pillow
+- Flask-SocketIO
 
 For example, you should `pip install passlib`.
 
@@ -58,10 +59,10 @@ To run the application, you should follow the following steps:
 
 1. Clone this GitHub repository.
 2. Navigate to the following directory in your terminal:
-   [src](src).
+   [src/student_network](src/student_network).
 3. Ensure that you have the prerequisites to run the application (as explained
    in the previous section).
-4. Run the application with the command `python application.py`.
+4. Run the application with the command `python models.py`.
 5. Navigate to http://127.0.0.1:5000/ in your web browser.
 
 ## Usage
@@ -141,28 +142,11 @@ A promotional poster has been designed for this project. It can be found in the
 following GitHub repository
 path: [docs/designs/poster.pdf](docs/designs/poster.pdf)
 
-## Tests
-
-All tests have been documented formally in a `.docx` file, which can be found at
-the
-following: [docs/test-log/Test Documentation.docx](docs/test-log/Test Documentation.docx)
-
-### Unit Tests
+## Unit Tests
 
 We have performed unit testing through the `pytest` library in Python. These
 have largely been focused towards auxiliary functions, as these are reused
 repeatedly in the Python application.
-
-### Integration Tests
-
-Integration tests have been performed to ensure that different components of our
-application work together in the system.
-
-### User Acceptance Tests
-
-We have evaluated the success criteria which we created before starting
-development of this project, and how our product aligns with this. This has
-ensured that our product meets the requirements of our stakeholders.
 
 ## GitHub Repository
 
@@ -178,16 +162,11 @@ repository as follows:
 Project management is handled using the Kanban methodology through a Trello
 board, which can be found below:
 
-[https://trello.com/b/xnKnkaxg/gsep-group-n](https://trello.com/b/xnKnkaxg/gsep-group-n)
+[https://trello.com/b/xnKnkaxg/reconnect](https://trello.com/b/xnKnkaxg/reconnect)
 
 We have taken regular snapshots of the Kanban board in Trello to archive our
-progress. These can be found in the following path of the
+progress in the early stages. These can be found in the following path of the
 repository: [docs/kanban-snapshots](docs/kanban-snapshots)
-
-#### Meeting Minutes
-
-In addition, minutes have been recorded for every group meeting. They can be
-found in the following path: [docs/meeting-notes](docs/meeting-notes)
 
 #### Requirements Analysis
 
