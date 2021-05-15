@@ -1,11 +1,21 @@
 """
 Handles the view for posts on the feed and related functionality.
 """
+
+import sqlite3
+from datetime import datetime
 from urllib.parse import parse_qs
 from urllib.parse import urlparse
 
 from flask import Blueprint, render_template, redirect, jsonify
-from student_network.helper import *
+from flask import request, session
+from student_network.helper import add_quiz, check_if_liked, \
+    check_level_exists, fetch_posts, get_all_connections, get_all_usernames, \
+    get_connection_request_count, get_connection_type, get_degree, \
+    get_notifications, get_profile_picture, is_close_friend, \
+    save_quiz_details, update_comment_achievements, \
+    update_post_achievements, update_submission_achievements, upload_image, \
+    validate_quiz, validate_youtube
 
 posts_blueprint = Blueprint("posts", __name__, static_folder="static",
                             template_folder="templates")
@@ -156,7 +166,7 @@ def json_posts() -> dict:
     """
     number = request.args.get("number")
     starting_id = request.args.get("starting_id")
-    all_posts, content, valid = fetch_posts(number, starting_id)
+    all_posts, _, _ = fetch_posts(number, starting_id)
     return jsonify(all_posts)
 
 
