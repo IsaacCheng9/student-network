@@ -1,9 +1,17 @@
 """
 Handles the view for user connections and related functionality.
 """
-from flask import Blueprint, render_template, redirect
 
-from student_network.helper import *
+import sqlite3
+from datetime import date
+
+from flask import Blueprint, render_template
+from flask import redirect
+from flask import request, session
+from student_network.helper import delete_connection, get_all_usernames, \
+    get_connection_request_count, get_connection_type, get_notifications, \
+    get_profile_picture, get_recommended_connections, is_close_friend, \
+    update_close_connection_achievements, update_connection_achievements
 
 connections_blueprint = Blueprint("connections", __name__,
                                   static_folder="static",

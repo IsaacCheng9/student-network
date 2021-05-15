@@ -1,10 +1,18 @@
 """
 Handles the view for user profiles and related functionality.
 """
+
+import sqlite3
+from datetime import datetime
+
 from flask import Blueprint
 from flask import render_template, redirect
-
-from student_network.helper import *
+from flask import request, session
+from student_network.helper import apply_achievement, calculate_age, \
+    check_level_exists, get_achievements, get_all_connections, \
+    get_all_usernames, get_connection_request_count, get_connection_type, \
+    get_level, get_notifications, read_socials, update_profile_achievements, \
+    validate_edit_profile, validate_profile_pic
 
 profile_blueprint = Blueprint("profile", __name__, static_folder="static",
                               template_folder="templates")
@@ -59,7 +67,7 @@ def profile(username: str) -> object:
             return render_template(
                 "error.html", message=message,
                 requestCount=get_connection_request_count(),
-                           notifications=get_notifications())
+                notifications=get_notifications())
         else:
             data = row[0]
             name, bio, gender, birthday, profile_picture, privacy = (
@@ -88,7 +96,7 @@ def profile(username: str) -> object:
                     return render_template(
                         "error.html", message=message,
                         requestCount=get_connection_request_count(),
-                           notifications=get_notifications())
+                        notifications=get_notifications())
             elif conn_type == "blocked":
                 message.append(
                     "Unable to view this profile since " + username +
@@ -97,7 +105,7 @@ def profile(username: str) -> object:
                 return render_template(
                     "error.html", message=message,
                     requestCount=get_connection_request_count(),
-                           notifications=get_notifications())
+                    notifications=get_notifications())
             else:
                 conn_type = "close_friend"
                 if privacy == "private":
@@ -108,7 +116,7 @@ def profile(username: str) -> object:
                     return render_template(
                         "error.html", message=message,
                         requestCount=get_connection_request_count(),
-                           notifications=get_notifications())
+                        notifications=get_notifications())
 
             session["prev-page"] = request.url
             connections = get_all_connections(username)
@@ -223,7 +231,7 @@ def profile(username: str) -> object:
     socials = read_socials(username)
 
     # Gets the user's six rarest achievements.
-    unlocked_achievements, locked_achievements = get_achievements(username)
+    unlocked_achievements, _ = get_achievements(username)
     first_six = unlocked_achievements[0:min(6, len(unlocked_achievements))]
 
     # Calculates the user's age based on their date of birth.
@@ -264,7 +272,7 @@ def profile(username: str) -> object:
                                level=level, current_xp=int(current_xp),
                                xp_next_level=int(xp_next_level),
                                progress_color=progress_color,
-                           notifications=get_notifications())
+                               notifications=get_notifications())
     else:
         session["prev-page"] = request.url
         return render_template("profile.html", username=username,
@@ -280,7 +288,7 @@ def profile(username: str) -> object:
                                level=level, current_xp=int(current_xp),
                                xp_next_level=int(xp_next_level),
                                progress_color=progress_color,
-                           notifications=get_notifications())
+                               notifications=get_notifications())
 
 
 @profile_blueprint.route("/edit-profile", methods=["GET", "POST"])
@@ -336,7 +344,7 @@ def edit_profile() -> object:
                                gender=gender,
                                degree=degree, socials=socials, privacy=privacy,
                                hobbies=hobbies, interests=interests, errors=[],
-                           notifications=get_notifications())
+                               notifications=get_notifications())
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -432,7 +440,7 @@ def edit_profile() -> object:
                     requestCount=get_connection_request_count(),
                     allUsernames=get_all_usernames(), degrees=degrees,
                     degree=degree, date=dob, bio=bio, privacy=privacy,
-                           notifications=get_notifications())
+                    notifications=get_notifications())
 
 
 @profile_blueprint.route("/profile_privacy", methods=["POST"])

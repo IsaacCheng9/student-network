@@ -1,9 +1,13 @@
 """
 Handles the view for quizzes and related functionality.
 """
-from flask import Blueprint, render_template, redirect
+import sqlite3
 
-from student_network.helper import *
+from flask import Blueprint, render_template, redirect
+from flask import request, session
+from student_network.helper import check_level_exists, \
+    get_connection_request_count, get_quiz_details, get_notifications, \
+    update_quiz_achievements
 
 quizzes_blueprint = Blueprint("quizzes", __name__, static_folder="static",
                               template_folder="templates")

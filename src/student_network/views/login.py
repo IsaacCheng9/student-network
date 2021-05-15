@@ -1,12 +1,17 @@
 """
 Handles the view for the login system and related functionality.
 """
+
+import sqlite3
+from datetime import date
 from string import capwords
 
 from flask import Blueprint
 from flask import render_template, redirect
+from flask import request, session
 from passlib.hash import sha256_crypt
-from student_network.helper import *
+from student_network.helper import check_level_exists, \
+    get_connection_request_count, validate_registration
 
 login_blueprint = Blueprint("login", __name__, static_folder="static",
                             template_folder="templates")
