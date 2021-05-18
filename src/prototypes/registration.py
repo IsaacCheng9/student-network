@@ -12,14 +12,14 @@ def main():
         password = "Password01"
         password_confirm = "Password01"
         email = "ic324@exeter.ac.uk"
-        valid = validate_registration(cur, username, password,
-                                      password_confirm, email)
+        valid = validate_registration(cur, username, password, password_confirm, email)
         print(valid)
         conn.commit()
 
 
-def validate_registration(cur, username: str, password: str,
-                          password_confirm: str, email: str) -> bool:
+def validate_registration(
+    cur, username: str, password: str, password_confirm: str, email: str
+) -> bool:
     """
     Validates the registration details to ensure that the email address is
     valid, and that the passwords in the form match.
@@ -48,7 +48,7 @@ def validate_registration(cur, username: str, password: str,
         valid = False
 
     # Checks that the email address has the University of Exeter domain.
-    domain = re.search('@.*', email).group()
+    domain = re.search("@.*", email).group()
     if domain != "@exeter.ac.uk":
         print("Email address does not belong to University of Exeter!")
         valid = False

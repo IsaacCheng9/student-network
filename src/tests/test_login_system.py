@@ -8,26 +8,72 @@ def test_invalid_registration():
     with sqlite3.connect("./database.db") as conn:
         cur = conn.cursor()
 
-        username = ["goodname", "goodname", "goodname", "goodname", "goodname",
-                    "goodname", "goodname", "b@dname", "goodname"]
-        full_name = ["Good Name", "Good Name", "Good Name", "Good Name",
-                     "Good Name", "Good Name", "Bad Name_", "Good Name",
-                     "Good Name"]
-        password = ["goodpw123", "goodpw123", "goodpw123", "mismatch1",
-                    "badpw1",
-                    "badpwbad", "goodpw123", "goodpw123", "goodpw123"]
-        password_confirm = ["goodpw123", "goodpw123", "goodpw123", "mismatch2",
-                            "badpw1", "badpwbad", "goodpw", "goodpw123",
-                            "goodpw123"]
-        email = ["goodname@exeter.ac.uk", "goodname@gmail.com", "bademail@",
-                 "goodname@exeter.ac.uk", "goodname@exeter.ac.uk",
-                 "goodname@exeter.ac.uk", "goodname@exeter.ac.uk",
-                 "goodname@exeter.ac.uk", "ic324@exeter.ac.uk"]
+        username = [
+            "goodname",
+            "goodname",
+            "goodname",
+            "goodname",
+            "goodname",
+            "goodname",
+            "goodname",
+            "b@dname",
+            "goodname",
+        ]
+        full_name = [
+            "Good Name",
+            "Good Name",
+            "Good Name",
+            "Good Name",
+            "Good Name",
+            "Good Name",
+            "Bad Name_",
+            "Good Name",
+            "Good Name",
+        ]
+        password = [
+            "goodpw123",
+            "goodpw123",
+            "goodpw123",
+            "mismatch1",
+            "badpw1",
+            "badpwbad",
+            "goodpw123",
+            "goodpw123",
+            "goodpw123",
+        ]
+        password_confirm = [
+            "goodpw123",
+            "goodpw123",
+            "goodpw123",
+            "mismatch2",
+            "badpw1",
+            "badpwbad",
+            "goodpw",
+            "goodpw123",
+            "goodpw123",
+        ]
+        email = [
+            "goodname@exeter.ac.uk",
+            "goodname@gmail.com",
+            "bademail@",
+            "goodname@exeter.ac.uk",
+            "goodname@exeter.ac.uk",
+            "goodname@exeter.ac.uk",
+            "goodname@exeter.ac.uk",
+            "goodname@exeter.ac.uk",
+            "ic324@exeter.ac.uk",
+        ]
         terms = [None, "", "", "", "", "", "", "", ""]
         for num in range(len(username)):
             valid, message = application.validate_registration(
-                cur, username[num], full_name[num], password[num],
-                password_confirm[num], email[num], terms[num])
+                cur,
+                username[num],
+                full_name[num],
+                password[num],
+                password_confirm[num],
+                email[num],
+                terms[num],
+            )
             assert valid is False
 
 
@@ -37,8 +83,14 @@ def test_valid_registration():
         cur = conn.cursor()
 
         valid, message = application.validate_registration(
-            cur, "goodname", "Good Name", "goodpw123", "goodpw123",
-            "goodname@exeter.ac.uk", "")
+            cur,
+            "goodname",
+            "Good Name",
+            "goodpw123",
+            "goodpw123",
+            "goodname@exeter.ac.uk",
+            "",
+        )
         assert valid is True
 
 
@@ -47,15 +99,14 @@ def test_null_registration():
     with sqlite3.connect("./database.db") as conn:
         cur = conn.cursor()
 
-        valid, message = application.validate_registration(
-            cur, "", "", "", "", "", "")
+        valid, message = application.validate_registration(cur, "", "", "", "", "", "")
         assert valid is False
 
 
 def test_login_route():
     app = application.application
     client = app.test_client()
-    url = '/login'
+    url = "/login"
 
     response = client.get(url)
     assert response.status_code == 200
@@ -64,7 +115,7 @@ def test_login_route():
 def test_register_route():
     app = application.application
     client = app.test_client()
-    url = '/register'
+    url = "/register"
 
     response = client.get(url)
     assert response.status_code == 200
