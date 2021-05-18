@@ -1,6 +1,12 @@
 <meta property="og:title" content="Reconnect | Settings" />
-<meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
-<meta property="og:description" content="The Student Network. Connecting students in and outside the classroom." />
+<meta
+  property="og:image"
+  content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
+/>
+<meta
+  property="og:description"
+  content="The Student Network. Connecting students in and outside the classroom."
+/>
 {% extends "base.html" %} {% block title %}Settings{% endblock %} {% block
 content %}
 
@@ -70,15 +76,15 @@ content %}
               </div>
             </div>
             <div class="twelve wide stretched column">
-              {%if errors|length > 0%}
+              {% if errors|length > 0 %}
               <div class="ui red message">
                 {% for error in errors %}
                 <div class="ui list">
-                  <div class="item">{{error}}</div>
+                  <div class="item">{{ error }}</div>
                 </div>
-                {%endfor%}
+                {% endfor %}
               </div>
-              {%endif%}
+              {% endif %}
 
               <div class="ui segment" id="profile">
                 <!-- name bio gender birthday profile_picture hobbies interests -->
@@ -92,20 +98,22 @@ content %}
                   <div class="field">
                     <label>Degree</label>
                     <select name="degree_input">
-                      {%for item in degrees.degrees %} Degree: {% if
+                      {% for item in degrees.degrees %} Degree: {% if
                       item.degreeId == degree %}
-                      <option value="{{item.degreeId}}" selected>
-                        {{item.degree}}
+                      <option value="{{ item.degreeId }}" selected>
+                        {{ item.degree }}
                       </option>
-                      {%else%}
-                      <option value="{{item.degreeId}}">{{item.degree}}</option>
-                      {%endif%} {%endfor%}
+                      {% else %}
+                      <option value="{{ item.degreeId }}">
+                        {{ item.degree }}
+                      </option>
+                      {% endif %} {% endfor %}
                     </select>
                   </div>
                   <div class="field">
                     <label>Bio</label>
                     <textarea name="bio_input" rows="2" maxlength="160">
-{{bio}}</textarea
+{{ bio }}</textarea
                     >
                   </div>
                   <div class="field">
@@ -113,22 +121,22 @@ content %}
                     <select name="gender_input" id="">
                       {% if gender == "Male" %}
                       <option value="Male" selected>Male</option>
-                      {%else %}
+                      {% else %}
                       <option value="Male">Male</option>
-                      {%endif%} {% if gender == "Female" %}
+                      {% endif %} {% if gender == "Female" %}
                       <option value="Female" selected>Female</option>
-                      {%else %}
+                      {% else %}
                       <option value="Female">Female</option>
-                      {%endif%} {% if gender == "Other" %}
+                      {% endif %} {% if gender == "Other" %}
                       <option value="Other" selected>Other</option>
-                      {%else %}
+                      {% else %}
                       <option value="Other">Other</option>
-                      {%endif%}
+                      {% endif %}
                     </select>
                   </div>
                   <div class="field">
                     <label>Birthday</label>
-                    <input name="dob_input" type="date" value="{{date}}" />
+                    <input name="dob_input" type="date" value="{{ date }}" />
                   </div>
                   <div class="field">
                     <label>Profile Picture</label>
@@ -137,7 +145,7 @@ content %}
                       type="file"
                       id="profile-picture-upload"
                       accept="image/*"
-                      oninput='document.getElementById("avatar-file-name").innerHTML = this.files[0].name;;'
+                      oninput='document.getElementById("avatar-file-name").innerHTML = this.files[0].name;'
                     />
                     <label
                       for="profile-picture-upload"
@@ -159,7 +167,7 @@ content %}
                     <input
                       name="hobbies_input"
                       type="text"
-                      placeholder="{% if hobbies != none %} {%for item in hobbies%} {{item[0]}}, {%endfor%} {%endif%}"
+                      placeholder="{% if hobbies != none %} {% for item in hobbies %} {{ item[0] }}, {% endfor %} {% endif %}"
                       maxlength="24"
                     />
                     <script src="../static/hobbies.js"></script>
@@ -170,7 +178,7 @@ content %}
                       <script>
                         addHTag("{{ hobbies[i][0]}}");
                       </script>
-                      {%endfor%} {%endif%}
+                      {% endfor %} {% endif %}
                     </div>
                   </div>
                   <div class="ui divider"></div>
@@ -183,7 +191,7 @@ content %}
                       name="interests_input"
                       type="text"
                       maxlength="24"
-                      placeholder="{% if insterest != none %} {%for item in interests%} {{item[0]}}, {%endfor%} {%endif%}"
+                      placeholder="{% if insterest != none %} {% for item in interests %} {{ item[0] }}, {% endfor %} {% endif %}"
                     />
                     <script src="../static/interests.js"></script>
                     <div class="ui divider hidden"></div>
@@ -193,7 +201,7 @@ content %}
                       <script>
                         addITag("{{ interests[i][0] }}");
                       </script>
-                      {%endfor%} {%endif%}
+                      {% endfor %} {% endif %}
                     </div>
                   </div>
                   <button class="ui button submit">Save Changes</button>
@@ -215,9 +223,8 @@ content %}
                         type="text"
                         name="facebook"
                         id="facebook"
-                        placeholder="Full URL"
-                        value="{{socials.get('facebook','')}}"
-                        )
+                        placeholder="Username (e.g. joebloggs10)"
+                        value="{{ socials.get('facebook','') }}"
                       />
                     </div>
                     <div class="field">
@@ -226,8 +233,8 @@ content %}
                         type="text"
                         name="twitter"
                         id="twitter"
-                        placeholder="Username (eg. joebloggs10)"
-                        value="{{socials.get('twitter','')}}"
+                        placeholder="Username (e.g. joebloggs10)"
+                        value="{{ socials.get('twitter','') }}"
                       />
                     </div>
                   </div>
@@ -238,8 +245,8 @@ content %}
                         type="text"
                         name="youtube"
                         id="youtube"
-                        placeholder="Full URL"
-                        value="{{socials.get('youtube','')}}"
+                        placeholder="Username (e.g. joebloggs10)"
+                        value="{{ socials.get('youtube','') }}"
                       />
                     </div>
                     <div class="field">
@@ -248,8 +255,8 @@ content %}
                         type="text"
                         name="linkedin"
                         id="linkedin"
-                        placeholder="Username (eg. joebloggs10)"
-                        value="{{socials.get('linkedin', '')}}"
+                        placeholder="Username (e.g. joebloggs10)"
+                        value="{{ socials.get('linkedin', '') }}"
                       />
                     </div>
                   </div>
@@ -260,8 +267,8 @@ content %}
                         type="text"
                         name="instagram"
                         id="instagram"
-                        placeholder="Username (eg. joebloggs10)"
-                        value="{{socials.get('instagram','')}}"
+                        placeholder="Username (e.g. joebloggs10)"
+                        value="{{ socials.get('instagram','') }}"
                       />
                     </div>
                   </div>
@@ -279,26 +286,26 @@ content %}
                 >
                   <div class="field">
                     <label>Select your profile page privacy settings:</label>
-                    <select name="privacy" onchange="displayDiv(this)">
+                    <select name="privacy" onchange="DisplayPrivacyTooltip(this)">
                       {% if privacy == "public" %}
                       <option value="public" selected>Public</option>
-                      {%else %}
+                      {% else %}
                       <option value="public">Public</option>
-                      {%endif%} {% if privacy == "protected" %}
+                      {% endif %} {% if privacy == "protected" %}
                       <option value="protected" selected>Protected</option>
-                      {%else %}
+                      {% else %}
                       <option value="protected">Protected</option>
-                      {%endif%} {% if privacy == "close_friends" %}
+                      {% endif %} {% if privacy == "close_friends" %}
                       <option value="close_friends" selected>
                         Close friends only
                       </option>
-                      {%else %}
+                      {% else %}
                       <option value="close_friends">Close friends only</option>
-                      {%endif%} {% if privacy == "private" %}
+                      {% endif %} {% if privacy == "private" %}
                       <option value="private" selected>Private</option>
-                      {%else %}
+                      {% else %}
                       <option value="private">Private</option>
-                      {%endif%}
+                      {% endif %}
                     </select>
                   </div>
                   <button class="ui button submit">Save Changes</button>
@@ -331,17 +338,15 @@ content %}
 
   <script>
     function OpenTab(tabName, curElem) {
-      var tabs = ["profile", "socials", "notifications", "privacy"];
-
-      var menuItems = document.querySelectorAll("#menu a");
+      let tabs = ["profile", "socials", "notifications", "privacy"];
+      let menuItems = document.querySelectorAll("#menu a");
 
       menuItems.forEach(function (elem) {
         elem.classList.remove("active");
       });
-
-      for (var tab of tabs) {
+      for (let tab of tabs) {
         document.getElementById(tab).style.display =
-          tab == tabName ? "block" : "none";
+          tab === tabName ? "block" : "none";
         if (curElem) {
           curElem.classList.add("active");
         }
@@ -352,31 +357,11 @@ content %}
       OpenTab("profile");
     });
 
-    function displayDiv(setting) {
-      console.log(setting);
-      if (setting) {
-        document.getElementById("privacy_description").style.display = "block";
-        if (setting.value == "public") {
-          document.getElementById("public").style.display = "block";
-          document.getElementById("protected").style.display = "none";
-          document.getElementById("close_friends").style.display = "none";
-          document.getElementById("private").style.display = "none";
-        } else if (setting.value == "protected") {
-          document.getElementById("public").style.display = "none";
-          document.getElementById("protected").style.display = "block";
-          document.getElementById("close_friends").style.display = "none";
-          document.getElementById("private").style.display = "none";
-        } else if (setting.value == "close_friends") {
-          document.getElementById("public").style.display = "none";
-          document.getElementById("protected").style.display = "none";
-          document.getElementById("close_friends").style.display = "block";
-          document.getElementById("private").style.display = "none";
-        } else {
-          document.getElementById("public").style.display = "none";
-          document.getElementById("protected").style.display = "none";
-          document.getElementById("close_friends").style.display = "none";
-          document.getElementById("private").style.display = "block";
-        }
+    function DisplayPrivacyTooltip(setting) {
+      let tabs = ["public", "protected", "close_friends", "privacy"];
+      for (let tab of tabs) {
+        document.getElementById(tab).style.display =
+          tab === setting.value ? "block" : "none";
       }
     }
   </script>
