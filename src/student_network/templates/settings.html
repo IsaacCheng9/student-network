@@ -286,7 +286,7 @@ content %}
                 >
                   <div class="field">
                     <label>Select your profile page privacy settings:</label>
-                    <select name="privacy" onchange="displayDiv(this)">
+                    <select name="privacy" onchange="DisplayPrivacyTooltip(this)">
                       {% if privacy == "public" %}
                       <option value="public" selected>Public</option>
                       {% else %}
@@ -357,7 +357,7 @@ content %}
       OpenTab("profile");
     });
 
-    function displayDiv(setting) {
+    function DisplayPrivacyTooltip(setting) {
       let tabs = ["public", "protected", "close_friends", "privacy"];
       for (let tab of tabs) {
         document.getElementById(tab).style.display =
