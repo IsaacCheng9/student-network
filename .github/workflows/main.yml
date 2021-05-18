@@ -18,7 +18,7 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -35,5 +35,5 @@ jobs:
       - name: Prettier Action
         uses: creyD/prettier_action@v3.3
         with:
-            commit_message: Format code with Prettier
+            commit_message: Format code with Black and Prettier
             prettier_options: --write {**/*,*}.{js,ts,jsx,tsx,html,css}
