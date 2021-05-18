@@ -16,19 +16,23 @@ def check_level_exists(username: str, conn):
         conn: The connection to the database.
     """
     cur = conn.cursor()
-    cur.execute(
-        "SELECT * FROM UserLevel WHERE username=?;", (username,))
+    cur.execute("SELECT * FROM UserLevel WHERE username=?;", (username,))
     if cur.fetchone() is None:
         cur.execute(
-            "INSERT INTO UserLevel (username, experience) VALUES (?, ?);",
-            (username, 0))
+            "INSERT INTO UserLevel (username, experience) VALUES (?, ?);", (username, 0)
+        )
         conn.commit()
 
 
 def validate_registration(
-        cur, username: str, full_name: str, password: str,
-        password_confirm: str,
-        email: str, terms: str) -> Tuple[bool, List[str]]:
+    cur,
+    username: str,
+    full_name: str,
+    password: str,
+    password_confirm: str,
+    email: str,
+    terms: str,
+) -> Tuple[bool, List[str]]:
     """
     Validates the registration details to ensure that the email address is
     valid, and that the passwords in the form match.
@@ -52,8 +56,13 @@ def validate_registration(
     message = []
 
     # Checks that there are no null inputs.
-    if (username == "" or full_name == "" or password == "" or
-            password_confirm == "" or email == ""):
+    if (
+        username == ""
+        or full_name == ""
+        or password == ""
+        or password_confirm == ""
+        or email == ""
+    ):
         message.append("Not all fields have been filled in!")
         valid = False
 
@@ -96,16 +105,16 @@ def validate_registration(
         domain = re.search("@.*", email).group()
         if domain != "@exeter.ac.uk":
             valid = False
-            message.append(
-                "Email address does not belong to University of Exeter!")
+            message.append("Email address does not belong to University of Exeter!")
 
     # Checks that the password has a minimum length of 8 characters, and at
     # least one number.
-    if (len(password) <= 7 or any(
-            char.isdigit() for char in password) is False):
-        message.append("Password does not meet requirements! It must contain "
-                       "at least eight characters, including at least one "
-                       "number.")
+    if len(password) <= 7 or any(char.isdigit() for char in password) is False:
+        message.append(
+            "Password does not meet requirements! It must contain "
+            "at least eight characters, including at least one "
+            "number."
+        )
         valid = False
     # Checks that the passwords match.
     if password != password_confirm:

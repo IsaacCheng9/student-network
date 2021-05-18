@@ -31,9 +31,10 @@ def check_if_liked(cur, post_id: int, username: str) -> bool:
     Returns:
         True if post has been liked by user, False if not
     """
-    cur.execute("SELECT username FROM UserLikes "
-                "WHERE postId=? AND username=?;",
-                (post_id, username))
+    cur.execute(
+        "SELECT username FROM UserLikes " "WHERE postId=? AND username=?;",
+        (post_id, username),
+    )
     if cur.fetchone():
         return True
     return False
@@ -52,16 +53,13 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
         post.
     """
     content = ""
-    all_posts = {
-        "AllPosts": []
-    }
+    all_posts = {"AllPosts": []}
     if "username" in session:
         session["prev-page"] = request.url
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
 
-            connections = helper_general.get_all_connections(
-                session["username"])
+            connections = helper_general.get_all_connections(session["username"])
             connections.append((session["username"],))
             row = []
             for user in connections:
@@ -70,7 +68,8 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                     "WHERE username=? AND postId <= ?"
                     "AND privacy!='private' AND privacy!='close' "
                     "ORDER BY postId DESC LIMIT ?;",
-                    (user[0], starting_id, number))
+                    (user[0], starting_id, number),
+                )
                 row += cur.fetchall()
             # Sort reverse chronologically
             row = sorted(row, key=lambda x: x[0], reverse=True)
@@ -83,13 +82,12 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                 add = ""
                 if len(user_post[2]) > 250:
                     add = "..."
-                time = datetime.strptime(user_post[4], '%Y-%m-%d').strftime(
-                    '%d-%m-%y')
+                time = datetime.strptime(user_post[4], "%Y-%m-%d").strftime("%d-%m-%y")
 
                 # Get account type
-                cur.execute("SELECT type "
-                            "FROM ACCOUNTS WHERE username=? ",
-                            (user_post[3],))
+                cur.execute(
+                    "SELECT type " "FROM ACCOUNTS WHERE username=? ", (user_post[3],)
+                )
 
                 accounts = cur.fetchone()
                 account_type = accounts[0]
@@ -97,52 +95,63 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                 post_id = user_post[0]
                 post_type = user_post[8]
 
-                cur.execute("SELECT * FROM Comments WHERE postId=? LIMIT 5;",
-                            (post_id,))
+                cur.execute(
+                    "SELECT * FROM Comments WHERE postId=? LIMIT 5;", (post_id,)
+                )
                 comments = cur.fetchall()
 
-                comments = list(map(lambda x: (x[0], x[1], x[2], x[3], x[4],
-                                               helper_profile.get_profile_picture(
-                                                   x[1])),
-                                    comments))
+                comments = list(
+                    map(
+                        lambda x: (
+                            x[0],
+                            x[1],
+                            x[2],
+                            x[3],
+                            x[4],
+                            helper_profile.get_profile_picture(x[1]),
+                        ),
+                        comments,
+                    )
+                )
 
                 if post_type in ("Image", "Link"):
                     cur.execute(
-                        "SELECT contentUrl "
-                        "FROM PostContent WHERE postId=?;", (post_id,))
+                        "SELECT contentUrl " "FROM PostContent WHERE postId=?;",
+                        (post_id,),
+                    )
 
                     content = cur.fetchone()
                     if content is not None:
                         content = content[0]
 
                 cur.execute(
-                    "SELECT COUNT(commentID)"
-                    "FROM Comments WHERE postId=?;", (post_id,))
+                    "SELECT COUNT(commentID)" "FROM Comments WHERE postId=?;",
+                    (post_id,),
+                )
                 comment_count = cur.fetchone()[0]
 
-                cur.execute(
-                    "SELECT likes "
-                    "FROM POSTS WHERE postId=?;", (post_id,))
+                cur.execute("SELECT likes " "FROM POSTS WHERE postId=?;", (post_id,))
                 like_count = cur.fetchone()[0]
 
                 liked = check_if_liked(cur, post_id, session["username"])
 
-                all_posts["AllPosts"].append({
-                    "postId": user_post[0],
-                    "title": user_post[1],
-                    "profile_pic": helper_profile.get_profile_picture(
-                        user_post[3]),
-                    "author": user_post[3],
-                    "account_type": account_type,
-                    "date_posted": time,
-                    "body": (user_post[2])[:250] + add,
-                    "post_type": user_post[8],
-                    "content": content,
-                    "comment_count": comment_count,
-                    "like_count": like_count,
-                    "liked": liked,
-                    "comments": comments
-                })
+                all_posts["AllPosts"].append(
+                    {
+                        "postId": user_post[0],
+                        "title": user_post[1],
+                        "profile_pic": helper_profile.get_profile_picture(user_post[3]),
+                        "author": user_post[3],
+                        "account_type": account_type,
+                        "date_posted": time,
+                        "body": (user_post[2])[:250] + add,
+                        "post_type": user_post[8],
+                        "content": content,
+                        "comment_count": comment_count,
+                        "like_count": like_count,
+                        "liked": liked,
+                        "comments": comments,
+                    }
+                )
                 i += 1
         return all_posts, content, True
     else:
@@ -180,15 +189,12 @@ def upload_image(file):
     if helper_general.allowed_file(file.filename):
         secure_filename(file.filename)
         file_name_hashed = str(uuid.uuid4())
-        file_path = os.path.join(
-            "./static/images" + "//post_imgs",
-            file_name_hashed)
+        file_path = os.path.join("./static/images" + "//post_imgs", file_name_hashed)
 
         img = Image.open(file)
         fixed_height = 600
-        height_percent = (fixed_height / float(img.size[1]))
-        width_size = int(
-            (float(img.size[0]) * float(height_percent)))
+        height_percent = fixed_height / float(img.size[1])
+        width_size = int((float(img.size[0]) * float(height_percent)))
         width_size = min(width_size, 800)
         img = img.resize((width_size, fixed_height))
         img = img.convert("RGB")
@@ -206,9 +212,7 @@ def update_submission_achievements(cur):
     # Award achievement ID 7 - Express yourself if necessary
     helper_achievements.apply_achievement(session["username"], 7)
 
-    cur.execute(
-        "SELECT * FROM POSTS WHERE username=?;",
-        (session["username"],))
+    cur.execute("SELECT * FROM POSTS WHERE username=?;", (session["username"],))
     num_posts = cur.fetchall()
     # Award achievement ID 8 - 5 posts if necessary
     if len(num_posts) >= 5:
@@ -231,7 +235,8 @@ def validate_youtube(url: str):
     url_regex = (
         r"(https?://)?(www\.)?"
         "(youtube|youtu|youtube-nocookie)\.(com)/"
-        "(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})")
+        "(watch\?v=|embed/|v/|.+\?v=)?([^&=%\?]{11})"
+    )
     url_regex_match = re.match(url_regex, url)
 
     return url_regex_match

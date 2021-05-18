@@ -14,8 +14,9 @@ from passlib.hash import sha256_crypt
 import student_network.helpers.helper_connections as helper_connections
 import student_network.helpers.helper_login as helper_login
 
-login_blueprint = Blueprint("login", __name__, static_folder="static",
-                            template_folder="templates")
+login_blueprint = Blueprint(
+    "login", __name__, static_folder="static", template_folder="templates"
+)
 
 
 @login_blueprint.route("/", methods=["GET"])
@@ -63,9 +64,9 @@ def terms_page() -> object:
     """
     if request.method == "GET":
         session["prev-page"] = request.url
-        return render_template("terms.html",
-                               requestCount=
-                               helper_connections.get_connection_request_count())
+        return render_template(
+            "terms.html", requestCount=helper_connections.get_connection_request_count()
+        )
     else:
         return redirect("/register")
 
@@ -80,9 +81,10 @@ def privacy_policy_page() -> object:
     """
     if request.method == "GET":
         session["prev-page"] = request.url
-        return render_template("privacy_policy.html",
-                               requestCount=
-                               helper_connections.get_connection_request_count())
+        return render_template(
+            "privacy_policy.html",
+            requestCount=helper_connections.get_connection_request_count(),
+        )
     else:
         return redirect("/terms")
 
@@ -102,8 +104,8 @@ def login_submit() -> object:
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
-            "SELECT password, type FROM ACCOUNTS WHERE username=?;",
-            (username,))
+            "SELECT password, type FROM ACCOUNTS WHERE username=?;", (username,)
+        )
         conn.commit()
         row = cur.fetchone()
         if row:
@@ -116,7 +118,7 @@ def login_submit() -> object:
             if sha256_crypt.verify(psw, hashed_psw):
                 session["username"] = username
                 session["prev-page"] = request.url
-                if account_type == 'admin':
+                if account_type == "admin":
                     session["admin"] = True
                     return redirect("/admin")
                 else:
@@ -151,10 +153,12 @@ def register_page() -> object:
         session.pop("notifications", None)
         session["prev-page"] = request.url
 
-        return render_template("register.html", notifications=notifications,
-                               errors=errors,
-                               requestCount=
-                               helper_connections.get_connection_request_count())
+        return render_template(
+            "register.html",
+            notifications=notifications,
+            errors=errors,
+            requestCount=helper_connections.get_connection_request_count(),
+        )
 
 
 @login_blueprint.route("/register", methods=["POST"])
@@ -177,24 +181,35 @@ def register_submit() -> object:
     # Connects to the database to perform validation.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        valid, message = helper_login.validate_registration(cur, username,
-                                                            full_name,
-                                                            password,
-                                                            password_confirm,
-                                                            email, terms)
+        valid, message = helper_login.validate_registration(
+            cur, username, full_name, password, password_confirm, email, terms
+        )
         # Registers the user if the details are valid.
         if valid is True:
             hash_password = sha256_crypt.hash(password)
             cur.execute(
                 "INSERT INTO Accounts (username, password, email, type) "
-                "VALUES (?, ?, ?, ?);", (username, hash_password, email,
-                                         account,))
+                "VALUES (?, ?, ?, ?);",
+                (
+                    username,
+                    hash_password,
+                    email,
+                    account,
+                ),
+            )
             cur.execute(
                 "INSERT INTO UserProfile (username, name, bio, gender, "
                 "birthday, profilepicture) "
-                "VALUES (?, ?, ?, ?, ?, ?);", (
-                    username, full_name, "Change your bio in the settings.",
-                    "Male", date.today(), "/static/images/default-pfp.jpg",))
+                "VALUES (?, ?, ?, ?, ?, ?);",
+                (
+                    username,
+                    full_name,
+                    "Change your bio in the settings.",
+                    "Male",
+                    date.today(),
+                    "/static/images/default-pfp.jpg",
+                ),
+            )
             helper_login.check_level_exists(username, conn)
             conn.commit()
 

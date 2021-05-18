@@ -28,36 +28,40 @@ def delete_connection(username: str) -> bool:
     if username != session["username"]:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM Accounts WHERE username=?;",
-                        (username,))
+            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
 
             # Searches for the connection in the database.
             if cur.fetchone() is not None:
                 row = cur.execute(
                     "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
                     "(user1=? AND user2=?);",
-                    (username, session["username"], session["username"],
-                     username))
+                    (username, session["username"], session["username"], username),
+                )
                 # Removes the connection from the database if it exists.
                 if row:
                     cur.execute(
                         "DELETE FROM Connection WHERE (user1=? AND user2=?) "
                         "OR (user1=? AND user2=?);",
-                        (username, session["username"], session["username"],
-                         username))
+                        (username, session["username"], session["username"], username),
+                    )
                     row = cur.execute(
                         "SELECT * FROM Connection "
                         "WHERE (user1=? AND user2=?) "
                         "OR (user1=? AND user2=?);",
-                        (username, session["username"], session["username"],
-                         username))
+                        (username, session["username"], session["username"], username),
+                    )
                     if row:
                         cur.execute(
                             "DELETE FROM CloseFriend "
                             "WHERE (user1=? AND user2=?) "
                             "OR (user1=? AND user2=?);",
-                            (username, session["username"],
-                             session["username"], username))
+                            (
+                                username,
+                                session["username"],
+                                session["username"],
+                                username,
+                            ),
+                        )
                     conn.commit()
                     return True
                 else:
@@ -80,9 +84,9 @@ def get_connection_request_count() -> int:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT * FROM Connection WHERE user2=? AND "
-            "connection_type='request';",
-            (session["username"],))
+            "SELECT * FROM Connection WHERE user2=? AND " "connection_type='request';",
+            (session["username"],),
+        )
         return len(list(cur.fetchall()))
 
 
@@ -99,8 +103,12 @@ def get_connection_type(username: str):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT connection_type FROM Connection WHERE user1=? "
-            "AND user2=?", (session["username"], username,))
+            "SELECT connection_type FROM Connection WHERE user1=? " "AND user2=?",
+            (
+                session["username"],
+                username,
+            ),
+        )
         conn.commit()
 
         # Checks if there is a connection between the two users.
@@ -109,8 +117,12 @@ def get_connection_type(username: str):
             return row[0]
         else:
             cur.execute(
-                "SELECT connection_type FROM Connection WHERE user1=? AND "
-                "user2=?", (username, session["username"],))
+                "SELECT connection_type FROM Connection WHERE user1=? AND " "user2=?",
+                (
+                    username,
+                    session["username"],
+                ),
+            )
             conn.commit()
             row = cur.fetchone()
             if row:
@@ -123,8 +135,7 @@ def get_connection_type(username: str):
                 return None
 
 
-def get_mutual_connections(mutual_connections: list, mutual: str,
-                           recommend_type: str):
+def get_mutual_connections(mutual_connections: list, mutual: str, recommend_type: str):
     """
     Args:
         mutual_connections: List of mutual connections with the user.
@@ -164,7 +175,8 @@ def get_recommended_connections(username: str) -> list:
             "WHERE user1=? AND connection_type='request' UNION ALL "
             "SELECT user1 FROM Connection "
             "WHERE user2=? AND connection_type='request'",
-            (username, username))
+            (username, username),
+        )
         pending = cur.fetchall()
         recommend_type = "mutual connection"
         for count, pend in enumerate(pending):
@@ -174,28 +186,25 @@ def get_recommended_connections(username: str) -> list:
         for user in connections:
             user_cons = helper_general.get_all_connections(user[0])
             for mutual in user_cons:
-                if (mutual[0] != session["username"] and
-                        mutual[0] not in pending):
+                if mutual[0] != session["username"] and mutual[0] not in pending:
                     mutual_connections = get_mutual_connections(
-                        mutual_connections,
-                        mutual, recommend_type)
+                        mutual_connections, mutual, recommend_type
+                    )
 
         if len(mutual_connections) < 5:
             degree = helper_profile.get_degree(session["username"])
             if degree[0] != 1:
                 cur.execute(
-                    "SELECT username FROM "
-                    "UserProfile WHERE degree=?;",
-                    (degree[0],))
+                    "SELECT username FROM " "UserProfile WHERE degree=?;", (degree[0],)
+                )
                 shared_degree = cur.fetchall()
                 recommend_type = "Studies " + str(degree[1])
                 for user in shared_degree:
                     if len(mutual_connections) < 5:
-                        if (user[0] != session["username"] and
-                                user[0] not in pending):
+                        if user[0] != session["username"] and user[0] not in pending:
                             mutual_connections = get_mutual_connections(
-                                mutual_connections,
-                                mutual, recommend_type)
+                                mutual_connections, mutual, recommend_type
+                            )
                     else:
                         break
 
@@ -213,7 +222,7 @@ def is_close_friend(username: str) -> bool:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
-            (session["username"], username)
+            (session["username"], username),
         )
         if cur.fetchone():
             return True

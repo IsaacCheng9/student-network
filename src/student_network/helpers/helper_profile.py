@@ -28,8 +28,7 @@ def calculate_age(born: datetime) -> int:
         The age of the user in years.
     """
     today = date.today()
-    return today.year - born.year - (
-            (today.month, today.day) < (born.month, born.day))
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
 
 def get_degree(username: str) -> Tuple[int, str]:
@@ -45,16 +44,10 @@ def get_degree(username: str) -> Tuple[int, str]:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute(
-            "SELECT degree FROM UserProfile WHERE username=?;",
-            (username,)
-        )
+        cur.execute("SELECT degree FROM UserProfile WHERE username=?;", (username,))
         degree_id = cur.fetchone()
         if degree_id:
-            cur.execute(
-                "SELECT degree FROM Degree WHERE degreeId=?;",
-                (degree_id[0],)
-            )
+            cur.execute("SELECT degree FROM Degree WHERE degreeId=?;", (degree_id[0],))
             degree = cur.fetchone()
             return degree_id[0], degree[0]
 
@@ -79,8 +72,8 @@ def get_level(username: str) -> List[int]:
         helper_login.check_level_exists(username, conn)
         # Get user experience
         cur.execute(
-            "SELECT experience FROM "
-            "UserLevel WHERE username=?;", (username,))
+            "SELECT experience FROM " "UserLevel WHERE username=?;", (username,)
+        )
         row = cur.fetchone()
 
         exp = int(row[0])
@@ -105,8 +98,7 @@ def get_profile_picture(username: str) -> str:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT profilepicture FROM UserProfile WHERE username=?;",
-            (username,)
+            "SELECT profilepicture FROM UserProfile WHERE username=?;", (username,)
         )
         row = cur.fetchone()
         if row:
@@ -125,8 +117,9 @@ def read_socials(username: str):
         cur = conn.cursor()
         socials = {}
         # Gets the user's socials
-        cur.execute("SELECT social, link from UserSocial WHERE username=?;",
-                    (username,))
+        cur.execute(
+            "SELECT social, link from UserSocial WHERE username=?;", (username,)
+        )
         row = cur.fetchall()
         if len(row) > 0:
             for item in row:
@@ -135,8 +128,8 @@ def read_socials(username: str):
 
 
 def validate_edit_profile(
-        bio: str, gender: str, dob: str,
-        hobbies: list, interests: list) -> Tuple[bool, List[str]]:
+    bio: str, gender: str, dob: str, hobbies: list, interests: list
+) -> Tuple[bool, List[str]]:
     """
     Validates the details in the profile editing form.
 
@@ -208,9 +201,7 @@ def validate_profile_pic(file) -> Tuple[bool, List[str], str]:
     if helper_general.allowed_file(file.filename):
         secure_filename(file.filename)
         file_name_hashed = str(uuid.uuid4())
-        file_path = os.path.join(
-            "./static/images" + "//avatars",
-            file_name_hashed)
+        file_path = os.path.join("./static/images" + "//avatars", file_name_hashed)
         img = Image.open(file)
         img = img.resize((400, 400))
         img = img.convert("RGB")

@@ -14,13 +14,12 @@ import student_network.helpers.helper_connections as helper_connections
 import student_network.helpers.helper_general as helper_general
 import student_network.helpers.helper_profile as helper_profile
 
-connections_blueprint = Blueprint("connections", __name__,
-                                  static_folder="static",
-                                  template_folder="templates")
+connections_blueprint = Blueprint(
+    "connections", __name__, static_folder="static", template_folder="templates"
+)
 
 
-@connections_blueprint.route("/close_connection/<username>",
-                             methods=["GET", "POST"])
+@connections_blueprint.route("/close_connection/<username>", methods=["GET", "POST"])
 def close_connection(username: str) -> object:
     """
     Sends a connect request to another user on the network.
@@ -34,33 +33,33 @@ def close_connection(username: str) -> object:
     if session["username"] != username:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM Accounts WHERE username=?;",
-                        (username,))
+            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
             if cur.fetchone():
                 conn_type = helper_connections.get_connection_type(username)
                 if conn_type == "connected":
                     cur.execute(
-                        "SELECT * FROM CloseFriend WHERE "
-                        "(user1=? AND user2=?);",
-                        (session["username"], username))
+                        "SELECT * FROM CloseFriend WHERE " "(user1=? AND user2=?);",
+                        (session["username"], username),
+                    )
                     if cur.fetchone() is None:
                         # Gets user from database using username.
                         cur.execute(
-                            "INSERT INTO CloseFriend (user1, user2) "
-                            "VALUES (?,?);",
-                            (session["username"], username,))
+                            "INSERT INTO CloseFriend (user1, user2) " "VALUES (?,?);",
+                            (
+                                session["username"],
+                                username,
+                            ),
+                        )
                         conn.commit()
                         session["add"] = True
 
-                        helper_achievements.update_close_connection_achievements(
-                            cur)
+                        helper_achievements.update_close_connection_achievements(cur)
         session["add"] = "You can't connect with yourself!"
 
     return redirect("/profile/" + username)
 
 
-@connections_blueprint.route("/connect_request/<username>",
-                             methods=["GET", "POST"])
+@connections_blueprint.route("/connect_request/<username>", methods=["GET", "POST"])
 def connect_request(username: str) -> object:
     """
     Sends a connect request to another user on the network.
@@ -74,20 +73,24 @@ def connect_request(username: str) -> object:
     if session["username"] != username:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM Accounts WHERE username=?;",
-                        (username,))
+            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
             if cur.fetchone():
                 cur.execute(
                     "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
                     "(user1=? AND user2=?);",
-                    (username, session["username"], session["username"],
-                     username))
+                    (username, session["username"], session["username"], username),
+                )
                 if cur.fetchone() is None:
                     # Gets user from database using username.
                     cur.execute(
                         "INSERT INTO Connection (user1, user2, "
                         "connection_type) VALUES (?,?,?);",
-                        (session["username"], username, "request",))
+                        (
+                            session["username"],
+                            username,
+                            "request",
+                        ),
+                    )
                     conn.commit()
                     session["add"] = True
 
@@ -95,13 +98,15 @@ def connect_request(username: str) -> object:
                     cur.execute(
                         "SELECT * FROM CompleteAchievements "
                         "WHERE (username=? AND achievement_ID=?);",
-                        (session["username"], 17))
+                        (session["username"], 17),
+                    )
                     if cur.fetchone() is None:
                         cur.execute(
                             "INSERT INTO CompleteAchievements "
                             "(username, achievement_ID, date_completed) "
                             "VALUES (?,?,?);",
-                            (session["username"], 17, date.today()))
+                            (session["username"], 17, date.today()),
+                        )
                         conn.commit()
 
         session["add"] = "You can't connect with yourself!"
@@ -109,8 +114,7 @@ def connect_request(username: str) -> object:
     return redirect("/profile/" + username)
 
 
-@connections_blueprint.route("/unblock_user/<username>",
-                             methods=["GET", "POST"])
+@connections_blueprint.route("/unblock_user/<username>", methods=["GET", "POST"])
 def unblock_user(username: str) -> object:
     """
     Unblocks a given user.
@@ -123,14 +127,14 @@ def unblock_user(username: str) -> object:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM Accounts WHERE username=?;",
-                    (username,))
+        cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
         if cur.fetchone():
             if helper_connections.get_connection_type(username) == "block":
-                if username != session['username']:
+                if username != session["username"]:
                     cur.execute(
                         "DELETE FROM Connection WHERE (user1=? AND user2=?);",
-                        (session["username"], username))
+                        (session["username"], username),
+                    )
                     conn.commit()
     return redirect(session["prev-page"])
 
@@ -144,15 +148,16 @@ def members() -> object:
         The web page for displaying members.
     """
     session["prev-page"] = request.url
-    return render_template("members.html",
-                           requestCount=
-                           helper_connections.get_connection_request_count(),
-                           notifications=
-                           helper_general.get_notifications())
+    return render_template(
+        "members.html",
+        requestCount=helper_connections.get_connection_request_count(),
+        notifications=helper_general.get_notifications(),
+    )
 
 
-@connections_blueprint.route("/accept_connection_request/<username>",
-                             methods=["GET", "POST"])
+@connections_blueprint.route(
+    "/accept_connection_request/<username>", methods=["GET", "POST"]
+)
 def accept_connection_request(username: str) -> object:
     """
     Accepts the connect request from another user on the network.
@@ -166,28 +171,31 @@ def accept_connection_request(username: str) -> object:
     if session["username"] != username:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM Accounts WHERE username=?;",
-                        (username,))
+            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
             if cur.fetchone():
                 row = cur.execute(
                     "SELECT * FROM Connection WHERE (user1=? AND user2=?) OR "
                     "(user1=? AND user2=?);",
-                    (username, session["username"], session["username"],
-                     username))
+                    (username, session["username"], session["username"], username),
+                )
                 if row:
                     # Gets user from database using username.
                     cur.execute(
                         "UPDATE Connection SET connection_type = ? "
                         "WHERE (user1=? AND user2=?) OR (user1=? AND "
                         "user2=?);",
-                        ("connected", username, session["username"],
-                         session["username"],
-                         username))
+                        (
+                            "connected",
+                            username,
+                            session["username"],
+                            session["username"],
+                            username,
+                        ),
+                    )
                     conn.commit()
                     session["add"] = True
 
-                    helper_achievements.update_connection_achievements(
-                        cur, username)
+                    helper_achievements.update_connection_achievements(cur, username)
     else:
         session["add"] = "You can't connect with yourself!"
 
@@ -214,7 +222,12 @@ def block_user(username: str) -> object:
                 cur.execute(
                     "INSERT INTO Connection (user1, user2, "
                     "connection_type) VALUES (?,?,?);",
-                    (session["username"], username, "block",))
+                    (
+                        session["username"],
+                        username,
+                        "block",
+                    ),
+                )
                 conn.commit()
     return redirect("/profile/" + username)
 
@@ -232,20 +245,21 @@ def remove_close_friend(username: str) -> object:
     """
     # Checks that the user isn't trying to remove a connection with
     # themselves.
-    if username != session['username']:
+    if username != session["username"]:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM Accounts WHERE username=?;",
-                        (username,))
+            cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
             # Searches for the connection in the database.
         if helper_connections.get_connection_type(username) == "connected":
             cur.execute(
                 "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
-                (session["username"], username))
+                (session["username"], username),
+            )
             if cur.fetchone():
                 cur.execute(
                     "DELETE FROM CloseFriend WHERE (user1=? AND user2=?);",
-                    (session["username"], username))
+                    (session["username"], username),
+                )
                 conn.commit()
 
     return redirect(session["prev-page"])
@@ -285,7 +299,8 @@ def show_connect_requests() -> object:
             "SELECT Connection.user1, UserProfile.profilepicture FROM "
             "Connection LEFT JOIN UserProfile ON Connection.user1 = "
             "UserProfile.username WHERE user2=? AND connection_type=?;",
-            (session["username"], "request"))
+            (session["username"], "request"),
+        )
         conn.commit()
         row = cur.fetchall()
         if len(row) > 0:
@@ -298,13 +313,15 @@ def show_connect_requests() -> object:
             "SELECT Connection.user1, UserProfile.profilepicture FROM "
             "Connection LEFT JOIN UserProfile ON Connection.user1 = "
             "UserProfile.username WHERE user2=? AND connection_type=?;",
-            (session["username"], "connected"))
+            (session["username"], "connected"),
+        )
         connections1 = cur.fetchall()
         cur.execute(
             "SELECT Connection.user2, UserProfile.profilepicture FROM "
             "Connection LEFT JOIN UserProfile ON Connection.user2 = "
             "UserProfile.username WHERE user1=? AND connection_type=?;",
-            (session["username"], "connected"))
+            (session["username"], "connected"),
+        )
         connections2 = cur.fetchall()
 
         # Extracts pending requests.
@@ -312,7 +329,8 @@ def show_connect_requests() -> object:
             "SELECT Connection.user2, UserProfile.profilepicture FROM "
             "Connection LEFT JOIN UserProfile ON Connection.user2 = "
             "UserProfile.username WHERE user1=? AND connection_type=?;",
-            (session["username"], "request"))
+            (session["username"], "request"),
+        )
         pending_connections = cur.fetchall()
 
         # Extracts blocked users.
@@ -320,34 +338,40 @@ def show_connect_requests() -> object:
             "SELECT Connection.user2, UserProfile.profilepicture FROM "
             "Connection LEFT JOIN UserProfile ON Connection.user2 = "
             "UserProfile.username WHERE user1=? AND connection_type=?;",
-            (session["username"], "block"))
+            (session["username"], "block"),
+        )
         blocked_connections = cur.fetchall()
 
         # Extracts mutual connections.
         mutual_connections = helper_connections.get_recommended_connections(
-            session["username"])
+            session["username"]
+        )
         mutual_avatars = []
         for mutual in mutual_connections:
-            mutual_avatars.append(
-                helper_profile.get_profile_picture(mutual[0]))
+            mutual_avatars.append(helper_profile.get_profile_picture(mutual[0]))
 
         # Lists usernames of all connected people.
         connections = connections1 + connections2
         # Adds a close friend to the list, and sorts by close friends first.
         connections = list(
-            map(lambda x: (
-                x[0], x[1], helper_connections.is_close_friend(x[0])),
-                connections))
+            map(
+                lambda x: (x[0], x[1], helper_connections.is_close_friend(x[0])),
+                connections,
+            )
+        )
         connections = sorted(connections, key=lambda x: x[2], reverse=True)
 
     session["prev-page"] = request.url
-    return render_template("request.html", requests=requests, avatars=avatars,
-                           allUsernames=helper_general.get_all_usernames(),
-                           requestCount=
-                           helper_connections.get_connection_request_count(),
-                           connections=connections,
-                           pending=pending_connections,
-                           blocked=blocked_connections,
-                           mutuals=mutual_connections,
-                           mutual_avatars=mutual_avatars,
-                           notifications=helper_general.get_notifications())
+    return render_template(
+        "request.html",
+        requests=requests,
+        avatars=avatars,
+        allUsernames=helper_general.get_all_usernames(),
+        requestCount=helper_connections.get_connection_request_count(),
+        connections=connections,
+        pending=pending_connections,
+        blocked=blocked_connections,
+        mutuals=mutual_connections,
+        mutual_avatars=mutual_avatars,
+        notifications=helper_general.get_notifications(),
+    )

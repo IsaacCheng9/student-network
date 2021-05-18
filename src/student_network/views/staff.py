@@ -9,8 +9,9 @@ from flask import session
 
 import student_network.helpers.helper_connections as helper_connections
 
-staff_blueprint = Blueprint("staff", __name__, static_folder="static",
-                            template_folder="templates")
+staff_blueprint = Blueprint(
+    "staff", __name__, static_folder="static", template_folder="templates"
+)
 
 
 @staff_blueprint.route("/admin", methods=["GET", "POST"])
@@ -23,17 +24,17 @@ def show_staff_requests() -> object:
     """
     if "admin" in session:
         if not session["admin"]:
-            return render_template("error.html", message=[
-                "You are not logged in to an admin account"],
-                                   requestCount=
-                                   helper_connections.get_connection_request_count())
+            return render_template(
+                "error.html",
+                message=["You are not logged in to an admin account"],
+                requestCount=helper_connections.get_connection_request_count(),
+            )
         with sqlite3.connect("database.db") as conn:
             # Loads the list of connection requests and their avatars.
             requests = []
             cur = conn.cursor()
             # Extracts incoming requests.
-            cur.execute("SELECT username FROM ACCOUNTS "
-                        "WHERE type='pending_staff';")
+            cur.execute("SELECT username FROM ACCOUNTS " "WHERE type='pending_staff';")
             conn.commit()
             row = cur.fetchall()
             request_count = helper_connections.get_connection_request_count()
@@ -41,13 +42,15 @@ def show_staff_requests() -> object:
                 for elem in row:
                     requests.append(elem[0])
 
-            return render_template("admin.html", requests=requests,
-                                   requestCount=request_count)
+            return render_template(
+                "admin.html", requests=requests, requestCount=request_count
+            )
     else:
-        return render_template("error.html", message=[
-            "You are not logged in to an admin account"],
-                               requestCount=
-                               helper_connections.get_connection_request_count())
+        return render_template(
+            "error.html",
+            message=["You are not logged in to an admin account"],
+            requestCount=helper_connections.get_connection_request_count(),
+        )
 
 
 @staff_blueprint.route("/accept_staff/<username>", methods=["GET", "POST"])
@@ -63,8 +66,9 @@ def accept_staff(username: str):
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("UPDATE ACCOUNTS SET type=? "
-                    " WHERE username=? ;", ("staff", username))
+        cur.execute(
+            "UPDATE ACCOUNTS SET type=? " " WHERE username=? ;", ("staff", username)
+        )
     return redirect("/admin")
 
 
@@ -81,6 +85,7 @@ def reject_staff(username: str):
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("UPDATE ACCOUNTS SET type=? "
-                    " WHERE username=? ;", ("student", username))
+        cur.execute(
+            "UPDATE ACCOUNTS SET type=? " " WHERE username=? ;", ("student", username)
+        )
     return redirect("/admin")

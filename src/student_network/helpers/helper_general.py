@@ -22,8 +22,12 @@ def allowed_file(file_name) -> bool:
     Returns:
         Whether the file is allowed or not (True/False).
     """
-    return "." in file_name and \
-           file_name.rsplit(".", 1)[1].lower() in {"png", "jpg", "jpeg", "gif"}
+    return "." in file_name and file_name.rsplit(".", 1)[1].lower() in {
+        "png",
+        "jpg",
+        "jpeg",
+        "gif",
+    }
 
 
 def display_short_notification_age(seconds):
@@ -51,7 +55,7 @@ def get_all_connections(username: str) -> list:
             "WHERE user1=? AND connection_type='connected' UNION ALL "
             "SELECT user1 FROM Connection "
             "WHERE user2=? AND connection_type='connected'",
-            (username, username)
+            (username, username),
         )
         connections = cur.fetchall()
 
@@ -81,16 +85,26 @@ def get_notifications():
         cur.execute(
             "SELECT body, date, url FROM notification WHERE username=? ORDER "
             "BY date DESC",
-            (session["username"],))
+            (session["username"],),
+        )
 
         row = cur.fetchall()
 
         notification_metadata = list(
-            map(lambda x: (x[0], display_short_notification_age(
-                (datetime.now() - datetime.strptime(x[1],
-                                                    "%Y-%m-%d "
-                                                    "%H:%M:%S")).total_seconds()),
-                           x[2]), row))
+            map(
+                lambda x: (
+                    x[0],
+                    display_short_notification_age(
+                        (
+                            datetime.now()
+                            - datetime.strptime(x[1], "%Y-%m-%d " "%H:%M:%S")
+                        ).total_seconds()
+                    ),
+                    x[2],
+                ),
+                row,
+            )
+        )
 
         return notification_metadata
 
@@ -104,7 +118,7 @@ def new_notification(body, url):
         cur.execute(
             "INSERT INTO notification (username, body, date, url) VALUES (?, "
             "?, ?, ?);",
-            (session["username"], body, now.strftime("%Y-%m-%d %H:%M:%S"), url)
+            (session["username"], body, now.strftime("%Y-%m-%d %H:%M:%S"), url),
         )
 
         conn.commit()

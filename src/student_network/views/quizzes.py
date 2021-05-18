@@ -12,8 +12,9 @@ import student_network.helpers.helper_general as helper_general
 import student_network.helpers.helper_login as helper_login
 import student_network.helpers.helper_quizzes as helper_quizzes
 
-quizzes_blueprint = Blueprint("quizzes", __name__, static_folder="static",
-                              template_folder="templates")
+quizzes_blueprint = Blueprint(
+    "quizzes", __name__, static_folder="static", template_folder="templates"
+)
 
 
 @quizzes_blueprint.route("/quizzes", methods=["GET"])
@@ -26,8 +27,7 @@ def quizzes() -> object:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute(
-            "SELECT quiz_id, date_created, author, quiz_name, plays FROM Quiz")
+        cur.execute("SELECT quiz_id, date_created, author, quiz_name, plays FROM Quiz")
         row = cur.fetchall()
         quiz_posts = sorted(row, key=lambda x: x[4], reverse=True)
 
@@ -35,19 +35,20 @@ def quizzes() -> object:
     if "error" in session:
         errors = session["error"]
         session.pop("error", None)
-        return render_template("quizzes.html",
-                               requestCount=
-                               helper_connections.get_connection_request_count(),
-                               quizzes=quiz_posts, errors=errors,
-                               notifications=
-                               helper_general.get_notifications())
+        return render_template(
+            "quizzes.html",
+            requestCount=helper_connections.get_connection_request_count(),
+            quizzes=quiz_posts,
+            errors=errors,
+            notifications=helper_general.get_notifications(),
+        )
     else:
-        return render_template("quizzes.html",
-                               requestCount=
-                               helper_connections.get_connection_request_count(),
-                               quizzes=quiz_posts,
-                               notifications=
-                               helper_general.get_notifications())
+        return render_template(
+            "quizzes.html",
+            requestCount=helper_connections.get_connection_request_count(),
+            quizzes=quiz_posts,
+            notifications=helper_general.get_notifications(),
+        )
 
 
 @quizzes_blueprint.route("/quiz/<quiz_id>", methods=["GET", "POST"])
@@ -64,27 +65,35 @@ def quiz(quiz_id: int) -> object:
     # Gets the quiz details from the database.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        (answers, questions, quiz_author,
-         quiz_details, quiz_name) = helper_quizzes.get_quiz_details(cur,
-                                                                    quiz_id)
+        (
+            answers,
+            questions,
+            quiz_author,
+            quiz_details,
+            quiz_name,
+        ) = helper_quizzes.get_quiz_details(cur, quiz_id)
 
     if request.method == "GET":
-        return render_template("quiz.html",
-                               requestCount=
-                               helper_connections.get_connection_request_count(),
-                               quiz_name=quiz_name, quiz_id=quiz_id,
-                               questions=questions, answers=answers,
-                               quiz_author=quiz_author,
-                               notifications=
-                               helper_general.get_notifications())
+        return render_template(
+            "quiz.html",
+            requestCount=helper_connections.get_connection_request_count(),
+            quiz_name=quiz_name,
+            quiz_id=quiz_id,
+            questions=questions,
+            answers=answers,
+            quiz_author=quiz_author,
+            notifications=helper_general.get_notifications(),
+        )
     elif request.method == "POST":
         score = 0
         # Gets the answers selected by the user.
-        user_answers = [request.form.get("userAnswer0"),
-                        request.form.get("userAnswer1"),
-                        request.form.get("userAnswer2"),
-                        request.form.get("userAnswer3"),
-                        request.form.get("userAnswer4")]
+        user_answers = [
+            request.form.get("userAnswer0"),
+            request.form.get("userAnswer1"),
+            request.form.get("userAnswer2"),
+            request.form.get("userAnswer3"),
+            request.form.get("userAnswer4"),
+        ]
 
         # Displays an error message if they have not answered all questions.
         if any(user_answers) == "":
@@ -98,27 +107,30 @@ def quiz(quiz_id: int) -> object:
                     "UPDATE UserLevel "
                     "SET experience = experience + 1 "
                     "WHERE username=?;",
-                    (quiz_author,))
+                    (quiz_author,),
+                )
                 conn.commit()
             question_feedback = []
             for i in range(5):
                 correct_answer = quiz_details[0][(5 * i) + 5]
                 correct = user_answers[i] == correct_answer
                 question_feedback.append(
-                    [questions[i], user_answers[i], correct_answer])
+                    [questions[i], user_answers[i], correct_answer]
+                )
                 if correct:
                     score += 1
             helper_achievements.update_quiz_achievements(score)
 
             # Updates the number of times a quiz has been played.
-            cur.execute("UPDATE Quiz SET plays = plays + 1 WHERE quiz_id=?;",
-                        (quiz_id,))
+            cur.execute(
+                "UPDATE Quiz SET plays = plays + 1 WHERE quiz_id=?;", (quiz_id,)
+            )
             conn.commit()
 
-            return render_template("quiz_results.html",
-                                   question_feedback=question_feedback,
-                                   requestCount=
-                                   helper_connections.get_connection_request_count(),
-                                   score=score,
-                                   notifications=
-                                   helper_general.get_notifications())
+            return render_template(
+                "quiz_results.html",
+                question_feedback=question_feedback,
+                requestCount=helper_connections.get_connection_request_count(),
+                score=score,
+                notifications=helper_general.get_notifications(),
+            )

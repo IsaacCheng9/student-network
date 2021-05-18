@@ -15,8 +15,9 @@ import student_network.helpers.helper_general as helper_general
 import student_network.helpers.helper_login as helper_login
 import student_network.helpers.helper_profile as helper_profile
 
-profile_blueprint = Blueprint("profile", __name__, static_folder="static",
-                              template_folder="templates")
+profile_blueprint = Blueprint(
+    "profile", __name__, static_folder="static", template_folder="templates"
+)
 
 
 @profile_blueprint.route("/profile", methods=["GET"])
@@ -58,21 +59,30 @@ def profile(username: str) -> object:
         # Gets user from database using username.
         cur.execute(
             "SELECT name, bio, gender, birthday, profilepicture, privacy FROM "
-            "UserProfile WHERE username=?;", (username,))
+            "UserProfile WHERE username=?;",
+            (username,),
+        )
         row = cur.fetchall()
         if len(row) == 0:
             message.append("The username " + username + " does not exist.")
-            message.append(
-                " Please ensure you have entered the name correctly.")
+            message.append(" Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
             return render_template(
-                "error.html", message=message,
+                "error.html",
+                message=message,
                 requestCount=helper_connections.get_connection_request_count(),
-                notifications=helper_general.get_notifications())
+                notifications=helper_general.get_notifications(),
+            )
         else:
             data = row[0]
             name, bio, gender, birthday, profile_picture, privacy = (
-                data[0], data[1], data[2], data[3], data[4], data[5])
+                data[0],
+                data[1],
+                data[2],
+                data[3],
+                data[4],
+                data[5],
+            )
 
     # If the user is logged in, specific features can then be displayed.
     if session.get("username"):
@@ -80,47 +90,52 @@ def profile(username: str) -> object:
         if username == session["username"]:
             # Gets the user's posts regardless of post settings if user is the
             # owner of the profile.
-            cur.execute(
-                "SELECT * FROM POSTS WHERE username=?", (username,))
+            cur.execute("SELECT * FROM POSTS WHERE username=?", (username,))
             sort_posts = cur.fetchall()
         else:
             # Gets the connection type between the profile owner and the user.
             cur.execute(
                 "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
-                (session["username"], username))
+                (session["username"], username),
+            )
             if cur.fetchone() is None:
                 conn_type = helper_connections.get_connection_type(username)
                 if conn_type == "connected" and privacy == "close_friends":
-                    message.append(
-                        "This profile is available only to connections")
+                    message.append("This profile is available only to connections")
                     session["prev-page"] = request.url
                     return render_template(
-                        "error.html", message=message,
-                        requestCount=
-                        helper_connections.get_connection_request_count(),
-                        notifications=helper_general.get_notifications())
+                        "error.html",
+                        message=message,
+                        requestCount=helper_connections.get_connection_request_count(),
+                        notifications=helper_general.get_notifications(),
+                    )
             elif conn_type == "blocked":
                 message.append(
-                    "Unable to view this profile since " + username +
-                    " has blocked you.")
+                    "Unable to view this profile since "
+                    + username
+                    + " has blocked you."
+                )
                 session["prev-page"] = request.url
                 return render_template(
-                    "error.html", message=message,
-                    requestCount=
-                    helper_connections.get_connection_request_count(),
-                    notifications=helper_general.get_notifications())
+                    "error.html",
+                    message=message,
+                    requestCount=helper_connections.get_connection_request_count(),
+                    notifications=helper_general.get_notifications(),
+                )
             else:
                 conn_type = "close_friend"
                 if privacy == "private":
                     message.append(
                         "This profile is only available to close friends. "
-                        "Please try viewing it after logging in.")
+                        "Please try viewing it after logging in."
+                    )
                     session["prev-page"] = request.url
                     return render_template(
-                        "error.html", message=message,
-                        requestCount=
-                        helper_connections.get_connection_request_count(),
-                        notifications=helper_general.get_notifications())
+                        "error.html",
+                        message=message,
+                        requestCount=helper_connections.get_connection_request_count(),
+                        notifications=helper_general.get_notifications(),
+                    )
 
             session["prev-page"] = request.url
             connections = helper_general.get_all_connections(username)
@@ -134,35 +149,35 @@ def profile(username: str) -> object:
                     cur.execute(
                         "SELECT * "
                         "FROM POSTS WHERE username=? AND (privacy!='private')",
-                        (username,))
+                        (username,),
+                    )
                     sort_posts = cur.fetchall()
                 else:
                     cur.execute(
                         "SELECT * FROM POSTS WHERE username=? "
                         "AND (privacy!='private' or privacy!='close') ",
-                        (username,))
+                        (username,),
+                    )
                     sort_posts = cur.fetchall()
             else:
                 cur.execute(
-                    "SELECT * FROM POSTS WHERE username=? "
-                    "AND (privacy=='public') ",
-                    (username,))
+                    "SELECT * FROM POSTS WHERE username=? " "AND (privacy=='public') ",
+                    (username,),
+                )
                 sort_posts = cur.fetchall()
 
         helper_achievements.update_profile_achievements(username)
     else:
         # Only public posts can be viewed when not logged in
         cur.execute(
-            "SELECT * FROM POSTS WHERE username=? AND privacy='public'",
-            (username,))
+            "SELECT * FROM POSTS WHERE username=? AND privacy='public'", (username,)
+        )
         sort_posts = cur.fetchall()
 
     # Sort reverse chronologically
     sort_posts = sorted(sort_posts, key=lambda x: x[0], reverse=True)
 
-    user_posts = {
-        "UserPosts": []
-    }
+    user_posts = {"UserPosts": []}
 
     for user_post in sort_posts:
         add = ""
@@ -183,23 +198,23 @@ def profile(username: str) -> object:
             icon = "users"
 
         time = datetime.strptime(user_post[4], "%Y-%m-%d").strftime("%d-%m-%y")
-        user_posts["UserPosts"].append({
-            "postId": user_post[0],
-            "title": user_post[1],
-            "profile_pic": "https://via.placeholder.com/600",
-            "author": user_post[3],
-            "account_type": user_post[6],
-            "date_posted": time,
-            "body": (user_post[2])[:250] + add,
-            "privacy": privacy,
-            "icon": icon,
-            "type": user_post[8]
-        })
+        user_posts["UserPosts"].append(
+            {
+                "postId": user_post[0],
+                "title": user_post[1],
+                "profile_pic": "https://via.placeholder.com/600",
+                "author": user_post[3],
+                "account_type": user_post[6],
+                "date_posted": time,
+                "body": (user_post[2])[:250] + add,
+                "privacy": privacy,
+                "icon": icon,
+                "type": user_post[8],
+            }
+        )
 
     # Gets account type.
-    cur.execute(
-        "SELECT type FROM "
-        "ACCOUNTS WHERE username=?;", (username,))
+    cur.execute("SELECT type FROM " "ACCOUNTS WHERE username=?;", (username,))
     row = cur.fetchall()
     account_type = row[0][0]
 
@@ -207,27 +222,26 @@ def profile(username: str) -> object:
     cur.execute(
         "SELECT degree FROM  "
         "Degree WHERE degreeId = (SELECT degree "
-        "FROM UserProfile WHERE username=?);", (username,))
+        "FROM UserProfile WHERE username=?);",
+        (username,),
+    )
     row = cur.fetchone()
     degree = row[0]
 
     # Gets the user's hobbies.
-    cur.execute("SELECT hobby FROM UserHobby WHERE username=?;",
-                (username,))
+    cur.execute("SELECT hobby FROM UserHobby WHERE username=?;", (username,))
     row = cur.fetchall()
     if len(row) > 0:
         hobbies = row
 
     # Gets the user's interests.
-    cur.execute("SELECT interest FROM UserInterests WHERE username=?;",
-                (username,))
+    cur.execute("SELECT interest FROM UserInterests WHERE username=?;", (username,))
     row = cur.fetchall()
     if len(row) > 0:
         interests = row
 
     # Gets the user's email
-    cur.execute("SELECT email from ACCOUNTS WHERE username=?;",
-                (username,))
+    cur.execute("SELECT email from ACCOUNTS WHERE username=?;", (username,))
     row = cur.fetchall()
     if len(row) > 0:
         email = row[0][0]
@@ -236,7 +250,7 @@ def profile(username: str) -> object:
 
     # Gets the user's six rarest achievements.
     unlocked_achievements, _ = helper_achievements.get_achievements(username)
-    first_six = unlocked_achievements[0:min(6, len(unlocked_achievements))]
+    first_six = unlocked_achievements[0 : min(6, len(unlocked_achievements))]
 
     # Calculates the user's age based on their date of birth.
     datetime_object = datetime.strptime(birthday, "%Y-%m-%d")
@@ -261,41 +275,58 @@ def profile(username: str) -> object:
 
     if session.get("username"):
         session["prev-page"] = request.url
-        return render_template("profile.html", username=username,
-                               name=name, bio=bio, gender=gender,
-                               birthday=birthday,
-                               profile_picture=profile_picture,
-                               age=age, hobbies=hobbies,
-                               account_type=account_type,
-                               interests=interests, degree=degree,
-                               email=email, socials=socials, posts=user_posts,
-                               type=conn_type,
-                               unlocked_achievements=first_six,
-                               allUsernames=helper_general.get_all_usernames(),
-                               requestCount=
-                               helper_connections.get_connection_request_count(),
-                               level=level, current_xp=int(current_xp),
-                               xp_next_level=int(xp_next_level),
-                               progress_color=progress_color,
-                               notifications=
-                               helper_general.get_notifications())
+        return render_template(
+            "profile.html",
+            username=username,
+            name=name,
+            bio=bio,
+            gender=gender,
+            birthday=birthday,
+            profile_picture=profile_picture,
+            age=age,
+            hobbies=hobbies,
+            account_type=account_type,
+            interests=interests,
+            degree=degree,
+            email=email,
+            socials=socials,
+            posts=user_posts,
+            type=conn_type,
+            unlocked_achievements=first_six,
+            allUsernames=helper_general.get_all_usernames(),
+            requestCount=helper_connections.get_connection_request_count(),
+            level=level,
+            current_xp=int(current_xp),
+            xp_next_level=int(xp_next_level),
+            progress_color=progress_color,
+            notifications=helper_general.get_notifications(),
+        )
     else:
         session["prev-page"] = request.url
-        return render_template("profile.html", username=username,
-                               name=name, bio=bio, gender=gender,
-                               birthday=birthday,
-                               profile_picture=profile_picture,
-                               age=age, hobbies=hobbies,
-                               account_type=account_type,
-                               interests=interests, socials=socials,
-                               degree=degree,
-                               email=email, posts=user_posts, type="none",
-                               unlocked_achievements=first_six,
-                               level=level, current_xp=int(current_xp),
-                               xp_next_level=int(xp_next_level),
-                               progress_color=progress_color,
-                               notifications=
-                               helper_general.get_notifications())
+        return render_template(
+            "profile.html",
+            username=username,
+            name=name,
+            bio=bio,
+            gender=gender,
+            birthday=birthday,
+            profile_picture=profile_picture,
+            age=age,
+            hobbies=hobbies,
+            account_type=account_type,
+            interests=interests,
+            socials=socials,
+            degree=degree,
+            email=email,
+            posts=user_posts,
+            type="none",
+            unlocked_achievements=first_six,
+            level=level,
+            current_xp=int(current_xp),
+            xp_next_level=int(xp_next_level),
+            progress_color=progress_color,
+            notifications=helper_general.get_notifications(),
+        )
 
 
 @profile_blueprint.route("/edit-profile", methods=["GET", "POST"])
@@ -306,14 +337,14 @@ def edit_profile() -> object:
     Returns:
         The updated profile page if the details provided were valid.
     """
-    degrees = {
-        "degrees": []
-    }
+    degrees = {"degrees": []}
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT birthday, bio, degree, privacy, gender FROM UserProfile "
-            "WHERE username=?", (session["username"],))
+            "WHERE username=?",
+            (session["username"],),
+        )
         data = cur.fetchone()
         dob = data[0]
         bio = data[1]
@@ -322,38 +353,43 @@ def edit_profile() -> object:
         gender = data[4]
 
         cur.execute(
-            "SELECT hobby FROM UserHobby WHERE username=?",
-            (session["username"],))
+            "SELECT hobby FROM UserHobby WHERE username=?", (session["username"],)
+        )
         hobbies = cur.fetchall()
 
         cur.execute(
             "SELECT interest FROM UserInterests WHERE username=?",
-            (session["username"],))
+            (session["username"],),
+        )
         interests = cur.fetchall()
 
         # gets all possible degrees
         cur.execute(
-            "SELECT * FROM Degree", )
+            "SELECT * FROM Degree",
+        )
         degree_list = cur.fetchall()
         for item in degree_list:
-            degrees["degrees"].append({
-                "degreeId": item[0],
-                "degree": item[1]
-            })
+            degrees["degrees"].append({"degreeId": item[0], "degree": item[1]})
 
-    socials = helper_profile.read_socials(session['username'])
+    socials = helper_profile.read_socials(session["username"])
 
     # Renders the edit profile form if they navigated to this page.
     if request.method == "GET":
-        return render_template("settings.html",
-                               requestCount=
-                               helper_connections.get_connection_request_count(),
-                               date=dob, bio=bio, degrees=degrees,
-                               gender=gender,
-                               degree=degree, socials=socials, privacy=privacy,
-                               hobbies=hobbies, interests=interests, errors=[],
-                               notifications=
-                               helper_general.get_notifications())
+        return render_template(
+            "settings.html",
+            requestCount=helper_connections.get_connection_request_count(),
+            date=dob,
+            bio=bio,
+            degrees=degrees,
+            gender=gender,
+            degree=degree,
+            socials=socials,
+            privacy=privacy,
+            hobbies=hobbies,
+            interests=interests,
+            errors=[],
+            notifications=helper_general.get_notifications(),
+        )
 
     # Processes the form if they updated their profile using the form.
     if request.method == "POST":
@@ -382,13 +418,16 @@ def edit_profile() -> object:
             cur = conn.cursor()
 
             # Validates user profile details and uploaded image.
-            valid, message = helper_profile.validate_edit_profile(bio, gender,
-                                                                  dob, hobbies,
-                                                                  interests)
+            valid, message = helper_profile.validate_edit_profile(
+                bio, gender, dob, hobbies, interests
+            )
             if valid:
                 file = request.files["file"]
-                (valid, message,
-                 file_name_hashed) = helper_profile.validate_profile_pic(file)
+                (
+                    valid,
+                    message,
+                    file_name_hashed,
+                ) = helper_profile.validate_profile_pic(file)
                 if valid:
                     # Award achievement ID 18 - Show yourself if necessary
                     helper_achievements.apply_achievement(username, 18)
@@ -400,9 +439,15 @@ def edit_profile() -> object:
                     cur.execute(
                         "UPDATE UserProfile SET bio=?, gender=?, birthday=?, "
                         "profilepicture=?, degree=? WHERE username=?;",
-                        (bio, gender, dob,
-                         "/static/images/avatars/" + file_name_hashed
-                         + ".jpg", degree, username,))
+                        (
+                            bio,
+                            gender,
+                            dob,
+                            "/static/images/avatars/" + file_name_hashed + ".jpg",
+                            degree,
+                            username,
+                        ),
+                    )
                     conn.commit()
 
                     helper_achievements.update_profile_achievements(username)
@@ -411,35 +456,60 @@ def edit_profile() -> object:
                     cur.execute(
                         "UPDATE UserProfile SET bio=?, gender=?, birthday=?, "
                         "degree=? WHERE username=?;",
-                        (bio, gender, dob, degree, username,))
+                        (
+                            bio,
+                            gender,
+                            dob,
+                            degree,
+                            username,
+                        ),
+                    )
 
                 # Inserts new hobbies and interests into the database if the
                 # user made a new input.
 
-                cur.execute("DELETE FROM UserHobby WHERE "
-                            "username=?;",
-                            (username,))
-                cur.execute("DELETE FROM UserInterests WHERE "
-                            "username=?;",
-                            (username,))
+                cur.execute("DELETE FROM UserHobby WHERE " "username=?;", (username,))
+                cur.execute(
+                    "DELETE FROM UserInterests WHERE " "username=?;", (username,)
+                )
                 if hobbies != [""]:
                     for hobby in hobbies:
-                        cur.execute("SELECT hobby FROM UserHobby WHERE "
-                                    "username=? AND hobby=?;",
-                                    (username, hobby,))
+                        cur.execute(
+                            "SELECT hobby FROM UserHobby WHERE "
+                            "username=? AND hobby=?;",
+                            (
+                                username,
+                                hobby,
+                            ),
+                        )
                         if cur.fetchone() is None:
-                            cur.execute("INSERT INTO UserHobby (username, "
-                                        "hobby) VALUES (?, ?);",
-                                        (username, hobby,))
+                            cur.execute(
+                                "INSERT INTO UserHobby (username, "
+                                "hobby) VALUES (?, ?);",
+                                (
+                                    username,
+                                    hobby,
+                                ),
+                            )
                 if interests != [""]:
                     for interest in interests:
-                        cur.execute("SELECT interest FROM UserInterests WHERE "
-                                    "username=? AND interest=?;",
-                                    (username, interest,))
+                        cur.execute(
+                            "SELECT interest FROM UserInterests WHERE "
+                            "username=? AND interest=?;",
+                            (
+                                username,
+                                interest,
+                            ),
+                        )
                         if cur.fetchone() is None:
-                            cur.execute("INSERT INTO UserInterests "
-                                        "(username, interest) VALUES (?, ?);",
-                                        (username, interest,))
+                            cur.execute(
+                                "INSERT INTO UserInterests "
+                                "(username, interest) VALUES (?, ?);",
+                                (
+                                    username,
+                                    interest,
+                                ),
+                            )
 
                 conn.commit()
                 return redirect("/profile")
@@ -447,13 +517,17 @@ def edit_profile() -> object:
             else:
                 session["error"] = message
                 return render_template(
-                    "settings.html", errors=message,
-                    requestCount=
-                    helper_connections.get_connection_request_count(),
+                    "settings.html",
+                    errors=message,
+                    requestCount=helper_connections.get_connection_request_count(),
                     allUsernames=helper_general.get_all_usernames(),
-                    degrees=degrees, degree=degree, date=dob, bio=bio,
+                    degrees=degrees,
+                    degree=degree,
+                    date=dob,
+                    bio=bio,
                     privacy=privacy,
-                    notifications=helper_general.get_notifications())
+                    notifications=helper_general.get_notifications(),
+                )
 
 
 @profile_blueprint.route("/profile_privacy", methods=["POST"])
@@ -469,7 +543,11 @@ def profile_privacy() -> object:
         cur = conn.cursor()
         cur.execute(
             "UPDATE UserProfile SET privacy=? WHERE username=?;",
-            (privacy, session["username"],))
+            (
+                privacy,
+                session["username"],
+            ),
+        )
 
     return redirect("/profile")
 
@@ -482,21 +560,22 @@ def edit_socials() -> object:
     Returns:
         The web page for the logged in user's profile page.
     """
-    socials = {'twitter': request.form.get("twitter"),
-               'facebook': request.form.get("facebook"),
-               'youtube': request.form.get("youtube"),
-               'instagram': request.form.get("instagram"),
-               'linkedin': request.form.get("linkedin")}
+    socials = {
+        "twitter": request.form.get("twitter"),
+        "facebook": request.form.get("facebook"),
+        "youtube": request.form.get("youtube"),
+        "instagram": request.form.get("instagram"),
+        "linkedin": request.form.get("linkedin"),
+    }
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute(
-            "DELETE FROM UserSocial WHERE username=?;",
-            (session["username"],))
+        cur.execute("DELETE FROM UserSocial WHERE username=?;", (session["username"],))
         for key, value in socials.items():
             if value != "":
                 cur.execute(
                     "INSERT INTO UserSocial (username, social, link) "
                     "VALUES (?, ?, ?);",
-                    (session["username"], key, value))
+                    (session["username"], key, value),
+                )
 
     return redirect("/profile")

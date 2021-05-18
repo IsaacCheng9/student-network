@@ -28,28 +28,32 @@ def apply_achievement(username: str, achievement_id: int):
         cur.execute(
             "SELECT * FROM CompleteAchievements "
             "WHERE (username=? AND achievement_ID=?);",
-            (username, achievement_id))
+            (username, achievement_id),
+        )
         if cur.fetchone() is None:
             cur.execute(
                 "INSERT INTO CompleteAchievements "
                 "(username, achievement_ID, date_completed) VALUES (?, ?, ?);",
-                (username, achievement_id, date.today()))
+                (username, achievement_id, date.today()),
+            )
             conn.commit()
             cur.execute(
                 "SELECT xp_value FROM Achievements WHERE achievement_ID=?;",
-                (achievement_id,))
+                (achievement_id,),
+            )
             exp = cur.fetchone()[0]
             helper_login.check_level_exists(username, conn)
             cur.execute(
                 "UPDATE UserLevel "
                 "SET experience = experience + ? "
                 "WHERE username=?;",
-                (exp, username))
+                (exp, username),
+            )
             conn.commit()
 
             helper_general.new_notification(
-                "You have received an achievement badge!",
-                "/achievements")
+                "You have received an achievement badge!", "/achievements"
+            )
 
 
 def get_achievements(username: str) -> Tuple[Sized, Sized]:
@@ -68,17 +72,18 @@ def get_achievements(username: str) -> Tuple[Sized, Sized]:
             "INNER JOIN Achievements ON CompleteAchievements"
             ".achievement_ID = Achievements.achievement_ID "
             "WHERE username=?;",
-            (username,))
+            (username,),
+        )
         unlocked_achievements = cur.fetchall()
         unlocked_achievements.sort(key=lambda x: x[3], reverse=True)
 
         # Get locked achievements, sorted by XP ascending.
         cur.execute(
             "SELECT description, icon, rarity, xp_value, achievement_name "
-            "FROM Achievements")
+            "FROM Achievements"
+        )
         all_achievements = cur.fetchall()
-        locked_achievements = list(
-            set(all_achievements) - set(unlocked_achievements))
+        locked_achievements = list(set(all_achievements) - set(unlocked_achievements))
         locked_achievements.sort(key=lambda x: x[3])
 
     return unlocked_achievements, locked_achievements
@@ -95,9 +100,7 @@ def update_close_connection_achievements(cur):
     apply_achievement(session["username"], 12)
 
     # Award achievement ID 13 - Friend Group if necessary
-    cur.execute(
-        "SELECT * FROM CloseFriend WHERE user1=?;",
-        (session["username"],))
+    cur.execute("SELECT * FROM CloseFriend WHERE user1=?;", (session["username"],))
     if len(cur.fetchall()) >= 10:
         apply_achievement(session["username"], 13)
 
@@ -118,49 +121,42 @@ def update_connection_achievements(cur, username: str):
 
     # Get user interests and hobbies
     cur.execute(
-        "SELECT interest FROM UserInterests "
-        "WHERE username=?;",
-        (session["username"],))
+        "SELECT interest FROM UserInterests " "WHERE username=?;",
+        (session["username"],),
+    )
     row = cur.fetchall()
     my_interests = []
     for interest in row:
         my_interests.append(interest[0])
     cur.execute(
-        "SELECT hobby FROM UserHobby "
-        "WHERE username=?;",
-        (session["username"],))
+        "SELECT hobby FROM UserHobby " "WHERE username=?;", (session["username"],)
+    )
     row = cur.fetchall()
     my_hobbies = []
     for hobby in row:
         my_hobbies.append(hobby[0])
     # Get connected user interests and hobbies
-    cur.execute(
-        "SELECT interest FROM UserInterests "
-        "WHERE username=?;",
-        (username,))
+    cur.execute("SELECT interest FROM UserInterests " "WHERE username=?;", (username,))
     row = cur.fetchall()
     connection_interests = []
     for interest in row:
         connection_interests.append(interest[0])
-    cur.execute(
-        "SELECT hobby FROM UserHobby "
-        "WHERE username=?;",
-        (username,))
+    cur.execute("SELECT hobby FROM UserHobby " "WHERE username=?;", (username,))
     row = cur.fetchall()
     connection_hobbies = []
     for hobby in row:
         connection_hobbies.append(hobby[0])
     # Awards achievement ID 16 - Shared interests if necessary.
     common_interests = set(my_interests) - (
-            set(my_interests) - set(connection_interests))
+        set(my_interests) - set(connection_interests)
+    )
     if common_interests:
         apply_achievement(session["username"], 16)
         # Award achievement ID 16 to connected user
         apply_achievement(username, 16)
 
     # Award achievement ID 26 - Shared hobbies if necessary
-    common_hobbies = set(my_hobbies) - (
-            set(my_hobbies) - set(connection_hobbies))
+    common_hobbies = set(my_hobbies) - (set(my_hobbies) - set(connection_hobbies))
     if common_hobbies:
         apply_achievement(session["username"], 26)
         # Award achievement ID 26 to connected user
@@ -176,9 +172,8 @@ def update_connection_achievements(cur, username: str):
     valid_user_count = 0
     for user in cons_user:
         cur.execute(
-            "SELECT username from UserProfile "
-            "WHERE degree!=? AND username=?;",
-            (degree, user[0])
+            "SELECT username from UserProfile " "WHERE degree!=? AND username=?;",
+            (degree, user[0]),
         )
         if cur.fetchone():
             valid_user_count += 1
@@ -187,9 +182,8 @@ def update_connection_achievements(cur, username: str):
     valid_user_count2 = 0
     for user in cons_user2:
         cur.execute(
-            "SELECT username from UserProfile "
-            "WHERE degree!=? AND username=?;",
-            (degree_user2, user[0])
+            "SELECT username from UserProfile " "WHERE degree!=? AND username=?;",
+            (degree_user2, user[0]),
         )
         if cur.fetchone():
             valid_user_count2 += 1
@@ -241,8 +235,10 @@ def update_post_achievements(cur, likes: int, username: str):
         apply_achievement(username, 22)
 
     # Checks how many posts user has liked.
-    cur.execute("SELECT COUNT(postId) FROM UserLikes"
-                " WHERE username=? ;", (session["username"],))
+    cur.execute(
+        "SELECT COUNT(postId) FROM UserLikes" " WHERE username=? ;",
+        (session["username"],),
+    )
     row = cur.fetchone()[0]
     # Award achievement ID 19 - Liking that if necessary
     if row == 1:

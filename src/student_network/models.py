@@ -31,8 +31,9 @@ app.register_blueprint(posts.posts_blueprint, url_prefix="")
 app.register_blueprint(profile.profile_blueprint, url_prefix="")
 app.register_blueprint(quizzes.quizzes_blueprint, url_prefix="")
 app.register_blueprint(staff.staff_blueprint, url_prefix="")
-app.secret_key = ("\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5\""
-                  "xa2\xa0\x9fR\xa1\xa8")
+app.secret_key = (
+    '\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5"' "xa2\xa0\x9fR\xa1\xa8"
+)
 app.url_map.strict_slashes = False
 users = {}
 
@@ -49,18 +50,28 @@ def private_message(payload):
 
         now = datetime.now()
 
-        cur.execute("INSERT INTO PrivateMessages "
-                    "(sender, receiver, message, date) VALUES (?, ?, ?, ?);",
-                    (session["username"], payload["username"],
-                     payload["message"], now.strftime("%Y-%m-%d %H:%M:%S")))
+        cur.execute(
+            "INSERT INTO PrivateMessages "
+            "(sender, receiver, message, date) VALUES (?, ?, ?, ?);",
+            (
+                session["username"],
+                payload["username"],
+                payload["message"],
+                now.strftime("%Y-%m-%d %H:%M:%S"),
+            ),
+        )
 
         conn.commit()
 
     if payload["username"] in users:
-        recipient_session_id = users[payload['username']]
+        recipient_session_id = users[payload["username"]]
 
-        socketio.emit('new_private_message', payload,
-                      room=recipient_session_id, namespace="/private")
+        socketio.emit(
+            "new_private_message",
+            payload,
+            room=recipient_session_id,
+            namespace="/private",
+        )
     # user is not online at the moment
     else:
         pass
