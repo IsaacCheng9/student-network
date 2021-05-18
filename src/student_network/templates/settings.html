@@ -286,7 +286,10 @@ content %}
                 >
                   <div class="field">
                     <label>Select your profile page privacy settings:</label>
-                    <select name="privacy" onchange="DisplayPrivacyTooltip(this)">
+                    <select
+                      name="privacy"
+                      onchange="DisplayPrivacyTooltip(this)"
+                    >
                       {% if privacy == "public" %}
                       <option value="public" selected>Public</option>
                       {% else %}

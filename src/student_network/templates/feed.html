@@ -1,265 +1,281 @@
 <meta property="og:title" content="Reconnect | Feed" />
-<meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
-<meta property="og:description" content="The Student Network. Connecting students in and outside the classroom." />
+<meta
+  property="og:image"
+  content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
+/>
+<meta
+  property="og:description"
+  content="The Student Network. Connecting students in and outside the classroom."
+/>
 {% extends "base.html" %} {% block title %}Feed{% endblock %} {% block content
 %}
 
 <style>
-    .youtube-wrap {
-        max-width: 560px;
-        margin-bottom: 1em;
-    }
+  .youtube-wrap {
+    max-width: 560px;
+    margin-bottom: 1em;
+  }
 
-    .youtube {
-        background: #000;
-        position: relative;
-        padding-top: 56.25%;
-        overflow: hidden;
-        cursor: pointer;
-    }
+  .youtube {
+    background: #000;
+    position: relative;
+    padding-top: 56.25%;
+    overflow: hidden;
+    cursor: pointer;
+  }
 
-    .youtube img {
-        width: 100%;
-        height: auto;
-        top: -16.82%;
-        left: 0;
-        opacity: 0.7;
-    }
+  .youtube img {
+    width: 100%;
+    height: auto;
+    top: -16.82%;
+    left: 0;
+    opacity: 0.7;
+  }
 
-    .youtube-play {
-        width: 70px;
-        height: 50px;
-        z-index: 1;
-        background: rgba(0, 0, 0, 0.6);
-        border-radius: 15px 15px 15px 15px / 45px 45px 45px 45px;
-    }
+  .youtube-play {
+    width: 70px;
+    height: 50px;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 15px 15px 15px 15px / 45px 45px 45px 45px;
+  }
 
-    .youtube-play:before {
-        content: "";
-        border-style: solid;
-        border-width: 10px 0 10px 18px;
-        border-color: transparent transparent transparent #fff;
-    }
+  .youtube-play:before {
+    content: "";
+    border-style: solid;
+    border-width: 10px 0 10px 18px;
+    border-color: transparent transparent transparent #fff;
+  }
 
-    .youtube:hover>.youtube-play {
-        background: red;
-    }
+  .youtube:hover > .youtube-play {
+    background: red;
+  }
 
-    .youtube img,
-    .youtube-play {
-        cursor: pointer;
-    }
+  .youtube img,
+  .youtube-play {
+    cursor: pointer;
+  }
 
-    .youtube img,
-    .youtube iframe,
-    .youtube-play,
-    .youtube-play:before {
-        position: absolute;
-    }
+  .youtube img,
+  .youtube iframe,
+  .youtube-play,
+  .youtube-play:before {
+    position: absolute;
+  }
 
-    .youtube-play,
-    .youtube-play:before {
-        top: 50%;
-        left: 50%;
-        transform: translate3d(-50%, -50%, 0);
-    }
+  .youtube-play,
+  .youtube-play:before {
+    top: 50%;
+    left: 50%;
+    transform: translate3d(-50%, -50%, 0);
+  }
 
-    .youtube iframe {
-        height: 100%;
-        width: 100%;
-        top: 0;
-        left: 0;
-    }
-
+  .youtube iframe {
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+  }
 </style>
 
 <div class="ui segment">
-    {% if errors %}
-    <div class="ui message red">
-        <div class="header">Error:</div>
-        {% for item in errors %}
-        <p>{{ item }}</p>
-        {% endfor %}
-    </div>
-    {% endif %}
-    <div class="sixteen wide column">
-      <div class="ui segment basic" id="text-post-input">
-        <form
-          action="{{ url_for('posts.submit_post') }}"
-          class="ui form"
-          method="POST"
-        >
-          <input hidden name="form_type" value="Text" />
-          <div class="required field">
-            <label>Title</label>
-            <input
-              placeholder="Your post needs a title"
-              type="text"
-              name="post_title"
-            />
-          </div>
-          <div class="field">
-            <label>Content</label>
-            <textarea
-              placeholder="Write an optional body for your post here"
-              name="post_text"
-              id=""
-              cols="3"
-              rows="5"
-            ></textarea>
-          </div>
-          <div class="field">
-            <label>Visibility</label>
-            <select id="privacy" name="privacy">
-              <option value="private">Private</option>
-              <option value="close">Close Friends</option>
-              <option value="protected">Connections</option>
-              <option value="public" selected>Public</option>
-            </select>
-          </div>
-          <input type="submit" value="Post Text" class="ui button teal" />
-        </form>
-      </div>
-
-      <div class="ui segment basic" id="image-post-input">
-        <form
-          action="{{ url_for('posts.submit_post') }}"
-          class="ui form"
-          method="POST"
-          enctype="multipart/form-data"
-        >
-          <input hidden name="form_type" value="Image" />
-          <div class="required field">
-            <label>Title</label>
-            <input
-              placeholder="Your post needs a title"
-              type="text"
-              name="post_title"
-            />
-          </div>
-          <div class="required field">
-            <label>Image</label>
-            <input type="file" name="file" />
-          </div>
-          <div class="field">
-            <label>Content</label>
-            <textarea
-              placeholder="Write an optional body for your post here"
-              name="post_text"
-              id=""
-              cols="3"
-              rows="5"
-            ></textarea>
-          </div>
-          <div class="field">
-            <label>Visibility</label>
-            <select id="privacy" name="privacy">
-              <option value="private">Private</option>
-              <option value="close">Close Friends</option>
-              <option value="protected">Connections</option>
-              <option value="public" selected>Public</option>
-            </select>
-          </div>
-          <input type="submit" value="Post Image" class="ui button teal" />
-        </form>
-      </div>
-
-      <div class="ui segment basic" id="link-post-input">
-        <form
-          action="{{ url_for('posts.submit_post') }}"
-          class="ui form"
-          method="POST"
-        >
-          <input hidden name="form_type" value="Link" />
-          <div class="required field">
-            <label>Title</label>
-            <input
-              placeholder="Your post needs a title"
-              type="text"
-              name="post_title"
-            />
-          </div>
-          <div class="required field">
-            <label>URL</label>
-            <input
-              type="text"
-              placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-              name="link"
-            />
-          </div>
-          <div class="field">
-            <label>Content</label>
-            <textarea
-              placeholder="Write an optional body for your post here"
-              name="post_text"
-              cols="3"
-              rows="5"
-            ></textarea>
-          </div>
-          <div class="field">
-            <label>Visibility</label>
-            <select id="privacy" name="privacy">
-              <option value="private">Private</option>
-              <option value="close">Close Friends</option>
-              <option value="protected">Connections</option>
-              <option value="public" selected>Public</option>
-            </select>
-          </div>
+  {% if errors %}
+  <div class="ui message red">
+    <div class="header">Error:</div>
+    {% for item in errors %}
+    <p>{{ item }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div class="sixteen wide column">
+    <div class="ui segment basic" id="text-post-input">
+      <form
+        action="{{ url_for('posts.submit_post') }}"
+        class="ui form"
+        method="POST"
+      >
+        <input hidden name="form_type" value="Text" />
+        <div class="required field">
+          <label>Title</label>
           <input
-            type="submit"
-            value="Post YouTube Video"
-            class="ui button teal"
+            placeholder="Your post needs a title"
+            type="text"
+            name="post_title"
           />
-        </form>
-      </div>
+        </div>
+        <div class="field">
+          <label>Content</label>
+          <textarea
+            placeholder="Write an optional body for your post here"
+            name="post_text"
+            id=""
+            cols="3"
+            rows="5"
+          ></textarea>
+        </div>
+        <div class="field">
+          <label>Visibility</label>
+          <select id="privacy" name="privacy">
+            <option value="private">Private</option>
+            <option value="close">Close Friends</option>
+            <option value="protected">Connections</option>
+            <option value="public" selected>Public</option>
+          </select>
+        </div>
+        <input type="submit" value="Post Text" class="ui button teal" />
+      </form>
     </div>
+
+    <div class="ui segment basic" id="image-post-input">
+      <form
+        action="{{ url_for('posts.submit_post') }}"
+        class="ui form"
+        method="POST"
+        enctype="multipart/form-data"
+      >
+        <input hidden name="form_type" value="Image" />
+        <div class="required field">
+          <label>Title</label>
+          <input
+            placeholder="Your post needs a title"
+            type="text"
+            name="post_title"
+          />
+        </div>
+        <div class="required field">
+          <label>Image</label>
+          <input type="file" name="file" />
+        </div>
+        <div class="field">
+          <label>Content</label>
+          <textarea
+            placeholder="Write an optional body for your post here"
+            name="post_text"
+            id=""
+            cols="3"
+            rows="5"
+          ></textarea>
+        </div>
+        <div class="field">
+          <label>Visibility</label>
+          <select id="privacy" name="privacy">
+            <option value="private">Private</option>
+            <option value="close">Close Friends</option>
+            <option value="protected">Connections</option>
+            <option value="public" selected>Public</option>
+          </select>
+        </div>
+        <input type="submit" value="Post Image" class="ui button teal" />
+      </form>
+    </div>
+
+    <div class="ui segment basic" id="link-post-input">
+      <form
+        action="{{ url_for('posts.submit_post') }}"
+        class="ui form"
+        method="POST"
+      >
+        <input hidden name="form_type" value="Link" />
+        <div class="required field">
+          <label>Title</label>
+          <input
+            placeholder="Your post needs a title"
+            type="text"
+            name="post_title"
+          />
+        </div>
+        <div class="required field">
+          <label>URL</label>
+          <input
+            type="text"
+            placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            name="link"
+          />
+        </div>
+        <div class="field">
+          <label>Content</label>
+          <textarea
+            placeholder="Write an optional body for your post here"
+            name="post_text"
+            cols="3"
+            rows="5"
+          ></textarea>
+        </div>
+        <div class="field">
+          <label>Visibility</label>
+          <select id="privacy" name="privacy">
+            <option value="private">Private</option>
+            <option value="close">Close Friends</option>
+            <option value="protected">Connections</option>
+            <option value="public" selected>Public</option>
+          </select>
+        </div>
+        <input
+          type="submit"
+          value="Post YouTube Video"
+          class="ui button teal"
+        />
+      </form>
+    </div>
+  </div>
 </div>
 
 <div id="postsContainer"></div>
 
 {% for post in posts.AllPosts %}
 <div class="ui segment">
-    <div class="ui grid stackable">
-        <div class="one wide column">
-            <img src="{{post.profile_pic}}" alt="" class="ui image centered round" style="border-radius: 100%" />
-        </div>
-        <div class="fifteen wide column">
-            {% if post.account_type == "staff" %}
-            <div class="ui label red">
-                {{ post.author }}
-                <div class="detail">{{ post.account_type }}</div>
-            </div>
-            {% elif post.account_type == "admin" %}
-            <div class="ui label purple">
-                {{ post.author }}
-                <div class="detail">{{ post.account_type }}</div>
-            </div>
-            {% else %}
-            <div class="ui label">
-                {{ post.author }}
-                <div class="detail">{{ post.account_type }}</div>
-            </div>
-            {% endif %}
-            <div style="float: right">{{ post.date_posted }}</div>
-        </div>
-        <div class="sixteen wide column">
-            <h2><a href="/post_page/{{ post.postId }}">{{ post.title }}</a></h2>
-        </div>
-        <div class="sixteen wide column">
-            <div class="ui segment">{{ post.body }}</div>
-        </div>
-        {% if post.post_type == "Image" %}
-        <div class="sixteen wide column">
-            <img src="{{ post.content }}" alt="" class="ui image centered" />
-        </div>
-        {% endif %} {% if post.post_type == "Link" %}
-        <div class="sixteen wide column">
-            <!--            <button class="ui button icon" onclick="LoadVideo(this);" data-link="https://www.youtube.com/embed/tgbNymZ7vqY">Load Video <i class="icon video"></i></button>-->
-            <iframe class="ui container" height="600" src="https://www.youtube.com/embed/{{ post.content }}" loading="lazy" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/{{ post.content }}?autoplay=1><img src=https://img.youtube.com/vi/{{ post.content }}/hqdefault.jpg alt='YouTube Thumbnail'><span>▶</span></a>"></iframe>
-        </div>
-        {%endif%}
+  <div class="ui grid stackable">
+    <div class="one wide column">
+      <img
+        src="{{post.profile_pic}}"
+        alt=""
+        class="ui image centered round"
+        style="border-radius: 100%"
+      />
+    </div>
+    <div class="fifteen wide column">
+      {% if post.account_type == "staff" %}
+      <div class="ui label red">
+        {{ post.author }}
+        <div class="detail">{{ post.account_type }}</div>
+      </div>
+      {% elif post.account_type == "admin" %}
+      <div class="ui label purple">
+        {{ post.author }}
+        <div class="detail">{{ post.account_type }}</div>
+      </div>
+      {% else %}
+      <div class="ui label">
+        {{ post.author }}
+        <div class="detail">{{ post.account_type }}</div>
+      </div>
+      {% endif %}
+      <div style="float: right">{{ post.date_posted }}</div>
+    </div>
+    <div class="sixteen wide column">
+      <h2><a href="/post_page/{{ post.postId }}">{{ post.title }}</a></h2>
+    </div>
+    <div class="sixteen wide column">
+      <div class="ui segment">{{ post.body }}</div>
+    </div>
+    {% if post.post_type == "Image" %}
+    <div class="sixteen wide column">
+      <img src="{{ post.content }}" alt="" class="ui image centered" />
+    </div>
+    {% endif %} {% if post.post_type == "Link" %}
+    <div class="sixteen wide column">
+      <!--            <button class="ui button icon" onclick="LoadVideo(this);" data-link="https://www.youtube.com/embed/tgbNymZ7vqY">Load Video <i class="icon video"></i></button>-->
+      <iframe
+        class="ui container"
+        height="600"
+        src="https://www.youtube.com/embed/{{ post.content }}"
+        loading="lazy"
+        srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/{{ post.content }}?autoplay=1><img src=https://img.youtube.com/vi/{{ post.content }}/hqdefault.jpg alt='YouTube Thumbnail'><span>▶</span></a>"
+      ></iframe>
+    </div>
+    {%endif%}
 
-        <!--
+    <!--
         <div class="sixteen wide column" style="margin: 0; padding: 0;">
             <div class="ui divider"></div>
 
@@ -271,39 +287,39 @@
             <div class="ui divider"></div>
         </div>
 -->
-        <div class="sixteen wide column">
-            <div>
-                {{ post.comment_count }} comments &nbsp;&nbsp; {{ post.like_count }}
-                <i class="heart icon"></i>
+    <div class="sixteen wide column">
+      <div>
+        {{ post.comment_count }} comments &nbsp;&nbsp; {{ post.like_count }}
+        <i class="heart icon"></i>
+      </div>
+      {% if post.comment_count > 0 %}
+      <a href="/post_page/{{ post.postId }}">Show all comments</a>
+      {% endif %}
+      <div class="ui comments">
+        <div class="comment">
+          <a class="avatar">
+            <img src="https://via.placeholder.com/200" />
+          </a>
+          <div class="content">
+            <a class="author">Matt</a>
+            <div class="metadata">
+              <span class="date">Today</span>
             </div>
-            {% if post.comment_count > 0 %}
-            <a href="/post_page/{{ post.postId }}">Show all comments</a>
-            {% endif %}
-            <div class="ui comments">
-                <div class="comment">
-                    <a class="avatar">
-                        <img src="https://via.placeholder.com/200" />
-                    </a>
-                    <div class="content">
-                        <a class="author">Matt</a>
-                        <div class="metadata">
-                            <span class="date">Today</span>
-                        </div>
-                        <div class="text">
-                            I cant figue out how to get each posts comments on the feed
-                        </div>
-                    </div>
-                </div>
+            <div class="text">
+              I cant figue out how to get each posts comments on the feed
             </div>
-            <a href="/post_page/{{ post.postId }}">Write a comment</a>
+          </div>
         </div>
+      </div>
+      <a href="/post_page/{{ post.postId }}">Write a comment</a>
     </div>
+  </div>
 </div>
 {% endfor %}
 
 <div class="ui message orange">
-    <div class="header">Sorry, no more posts to load!</div>
-    <div>Try adding more connections to have a bigger feed page.</div>
+  <div class="header">Sorry, no more posts to load!</div>
+  <div>Try adding more connections to have a bigger feed page.</div>
 </div>
 
 <div class="ui horizontal divider hidden"></div>
@@ -311,54 +327,54 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
-    // post-type-buttons
-    function SelectPostType(id, elem, timing) {
-        var sections = ["text", "image", "link"];
+  // post-type-buttons
+  function SelectPostType(id, elem, timing) {
+    var sections = ["text", "image", "link"];
 
-        timing = timing || 300;
+    timing = timing || 300;
 
-        $("#post-type-buttons button").addClass("basic");
-        $(elem).removeClass("basic");
+    $("#post-type-buttons button").addClass("basic");
+    $(elem).removeClass("basic");
 
-        for (var section of sections) {
-            if (section == id) continue;
-            $("#" + section + "-post-input").hide(timing);
-        }
-
-        $("#" + id + "-post-input").show(timing);
+    for (var section of sections) {
+      if (section == id) continue;
+      $("#" + section + "-post-input").hide(timing);
     }
 
-    function LoadVideo(elem) {
-        var id = $(elem).attr("data-link");
+    $("#" + id + "-post-input").show(timing);
+  }
 
-        var html = `<iframe class="ui container" height="600" src="${id}" loading="lazy"></iframe>`;
+  function LoadVideo(elem) {
+    var id = $(elem).attr("data-link");
 
-        $(elem).replaceWith(html);
-    }
+    var html = `<iframe class="ui container" height="600" src="${id}" loading="lazy"></iframe>`;
 
-    document.addEventListener("DOMContentLoaded", function() {
-        SelectPostType("text", $("#default-post-btn"), 1);
-    });
+    $(elem).replaceWith(html);
+  }
 
-    var maxPostId = "{{max_id}}";
+  document.addEventListener("DOMContentLoaded", function () {
+    SelectPostType("text", $("#default-post-btn"), 1);
+  });
 
-    function LoadNewPost(post) {
-        var content = ``;
+  var maxPostId = "{{max_id}}";
 
-        if (post.post_type == "Image") {
-            content = `<div class="sixteen wide column">
+  function LoadNewPost(post) {
+    var content = ``;
+
+    if (post.post_type == "Image") {
+      content = `<div class="sixteen wide column">
                         <img src="${post.content}" alt="" class="ui image centered" />
                     </div>`;
-        } else if (post.post_type == "Link") {
-            content = `<div class="sixteen wide column">
+    } else if (post.post_type == "Link") {
+      content = `<div class="sixteen wide column">
                             <iframe class="ui container" height="600" src="https://www.youtube.com/embed/${post.content}" loading="lazy" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/${post.content}?autoplay=1><img src=https://img.youtube.com/vi/${post.content}/hqdefault.jpg alt='YouTube Thumbnail'><span>▶</span></a>"></iframe>
                         </div>`;
-        }
+    }
 
-        var comments = ``;
+    var comments = ``;
 
-        for (var comment of post.comments) {
-            comments += `<div class="comment">
+    for (var comment of post.comments) {
+      comments += `<div class="comment">
                             <a class="avatar">
                                 <img src="${comment[5]}" />
                             </a>
@@ -370,24 +386,24 @@
                                 <div class="text">${comment[2]}</div>
                             </div>
                         </div>`;
-        }
+    }
 
-        var postBody = ``;
+    var postBody = ``;
 
-        if (post.body != "") {
-            postBody = `<div class="sixteen wide column">
+    if (post.body != "") {
+      postBody = `<div class="sixteen wide column">
                     <div class="ui segment" style="overflow-wrap: anywhere;">${post.body}</div>
                 </div>`;
-        }
+    }
 
-        var icon = ``
-        if (post.liked == true) {
-          icon = `<i class="heart icon red"></i>`
-        } else {
-          icon = `<i class="heart icon"></i>`
-        }
+    var icon = ``;
+    if (post.liked == true) {
+      icon = `<i class="heart icon red"></i>`;
+    } else {
+      icon = `<i class="heart icon"></i>`;
+    }
 
-        var html = `<div class="ui segment">
+    var html = `<div class="ui segment">
             <div class="ui grid stackable">
                 <div class="one wide column">
                     <img src="${post.profile_pic}" alt="" class="ui image centered round" style="border-radius: 100%" />
@@ -415,46 +431,45 @@
             </div>
         </div>`;
 
-        document.getElementById("postsContainer").innerHTML += html;
-    }
+    document.getElementById("postsContainer").innerHTML += html;
+  }
 
-    var loadingPost = false;
+  var loadingPost = false;
 
-    function LoadPosts(number) {
-        if (loadingPost) return;
-        loadingPost = true;
+  function LoadPosts(number) {
+    if (loadingPost) return;
+    loadingPost = true;
 
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                var json_response = JSON.parse(this.response);
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        var json_response = JSON.parse(this.response);
 
-                loadingPost = false;
+        loadingPost = false;
 
-                for (var response of json_response.AllPosts) {
-                    LoadNewPost(response);
-                    maxPostId = Math.min(maxPostId, response.postId - 1);
-                }
-            }
-        };
-
-        xhttp.open(
-            "GET",
-            "fetch_posts?number=" + number + "&starting_id=" + maxPostId
-        );
-        xhttp.send();
-    }
-
-    $(window).on("scroll", function() {
-        var scrollHeight = $(document).height();
-        var scrollPosition = $(window).height() + $(window).scrollTop();
-        if (scrollPosition + 500 >= scrollHeight) {
-            LoadPosts(5);
+        for (var response of json_response.AllPosts) {
+          LoadNewPost(response);
+          maxPostId = Math.min(maxPostId, response.postId - 1);
         }
-    });
+      }
+    };
 
-    LoadPosts(5);
+    xhttp.open(
+      "GET",
+      "fetch_posts?number=" + number + "&starting_id=" + maxPostId
+    );
+    xhttp.send();
+  }
 
+  $(window).on("scroll", function () {
+    var scrollHeight = $(document).height();
+    var scrollPosition = $(window).height() + $(window).scrollTop();
+    if (scrollPosition + 500 >= scrollHeight) {
+      LoadPosts(5);
+    }
+  });
+
+  LoadPosts(5);
 </script>
 
 {%endblock%}

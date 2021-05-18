@@ -29,7 +29,9 @@
         </form>
       </div>
       <div class="content">
-        <a href="{{ url_for('profile.profile', username=request) }}">{{ request }}</a>
+        <a href="{{ url_for('profile.profile', username=request) }}"
+          >{{ request }}</a
+        >
       </div>
     </div>
     {% endfor %} {%else:%}

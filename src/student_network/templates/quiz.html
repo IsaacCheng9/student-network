@@ -1,160 +1,184 @@
 <meta property="og:title" content="Reconnect | Quiz" />
-<meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
-<meta property="og:description" content="The Student Network. Connecting students in and outside the classroom." />
+<meta
+  property="og:image"
+  content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
+/>
+<meta
+  property="og:description"
+  content="The Student Network. Connecting students in and outside the classroom."
+/>
 {% extends "base.html" %} {% block title %}Quiz{% endblock %} {% block content
 %}
 
 <style>
-    .selected {
-        background-color: dimgray !important;
-        color: #eaeaea !important;
-    }
-
+  .selected {
+    background-color: dimgray !important;
+    color: #eaeaea !important;
+  }
 </style>
 
 <div class="ui segment">
-    <div class="ui grid"></div>
-    {%for index in range(questions|length)%}
-    <div class="ui grid quiz-question stackable compact" id="question-{{index}}">
-        <input form="submitForm" type="hidden" class="userAnswer" value="" name="userAnswer{{index}}" />
-        <div class="ui sixteen wide column">
-            <h2>{{quiz_name}}</h2>
-            <div class="ui label">
-                {{quiz_author}}
-            </div>
-        </div>
-        <div class="ui sixteen wide column">
-            <button class="ui fluid button blue">
-                <h1>{{questions[index]}}</h1>
-            </button>
-        </div>
-        <div class="ui eight wide column">
-            <button class="ui fluid button gray selectable">
-                <h1>{{answers[index][0]}}</h1>
-            </button>
-        </div>
-        <div class="ui eight wide column">
-            <button class="ui fluid button gray selectable">
-                <h1>{{answers[index][1]}}</h1>
-            </button>
-        </div>
-        <div class="ui eight wide column">
-            <button class="ui fluid button gray selectable">
-                <h1>{{answers[index][2]}}</h1>
-            </button>
-        </div>
-        <div class="ui eight wide column">
-            <button class="ui fluid button gray selectable">
-                <h1>{{answers[index][3]}}</h1>
-            </button>
-        </div>
+  <div class="ui grid"></div>
+  {%for index in range(questions|length)%}
+  <div class="ui grid quiz-question stackable compact" id="question-{{index}}">
+    <input
+      form="submitForm"
+      type="hidden"
+      class="userAnswer"
+      value=""
+      name="userAnswer{{index}}"
+    />
+    <div class="ui sixteen wide column">
+      <h2>{{quiz_name}}</h2>
+      <div class="ui label">{{quiz_author}}</div>
     </div>
-    {%endfor%}
-    <div class="ui horizontal divider"></div>
-    <div class="ui grid">
-        <div class="sixteen wide column" style="text-align: center">
-            <div class="ui button" id="prevQuestionBtn" onclick="PreviousQuestion();" style="float: left">
-                <i class="left arrow icon"></i> Previous
-            </div>
-            <div class="ui statistic">
-                <div class="value" id="questionNumber"></div>
-            </div>
-            <div class="ui button" id="nextQuestionBtn" onclick="NextQuestion();" style="float: right">
-                Next <i class="right arrow icon"></i>
-            </div>
-        </div>
-        <div class="sixteen wide column">
-            <form id="submitForm" method="POST" action="/quiz/{{quiz_id}}">
-                <input value="Submit Answers" type="submit" class="ui button green icon" style="float: right" id="submitBtn" />
-            </form>
-        </div>
+    <div class="ui sixteen wide column">
+      <button class="ui fluid button blue">
+        <h1>{{questions[index]}}</h1>
+      </button>
     </div>
+    <div class="ui eight wide column">
+      <button class="ui fluid button gray selectable">
+        <h1>{{answers[index][0]}}</h1>
+      </button>
+    </div>
+    <div class="ui eight wide column">
+      <button class="ui fluid button gray selectable">
+        <h1>{{answers[index][1]}}</h1>
+      </button>
+    </div>
+    <div class="ui eight wide column">
+      <button class="ui fluid button gray selectable">
+        <h1>{{answers[index][2]}}</h1>
+      </button>
+    </div>
+    <div class="ui eight wide column">
+      <button class="ui fluid button gray selectable">
+        <h1>{{answers[index][3]}}</h1>
+      </button>
+    </div>
+  </div>
+  {%endfor%}
+  <div class="ui horizontal divider"></div>
+  <div class="ui grid">
+    <div class="sixteen wide column" style="text-align: center">
+      <div
+        class="ui button"
+        id="prevQuestionBtn"
+        onclick="PreviousQuestion();"
+        style="float: left"
+      >
+        <i class="left arrow icon"></i> Previous
+      </div>
+      <div class="ui statistic">
+        <div class="value" id="questionNumber"></div>
+      </div>
+      <div
+        class="ui button"
+        id="nextQuestionBtn"
+        onclick="NextQuestion();"
+        style="float: right"
+      >
+        Next <i class="right arrow icon"></i>
+      </div>
+    </div>
+    <div class="sixteen wide column">
+      <form id="submitForm" method="POST" action="/quiz/{{quiz_id}}">
+        <input
+          value="Submit Answers"
+          type="submit"
+          class="ui button green icon"
+          style="float: right"
+          id="submitBtn"
+        />
+      </form>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
-    $(".selectable").click(function() {
-        $(this).parent().parent().find(".selectable").removeClass("selected");
-        $(this).addClass("selected");
+  $(".selectable").click(function () {
+    $(this).parent().parent().find(".selectable").removeClass("selected");
+    $(this).addClass("selected");
 
-        $("#question-" + questionIndex)
-            .find(".userAnswer")
-            .val($(this).find("h1").html());
+    $("#question-" + questionIndex)
+      .find(".userAnswer")
+      .val($(this).find("h1").html());
 
-        UpdateSubmitBtn();
+    UpdateSubmitBtn();
+  });
+
+  function UpdateSubmitBtn() {
+    var allFilled = true;
+    $(".userAnswer").each(function () {
+      if ($(this).val() == "") {
+        allFilled = false;
+      }
     });
 
-    function UpdateSubmitBtn() {
-        var allFilled = true;
-        $(".userAnswer").each(function() {
-            if ($(this).val() == "") {
-                allFilled = false;
-            }
-        });
-
-        $("#submitBtn").prop("disabled", !allFilled);
-        $("#submitBtn").removeClass("disabled");
-        if (!allFilled) {
-            $("#submitBtn").addClass("disabled");
-        }
+    $("#submitBtn").prop("disabled", !allFilled);
+    $("#submitBtn").removeClass("disabled");
+    if (!allFilled) {
+      $("#submitBtn").addClass("disabled");
     }
+  }
 
-    var questionIndex = 0;
+  var questionIndex = 0;
 
-    function Clamp(num, min, max) {
-        if (num < min) return min;
-        if (num > max) return max;
-        return num;
+  function Clamp(num, min, max) {
+    if (num < min) return min;
+    if (num > max) return max;
+    return num;
+  }
+
+  function NextQuestion() {
+    questionIndex++;
+    questionIndex = Clamp(questionIndex, 0, 4);
+    DisplayQuestion(questionIndex);
+
+    $("#nextQuestionBtn").prop("disabled", false);
+    $("#prevQuestionBtn").prop("disabled", false);
+
+    $("#nextQuestionBtn").removeClass("disabled");
+    $("#prevQuestionBtn").removeClass("disabled");
+
+    if (questionIndex == 4) {
+      $("#nextQuestionBtn").prop("disabled", true);
+      $("#nextQuestionBtn").addClass("disabled");
     }
+  }
 
-    function NextQuestion() {
-        questionIndex++;
-        questionIndex = Clamp(questionIndex, 0, 4);
-        DisplayQuestion(questionIndex);
+  function PreviousQuestion() {
+    questionIndex--;
+    questionIndex = Clamp(questionIndex, 0, 4);
+    DisplayQuestion(questionIndex);
 
-        $("#nextQuestionBtn").prop("disabled", false);
-        $("#prevQuestionBtn").prop("disabled", false);
+    $("#prevQuestionBtn").prop("disabled", false);
+    $("#nextQuestionBtn").prop("disabled", false);
 
-        $("#nextQuestionBtn").removeClass("disabled");
-        $("#prevQuestionBtn").removeClass("disabled");
+    $("#nextQuestionBtn").removeClass("disabled");
+    $("#prevQuestionBtn").removeClass("disabled");
 
-        if (questionIndex == 4) {
-            $("#nextQuestionBtn").prop("disabled", true);
-            $("#nextQuestionBtn").addClass("disabled");
-        }
+    if (questionIndex == 0) {
+      $("#prevQuestionBtn").prop("disabled", true);
+      $("#prevQuestionBtn").addClass("disabled");
     }
+  }
 
-    function PreviousQuestion() {
-        questionIndex--;
-        questionIndex = Clamp(questionIndex, 0, 4);
-        DisplayQuestion(questionIndex);
+  function DisplayQuestion(index) {
+    $(".quiz-question").hide();
+    $("#question-" + index).show();
 
-        $("#prevQuestionBtn").prop("disabled", false);
-        $("#nextQuestionBtn").prop("disabled", false);
+    $("#questionNumber").html(
+      `${index + 1}<span style="font-size: 0.4em;">/${5}</span>`
+    );
+  }
 
-        $("#nextQuestionBtn").removeClass("disabled");
-        $("#prevQuestionBtn").removeClass("disabled");
-
-        if (questionIndex == 0) {
-            $("#prevQuestionBtn").prop("disabled", true);
-            $("#prevQuestionBtn").addClass("disabled");
-        }
-    }
-
-    function DisplayQuestion(index) {
-        $(".quiz-question").hide();
-        $("#question-" + index).show();
-
-        $("#questionNumber").html(
-            `${index + 1}<span style="font-size: 0.4em;">/${5}</span>`
-        );
-    }
-
-    DisplayQuestion(0);
-    PreviousQuestion();
-    UpdateSubmitBtn();
-
+  DisplayQuestion(0);
+  PreviousQuestion();
+  UpdateSubmitBtn();
 </script>
 
 {%endblock%}

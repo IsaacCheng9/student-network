@@ -1,50 +1,56 @@
 <!DOCTYPE html>
 
 <head>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/comment.min.css">
-    <link rel=stylesheet type=text/css href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/form.min.css">
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
+  />
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/comment.min.css"
+  />
+  <link rel=stylesheet type=text/css
+  href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/form.min.css">
 </head>
 
 <body>
-   <div class="ui segment">
+  <div class="ui segment">
     <div class="ui comments">
       <h3 class="ui dividing header">Comments</h3>
-          {%for comment in comments%}
-          <div class="comment">
-            <a class="avatar">
-              <img src="https://source.unsplash.com/user/erondu/64x64">
-            </a>
-            <div class="content">
-              <a class="author">{{comment.username}}</a>
-              <div class="metadata">
-                <span class="date">Today at 5:42PM</span>
-              </div>
-              <div class="text">
-                {{comment.comment}}
-              </div>
-              <div class="actions">
-                <a class="reply">Reply</a>
-              </div>
-            </div>
+      {%for comment in comments%}
+      <div class="comment">
+        <a class="avatar">
+          <img src="https://source.unsplash.com/user/erondu/64x64" />
+        </a>
+        <div class="content">
+          <a class="author">{{comment.username}}</a>
+          <div class="metadata">
+            <span class="date">Today at 5:42PM</span>
           </div>
-          {%endfor%}
+          <div class="text">{{comment.comment}}</div>
+          <div class="actions">
+            <a class="reply">Reply</a>
+          </div>
+        </div>
       </div>
-      
-      <h3 class="ui dividing header">Write a comment</h3>
-      
-      <form action="" class="ui form" method=post>
-         <div class="field">
-             <label>Username</label>
-             <input name="username" type="text">
-         </div>
-          <div class="field">
-              <label>Comment</label>
-              <textarea name="comment"></textarea>
-          </div>
-      </form>
-      
-      <input type="submit" class="ui green submit button" value="Post">
-      
+      {%endfor%}
     </div>
+
+    <h3 class="ui dividing header">Write a comment</h3>
+
+    <form action="" class="ui form" method="post">
+      <div class="field">
+        <label>Username</label>
+        <input name="username" type="text" />
+      </div>
+      <div class="field">
+        <label>Comment</label>
+        <textarea name="comment"></textarea>
+      </div>
+    </form>
+
+    <input type="submit" class="ui green submit button" value="Post" />
+  </div>
 </body>

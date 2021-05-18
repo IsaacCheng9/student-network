@@ -1,8 +1,8 @@
 li a {
-    color: green;
-    font-weight: bolder;
+  color: green;
+  font-weight: bolder;
 }
 
 body {
-    background: white url("images/background.gif") no-repeat;
+  background: white url("images/background.gif") no-repeat;
 }

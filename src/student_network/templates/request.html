@@ -1,6 +1,12 @@
 <meta property="og:title" content="Reconnect | Connections" />
-<meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
-<meta property="og:description" content="The Student Network. Connecting students in and outside the classroom." />
+<meta
+  property="og:image"
+  content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
+/>
+<meta
+  property="og:description"
+  content="The Student Network. Connecting students in and outside the classroom."
+/>
 {% extends "base.html" %} {% block title %}Request{% endblock %} {% block
 content %}
 <div class="ui segment">
@@ -164,9 +170,8 @@ content %}
           >{{mutuals[i][0]}}</a
         >
         <br />
-        {% if mutuals[i][2] == "mutual connection" or
-          mutuals[i][2] == "mutual connections" %} {{mutuals[i][1]}}
-        {% endif %} {{mutuals[i][2]}}
+        {% if mutuals[i][2] == "mutual connection" or mutuals[i][2] == "mutual
+        connections" %} {{mutuals[i][1]}} {% endif %} {{mutuals[i][2]}}
       </div>
     </div>
     {% endfor %} {% else %}
