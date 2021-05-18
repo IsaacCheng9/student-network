@@ -2,7 +2,7 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
@@ -18,22 +18,22 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-          
+
       - name: Black Code Formatter
         # You may pin to the exact commit or the version.
         # uses: lgeiger/black-action@4379f39aa4b6a3bb1cceb46a7665b9c26647d82d
         uses: lgeiger/black-action@v1.0.1
         with:
           args: "."
-        
+
       - name: Prettier Action
         uses: creyD/prettier_action@v3.3
         with:
-            commit_message: Format code with Black and Prettier
-            prettier_options: --write {**/*,*}.{js,ts,jsx,tsx,html,css}
+          commit_message: Format code with Black and Prettier
+          prettier_options: --write {**/*,*}.{js,ts,jsx,tsx,html,css}
