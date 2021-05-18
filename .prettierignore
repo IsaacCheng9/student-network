@@ -1,0 +1,2 @@
+# Ignore styles as they're from external sources.
+src/student_network/static/styles
