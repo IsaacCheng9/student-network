@@ -17,7 +17,7 @@
     {% endif %}
     <div class="ui buttons" id="post-type-buttons">
         <div class="ui orange button basic">Question</div>
-        <button class="ui orange button question-select" onclick="SelectQuestion(1,this);"> <!-- id="default-question-btn">-->
+        <button class="ui orange button question-select basic" onclick="SelectQuestion(1,this);" id="default-question-btn"> <!-- id="default-question-btn">-->
             1
         </button>
         <button class="ui orange button question-select basic" onclick="SelectQuestion(2,this);">
@@ -233,7 +233,7 @@
         });
     }
 
-    SelectQuestion(0, $("#default-question-btn"));
+    SelectQuestion(0, $("default-question-btn"));
 
     $(".question-input input").on("input", function() {
         UpdateQuestionSelectBtns();
