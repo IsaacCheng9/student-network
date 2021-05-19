@@ -13,8 +13,7 @@ import student_network.helpers.helper_login as helper_login
 import student_network.helpers.helper_posts as helper_posts
 import student_network.helpers.helper_profile as helper_profile
 import student_network.helpers.helper_quizzes as helper_quizzes
-from flask import (Blueprint, jsonify, redirect, render_template, request,
-                   session)
+from flask import Blueprint, jsonify, redirect, render_template, request, session
 
 posts_blueprint = Blueprint(
     "posts", __name__, static_folder="static", template_folder="templates"
