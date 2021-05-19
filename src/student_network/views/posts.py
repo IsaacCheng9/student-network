@@ -345,7 +345,7 @@ def submit_post() -> object:
             )
         else:
             session["error"] = message
-        
+
         return redirect("quizzes")
     else:
         post_title = request.form["post_title"]
