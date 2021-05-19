@@ -7,6 +7,7 @@ import sqlite3
 import student_network.helpers.helper_achievements as helper_achievements
 import student_network.helpers.helper_connections as helper_connections
 import student_network.helpers.helper_general as helper_general
+import student_network.helpers.helper_profile as helper_profile
 from flask import Blueprint, render_template
 from flask import request, session
 
@@ -84,11 +85,9 @@ def leaderboard() -> object:
                     lambda x: (
                         x[0],
                         x[1],
-                        student_network.helpers.helper_profile.get_profile_picture(
-                            x[0]
-                        ),
-                        student_network.helpers.helper_profile.get_level(x[0]),
-                        student_network.helpers.helper_profile.get_degree(x[0])[1],
+                        helper_profile.get_profile_picture(x[0]),
+                        helper_profile.get_level(x[0]),
+                        helper_profile.get_degree(x[0])[1],
                     ),
                     top_users,
                 )
