@@ -1,8 +1,8 @@
+{% extends "base.html" %}
 <meta property="og:title" content="{{ name }} on Reconnect" />
 <meta property="og:image" content="{{ profile_picture }}" />
 <meta property="og:description" content="{{ bio | truncate(150) }}" />
-{% extends "base.html" %} {% block title %}Profile{% endblock %} {% block
-content %}
+{% block title %}Profile{% endblock %} {% block content %}
 
 <style>
   .gold {
@@ -250,6 +250,7 @@ content %}
           style="margin-bottom: 1em; border-radius: 1em"
           class="ui image fluid rounded"
           src="{{ profile_picture }}"
+          alt=""
         />
 
         <h1 class="mobile only">
@@ -319,7 +320,6 @@ content %}
             style="display: inline-block"
             data-html='<div class="header">{{ achievement[4] }}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;"
                         class="{{ achievement[2] }}-glow">{{ achievement[2] }}</div>{{ achievement[0] }}<br><b>{{ achievement[3] }} XP</b>'
-            style="text-align: center"
           >
             <i
               class="icon {{ achievement[1] }} big {{ achievement[2] }} achievement-icon"

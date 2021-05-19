@@ -5,7 +5,7 @@
     Staff Account Requests ({{requests|length}})
   </div>
   <div class="ui middle aligned list">
-    {%if requests|length > 0:%} {% for request in requests %}
+    {% if requests|length > 0 %} {% for request in requests %}
     <div class="item">
       <div class="ui mini buttons right floated">
         <form

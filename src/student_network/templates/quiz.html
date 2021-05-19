@@ -111,9 +111,9 @@
   });
 
   function UpdateSubmitBtn() {
-    var allFilled = true;
+    let allFilled = true;
     $(".userAnswer").each(function () {
-      if ($(this).val() == "") {
+      if ($(this).val() === "") {
         allFilled = false;
       }
     });
@@ -125,7 +125,7 @@
     }
   }
 
-  var questionIndex = 0;
+  let questionIndex = 0;
 
   function Clamp(num, min, max) {
     if (num < min) return min;
@@ -144,7 +144,7 @@
     $("#nextQuestionBtn").removeClass("disabled");
     $("#prevQuestionBtn").removeClass("disabled");
 
-    if (questionIndex == 4) {
+    if (questionIndex === 4) {
       $("#nextQuestionBtn").prop("disabled", true);
       $("#nextQuestionBtn").addClass("disabled");
     }
@@ -161,7 +161,7 @@
     $("#nextQuestionBtn").removeClass("disabled");
     $("#prevQuestionBtn").removeClass("disabled");
 
-    if (questionIndex == 0) {
+    if (questionIndex === 0) {
       $("#prevQuestionBtn").prop("disabled", true);
       $("#prevQuestionBtn").addClass("disabled");
     }

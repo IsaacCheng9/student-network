@@ -24,11 +24,11 @@
       </thead>
       <tbody>
       {% for i in range(leaderboard|length) %}
-        <tr {% if myRanking == i+1 %}class="active"{% endif %}>
-          <td><h2 class="ui center aligned header">#{{ i+1}}</h2></td>
+        <tr {% if myRanking == i + 1 %}class="active"{% endif %}>
+          <td><h2 class="ui center aligned header">#{{ i + 1}}</h2></td>
           <td>
             <h4 class="ui image header">
-              <img src='{{ leaderboard[i][2] }}' class="ui mini rounded image">
+              <img src='{{ leaderboard[i][2] }}' class="ui mini rounded image" alt="">
               <div class="content">
                 <a href="/profile/{{ leaderboard[i][0] }}">{{ leaderboard[i][0] }}</a>
                 <div class="sub header">{{ leaderboard[i][4] }}

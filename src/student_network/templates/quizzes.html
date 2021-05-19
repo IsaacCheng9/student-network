@@ -36,138 +36,192 @@
     </div>
     <div class="ui horizontal divider hidden"></div>
     <form action="{{ url_for('posts.submit_post') }}" class="ui form" method="POST">
-      <input hidden name="form_type" value="Quiz"/>
+      <label>
+        <input hidden name="form_type" value="Quiz"/>
+      </label>
       <div class="field">
         <label>Quiz Name</label>
-        <input type="text" name="quiz_name"/>
+        <label>
+          <input type="text" name="quiz_name"/>
+        </label>
       </div>
       <div class="ui segment basic question-input" id="question1">
         <div class="field">
           <label>Question</label>
-          <input type="text" name="question_1" autocomplete="off"/>
+          <label>
+            <input type="text" name="question_1" autocomplete="off"/>
+          </label>
         </div>
         <div class="two fields">
           <div class="field">
             <label>Correct Answer</label>
-            <input type="text" name="question_1_ans_1" autocomplete="off"/>
+            <label>
+              <input type="text" name="question_1_ans_1" autocomplete="off"/>
+            </label>
           </div>
           <div class="field">
             <label>Answer</label>
-            <input type="text" name="question_1_ans_2" autocomplete="off"/>
+            <label>
+              <input type="text" name="question_1_ans_2" autocomplete="off"/>
+            </label>
           </div>
         </div>
         <div class="two fields">
           <div class="field">
             <label>Answer</label>
-            <input type="text" name="question_1_ans_3" autocomplete="off"/>
+            <label>
+              <input type="text" name="question_1_ans_3" autocomplete="off"/>
+            </label>
           </div>
           <div class="field">
             <label>Answer</label>
-            <input type="text" name="question_1_ans_4" autocomplete="off"/>
+            <label>
+              <input type="text" name="question_1_ans_4" autocomplete="off"/>
+            </label>
           </div>
         </div>
       </div>
       <div class="ui segment basic question-input" id="question2">
         <div class="field">
           <label>Question</label>
-          <input type="text" name="question_2" autocomplete="off"/>
+          <label>
+            <input type="text" name="question_2" autocomplete="off"/>
+          </label>
         </div>
         <div class="two fields">
           <div class="field">
             <label>Correct Answer</label>
-            <input type="text" name="question_2_ans_1" autocomplete="off"/>
+            <label>
+              <input type="text" name="question_2_ans_1" autocomplete="off"/>
+            </label>
           </div>
           <div class="field">
             <label>Answer</label>
-            <input type="text" name="question_2_ans_2" autocomplete="off"/>
+            <label>
+              <input type="text" name="question_2_ans_2" autocomplete="off"/>
+            </label>
           </div>
         </div>
         <div class="two fields">
           <div class="field">
             <label>Answer</label>
-            <input type="text" name="question_2_ans_3" autocomplete="off"/>
+            <label>
+              <input type="text" name="question_2_ans_3" autocomplete="off"/>
+            </label>
           </div>
           <div class="field">
             <label>Answer</label>
-            <input type="text" name="question_2_ans_4" autocomplete="off"/>
+            <label>
+              <input type="text" name="question_2_ans_4" autocomplete="off"/>
+            </label>
           </div>
         </div>
       </div>
       <div class="ui segment basic question-input" id="question3">
         <div class="field">
           <label>Question</label>
-          <input type="text" name="question_3" autocomplete="off"/>
+          <label>
+            <input type="text" name="question_3" autocomplete="off"/>
+          </label>
         </div>
         <div class="two fields">
           <div class="field">
             <label>Correct Answer</label>
-            <input type="text" name="question_3_ans_1" autocomplete="off"/>
+            <label>
+              <input type="text" name="question_3_ans_1" autocomplete="off"/>
+            </label>
           </div>
           <div class="field">
             <label>Answer</label>
-            <input type="text" name="question_3_ans_2" autocomplete="off"/>
+            <label>
+              <input type="text" name="question_3_ans_2" autocomplete="off"/>
+            </label>
           </div>
         </div>
         <div class="two fields">
           <div class="field">
             <label>Answer</label>
-            <input type="text" name="question_3_ans_3" autocomplete="off"/>
+            <label>
+              <input type="text" name="question_3_ans_3" autocomplete="off"/>
+            </label>
           </div>
           <div class="field">
             <label>Answer</label>
-            <input type="text" name="question_3_ans_4" autocomplete="off"/>
+            <label>
+              <input type="text" name="question_3_ans_4" autocomplete="off"/>
+            </label>
           </div>
         </div>
       </div>
       <div class="ui segment basic question-input" id="question4">
         <div class="field">
             <label>Question</label>
+          <label>
             <input type="text" name="question_4" autocomplete="off" />
+          </label>
         </div>
         <div class="two fields">
             <div class="field">
                 <label>Correct Answer</label>
+              <label>
                 <input type="text" name="question_4_ans_1" autocomplete="off" />
+              </label>
             </div>
             <div class="field">
                 <label>Answer</label>
+              <label>
                 <input type="text" name="question_4_ans_2" autocomplete="off" />
+              </label>
             </div>
         </div>
         <div class="two fields">
             <div class="field">
                 <label>Answer</label>
+              <label>
                 <input type="text" name="question_4_ans_3" autocomplete="off" />
+              </label>
             </div>
             <div class="field">
                 <label>Answer</label>
+              <label>
                 <input type="text" name="question_4_ans_4" autocomplete="off" />
+              </label>
             </div>
         </div>
       </div>
       <div class="ui segment basic question-input" id="question5">
           <div class="field">
               <label>Question</label>
+            <label>
               <input type="text" name="question_5" autocomplete="off" />
+            </label>
           </div>
           <div class="two fields">
               <div class="field">
                   <label>Correct Answer</label>
+                <label>
                   <input type="text" name="question_5_ans_1" autocomplete="off" />
+                </label>
               </div>
               <div class="field">
                   <label>Answer</label>
+                <label>
                   <input type="text" name="question_5_ans_2" autocomplete="off" />
+                </label>
               </div>
           </div>
           <div class="two fields">
               <div class="field">
                   <label>Answer</label>
+                <label>
                   <input type="text" name="question_5_ans_3" autocomplete="off" />
+                </label>
               </div>
               <div class="field">
                   <label>Answer</label>
+                <label>
                   <input type="text" name="question_5_ans_4" autocomplete="off" />
+                </label>
               </div>
           </div>
       </div>
@@ -196,9 +250,8 @@
         </div>
     </div>
 </div>
-</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
     function SelectQuestion(index, elem) {
@@ -206,7 +259,7 @@
         $(".question-select").addClass("basic");
         $(elem).removeClass("basic");
 
-        if (index == 0) {
+        if (index === 0) {
           $(".question-input").hide();
         }
         else if(!$("#question" + index).is(':visible')) {
@@ -220,15 +273,15 @@
 
     function UpdateQuestionSelectBtns() {
         $(".question-input").each(function(index) {
-            var anyEmpty = false;
+            let anyEmpty = false;
             $(this)
                 .find("input")
                 .each(function() {
-                    if ($(this).val() == "") {
+                    if ($(this).val() === "") {
                         anyEmpty = true;
                     }
                 });
-            var currentQuestion = $(".question-select").eq(index);
+            let currentQuestion = $(".question-select").eq(index);
             // invalid input
             if (anyEmpty) {
                 currentQuestion.removeClass("green");

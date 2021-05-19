@@ -97,28 +97,33 @@ content %}
                 >
                   <div class="field">
                     <label>Degree</label>
-                    <select name="degree_input">
-                      {% for item in degrees.degrees %} Degree: {% if
-                      item.degreeId == degree %}
-                      <option value="{{ item.degreeId }}" selected>
-                        {{ item.degree }}
-                      </option>
-                      {% else %}
-                      <option value="{{ item.degreeId }}">
-                        {{ item.degree }}
-                      </option>
-                      {% endif %} {% endfor %}
-                    </select>
+                    <label>
+                      <select name="degree_input">
+                        {% for item in degrees.degrees %} Degree: {% if
+                        item.degreeId == degree %}
+                        <option value="{{ item.degreeId }}" selected>
+                          {{ item.degree }}
+                        </option>
+                        {% else %}
+                        <option value="{{ item.degreeId }}">
+                          {{ item.degree }}
+                        </option>
+                        {% endif %} {% endfor %}
+                      </select>
+                    </label>
                   </div>
                   <div class="field">
                     <label>Bio</label>
-                    <textarea name="bio_input" rows="2" maxlength="160">
+                    <label>
+                      <textarea name="bio_input" rows="2" maxlength="160">
 {{ bio }}</textarea
-                    >
+                      >
+                    </label>
                   </div>
                   <div class="field">
                     <label>Gender</label>
-                    <select name="gender_input" id="">
+                    <label for=""></label
+                    ><select name="gender_input" id="">
                       {% if gender == "Male" %}
                       <option value="Male" selected>Male</option>
                       {% else %}
@@ -136,7 +141,9 @@ content %}
                   </div>
                   <div class="field">
                     <label>Birthday</label>
-                    <input name="dob_input" type="date" value="{{ date }}" />
+                    <label>
+                      <input name="dob_input" type="date" value="{{ date }}" />
+                    </label>
                   </div>
                   <div class="field">
                     <label>Profile Picture</label>
@@ -164,12 +171,14 @@ content %}
                     <div style="color: grey">
                       Use comma to separate the hobbies
                     </div>
-                    <input
-                      name="hobbies_input"
-                      type="text"
-                      placeholder="{% if hobbies != none %} {% for item in hobbies %} {{ item[0] }}, {% endfor %} {% endif %}"
-                      maxlength="24"
-                    />
+                    <label>
+                      <input
+                        name="hobbies_input"
+                        type="text"
+                        placeholder="{% if hobbies != none %} {% for item in hobbies %} {{ item[0] }}, {% endfor %} {% endif %}"
+                        maxlength="24"
+                      />
+                    </label>
                     <script src="../static/hobbies.js"></script>
                     <div class="ui divider hidden"></div>
                     <div class="ui grid container" name="hobby-div">
@@ -187,12 +196,14 @@ content %}
                     <div style="color: grey">
                       Use comma to separate the interests
                     </div>
-                    <input
-                      name="interests_input"
-                      type="text"
-                      maxlength="24"
-                      placeholder="{% if insterest != none %} {% for item in interests %} {{ item[0] }}, {% endfor %} {% endif %}"
-                    />
+                    <label>
+                      <input
+                        name="interests_input"
+                        type="text"
+                        maxlength="24"
+                        placeholder="{% if insterest != none %} {% for item in interests %} {{ item[0] }}, {% endfor %} {% endif %}"
+                      />
+                    </label>
                     <script src="../static/interests.js"></script>
                     <div class="ui divider hidden"></div>
                     <div class="ui grid container" name="interest-div">
@@ -219,7 +230,8 @@ content %}
                   <div class="two fields">
                     <div class="field">
                       <label><i class="icon facebook"></i> Facebook</label>
-                      <input
+                      <label for="facebook"></label
+                      ><input
                         type="text"
                         name="facebook"
                         id="facebook"
@@ -229,7 +241,8 @@ content %}
                     </div>
                     <div class="field">
                       <label><i class="icon twitter"></i> Twitter</label>
-                      <input
+                      <label for="twitter"></label
+                      ><input
                         type="text"
                         name="twitter"
                         id="twitter"
@@ -241,7 +254,8 @@ content %}
                   <div class="two fields">
                     <div class="field">
                       <label><i class="icon youtube"></i> YouTube</label>
-                      <input
+                      <label for="youtube"></label
+                      ><input
                         type="text"
                         name="youtube"
                         id="youtube"
@@ -251,7 +265,8 @@ content %}
                     </div>
                     <div class="field">
                       <label><i class="icon linkedin"></i> LinkedIn</label>
-                      <input
+                      <label for="linkedin"></label
+                      ><input
                         type="text"
                         name="linkedin"
                         id="linkedin"
@@ -263,7 +278,8 @@ content %}
                   <div class="two fields">
                     <div class="field">
                       <label><i class="icon instagram"></i> Instagram</label>
-                      <input
+                      <label for="instagram"></label
+                      ><input
                         type="text"
                         name="instagram"
                         id="instagram"
@@ -286,30 +302,34 @@ content %}
                 >
                   <div class="field">
                     <label>Select your profile page privacy settings:</label>
-                    <select
-                      name="privacy"
-                      onchange="DisplayPrivacyTooltip(this)"
-                    >
-                      {% if privacy == "public" %}
-                      <option value="public" selected>Public</option>
-                      {% else %}
-                      <option value="public">Public</option>
-                      {% endif %} {% if privacy == "protected" %}
-                      <option value="protected" selected>Protected</option>
-                      {% else %}
-                      <option value="protected">Protected</option>
-                      {% endif %} {% if privacy == "close_friends" %}
-                      <option value="close_friends" selected>
-                        Close friends only
-                      </option>
-                      {% else %}
-                      <option value="close_friends">Close friends only</option>
-                      {% endif %} {% if privacy == "private" %}
-                      <option value="private" selected>Private</option>
-                      {% else %}
-                      <option value="private">Private</option>
-                      {% endif %}
-                    </select>
+                    <label>
+                      <select
+                        name="privacy"
+                        onchange="DisplayPrivacyTooltip(this)"
+                      >
+                        {% if privacy == "public" %}
+                        <option value="public" selected>Public</option>
+                        {% else %}
+                        <option value="public">Public</option>
+                        {% endif %} {% if privacy == "protected" %}
+                        <option value="protected" selected>Protected</option>
+                        {% else %}
+                        <option value="protected">Protected</option>
+                        {% endif %} {% if privacy == "close_friends" %}
+                        <option value="close_friends" selected>
+                          Close friends only
+                        </option>
+                        {% else %}
+                        <option value="close_friends">
+                          Close friends only
+                        </option>
+                        {% endif %} {% if privacy == "private" %}
+                        <option value="private" selected>Private</option>
+                        {% else %}
+                        <option value="private">Private</option>
+                        {% endif %}
+                      </select>
+                    </label>
                   </div>
                   <button class="ui button submit">Save Changes</button>
                 </form>

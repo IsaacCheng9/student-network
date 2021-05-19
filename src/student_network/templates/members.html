@@ -15,7 +15,7 @@ content %}
     <div class="sixteen wide column">
       <div class="field">
         <div class="ui left icon input fluid">
-          <input
+          <label for="userInput"></label><input
             type="text"
             placeholder="Search users..."
             id="userInput"
@@ -28,7 +28,7 @@ content %}
     <div class="seven wide column">
       <div class="ui input fluid labeled">
         <div class="ui label teal">Search Hobby</div>
-        <input
+        <label for="hobbyInput"></label><input
           type="text"
           placeholder="Search for common hobby..."
           id="hobbyInput"
@@ -42,7 +42,7 @@ content %}
     <div class="seven wide column">
       <div class="ui input fluid labeled">
         <div class="ui label purple">Search Interest</div>
-        <input
+        <label for="interestInput"></label><input
           type="text"
           placeholder="Search for common interest..."
           id="interestInput"
@@ -59,38 +59,38 @@ content %}
 
 <script>
   function SearchUser() {
-    var xhttp;
-    var username = document.getElementById("userInput").value;
+    let xhttp;
+    let username = document.getElementById("userInput").value;
 
-    if (username == "") {
+    if (username === "") {
       document.getElementById("users").innerHTML = "";
     }
 
     xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 200) {
-        var json_response = JSON.parse(this.response);
+      if (this.readyState === 4 && this.status === 200) {
+        let json_response = JSON.parse(this.response);
         console.log(json_response);
 
         document.getElementById("users").innerHTML = "";
 
-        var hobby = document.getElementById("hobbyInput").value;
-        var interest = document.getElementById("interestInput").value;
+        let hobby = document.getElementById("hobbyInput").value;
+        let interest = document.getElementById("interestInput").value;
 
-        if (username == "" && hobby == "" && interest == "") {
+        if (username === "" && hobby === "" && interest === "") {
           return;
         }
 
-        for (var user of json_response) {
-          var extra = ``;
+        for (let user of json_response) {
+          let extra = ``;
 
-          var hobbyOrInterest = false;
+          let hobbyOrInterest = false;
 
-          if (user[1] != null && hobby != "") {
+          if (user[1] != null && hobby !== "") {
             extra += `<div class="description">Likes: <b>${user[1]}</b></div>`;
             hobbyOrInterest = true;
           }
-          if (user[2] != null && interest != "") {
+          if (user[2] != null && interest !== "") {
             extra += `<div class="description">Interested in: <b>${user[2]}</b></div>`;
             hobbyOrInterest = true;
           }
@@ -99,8 +99,8 @@ content %}
             extra = `<div class="description">Studying ${user[4]}</div>`;
           }
 
-          var html = `<div class="item">
-                                    <img class="ui avatar image" src="${user[3]}">
+          let html = `<div class="item">
+                                    <img class="ui avatar image" src="${user[3]}" alt="">
                                     <div class="content">
                                       <a class="header" href="./profile/${user[0]}">${user[0]}</a>
                                       ${extra}
@@ -112,8 +112,8 @@ content %}
       }
     };
 
-    var hobby = document.getElementById("hobbyInput").value;
-    var interest = document.getElementById("interestInput").value;
+    let hobby = document.getElementById("hobbyInput").value;
+    let interest = document.getElementById("interestInput").value;
 
     console.log(hobby, interest);
 

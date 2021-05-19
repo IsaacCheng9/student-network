@@ -44,11 +44,13 @@ content %}
     <h2>Search For a User:</h2>
     <div class="field">
       <div class="ui left icon input fluid">
-        <input
-          type="text"
-          placeholder="Search users..."
-          oninput="SearchUser(this.value);"
-        />
+        <label>
+          <input
+            type="text"
+            placeholder="Search users..."
+            oninput="SearchUser(this.value);"
+          />
+        </label>
         <i class="users icon"></i>
       </div>
     </div>
@@ -58,8 +60,8 @@ content %}
 </div>
 <script>
   function SearchUser(username) {
-    var xhttp;
-    if (username == "") {
+    let xhttp;
+    if (username === "") {
       document.getElementById("users").innerHTML = "";
       return;
     }
@@ -68,17 +70,17 @@ content %}
 
     xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 200) {
+      if (this.readyState === 4 && this.status === 200) {
         console.log(this.response);
-        var json_response = JSON.parse(this.response);
+        let json_response = JSON.parse(this.response);
 
         console.log(json_response);
 
         document.getElementById("users").innerHTML = "";
 
-        for (var user of json_response) {
-          var html = `<div class="item">
-                                    <img class="ui avatar image" src="${user[3]}">
+        for (let user of json_response) {
+          let html = `<div class="item">
+                                    <img class="ui avatar image" src="${user[3]}" alt="">
                                     <div class="content">
                                         <a class="header" href="./profile/${user[0]}">${user[0]}</a>
                                         <div class="description">Studying ${user[1]}</div>

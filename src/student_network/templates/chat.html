@@ -5,7 +5,7 @@ content %}
   .chat-message-body {
     max-width: 45%;
     display: block;
-    font-family: "Open Sans";
+    font-family: "Open Sans", sans-serif;
   }
 
   .chat-message-body img {
@@ -60,7 +60,9 @@ content %}
   <div class="ui grid">
     <div class="four wide column">
       <div class="ui input fluid small">
-        <input type="text" placeholder="Search" />
+        <label>
+          <input type="text" placeholder="Search" />
+        </label>
       </div>
       <div class="ui horizontal divider"></div>
       <div class="ui grid">
@@ -114,7 +116,7 @@ content %}
 
           <div class="ui input icon fluid">
             <i class="icon arrow up"></i>
-            <input
+            <label for="message-input"></label><input
               name=""
               rows="1"
               class="no-resize"
@@ -151,23 +153,23 @@ content %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 
 <script>
-  var socket = io.connect("http://" + document.domain + ":" + location.port);
+  let socket = io.connect("https://" + document.domain + ":" + location.port);
 
-  var private_socket = io(
-    "http://" + document.domain + ":" + location.port + "/private"
+  let private_socket = io(
+    "https://" + document.domain + ":" + location.port + "/private"
   );
 
   const username = "{{username}}";
   const room = "{{room}}";
 
-  var lastMessageUsername = "";
+  let lastMessageUsername = "";
 
   $("#chat-message-form").on("submit", function (e) {
     e.preventDefault();
 
-    var message = $("#message-input").val();
+    let message = $("#message-input").val();
 
-    var packet = {
+    let packet = {
       sender_username: username,
       username: room,
       message: message,
@@ -184,7 +186,7 @@ content %}
   });
 
   document.addEventListener("keydown", function (e) {
-    if (e.keyCode == 13) {
+    if (e.keyCode === 13) {
       e.preventDefault();
       $("#chat-message-form").submit();
     }
@@ -195,17 +197,17 @@ content %}
   });
 
   function NewChatMessage(msg) {
-    var extra =
-      msg.sender_username == username ? "right-floated" : "left-floated";
-    var usernameHTML = `<div class="username">${msg.sender_username}</div>`;
+    let extra =
+      msg.sender_username === username ? "right-floated" : "left-floated";
+    let usernameHTML = `<div class="username">${msg.sender_username}</div>`;
 
-    if (lastMessageUsername == msg.sender_username) {
+    if (lastMessageUsername === msg.sender_username) {
       usernameHTML = "";
     }
 
     lastMessageUsername = msg.sender_username;
 
-    var html = `<div class="row">
+    let html = `<div class="row">
                     <div class="chat-message-body ${extra}">
                         ${usernameHTML}
                         <div class="chat-message">

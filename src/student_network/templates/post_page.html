@@ -1,7 +1,7 @@
+{% extends "base.html" %}
 <meta property="og:title" content="{{ title }}" />
 <meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
 <meta property="og:description" content="{{ body|truncate(150) }}" />
-{% extends "base.html" %}
 {% block title %}Post{% endblock %}
 {% block content %}
 
@@ -81,7 +81,7 @@
       <div class="ui card fluid">
         <div class="content">
           <a href="/profile/{{ username }}" class="ui basic image label">
-            <img src="{{ avatar }}"/>
+            <img src="{{ avatar }}" alt=""/>
             {{ username }}
             <div class="detail">{{ account_type }}</div>
           </a>
@@ -101,7 +101,7 @@
           {% if type == "Image" %}
             <div class="image" style="text-align: center;">
               <img class="ui image" src="{{ content }}"
-                   style="max-height: 600px;">
+                   style="max-height: 600px;" alt="">
             </div>
           {% endif %}
           {% if type == "Link" %}
@@ -132,7 +132,7 @@
           <div class="content">
             <div class="ui comments">
               <form action="{{ url_for('posts.like_post') }}" class="ui reply form"
-                    id="likes" , method="POST">
+                    id="likes" method="POST">
                 <input type="hidden" name="postId" value="{{ postId }}">
               </form>
 
@@ -140,7 +140,7 @@
               {% for comment in comments["comments"] %}
                 <div class="comment">
                   <a class="avatar">
-                    <img src="{{ comment.profilePic }}"/>
+                    <img src="{{ comment.profilePic }}" alt=""/>
                   </a>
                   <div class="content">
                     <a class="author">{{ comment.username }}</a>
@@ -156,7 +156,7 @@
                     {% endif %}
                     <form action="{{ url_for('posts.delete_comment') }}"
                           class="ui reply form"
-                          id="deleteComment{{ comment.commentId }}" ,
+                          id="deleteComment{{ comment.commentId }}"
                           method="POST">
                       <input type="hidden" name="postId" value="{{ postId }}">
                       <input type="hidden" name="commentId"
@@ -175,23 +175,25 @@
             <div class="hidden content">
               <div>
                 <form action="{{ url_for('posts.submit_comment') }}"
-                      class="ui reply form" id="comment" , method="POST">
+                      class="ui reply form" id="comment" method="POST">
                   <input type="hidden" name="postId" value="{{ postId }}">
                   <div class="field">
-                    <textarea placeholder="Comment here"
-                              name="comment_text"></textarea>
+                    <label>
+<textarea placeholder="Comment here"
+          name="comment_text"></textarea>
+                    </label>
                 </form>
                 <form action="{{ url_for('posts.delete_post') }}" class="ui form"
-                      id="deletePost" , method="POST">
+                      id="deletePost" method="POST">
                   <input type="hidden" name="postId" value="{{ postId }}">
                 </form>
                 <br>
                 {% if session["username"] == username or user_account_type == "staff" %}
                   <input type="submit" value="Delete Post" form="deletePost"
-                         class="negative left floated ui button"></button>
+                         class="negative left floated ui button">
                 {% endif %}
                 <input type="submit" value="Post comment" form="comment"
-                       class="ui right floated blue button"></button>
+                       class="ui right floated blue button">
               </div>
             </div>
           </div>
