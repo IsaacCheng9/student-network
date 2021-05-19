@@ -269,7 +269,7 @@ def update_profile_achievements(username: str):
     # Award achievement ID 23 - Secret meeting
     # Set meeting to allow for secret achievement to be earned
     meeting_now = False
-    special_day = (0, 0)
+    special_day = (5, 27)
     today = date.today()
     if today.month == special_day[0]:
         if today.day == special_day[1]:
