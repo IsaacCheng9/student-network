@@ -7,6 +7,9 @@ import os
 import sqlite3
 from datetime import datetime
 
+from flask import Flask, request, session
+from flask_socketio import SocketIO
+
 import student_network.views.achievements as achievements
 import student_network.views.chat as chat
 import student_network.views.connections as connections
@@ -15,8 +18,6 @@ import student_network.views.posts as posts
 import student_network.views.profile as profile
 import student_network.views.quizzes as quizzes
 import student_network.views.staff as staff
-from flask import Flask, request, session
-from flask_socketio import SocketIO
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")

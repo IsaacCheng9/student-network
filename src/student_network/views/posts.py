@@ -4,11 +4,7 @@ Handles the view for posts on the feed and related functionality.
 
 import sqlite3
 from datetime import datetime
-from urllib.parse import parse_qs
-from urllib.parse import urlparse
-
-from flask import Blueprint, render_template, redirect, jsonify
-from flask import request, session
+from urllib.parse import parse_qs, urlparse
 
 import student_network.helpers.helper_achievements as helper_achievements
 import student_network.helpers.helper_connections as helper_connections
@@ -17,6 +13,8 @@ import student_network.helpers.helper_login as helper_login
 import student_network.helpers.helper_posts as helper_posts
 import student_network.helpers.helper_profile as helper_profile
 import student_network.helpers.helper_quizzes as helper_quizzes
+from flask import (Blueprint, jsonify, redirect, render_template, request,
+                   session)
 
 posts_blueprint = Blueprint(
     "posts", __name__, static_folder="static", template_folder="templates"

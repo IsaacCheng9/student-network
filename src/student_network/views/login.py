@@ -6,13 +6,10 @@ import sqlite3
 from datetime import date
 from string import capwords
 
-from flask import Blueprint
-from flask import render_template, redirect
-from flask import request, session
-from passlib.hash import sha256_crypt
-
 import student_network.helpers.helper_connections as helper_connections
 import student_network.helpers.helper_login as helper_login
+from flask import Blueprint, redirect, render_template, request, session
+from passlib.hash import sha256_crypt
 
 login_blueprint = Blueprint(
     "login", __name__, static_folder="static", template_folder="templates"

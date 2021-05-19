@@ -5,15 +5,12 @@ Handles the view for user profiles and related functionality.
 import sqlite3
 from datetime import datetime
 
-from flask import Blueprint
-from flask import render_template, redirect
-from flask import request, session
-
 import student_network.helpers.helper_achievements as helper_achievements
 import student_network.helpers.helper_connections as helper_connections
 import student_network.helpers.helper_general as helper_general
 import student_network.helpers.helper_login as helper_login
 import student_network.helpers.helper_profile as helper_profile
+from flask import Blueprint, redirect, render_template, request, session
 
 profile_blueprint = Blueprint(
     "profile", __name__, static_folder="static", template_folder="templates"
