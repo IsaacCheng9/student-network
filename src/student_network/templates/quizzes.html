@@ -145,32 +145,32 @@
             </div>
         </div>
       </div>
-        <div class="ui segment basic question-input" id="question5">
-            <div class="field">
-                <label>Question</label>
-                <input type="text" name="question_5" autocomplete="off" />
-            </div>
-            <div class="two fields">
-                <div class="field">
-                    <label>Correct Answer</label>
-                    <input type="text" name="question_5_ans_1" autocomplete="off" />
-                </div>
-                <div class="field">
-                    <label>Answer</label>
-                    <input type="text" name="question_5_ans_2" autocomplete="off" />
-                </div>
-            </div>
-            <div class="two fields">
-                <div class="field">
-                    <label>Answer</label>
-                    <input type="text" name="question_5_ans_3" autocomplete="off" />
-                </div>
-                <div class="field">
-                    <label>Answer</label>
-                    <input type="text" name="question_5_ans_4" autocomplete="off" />
-                </div>
-            </div>
-        </div>
+      <div class="ui segment basic question-input" id="question5">
+          <div class="field">
+              <label>Question</label>
+              <input type="text" name="question_5" autocomplete="off" />
+          </div>
+          <div class="two fields">
+              <div class="field">
+                  <label>Correct Answer</label>
+                  <input type="text" name="question_5_ans_1" autocomplete="off" />
+              </div>
+              <div class="field">
+                  <label>Answer</label>
+                  <input type="text" name="question_5_ans_2" autocomplete="off" />
+              </div>
+          </div>
+          <div class="two fields">
+              <div class="field">
+                  <label>Answer</label>
+                  <input type="text" name="question_5_ans_3" autocomplete="off" />
+              </div>
+              <div class="field">
+                  <label>Answer</label>
+                  <input type="text" name="question_5_ans_4" autocomplete="off" />
+              </div>
+          </div>
+      </div>
 
         <input type="submit" value="Create Quiz" class="ui button teal" />
     </form>
@@ -202,13 +202,17 @@
 
 <script>
     function SelectQuestion(index, elem) {
+      
         $(".question-select").addClass("basic");
         $(elem).removeClass("basic");
 
-        $(".question-input").hide(300);
-        $("#question" + index).show(300);
+        if(!$("#question" + index).is(':visible')) {
+          $(".question-input").hide(300);
+          $("#question" + index).show(300);
+        }
 
         UpdateQuestionSelectBtns();
+      
     }
 
     function UpdateQuestionSelectBtns() {
@@ -221,7 +225,6 @@
                         anyEmpty = true;
                     }
                 });
-
             var currentQuestion = $(".question-select").eq(index);
             // invalid input
             if (anyEmpty) {
