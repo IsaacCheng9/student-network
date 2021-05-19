@@ -343,6 +343,7 @@ def submit_post() -> object:
             helper_quizzes.add_quiz(
                 author, date_created, post_privacy, questions, quiz_name
             )
+            return redirect("quizzes")
         else:
             session["error"] = message
             return redirect("quizzes")
