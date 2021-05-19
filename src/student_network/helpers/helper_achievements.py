@@ -271,9 +271,8 @@ def update_profile_achievements(username: str):
     meeting_now = False
     special_day = (5, 27)
     today = date.today()
-    if today.month == special_day[0]:
-        if today.day == special_day[1]:
-            meeting_now = True
+    if today.month == special_day[0] and today.day == special_day[1]:
+        meeting_now = True
     if session["username"] and meeting_now:
         apply_achievement(session["username"], 23)
 
