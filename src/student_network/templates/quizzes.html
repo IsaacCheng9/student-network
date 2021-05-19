@@ -206,7 +206,10 @@
         $(".question-select").addClass("basic");
         $(elem).removeClass("basic");
 
-        if(!$("#question" + index).is(':visible')) {
+        if (index == 0) {
+          $(".question-input").hide();
+        }
+        else if(!$("#question" + index).is(':visible')) {
           $(".question-input").hide(300);
           $("#question" + index).show(300);
         }
