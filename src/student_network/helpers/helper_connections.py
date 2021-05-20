@@ -211,18 +211,18 @@ def get_recommended_connections(username: str) -> list:
         return mutual_connections
 
 
-def is_close_friend(username: str) -> bool:
+def is_close_friend(username1: str, username2: str) -> bool:
     """
-    Gets whether the selected user has the logged in as a close friend.
+    Gets whether the selected user1 has user2 as a close friend.
 
     Returns:
-        Whether the user is a close friend of the user (True/False).
+        Whether the user2 is a close friend of user1 (True/False).
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
-            (session["username"], username),
+            (username1, username2),
         )
         if cur.fetchone():
             return True

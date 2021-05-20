@@ -91,14 +91,20 @@ def profile(username: str) -> object:
             sort_posts = cur.fetchall()
         else:
             # Gets the connection type between the profile owner and the user.
-            cur.execute(
-                "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
-                (session["username"], username),
+            thier_close_friend = helper_connections.is_close_friend(
+                username, session["username"]
             )
-            if cur.fetchone() is None:
+            your_close_friend = helper_connections.is_close_friend(
+                session["username"], username
+            )
+            if not your_close_friend:
                 conn_type = helper_connections.get_connection_type(username)
-                if conn_type == "connected" and privacy == "close_friends":
-                    message.append("This profile is available only to connections")
+                if conn_type == "blocked":
+                    message.append(
+                        "Unable to view this profile since "
+                        + username
+                        + " has blocked you."
+                    )
                     session["prev-page"] = request.url
                     return render_template(
                         "error.html",
@@ -106,26 +112,19 @@ def profile(username: str) -> object:
                         requestCount=helper_connections.get_connection_request_count(),
                         notifications=helper_general.get_notifications(),
                     )
-            elif conn_type == "blocked":
-                message.append(
-                    "Unable to view this profile since "
-                    + username
-                    + " has blocked you."
-                )
-                session["prev-page"] = request.url
-                return render_template(
-                    "error.html",
-                    message=message,
-                    requestCount=helper_connections.get_connection_request_count(),
-                    notifications=helper_general.get_notifications(),
-                )
+                elif privacy in ("close_friends", "private"):
+                    message.append("This profile is private")
+                    session["prev-page"] = request.url
+                    return render_template(
+                        "error.html",
+                        message=message,
+                        requestCount=helper_connections.get_connection_request_count(),
+                        notifications=helper_general.get_notifications(),
+                    )
             else:
                 conn_type = "close_friend"
                 if privacy == "private":
-                    message.append(
-                        "This profile is only available to close friends. "
-                        "Please try viewing it after logging in."
-                    )
+                    message.append("This profile is private.")
                     session["prev-page"] = request.url
                     return render_template(
                         "error.html",
@@ -142,23 +141,28 @@ def profile(username: str) -> object:
                 count += 1
             if session["username"] in connections:
                 # check if user trying to view profile is a close friend
-                if conn_type == "close_friend":
+                if thier_close_friend:
                     cur.execute(
                         "SELECT * "
-                        "FROM POSTS WHERE username=? AND (privacy!='private')",
+                        "FROM POSTS WHERE username=? "
+                        "AND privacy!='private' "
+                        "AND privacy!='deleted' ",
                         (username,),
                     )
                     sort_posts = cur.fetchall()
                 else:
                     cur.execute(
-                        "SELECT * FROM POSTS WHERE username=? "
-                        "AND (privacy!='private' or privacy!='close') ",
+                        "SELECT * "
+                        "FROM POSTS WHERE username=? "
+                        "AND privacy!='close' "
+                        "AND privacy!='private' "
+                        "AND privacy!='deleted' ",
                         (username,),
                     )
                     sort_posts = cur.fetchall()
             else:
                 cur.execute(
-                    "SELECT * FROM POSTS WHERE username=? " "AND (privacy=='public') ",
+                    "SELECT * FROM POSTS WHERE username=? " "AND privacy=='public' ",
                     (username,),
                 )
                 sort_posts = cur.fetchall()
@@ -190,6 +194,9 @@ def profile(username: str) -> object:
         elif user_post[5] == "private":
             privacy = "Private"
             icon = "lock"
+        elif user_post[5] == "deleted":
+            privacy = "Deleted"
+            icon = "small trash alternate outline icon"
         else:
             privacy = str(user_post[5]).capitalize()
             icon = "users"

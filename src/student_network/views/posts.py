@@ -75,7 +75,9 @@ def post(post_id: int) -> object:
                     else:
                         # If the user and author are connected, check that they
                         # are close friends.
-                        connection = helper_connections.is_close_friend(username)
+                        connection = helper_connections.is_close_friend(
+                            session["username"], username
+                        )
                         if connection is not True:
                             if privacy == "close":
                                 return render_template(
@@ -373,7 +375,7 @@ def submit_post() -> object:
                 cur = conn.cursor()
                 # Get account type
                 cur.execute(
-                    "SELECT type FROM ACCOUNTS " "WHERE username=?;",
+                    "SELECT type FROM ACCOUNTS WHERE username=?;",
                     (session["username"],),
                 )
                 account_type = cur.fetchone()[0]
@@ -557,7 +559,10 @@ def delete_post() -> object:
         if row[0] is None:
             message.append("Error: this post does not exist")
         else:
-            cur.execute("DELETE FROM POSTS WHERE postId=?", (post_id,))
+            # cur.execute("DELETE FROM POSTS WHERE postId=?", (post_id,))
+            cur.execute(
+                "UPDATE POSTS " "SET privacy=? " "WHERE postId=?", ("deleted", post_id)
+            )
             conn.commit()
 
     message.append("Post has been deleted successfully.")

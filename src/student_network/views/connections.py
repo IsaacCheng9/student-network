@@ -352,7 +352,11 @@ def show_connect_requests() -> object:
         # Adds a close friend to the list, and sorts by close friends first.
         connections = list(
             map(
-                lambda x: (x[0], x[1], helper_connections.is_close_friend(x[0])),
+                lambda x: (
+                    x[0],
+                    x[1],
+                    helper_connections.is_close_friend(session["username"], x[0]),
+                ),
                 connections,
             )
         )
