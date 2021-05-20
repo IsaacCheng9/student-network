@@ -611,10 +611,24 @@ def delete_comment() -> object:
 
 @posts_blueprint.route("/upload_file", methods=["POST"])
 def upload_file():
+    max_file_upload = 10
+    file_names = []
     if request.files:
-        print(request.files)
+        for fileName in request.files:
+            file = request.files[fileName]
 
-        for file in request.files:
-            print(request.files[file])
+            fileName = helper_posts.upload_image(file)
+            file_names.append(fileName)
 
+            max_file_upload -= 1
+            if max_file_upload <= 0: break
+
+    return jsonify(file_names)
+
+@posts_blueprint.route("/delete_file", methods=["POST"])
+def delete_file():
+    fileName = request.args.get("filename")
+
+    print(fileName)
+    
     return "200"
