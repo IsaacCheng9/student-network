@@ -213,7 +213,7 @@ def get_recommended_connections(username: str) -> list:
 
 def is_close_friend(username1: str, username2: str) -> bool:
     """
-    Gets whether the selected user1 has user2 in as a close friend.
+    Gets whether the selected user1 has user2 as a close friend.
 
     Returns:
         Whether the user2 is a close friend of user1 (True/False).
