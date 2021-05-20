@@ -154,10 +154,10 @@ content %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 
 <script>
-  let socket = io.connect("https://" + document.domain + ":" + location.port);
+  let socket = io.connect("http://" + document.domain + ":" + location.port);
 
   let private_socket = io(
-    "https://" + document.domain + ":" + location.port + "/private"
+    "http://" + document.domain + ":" + location.port + "/private"
   );
 
   const username = "{{username}}";
