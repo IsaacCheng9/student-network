@@ -87,8 +87,10 @@ def profile(username: str) -> object:
         if username == session["username"]:
             # Gets the user's posts regardless of post settings if user is the
             # owner of the profile.
-            cur.execute("SELECT * FROM POSTS WHERE username=? "
-            "AND privacy!='deleted'", (username,))
+            cur.execute(
+                "SELECT * FROM POSTS WHERE username=? " "AND privacy!='deleted'",
+                (username,),
+            )
             sort_posts = cur.fetchall()
         else:
             # Gets the connection type between the profile owner and the user.
