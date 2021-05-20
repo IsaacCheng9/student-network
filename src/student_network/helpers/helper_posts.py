@@ -64,7 +64,15 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
             connections.append((session["username"],))
             row = []
             for user in connections:
-                if (
+                if user[0] == session["username"]:
+                    cur.execute(
+                        "SELECT * FROM POSTS "
+                        "WHERE username=? AND postId <= ? "
+                        "AND privacy!='deleted' "
+                        "ORDER BY postId DESC LIMIT ?;",
+                        (user[0], starting_id, number),
+                    )
+                elif (
                     helper_connections.is_close_friend(user[0], session["username"])
                     or user[0] == session["username"]
                 ):
