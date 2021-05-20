@@ -32,7 +32,7 @@ def show_staff_requests() -> object:
             requests = []
             cur = conn.cursor()
             # Extracts incoming requests.
-            cur.execute("SELECT username FROM ACCOUNTS " "WHERE type='pending_staff';")
+            cur.execute("SELECT username FROM ACCOUNTS WHERE type='pending_staff';")
             conn.commit()
             row = cur.fetchall()
             request_count = helper_connections.get_connection_request_count()
@@ -65,7 +65,7 @@ def accept_staff(username: str):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "UPDATE ACCOUNTS SET type=? " " WHERE username=? ;", ("staff", username)
+            "UPDATE ACCOUNTS SET type=? WHERE username=? ;", ("staff", username)
         )
     return redirect("/admin")
 
@@ -84,6 +84,6 @@ def reject_staff(username: str):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "UPDATE ACCOUNTS SET type=? " " WHERE username=? ;", ("student", username)
+            "UPDATE ACCOUNTS SET type=? WHERE username=? ;", ("student", username)
         )
     return redirect("/admin")
