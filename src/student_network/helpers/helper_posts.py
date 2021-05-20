@@ -83,7 +83,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                         (user[0], starting_id, number),
                     )
                 row += cur.fetchall()
-                
+
             # Sort reverse chronologically
             row = sorted(row, key=lambda x: x[0], reverse=True)
             i = 0
