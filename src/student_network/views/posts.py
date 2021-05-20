@@ -608,3 +608,13 @@ def delete_comment() -> object:
             conn.commit()
 
     return redirect("post_page/" + post_id)
+
+@posts_blueprint.route("/upload_file", methods=["POST"])
+def upload_file():
+    if request.files:
+        print(request.files)
+
+        for file in request.files:
+            print(request.files[file])
+
+    return "200"
