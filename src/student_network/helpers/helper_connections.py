@@ -135,7 +135,9 @@ def get_connection_type(username: str):
                 return None
 
 
-def get_mutual_connections(mutual_connections: list, mutual: str, recommend_type: str) -> list:
+def get_mutual_connections(
+    mutual_connections: list, mutual: str, recommend_type: str
+) -> list:
     """
     Args:
         mutual_connections: List of mutual connections with the user.
@@ -158,6 +160,7 @@ def get_mutual_connections(mutual_connections: list, mutual: str, recommend_type
 
     return mutual_connections
 
+
 def get_pending_connections(cur, username: str) -> list:
     """
     Gets pending and requested connections for a user.
@@ -174,40 +177,30 @@ def get_pending_connections(cur, username: str) -> list:
     )
     return cur.fetchall()
 
+
 def get_mutual_hobbies(cur, username: str) -> list:
 
-    cur.execute(
-        "SELECT hobby FROM UserHobby "
-        "WHERE username=?;", (username,)
-    )
+    cur.execute("SELECT hobby FROM UserHobby " "WHERE username=?;", (username,))
     hobbies = [x[0] for x in cur.fetchall()]
     shared_users = {}
     for hobby in hobbies:
-        cur.execute(
-            "SELECT username FROM UserHobby "
-            "WHERE hobby=?;", (hobby,)
-        )
-        same_users = [x[0] for x in cur.fetchall() if not x[0]==username]
+        cur.execute("SELECT username FROM UserHobby " "WHERE hobby=?;", (hobby,))
+        same_users = [x[0] for x in cur.fetchall() if not x[0] == username]
         shared_users[hobby] = same_users
 
     print(shared_users)
 
     return shared_users
 
+
 def get_mutual_interests(cur, username: str) -> list:
 
-    cur.execute(
-        "SELECT interest FROM UserInterests "
-        "WHERE username=?;", (username,)
-    )
+    cur.execute("SELECT interest FROM UserInterests " "WHERE username=?;", (username,))
     hobbies = [x[0] for x in cur.fetchall()]
     shared_users = {}
     for hobby in hobbies:
-        cur.execute(
-            "SELECT username FROM UserInterests "
-            "WHERE interest=?;", (hobby,)
-        )
-        same_users = [x[0] for x in cur.fetchall() if not x[0]==username]
+        cur.execute("SELECT username FROM UserInterests " "WHERE interest=?;", (hobby,))
+        same_users = [x[0] for x in cur.fetchall() if not x[0] == username]
         shared_users[hobby] = same_users
 
     print(shared_users)
@@ -228,7 +221,7 @@ def get_recommended_connections(username: str) -> list:
         cur = conn.cursor()
         pending = [x[0] for x in get_pending_connections(cur, username)]
         recommend_type = "mutual connection"
-        #for count, pend in enumerate(pending):
+        # for count, pend in enumerate(pending):
         #    pending[count] = pend[0]
         connections = [x[0] for x in helper_general.get_all_connections(username)]
         mutual_connections = []
@@ -242,7 +235,7 @@ def get_recommended_connections(username: str) -> list:
 
         hobbies = get_mutual_hobbies(cur, session["username"])
         interests = get_mutual_interests(cur, session["username"])
-        ''''''
+        """"""
         if len(mutual_connections) < 5:
             degree = helper_profile.get_degree(session["username"])
             if degree[0] != 1:
@@ -259,7 +252,6 @@ def get_recommended_connections(username: str) -> list:
                             )
                     else:
                         break
-        
 
         return mutual_connections
 
