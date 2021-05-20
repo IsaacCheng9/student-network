@@ -71,14 +71,14 @@ content %}
       </div>
       <img class="ui avatar image" src="{{ connection[1] }}" />
       <div class="content">
+        <a href="{{ url_for('profile.profile', username=connection[0]) }}"
+          >{{ connection[0] }}</a
+        >
         {% if connection[2]%}
         <span data-tooltip="Close Friends">
           <i class="handshake outline icon"></i>
         </span>
         {%endif%}
-        <a href="{{ url_for('profile.profile', username=connection[0]) }}"
-          >{{ connection[0] }}</a
-        >
       </div>
     </div>
     {% endfor %}

@@ -11,6 +11,7 @@ from typing import Tuple
 import student_network.helpers.helper_achievements as helper_achievements
 import student_network.helpers.helper_general as helper_general
 import student_network.helpers.helper_profile as helper_profile
+import student_network.helpers.helper_connections as helper_connections
 from PIL import Image
 from flask import request, session
 from werkzeug.utils import secure_filename
@@ -63,14 +64,26 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
             connections.append((session["username"],))
             row = []
             for user in connections:
-                cur.execute(
-                    "SELECT * FROM POSTS "
-                    "WHERE username=? AND postId <= ?"
-                    "AND privacy!='private' AND privacy!='close' "
-                    "ORDER BY postId DESC LIMIT ?;",
-                    (user[0], starting_id, number),
-                )
+                if helper_connections.is_close_friend(user[0], session["username"]):
+                    cur.execute(
+                        "SELECT * FROM POSTS "
+                        "WHERE username=? AND postId <= ? "
+                        "AND privacy!='private' "
+                        "AND privacy!='deleted' "
+                        "ORDER BY postId DESC LIMIT ?;",
+                        (user[0], starting_id, number),
+                    )
+                else:
+                    cur.execute(
+                        "SELECT * FROM POSTS "
+                        "WHERE username=? AND postId <= ? "
+                        "AND privacy!='private' AND privacy!='close' "
+                        "AND privacy!='deleted' "
+                        "ORDER BY postId DESC LIMIT ?;",
+                        (user[0], starting_id, number),
+                    )
                 row += cur.fetchall()
+                
             # Sort reverse chronologically
             row = sorted(row, key=lambda x: x[0], reverse=True)
             i = 0
