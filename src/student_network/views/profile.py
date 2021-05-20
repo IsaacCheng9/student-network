@@ -194,6 +194,9 @@ def profile(username: str) -> object:
         elif user_post[5] == "private":
             privacy = "Private"
             icon = "lock"
+        elif user_post[5] == "deleted":
+            privacy = "Deleted"
+            icon = "small trash alternate outline icon"
         else:
             privacy = str(user_post[5]).capitalize()
             icon = "users"
