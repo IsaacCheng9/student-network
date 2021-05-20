@@ -41,7 +41,7 @@ def show_staff_requests() -> object:
                     requests.append(elem[0])
 
             return render_template(
-                "admin.html", requests=requests, requestCount=request_count
+                "admin.html", requests=requests, requestCount=helper_connections.get_connection_request_count()
             )
     else:
         return render_template(
