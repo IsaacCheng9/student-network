@@ -217,6 +217,10 @@ def upload_image(file):
         img.save(file_path + ".jpg")
     return file_name_hashed
 
+def delete_file(filename):
+    file_path = os.path.join("./static/images"+ "//post_imgs", filename)
+    os.remove(file_path)
+
 
 def update_submission_achievements(cur):
     """

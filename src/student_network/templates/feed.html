@@ -81,7 +81,7 @@
     }
 
     .inputfile+label {
-        font-size: 1.25em;
+        font-size: 1em;
         font-weight: 700;
         background-color: #eeeeee;
         display: inline-block;
@@ -102,29 +102,36 @@
         outline: 1px dotted #000;
         outline: -webkit-focus-ring-color auto 5px;
     }
-    
+
     .image-preview {
         position: relative;
         display: inline-block;
         margin: 1em;
         padding: 1em;
     }
-    
+
     .image-preview:hover .image-preview-overlay {
-        background-color: rgba(51, 51, 51, 0.8);
+        opacity: 1;
     }
-    
+
     .image-preview-overlay {
+        cursor: pointer;
+        user-select: none;
         position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
         display: flex;
         vertical-align: middle;
-        text-align: center;
+        color: #f1f1f1;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        bottom: 0;
+        background-color: rgba(51, 51, 51, 0.6);
+        transition: .5s ease;
+        opacity: 0;
         color: white;
-        z-index: 10;
+        text-align: center;
+        font-size: 16px;
+        padding: 16px;
     }
 
 </style>
@@ -153,7 +160,9 @@
 
                     <input type="file" class="inputfile" name="files" id="files" multiple accept="image/*">
                     <label for="files"><i class="icon image"></i> Upload images</label>
-
+                    
+                    <input type="hidden" name="allFileNames" value="" id="allFileNames">
+                    
                     <div class="ui progress tiny" id="image-upload-progress" style="display: none;">
                         <div class="bar" id="image-upload-progress-bar">
                             <div class="progress"></div>
@@ -367,7 +376,6 @@
             formData.append(file.name, file);
         }
 
-
         let xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
             if (this.readyState === 4 && this.status === 200) {
@@ -376,11 +384,12 @@
                 for (var i = 0; i < arr.length; i++) {
                     var url = URL.createObjectURL(fileList[i]);
                     document.getElementById("image-preview").innerHTML += `
-                    <div class="image-preview">
+                    <div class="image-preview" data-file="${arr[i]}">
                         <img src="${url}">
-                        <div class="image-preview-overlay" onclick="deleteFile('${arr[i]}')">Delete</div>
+                        <div class="image-preview-overlay" onclick="deleteFile('${arr[i]}')"> <i class="icon delete"></i> Delete</div>
                     </div>`
                 }
+                document.getElementById("allFileNames").value = arr.join(",");
             }
         };
         xhttp.addEventListener("progress", function(event) {
@@ -395,6 +404,9 @@
 
         deleteImageCall.open("POST", "delete_file?filename=" + fileName);
         deleteImageCall.send();
+        
+        var elem = document.querySelector("[data-file='"+fileName+"']");
+        elem.parentNode.removeChild(elem);
     }
 
     function ShowPreview() {

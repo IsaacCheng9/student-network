@@ -327,33 +327,19 @@ def submit_post() -> object:
     Returns:
         Updated feed with new post added
     """
-    valid = True
-    form_type = request.form.get("form_type")
+    valid = False
     post_privacy = request.form.get("privacy")
 
-    post_title = request.form["post_title"]
     post_body = request.form["post_text"]
 
-    if form_type == "Image":
-        file = request.files["file"]
-        if not file:
-            valid = False
-        if valid:
-            file_name_hashed = helper_posts.upload_image(file)
-        elif file:
-            valid = False
+    allFileNames = request.form["allFileNames"].split(",") # comma separated string
 
-    elif form_type == "Link":
-        link = request.form.get("link")
-        if helper_posts.validate_youtube(link):
-            data = urlparse(link)
-            query = parse_qs(data.query)
-            video_id = query["v"][0]
-        else:
-            valid = False
+    # user needs to upload some data to proceed
+    if len(allFileNames) > 0: valid = True
+    if len(post_body) > 0: valid = True
 
     # Only adds the post if a title has been input.
-    if post_title != "" and valid is True:
+    if valid is True:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             # Get account type
@@ -363,10 +349,13 @@ def submit_post() -> object:
             )
             account_type = cur.fetchone()[0]
 
+            row_id = cur.lastrowid + 1
+
             cur.execute(
-                "INSERT INTO POSTS (body, username,"
-                "privacy) VALUES (?, ?, ?);",
+                "INSERT INTO POSTS (postId, body, username,"
+                "privacy) VALUES (?, ?, ?, ?);",
                 (
+                    row_id,
                     post_body,
                     session["username"],
                     post_privacy,
@@ -374,23 +363,17 @@ def submit_post() -> object:
             )
             conn.commit()
 
-            if form_type == "Image" and valid is True:
+            for fileName in allFileNames:
                 cur.execute(
                     "INSERT INTO PostContent (postId, contentUrl) "
                     "VALUES (?, ?);",
                     (
-                        cur.lastrowid,
-                        "/static/images/post_imgs/" + file_name_hashed + ".jpg",
+                        row_id,
+                        fileName,
                     ),
                 )
-                conn.commit()
-            elif form_type == "Link":
-                cur.execute(
-                    "INSERT INTO PostContent (postId, contentUrl) "
-                    "VALUES (?, ?);",
-                    (cur.lastrowid, video_id),
-                )
-                conn.commit()
+
+            conn.commit()
 
             helper_posts.update_submission_achievements(cur)
     else:
@@ -608,7 +591,10 @@ def upload_file():
 @posts_blueprint.route("/delete_file", methods=["POST"])
 def delete_file():
     fileName = request.args.get("filename")
+    # try and prevent escaping this path
+    fileName.replace(".", "")
+    fileName.replace("/", "")
 
-    print(fileName)
+    helper_posts.delete_file(fileName+".jpg")
     
     return "200"
