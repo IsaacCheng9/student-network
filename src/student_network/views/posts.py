@@ -559,9 +559,8 @@ def delete_post() -> object:
         if row[0] is None:
             message.append("Error: this post does not exist")
         else:
-            # cur.execute("DELETE FROM POSTS WHERE postId=?", (post_id,))
             cur.execute(
-                "UPDATE POSTS " "SET privacy=? " "WHERE postId=?", ("deleted", post_id)
+                "UPDATE POSTS SET privacy=? WHERE postId=?;", ("deleted", post_id)
             )
             conn.commit()
 
