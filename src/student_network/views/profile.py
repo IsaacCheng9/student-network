@@ -91,8 +91,12 @@ def profile(username: str) -> object:
             sort_posts = cur.fetchall()
         else:
             # Gets the connection type between the profile owner and the user.
-            thier_close_friend = helper_connections.is_close_friend(username, session["username"])
-            your_close_friend = helper_connections.is_close_friend(session["username"], username)
+            thier_close_friend = helper_connections.is_close_friend(
+                username, session["username"]
+            )
+            your_close_friend = helper_connections.is_close_friend(
+                session["username"], username
+            )
             if not your_close_friend:
                 conn_type = helper_connections.get_connection_type(username)
                 if conn_type == "blocked":
@@ -158,8 +162,7 @@ def profile(username: str) -> object:
                     sort_posts = cur.fetchall()
             else:
                 cur.execute(
-                    "SELECT * FROM POSTS WHERE username=? "
-                    "AND privacy=='public' ",
+                    "SELECT * FROM POSTS WHERE username=? " "AND privacy=='public' ",
                     (username,),
                 )
                 sort_posts = cur.fetchall()
