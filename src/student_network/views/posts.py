@@ -44,6 +44,7 @@ def post(post_id: int) -> object:
             return render_template(
                 "error.html",
                 message=["This post does not exist."],
+                requestCount=helper_connections.get_connection_request_count()
             )
         privacy = row[0]
         username = row[1]
