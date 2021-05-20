@@ -476,9 +476,7 @@ def edit_profile() -> object:
                 # user made a new input.
 
                 cur.execute("DELETE FROM UserHobby WHERE username=?;", (username,))
-                cur.execute(
-                    "DELETE FROM UserInterests WHERE username=?;", (username,)
-                )
+                cur.execute("DELETE FROM UserInterests WHERE username=?;", (username,))
                 if hobbies != [""]:
                     for hobby in hobbies:
                         cur.execute(

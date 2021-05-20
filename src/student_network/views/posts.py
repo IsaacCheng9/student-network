@@ -36,9 +36,7 @@ def post(post_id: int) -> object:
     # check post restrictions
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute(
-            "SELECT privacy, username FROM POSTS WHERE postId=?;", (post_id,)
-        )
+        cur.execute("SELECT privacy, username FROM POSTS WHERE postId=?;", (post_id,))
         row = cur.fetchone()
         if row is None:
             return render_template(
@@ -68,9 +66,7 @@ def post(post_id: int) -> object:
                         if privacy == "protected":
                             return render_template(
                                 "error.html",
-                                message=[
-                                    "This post is only available to connections."
-                                ],
+                                message=["This post is only available to connections."],
                             )
                     else:
                         # If the user and author are connected, check that they
