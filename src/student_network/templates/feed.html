@@ -290,47 +290,6 @@
       ></iframe>
     </div>
     {%endif%}
-
-    <!--
-        <div class="sixteen wide column" style="margin: 0; padding: 0;">
-            <div class="ui divider"></div>
-
-            <div class="ui two buttons fluid">
-                <button class="ui button icon fluid basic"><i class="icon heart"></i>Like</button>
-                <button class="ui button icon fluid basic"><i class="icon comment"></i>Comment</button>
-            </div>
-
-            <div class="ui divider"></div>
-        </div>
--->
-    <div class="sixteen wide column">
-      <div>
-        {{ post.comment_count }} comments &nbsp;&nbsp; {{ post.like_count }}
-        <i class="heart icon"></i>
-      </div>
-      {% if post.comment_count > 0 %}
-      <a href="/post_page/{{ post.postId }}">Show all comments</a>
-      {% endif %}
-      <div class="ui comments">
-        <div class="comment">
-          <a class="avatar">
-            <img src="https://via.placeholder.com/200" alt="" />
-          </a>
-          <div class="content">
-            <a class="author">Matt</a>
-            <div class="metadata">
-              <span class="date">Today</span>
-            </div>
-            <div class="text">
-              I cant figue out how to get each posts comments on the feed
-            </div>
-          </div>
-        </div>
-      </div>
-      <a href="/post_page/{{ post.postId }}">Write a comment</a>
-    </div>
-  </div>
-</div>
 {% endfor %}
 
 <div class="ui message orange">
