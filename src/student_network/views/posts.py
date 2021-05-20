@@ -331,91 +331,71 @@ def submit_post() -> object:
     form_type = request.form.get("form_type")
     post_privacy = request.form.get("privacy")
 
-    if form_type == "Quiz":
-        (
-            date_created,
-            author,
-            quiz_name,
-            questions,
-        ) = helper_quizzes.save_quiz_details()
-        valid, message = helper_quizzes.validate_quiz(quiz_name, questions)
+    post_title = request.form["post_title"]
+    post_body = request.form["post_text"]
+
+    if form_type == "Image":
+        file = request.files["file"]
+        if not file:
+            valid = False
         if valid:
-            helper_quizzes.add_quiz(
-                author, date_created, post_privacy, questions, quiz_name
-            )
+            file_name_hashed = helper_posts.upload_image(file)
+        elif file:
+            valid = False
+
+    elif form_type == "Link":
+        link = request.form.get("link")
+        if helper_posts.validate_youtube(link):
+            data = urlparse(link)
+            query = parse_qs(data.query)
+            video_id = query["v"][0]
         else:
-            session["error"] = message
+            valid = False
 
-        return redirect("quizzes")
-    else:
-        post_title = request.form["post_title"]
-        post_body = request.form["post_text"]
+    # Only adds the post if a title has been input.
+    if post_title != "" and valid is True:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            # Get account type
+            cur.execute(
+                "SELECT type FROM ACCOUNTS WHERE username=?;",
+                (session["username"],),
+            )
+            account_type = cur.fetchone()[0]
 
-        if form_type == "Image":
-            file = request.files["file"]
-            if not file:
-                valid = False
-            if valid:
-                file_name_hashed = helper_posts.upload_image(file)
-            elif file:
-                valid = False
+            cur.execute(
+                "INSERT INTO POSTS (body, username,"
+                "privacy) VALUES (?, ?, ?);",
+                (
+                    post_body,
+                    session["username"],
+                    post_privacy,
+                ),
+            )
+            conn.commit()
 
-        elif form_type == "Link":
-            link = request.form.get("link")
-            if helper_posts.validate_youtube(link):
-                data = urlparse(link)
-                query = parse_qs(data.query)
-                video_id = query["v"][0]
-            else:
-                valid = False
-
-        # Only adds the post if a title has been input.
-        if post_title != "" and valid is True:
-            with sqlite3.connect("database.db") as conn:
-                cur = conn.cursor()
-                # Get account type
+            if form_type == "Image" and valid is True:
                 cur.execute(
-                    "SELECT type FROM ACCOUNTS WHERE username=?;",
-                    (session["username"],),
-                )
-                account_type = cur.fetchone()[0]
-
-                cur.execute(
-                    "INSERT INTO POSTS (title, body, username, post_type, "
-                    "privacy, account_type) VALUES (?, ?, ?, ?, ?, ?);",
+                    "INSERT INTO PostContent (postId, contentUrl) "
+                    "VALUES (?, ?);",
                     (
-                        post_title,
-                        post_body,
-                        session["username"],
-                        form_type,
-                        post_privacy,
-                        account_type,
+                        cur.lastrowid,
+                        "/static/images/post_imgs/" + file_name_hashed + ".jpg",
                     ),
                 )
                 conn.commit()
+            elif form_type == "Link":
+                cur.execute(
+                    "INSERT INTO PostContent (postId, contentUrl) "
+                    "VALUES (?, ?);",
+                    (cur.lastrowid, video_id),
+                )
+                conn.commit()
 
-                if form_type == "Image" and valid is True:
-                    cur.execute(
-                        "INSERT INTO PostContent (postId, contentUrl) "
-                        "VALUES (?, ?);",
-                        (
-                            cur.lastrowid,
-                            "/static/images/post_imgs/" + file_name_hashed + ".jpg",
-                        ),
-                    )
-                    conn.commit()
-                elif form_type == "Link":
-                    cur.execute(
-                        "INSERT INTO PostContent (postId, contentUrl) "
-                        "VALUES (?, ?);",
-                        (cur.lastrowid, video_id),
-                    )
-                    conn.commit()
-
-                helper_posts.update_submission_achievements(cur)
-        else:
-            # Prints error message stating that the title is missing.
-            session["error"] = ["Make sure all fields are filled in correctly!"]
+            helper_posts.update_submission_achievements(cur)
+    else:
+        # Prints error message stating that the title is missing.
+        session["error"] = ["Make sure all fields are filled in correctly!"]
 
     return redirect("/feed")
 
