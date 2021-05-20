@@ -169,6 +169,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                         "date_posted": time,
                         "body": (user_post[2])[:250] + add,
                         "post_type": user_post[8],
+                        "privacy": user_post[5],
                         "content": content,
                         "comment_count": comment_count,
                         "like_count": like_count,
