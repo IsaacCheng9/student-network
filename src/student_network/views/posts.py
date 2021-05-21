@@ -13,6 +13,8 @@ import student_network.helpers.helper_login as helper_login
 import student_network.helpers.helper_posts as helper_posts
 import student_network.helpers.helper_profile as helper_profile
 import student_network.helpers.helper_quizzes as helper_quizzes
+import student_network.helpers.helper_posts as helper_posts
+
 from flask import Blueprint, jsonify, redirect, render_template, request, session
 
 posts_blueprint = Blueprint(
@@ -96,8 +98,8 @@ def post(post_id: int) -> object:
 
         # Gets user from database using username.
         cur.execute(
-            "SELECT title, body, username, date, account_type, likes, "
-            "post_type FROM POSTS WHERE postId=?;",
+            "SELECT body, username, date, likes "
+            "FROM POSTS WHERE postId=?;",
             (post_id,),
         )
         row = cur.fetchall()
@@ -114,14 +116,13 @@ def post(post_id: int) -> object:
             )
         else:
             data = row[0]
-            (title, body, username, date_posted, account_type, likes, post_type) = (
+            print(data)
+            (body, username, date_posted, account_type, likes) = (
                 data[0],
                 data[1],
                 data[2],
+                helper_posts.get_account_type(data[1]),
                 data[3],
-                data[4],
-                data[5],
-                data[6],
             )
 
             liked = helper_posts.check_if_liked(cur, post_id, session["username"])
@@ -132,13 +133,6 @@ def post(post_id: int) -> object:
             )
             user_account_type = cur.fetchone()[0]
 
-            if post_type in ("Image", "Link"):
-                cur.execute(
-                    "SELECT contentUrl " "FROM PostContent WHERE postId=?;", (post_id,)
-                )
-                content = cur.fetchone()
-                if content:
-                    content = content[0]
             cur.execute("SELECT *" "FROM Comments WHERE postId=?;", (post_id,))
             row = cur.fetchall()
             if len(row) == 0:
@@ -147,7 +141,6 @@ def post(post_id: int) -> object:
                     "post_page.html",
                     author=author,
                     postId=post_id,
-                    title=title,
                     body=body,
                     username=username,
                     date=date_posted,
@@ -159,7 +152,6 @@ def post(post_id: int) -> object:
                     requestCount=helper_connections.get_connection_request_count(),
                     allUsernames=helper_general.get_all_usernames(),
                     avatar=helper_profile.get_profile_picture(username),
-                    type=post_type,
                     content=content,
                     notifications=helper_general.get_notifications(),
                 )
@@ -181,7 +173,6 @@ def post(post_id: int) -> object:
                 "post_page.html",
                 author=author,
                 postId=post_id,
-                title=title,
                 body=body,
                 username=username,
                 liked=liked,
@@ -193,7 +184,6 @@ def post(post_id: int) -> object:
                 requestCount=helper_connections.get_connection_request_count(),
                 allUsernames=helper_general.get_all_usernames(),
                 avatar=helper_profile.get_profile_picture(username),
-                type=post_type,
                 content=content,
                 notifications=helper_general.get_notifications(),
             )
@@ -332,7 +322,8 @@ def submit_post() -> object:
 
     post_body = request.form["post_text"]
 
-    allFileNames = request.form["allFileNames"].split(",") # comma separated string
+    allFileNames = request.form["allFileNames"]
+    allFileNamesSplit = allFileNames.split(",") # comma separated string
 
     # user needs to upload some data to proceed
     if len(allFileNames) > 0: valid = True
@@ -349,7 +340,10 @@ def submit_post() -> object:
             )
             account_type = cur.fetchone()[0]
 
-            row_id = cur.lastrowid + 1
+            cur.execute("SELECT COUNT(*) FROM POSTS")
+            
+            row_count = int(cur.fetchone()[0])
+            row_id = row_count + 1
 
             cur.execute(
                 "INSERT INTO POSTS (postId, body, username,"
@@ -361,17 +355,17 @@ def submit_post() -> object:
                     post_privacy,
                 ),
             )
-            conn.commit()
 
-            for fileName in allFileNames:
-                cur.execute(
-                    "INSERT INTO PostContent (postId, contentUrl) "
-                    "VALUES (?, ?);",
-                    (
-                        row_id,
-                        fileName,
-                    ),
-                )
+            if len(allFileNames) > 0:
+                for fileName in allFileNamesSplit:
+                    cur.execute(
+                        "INSERT INTO PostContent (postId, contentUrl) "
+                        "VALUES (?, ?);",
+                        (
+                            row_id,
+                            fileName,
+                        ),
+                    )
 
             conn.commit()
 
