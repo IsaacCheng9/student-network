@@ -265,7 +265,7 @@ def calculate_similarity(mutual_connections: list, hobbies: dict, interests: dic
         if user not in score_totals.keys():
             score_totals[user] = [0,0,0,0]
             
-        score_totals[user][3] += 1
+        score_totals[user][3] += 2
 
     print(score_totals)
 
