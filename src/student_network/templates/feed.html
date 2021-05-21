@@ -83,9 +83,9 @@
     .inputfile+label {
         font-size: 1em;
         font-weight: 700;
-        background-color: #eeeeee;
-        display: inline-block;
+        background-color: rgb(240, 240, 240);
         padding: 1em;
+        height: 100%;
     }
 
     .inputfile:focus+label,
@@ -134,6 +134,12 @@
         padding: 16px;
     }
 
+    .tagged_user {
+        color: #0a66c2;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
 </style>
 
 <div class="modal" onclick="CloseModal();">
@@ -153,13 +159,13 @@
     </div>
     {% endif %}
     <div class="sixteen wide column">
-        <div class="ui segment basic" id="text-post-input">
+        <div class="ui segment basic">
             <div id="post-make">
                 <p>
                     Supports markdown formatting, more info <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">here.</a><br>
                     Use @username to tag someone.
                 </p>
-                <form action="{{ url_for('posts.submit_post') }}" class="ui form" method="POST">
+                <form id="make-post-form" action="{{ url_for('posts.submit_post') }}" class="ui form" method="POST">
                     <div class="field">
                         <label>Content</label>
                         <label for=""></label>
@@ -169,37 +175,43 @@
                         <div class="ui images small" id="image-preview"></div>
                     </div>
 
-                    <input type="file" class="inputfile" name="files" id="files" multiple accept="image/*">
-                    <label for="files"><i class="icon image"></i> Upload images</label>
+                    <div class="two fields">
+                        <div class="field" style="display: table;">
+                            <input type="file" class="inputfile" name="files" id="files" multiple accept="image/*">
+                            <label for="files" style="display: table-cell; vertical-align: middle;"><i class="icon image"></i> Upload images</label>
 
-                    <input type="hidden" name="allFileNames" value="" id="allFileNames">
+                            <input type="hidden" name="allFileNames" value="" id="allFileNames">
 
-                    <div class="ui progress tiny" id="image-upload-progress" style="display: none;">
-                        <div class="bar" id="image-upload-progress-bar">
-                            <div class="progress"></div>
+                            <div class="ui progress tiny" id="image-upload-progress" style="display: none;">
+                                <div class="bar" id="image-upload-progress-bar">
+                                    <div class="progress"></div>
+                                </div>
+                                <div class="label">Uploading Files</div>
+                            </div>
                         </div>
-                        <div class="label">Uploading Files</div>
-                    </div>
-
-                    <div class="field">
-                        <label>Visibility</label>
-                        <label for="privacy"></label><select id="privacy" name="privacy">
-                            <option value="private"> &#128274; Private</option>
-                            <option value="close">&#129309; Close Friends</option>
-                            <option value="protected">&#128106; Connections</option>
-                            <option value="public" selected>&#128101; Public</option>
-                        </select>
+                        <div class="field">
+                            <div class="field">
+                                <label>Visibility</label>
+                                <label for="privacy"></label><select id="privacy" name="privacy">
+                                    <option value="private"> &#128274; Private</option>
+                                    <option value="close">&#129309; Close Friends</option>
+                                    <option value="protected">&#128106; Connections</option>
+                                    <option value="public" selected>&#128101; Public</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="ui horizontal divider"></div>
-                    <input type="submit" value="Make post" class="ui button teal" />
                 </form>
             </div>
-            <div class="ui segment">
+            <div class="ui segment" id="post-preview-parent">
                 <div class="ui label top attached">Your post preview</div>
                 <div id="post-preview"></div>
             </div>
+            
         </div>
     </div>
+    <input type="submit" value="Make post" class="ui button fluid teal" form="make-post-form">
 </div>
 
 <div id="postsContainer"></div>
@@ -217,23 +229,6 @@
 <link rel="stylesheet" href="../static/styles/slideshow.css" type="text/css" />
 
 <script>
-    // post-type-buttons
-    function SelectPostType(id, elem, timing) {
-        let sections = ["text", "image", "link"];
-
-        timing = timing || 300;
-
-        $("#post-type-buttons button").addClass("basic");
-        $(elem).removeClass("basic");
-
-        for (let section of sections) {
-            if (section === id) continue;
-            $("#" + section + "-post-input").hide(timing);
-        }
-
-        $("#" + id + "-post-input").show(timing);
-    }
-
     function LoadVideo(elem) {
         let id = $(elem).attr("data-link");
 
@@ -241,10 +236,6 @@
 
         $(elem).replaceWith(html);
     }
-
-    document.addEventListener("DOMContentLoaded", function() {
-        SelectPostType("text", $("#default-post-btn"), 1);
-    });
 
     let maxPostId = "{{max_id}}";
 
@@ -270,7 +261,7 @@
 
         if (post.body !== "") {
             postBody = `<div class="sixteen wide column">
-                    <div class="ui container" style="overflow-wrap: anywhere;">${markdown.toHTML(post.body)}</div>
+                    <div class="ui container" style="overflow-wrap: anywhere;">${FormatBody(post.body)}</div>
                 </div>`;
         }
 
@@ -323,6 +314,11 @@
         }, 1000);
     }
 
+    function FormatBody(body) {
+        body = markdown.toHTML(body);
+        return body.replace(/(@(\w+))/gi, `<a href="/profile/$2" class="tagged_user">$1</a>`);
+    }
+
     let loadingPost = false;
 
     function LoadPosts(number) {
@@ -363,11 +359,6 @@
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown.js/0.5.0/markdown.min.js"></script>
-
-<script>
-    //console.log(markdown.toHTML("Hello.\n\n* This is markdown.\n* It is fun\n* Love it or leave it."));
-
-</script>
 
 <script>
     var fileInput = document.getElementById("files");
@@ -423,9 +414,12 @@
     }
 
     function ShowPreview() {
-        document.getElementById("post-preview").innerHTML = markdown.toHTML(
-            document.getElementById("post_text").value);
+        var value = document.getElementById("post_text").value;
+        
+        document.getElementById("post-preview-parent").style.display = value.length > 0 ? "block" : "none";
+        document.getElementById("post-preview").innerHTML = FormatBody(value);
     }
+    ShowPreview();
 
 </script>
 

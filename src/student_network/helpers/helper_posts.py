@@ -208,6 +208,8 @@ def upload_image(file):
     return file_name_hashed
 
 def delete_file(filename):
+    if filename == "": return
+
     file_path = os.path.join("./static/images"+ "//post_imgs", filename)
     os.remove(file_path)
 

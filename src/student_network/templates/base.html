@@ -155,11 +155,11 @@
                 {% if notifications|length > 0 %}
                 <div class="ui red label">{{notifications|length}}</div>
                 {% endif %}
-                <div class="menu" style="max-height: 30vh; overflow-y: auto">
+                <div class="menu" style="max-height: 30vh; overflow-y: auto;">
                   {% for notification in notifications %}
-                  <a href="{{notification[2]}}" class="item">
-                    {{notification[0]}}
-                    <span style="color: gray"> {{notification[1]}}</span>
+                  <a href="{{notification[2]}}" class="item" style="margin: 0.5em;">
+                    <span>{{notification[0]}}</span>
+                    <span style="color: gray;"> • {{notification[1]}}</span>
                   </a>
                   {% endfor %}
                 </div>
