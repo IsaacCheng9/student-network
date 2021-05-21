@@ -411,6 +411,13 @@
 
         var elem = document.querySelector("[data-file='" + fileName + "']");
         elem.parentNode.removeChild(elem);
+        
+        var arr = [];
+        var imgs = document.querySelectorAll(".image-preview");
+        for (var img of imgs){
+            arr.push(img.getAttribute("data-file"));
+        }
+        document.getElementById("allFileNames").value = arr.join(",");
     }
 
     function ShowPreview() {
