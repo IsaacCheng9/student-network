@@ -137,11 +137,11 @@
 </style>
 
 <div class="modal" onclick="CloseModal();">
-        <div class="content">
-            <img src="" alt="" class="ui image fluid">
-            <a class="close-icon" onclick="CloseModal();"><i class="icon close"></i> Close</a>
-        </div>
+    <div class="content">
+        <img src="" alt="" class="ui image fluid">
+        <a class="close-icon" onclick="CloseModal();"><i class="icon close"></i> Close</a>
     </div>
+</div>
 
 <div class="ui segment">
     {% if errors %}
@@ -156,8 +156,8 @@
         <div class="ui segment basic" id="text-post-input">
             <div id="post-make">
                 <p>
-                Supports markdown formatting, more info <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">here.</a><br>
-                Use @username to tag someone.
+                    Supports markdown formatting, more info <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">here.</a><br>
+                    Use @username to tag someone.
                 </p>
                 <form action="{{ url_for('posts.submit_post') }}" class="ui form" method="POST">
                     <div class="field">
@@ -171,9 +171,9 @@
 
                     <input type="file" class="inputfile" name="files" id="files" multiple accept="image/*">
                     <label for="files"><i class="icon image"></i> Upload images</label>
-                    
+
                     <input type="hidden" name="allFileNames" value="" id="allFileNames">
-                    
+
                     <div class="ui progress tiny" id="image-upload-progress" style="display: none;">
                         <div class="bar" id="image-upload-progress-bar">
                             <div class="progress"></div>
@@ -214,11 +214,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="../static/slideshow.js"></script>
 
-<link
-    rel="stylesheet"
-    href="../static/styles/slideshow.css"
-    type="text/css"
-  />
+<link rel="stylesheet" href="../static/styles/slideshow.css" type="text/css" />
 
 <script>
     // post-type-buttons
@@ -284,10 +280,10 @@
         } else {
             icon = `<i class="heart icon"></i>`;
         }
-        
+
         var imagesToDisplay = [];
-        
-        for (var image of post.images){
+
+        for (var image of post.images) {
             imagesToDisplay.push(`/static/images/post_imgs/${image}.jpg`);
         }
 
@@ -308,6 +304,7 @@
                 <div class="sixteen wide column">
                     <div id="post-gallery-${post.postId}"></div>
                 </div>
+                
                 <div class="sixteen wide column">
                     <div>${post.comment_count} comments &nbsp;&nbsp; ${post.like_count}
                       ${icon}</div>
@@ -320,11 +317,10 @@
         </div>`;
 
         document.getElementById("postsContainer").innerHTML += html;
-        
-        setTimeout(function(){
-            new Slideshow("post-gallery-"+post.postId, imagesToDisplay, (new Array(post.images.length)).fill(""));
-            console.log("new slideshow!");
-        },1000);
+
+        setTimeout(function() {
+            new Slideshow("post-gallery-" + post.postId, imagesToDisplay, (new Array(post.images.length)).fill(""));
+        }, 1000);
     }
 
     let loadingPost = false;
@@ -421,8 +417,8 @@
 
         deleteImageCall.open("POST", "delete_file?filename=" + fileName);
         deleteImageCall.send();
-        
-        var elem = document.querySelector("[data-file='"+fileName+"']");
+
+        var elem = document.querySelector("[data-file='" + fileName + "']");
         elem.parentNode.removeChild(elem);
     }
 
