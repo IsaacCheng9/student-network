@@ -136,27 +136,23 @@ def get_connection_type(username: str):
 
 
 def get_mutual_connections(
-    mutual_connections: list, mutual: str, recommend_type: str
-) -> list:
+    mutual_connections: dict, mutual: str, recommend_type: str, conec: str,
+) -> dict:
     """
     Args:
         mutual_connections: List of mutual connections with the user.
         mutual: Mutual users based on other mutual connections and degree.
         recommend_type: Reason why the user is a suggested connection.
+        cone: The connection you have in common 
 
     Returns:
         A list of mutual connections with the user.
     """
-    new = True
-    for count, found in enumerate(mutual_connections):
-        if found[0] == mutual[0]:
-            mutual_connections[count][1] += 1
-            if recommend_type == "mutual connection":
-                mutual_connections[count][2] = recommend_type + "s"
-            new = False
-            break
-    if new:
-        mutual_connections.append([mutual[0], 1, recommend_type])
+
+    if mutual in mutual_connections.keys():
+        mutual_connections[mutual].append(conec)
+    else:
+        mutual_connections[mutual] = ([conec])
 
     return mutual_connections
 
@@ -178,35 +174,102 @@ def get_pending_connections(cur, username: str) -> list:
     return cur.fetchall()
 
 
-def get_mutual_hobbies(cur, username: str) -> list:
+def get_mutual_hobbies(cur, username: str, pending: list) -> list:
 
-    cur.execute("SELECT hobby FROM UserHobby " "WHERE username=?;", (username,))
+    cur.execute("SELECT hobby FROM UserHobby WHERE username=?;", (username,))
     hobbies = [x[0] for x in cur.fetchall()]
     shared_users = {}
     for hobby in hobbies:
-        cur.execute("SELECT username FROM UserHobby " "WHERE hobby=?;", (hobby,))
-        same_users = [x[0] for x in cur.fetchall() if not x[0] == username]
+        cur.execute("SELECT username FROM UserHobby WHERE hobby=?;", (hobby,))
+        same_users = [x[0] for x in cur.fetchall() if not x[0] == username if x[0] not in pending]
         shared_users[hobby] = same_users
 
-    print(shared_users)
+    #print(shared_users)
 
     return shared_users
 
 
-def get_mutual_interests(cur, username: str) -> list:
+def get_mutual_interests(cur, username: str, pending: list) -> list:
 
-    cur.execute("SELECT interest FROM UserInterests " "WHERE username=?;", (username,))
+    cur.execute("SELECT interest FROM UserInterests WHERE username=?;", (username,))
     hobbies = [x[0] for x in cur.fetchall()]
     shared_users = {}
     for hobby in hobbies:
-        cur.execute("SELECT username FROM UserInterests " "WHERE interest=?;", (hobby,))
-        same_users = [x[0] for x in cur.fetchall() if not x[0] == username]
+        cur.execute("SELECT username FROM UserInterests WHERE interest=?;", (hobby,))
+        same_users = [x[0] for x in cur.fetchall() if not x[0] == username if x[0] not in pending]
         shared_users[hobby] = same_users
 
-    print(shared_users)
+    #print(shared_users)
 
     return shared_users
 
+def get_mutual_degree(cur, username: str, pending: list, degree: str) -> list:
+
+    shared_users = []
+    if degree != 1:
+        cur.execute(
+            "SELECT username FROM UserProfile WHERE degree=?;", (degree,)
+        )
+        shared_users = [x[0] for x in cur.fetchall() if x[0] != username and x[0] not in pending]
+
+    return shared_users
+        #recommend_type = "Studies " + str(degree[1])
+        #for user in shared_degree:
+        #    if len(mutual_connections) < 5:
+        #        if user[0] != session["username"] and user[0] not in pending:
+        #            mutual_connections = get_mutual_connections(
+        #                mutual_connections, mutual, recommend_type
+        #            )
+        #    else:
+        #        break
+
+def calculate_similarity(mutual_connections: list, hobbies: dict, interests: dict, shared_degree: list) -> list:
+
+    score_totals = {}
+    for user in mutual_connections.keys():
+        for conec in mutual_connections[user]:
+            close = False
+            
+            if user not in score_totals.keys():
+                score_totals[user] = [0,0,0,0]
+
+            if is_close_friend(session["username"], conec):
+                close = True       
+
+            if close:
+                score_totals[user][0] += 50
+            else:
+                score_totals[user][0] += 10
+
+    print(score_totals)
+
+    for hobby in hobbies.keys():
+        for user in hobbies[hobby]:
+            if user not in score_totals.keys():
+                score_totals[user] = [0,0,0,0]
+
+            score_totals[user][1] += 5
+
+    print(score_totals)
+    
+    for interest in interests.keys():
+        for user in interests[interest]:
+            if user not in score_totals.keys():
+                score_totals[user] = [0,0,0,0]
+                
+            score_totals[user][2] += 5
+
+    print(score_totals)
+
+    for user in shared_degree:
+        if user not in score_totals.keys():
+            score_totals[user] = [0,0,0,0]
+            
+        score_totals[user][3] += 1
+
+    print(score_totals)
+
+    return score_totals
 
 def get_recommended_connections(username: str) -> list:
     """
@@ -221,21 +284,60 @@ def get_recommended_connections(username: str) -> list:
         cur = conn.cursor()
         pending = [x[0] for x in get_pending_connections(cur, username)]
         recommend_type = "mutual connection"
-        # for count, pend in enumerate(pending):
-        #    pending[count] = pend[0]
         connections = [x[0] for x in helper_general.get_all_connections(username)]
-        mutual_connections = []
+        mutual_connections = {}
         for user in connections:
-            user_cons = helper_general.get_all_connections(user)
+            user_cons = [x[0] for x in helper_general.get_all_connections(user)]
             for mutual in user_cons:
-                if mutual[0] != session["username"] and mutual[0] not in pending:
+                #print(mutual, user)
+                if mutual != session["username"] and mutual not in pending:
                     mutual_connections = get_mutual_connections(
-                        mutual_connections, mutual, recommend_type
+                        mutual_connections, mutual, recommend_type, user
                     )
 
-        hobbies = get_mutual_hobbies(cur, session["username"])
-        interests = get_mutual_interests(cur, session["username"])
-        """"""
+        print(mutual_connections)
+        hobbies = get_mutual_hobbies(cur, session["username"], pending)
+        interests = get_mutual_interests(cur, session["username"], pending)
+        degree = helper_profile.get_degree(session["username"])
+        shared_degree = get_mutual_degree(cur, session["username"], pending, degree[0])
+
+        score_totals = calculate_similarity(mutual_connections, hobbies, interests, shared_degree)
+
+        recommendations = []
+        for student in score_totals.keys():
+            index = score_totals[student].index(max(score_totals[student]))
+            print(student, index)
+            if index == 0:
+                count = len(mutual_connections[student])
+                label = mutual_connections[student][0]
+                if score_totals[student][0] > 50:
+                    for conec in mutual_connections[student]:
+                        if is_close_friend(session["username"], conec):
+                            label = conec
+                            break
+                main = str(count) + " mutual connections including " + label
+            elif index == 1:
+                for h in hobbies.keys():
+                    if student in hobbies[h]:
+                        hobby = h
+                        break
+                main = "you both enjoy hobbies including " + hobby
+            elif index == 2:
+                for i in interests.keys():
+                    if student in interests[i]:
+                        interest = i
+                        break
+                main = "you are both interested in " + interest
+            else:
+                main = "you both study " + degree[1]
+
+
+            recommendations.append([student, main, sum(score_totals[student])])
+
+        recommendations = sorted(recommendations, key=lambda x: x[2], reverse=True)[:5]
+        print(recommendations)
+
+        """
         if len(mutual_connections) < 5:
             degree = helper_profile.get_degree(session["username"])
             if degree[0] != 1:
@@ -252,8 +354,8 @@ def get_recommended_connections(username: str) -> list:
                             )
                     else:
                         break
-
-        return mutual_connections
+        """
+        return recommendations
 
 
 def is_close_friend(username1: str, username2: str) -> bool:
