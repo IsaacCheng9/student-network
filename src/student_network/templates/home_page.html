@@ -66,15 +66,11 @@ content %}
       return;
     }
 
-    console.log(username);
-
     xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
       if (this.readyState === 4 && this.status === 200) {
         console.log(this.response);
         let json_response = JSON.parse(this.response);
-
-        console.log(json_response);
 
         document.getElementById("users").innerHTML = "";
 
