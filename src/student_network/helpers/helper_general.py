@@ -122,3 +122,17 @@ def new_notification(body, url):
         )
 
         conn.commit()
+
+def new_notification_username(username, body, url):
+    now = datetime.now()
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+
+        cur.execute(
+            "INSERT INTO notification (username, body, date, url) VALUES (?, "
+            "?, ?, ?);",
+            (username, body, now.strftime("%Y-%m-%d %H:%M:%S"), url),
+        )
+
+        conn.commit()

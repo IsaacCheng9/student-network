@@ -2,6 +2,7 @@
 Handles the view for posts on the feed and related functionality.
 """
 
+import re
 import sqlite3
 from datetime import datetime
 from urllib.parse import parse_qs, urlparse
@@ -178,7 +179,7 @@ def post(post_id: int) -> object:
                 liked=liked,
                 date=date_posted,
                 likes=likes,
-                accountType=account_type,
+                account_type=account_type,
                 user_account_type=user_account_type,
                 comments=comments,
                 requestCount=helper_connections.get_connection_request_count(),
@@ -369,6 +370,13 @@ def submit_post() -> object:
 
             conn.commit()
 
+            usernames_tagged = re.findall(r"@(\w+)", post_body)
+            
+            for username in usernames_tagged:
+                helper_general.new_notification_username(username, 
+                "You have been tagged by {} in a post!".format(session["username"]),
+                "/post_page/{}".format(row_id))
+
             helper_posts.update_submission_achievements(cur)
     else:
         # Prints error message stating that the title is missing.
@@ -492,6 +500,11 @@ def submit_comment() -> object:
             row = cur.fetchone()[0]
 
             helper_posts.update_comment_achievements(row, username)
+
+            # we haven't commented on our own post
+            if username != session["username"]:
+                helper_general.new_notification_username(username, "{} has commented on your post!".format(session["username"]),
+            "/post_page/{}".format(post_id))
 
     session["postId"] = post_id
     return redirect("/post_page/" + post_id)

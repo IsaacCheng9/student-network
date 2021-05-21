@@ -155,6 +155,10 @@
     <div class="sixteen wide column">
         <div class="ui segment basic" id="text-post-input">
             <div id="post-make">
+                <p>
+                Supports markdown formatting, more info <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">here.</a><br>
+                Use @username to tag someone.
+                </p>
                 <form action="{{ url_for('posts.submit_post') }}" class="ui form" method="POST">
                     <div class="field">
                         <label>Content</label>
@@ -297,7 +301,7 @@
 <a href="/profile/${post.author}">${post.author}</a>
                         <div class="detail">${post.account_type}</div>
                     </div>
-                    <a href="href="/post_page/${post.postId}">See full post</a>
+                    <a href="/post_page/${post.postId}">See full post</a>
                     <div style="float: right">${post.date_posted}</div>
                 </div>
                 ${postBody}

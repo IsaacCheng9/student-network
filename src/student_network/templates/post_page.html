@@ -83,7 +83,7 @@
                         <a href="/profile/{{ username }}" class="ui basic image label">
                             <img src="{{ avatar }}" alt="" />
                             {{ username }}
-                            <div class="detail">{{ account_type }}</div>
+                            <div class="detail">{{ account_type[0] }}</div>
                         </a>
                         <a href="{{ url_for('posts.feed') }}" class="right floated">Back To Feed</a>
                         <div class="ui horizontal divider hidden"></div>
@@ -98,17 +98,6 @@
                         <div class="centered">
                             <div style="overflow-wrap: anywhere;">{{ body }}</div>
                         </div>
-                        {% if type == "Image" %}
-                        <div class="image" style="text-align: center;">
-                            <img class="ui image" src="{{ content }}" style="max-height: 600px;" alt="">
-                        </div>
-                        {% endif %}
-                        {% if type == "Link" %}
-                        <div class="sixteen wide column">
-                            <!--            <button class="ui button icon" onclick="LoadVideo(this);" data-link="https://www.youtube.com/embed/tgbNymZ7vqY">Load Video <i class="icon video"></i></button>-->
-                            <iframe class="ui container" height="600" src="https://www.youtube.com/embed/{{ content }}" loading="lazy" srcdoc="<style>*{padding:0;margin:0;overflow:hidden}html,body{height:100%}img,span{position:absolute;width:100%;top:0;bottom:0;margin:auto}span{height:1.5em;text-align:center;font:48px/1.5 sans-serif;color:white;text-shadow:0 0 0.5em black}</style><a href=https://www.youtube.com/embed/{{ content }}?autoplay=1><img src=https://img.youtube.com/vi/{{ content }}/hqdefault.jpg alt='YouTube Thumbnail'><span>▶</span></a>"></iframe>
-                        </div>
-                        {% endif %}
                         <div>
                             <div class="ui right floated mini labeled button" tabindex="0">
                                 {% if liked == True %}
