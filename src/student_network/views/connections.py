@@ -339,7 +339,7 @@ def show_connect_requests() -> object:
         )
         blocked_connections = cur.fetchall()
 
-        # Extracts mutual connections.
+        # Extracts recommended connections.
         recommended_connections = helper_connections.get_recommended_connections(
             session["username"]
         )
