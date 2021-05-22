@@ -136,14 +136,16 @@ def get_connection_type(username: str):
 
 
 def get_mutual_connections(
-    mutual_connections: dict, mutual: str, conec: str,
+    mutual_connections: dict,
+    mutual: str,
+    conec: str,
 ) -> dict:
     """
     Args:
         mutual_connections: List of mutual connections with the user.
         mutual: Mutual users based on other mutual connections and degree.
         recommend_type: Reason why the user is a suggested connection.
-        conec: The connection you have in common 
+        conec: The connection you have in common
 
     Returns:
         A list of mutual connections with the user.
@@ -152,7 +154,7 @@ def get_mutual_connections(
     if mutual in mutual_connections.keys():
         mutual_connections[mutual].append(conec)
     else:
-        mutual_connections[mutual] = ([conec])
+        mutual_connections[mutual] = [conec]
 
     return mutual_connections
 
@@ -177,7 +179,7 @@ def get_pending_connections(cur, username: str) -> list:
 def get_mutual_hobbies(cur, username: str, pending: list) -> dict:
     """
     Gets all hobbies of the user and returns a dictionary of lists of
-    other users with each hobby 
+    other users with each hobby
 
     Args:
         username: username of user to find dictionary of hobbies for
@@ -192,7 +194,9 @@ def get_mutual_hobbies(cur, username: str, pending: list) -> dict:
     shared_users = {}
     for hobby in hobbies:
         cur.execute("SELECT username FROM UserHobby WHERE hobby=?;", (hobby,))
-        same_users = [x[0] for x in cur.fetchall() if not x[0] == username if x[0] not in pending]
+        same_users = [
+            x[0] for x in cur.fetchall() if not x[0] == username if x[0] not in pending
+        ]
         shared_users[hobby] = same_users
 
     return shared_users
@@ -201,7 +205,7 @@ def get_mutual_hobbies(cur, username: str, pending: list) -> dict:
 def get_mutual_interests(cur, username: str, pending: list) -> list:
     """
     Gets all interests of the user and returns a dictionary of lists of
-    other users with each interest 
+    other users with each interest
 
     Args:
         username: username of user to find dictionary of interests for
@@ -216,10 +220,13 @@ def get_mutual_interests(cur, username: str, pending: list) -> list:
     shared_users = {}
     for hobby in hobbies:
         cur.execute("SELECT username FROM UserInterests WHERE interest=?;", (hobby,))
-        same_users = [x[0] for x in cur.fetchall() if not x[0] == username if x[0] not in pending]
+        same_users = [
+            x[0] for x in cur.fetchall() if not x[0] == username if x[0] not in pending
+        ]
         shared_users[hobby] = same_users
 
     return shared_users
+
 
 def get_mutual_degree(cur, username: str, pending: list, degree: str) -> list:
     """
@@ -236,14 +243,17 @@ def get_mutual_degree(cur, username: str, pending: list, degree: str) -> list:
     """
     shared_users = []
     if degree != 1:
-        cur.execute(
-            "SELECT username FROM UserProfile WHERE degree=?;", (degree,)
-        )
-        shared_users = [x[0] for x in cur.fetchall() if x[0] != username and x[0] not in pending]
+        cur.execute("SELECT username FROM UserProfile WHERE degree=?;", (degree,))
+        shared_users = [
+            x[0] for x in cur.fetchall() if x[0] != username and x[0] not in pending
+        ]
 
     return shared_users
 
-def calculate_similarity(mutual_connections: dict, hobbies: dict, interests: dict, shared_degree: list) -> dict:
+
+def calculate_similarity(
+    mutual_connections: dict, hobbies: dict, interests: dict, shared_degree: list
+) -> dict:
     """
     Calculates a list of users who have similarities with the chosen user.
 
@@ -263,12 +273,12 @@ def calculate_similarity(mutual_connections: dict, hobbies: dict, interests: dic
     for user in mutual_connections.keys():
         for conec in mutual_connections[user]:
             close = False
-            
+
             if user not in score_totals.keys():
-                score_totals[user] = [0,0,0,0]
+                score_totals[user] = [0, 0, 0, 0]
 
             if is_close_friend(session["username"], conec):
-                close = True       
+                close = True
 
             if close:
                 score_totals[user][0] += 50
@@ -278,24 +288,25 @@ def calculate_similarity(mutual_connections: dict, hobbies: dict, interests: dic
     for hobby in hobbies.keys():
         for user in hobbies[hobby]:
             if user not in score_totals.keys():
-                score_totals[user] = [0,0,0,0]
+                score_totals[user] = [0, 0, 0, 0]
 
             score_totals[user][1] += 5
-    
+
     for interest in interests.keys():
         for user in interests[interest]:
             if user not in score_totals.keys():
-                score_totals[user] = [0,0,0,0]
-                
+                score_totals[user] = [0, 0, 0, 0]
+
             score_totals[user][2] += 5
 
     for user in shared_degree:
         if user not in score_totals.keys():
-            score_totals[user] = [0,0,0,0]
-            
+            score_totals[user] = [0, 0, 0, 0]
+
         score_totals[user][3] += 2
 
     return score_totals
+
 
 def get_recommended_connections(username: str) -> list:
     """
@@ -324,7 +335,9 @@ def get_recommended_connections(username: str) -> list:
         degree = helper_profile.get_degree(session["username"])
         shared_degree = get_mutual_degree(cur, session["username"], pending, degree[0])
 
-        score_totals = calculate_similarity(mutual_connections, hobbies, interests, shared_degree)
+        score_totals = calculate_similarity(
+            mutual_connections, hobbies, interests, shared_degree
+        )
 
         recommendations = []
         for student in score_totals.keys():
@@ -352,7 +365,6 @@ def get_recommended_connections(username: str) -> list:
                 main = "you are both interested in " + interest
             else:
                 main = "you both study " + degree[1]
-
 
             recommendations.append([student, main, sum(score_totals[student])])
 
