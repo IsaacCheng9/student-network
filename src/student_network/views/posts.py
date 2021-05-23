@@ -161,15 +161,13 @@ def post(post_id: int) -> object:
                     notifications=helper_general.get_notifications(),
                 )
             for comment in row:
-                time = datetime.strptime(comment[3], "%Y-%m-%d %H:%M:%S").strftime(
-                    "%d-%m-%y %H:%M"
-                )
+                time = time = datetime.strptime(comment[3], "%Y-%m-%d %H:%M:%S")
                 comments["comments"].append(
                     {
                         "commentId": comment[0],
                         "username": comment[1],
                         "body": comment[2],
-                        "date": time,
+                        "date": helper_general.display_short_notification_age((datetime.now() - time).total_seconds()),
                         "profilePic": helper_profile.get_profile_picture(comment[1]),
                     }
                 )

@@ -140,7 +140,7 @@
                                     <input type="hidden" name="postId" value="{{ postId }}">
                                 </form>
 
-                                <h3>Comments</h3>
+                                <h3>Comments ({{comments["comments"] | length}})</h3>
                                 {% for comment in comments["comments"] %}
                                 <div class="comment">
                                     <a class="avatar">
@@ -163,9 +163,6 @@
                                         <div class="text">
                                             {{ comment.body }}
                                         </div>
-                                    </div>
-                                    <div>
-
                                     </div>
                                 </div>
                                 {% endfor %}
