@@ -618,3 +618,22 @@ def delete_file():
     helper_posts.delete_file(fileName + ".jpg")
 
     return "200"
+
+@posts_blueprint.route("/user_exists", methods=["GET"])
+def user_exists():
+    username = request.args.get("username")
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+
+        cur.execute("SELECT username FROM ACCOUNTS WHERE username=?;", (username,))
+
+        row = cur.fetchone()
+
+        if row is None:
+            return "False"
+
+        return "True"
+
+    return "False"
+
