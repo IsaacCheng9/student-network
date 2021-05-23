@@ -2,6 +2,7 @@
 Handles the view for posts on the feed and related functionality.
 """
 
+import re
 import sqlite3
 from datetime import datetime
 from urllib.parse import parse_qs, urlparse
@@ -13,6 +14,8 @@ import student_network.helpers.helper_login as helper_login
 import student_network.helpers.helper_posts as helper_posts
 import student_network.helpers.helper_profile as helper_profile
 import student_network.helpers.helper_quizzes as helper_quizzes
+import student_network.helpers.helper_posts as helper_posts
+
 from flask import Blueprint, jsonify, redirect, render_template, request, session
 
 posts_blueprint = Blueprint(
@@ -92,8 +95,8 @@ def post(post_id: int) -> object:
 
         # Gets user from database using username.
         cur.execute(
-            "SELECT title, body, username, date, account_type, likes, "
-            "post_type FROM POSTS WHERE postId=?;",
+            "SELECT body, username, date, likes "
+            "FROM POSTS WHERE postId=?;",
             (post_id,),
         )
         row = cur.fetchall()
@@ -110,14 +113,12 @@ def post(post_id: int) -> object:
             )
         else:
             data = row[0]
-            (title, body, username, date_posted, account_type, likes, post_type) = (
+            (body, username, date_posted, account_type, likes) = (
                 data[0],
                 data[1],
                 data[2],
+                helper_posts.get_account_type(data[1]),
                 data[3],
-                data[4],
-                data[5],
-                data[6],
             )
 
             liked = helper_posts.check_if_liked(cur, post_id, session["username"])
@@ -128,24 +129,40 @@ def post(post_id: int) -> object:
             )
             user_account_type = cur.fetchone()[0]
 
-            if post_type in ("Image", "Link"):
-                cur.execute(
-                    "SELECT contentUrl FROM PostContent WHERE postId=?;", (post_id,)
+            cur.execute("SELECT contentUrl from PostContent WHERE postId=?;", (post_id,))
+            images = cur.fetchall()
+
+            cur.execute("SELECT *" "FROM Comments WHERE postId=?;", (post_id,))
+            row = cur.fetchall()
+            if len(row) == 0:
+                session["prev-page"] = request.url
+                return render_template(
+                    "post_page.html",
+                    author=author,
+                    postId=post_id,
+                    body=body,
+                    username=username,
+                    date=date_posted,
+                    likes=likes,
+                    liked=liked,
+                    images=images,
+                    account_type=account_type,
+                    user_account_type=user_account_type,
+                    comments=None,
+                    requestCount=helper_connections.get_connection_request_count(),
+                    allUsernames=helper_general.get_all_usernames(),
+                    avatar=helper_profile.get_profile_picture(username),
+                    content=content,
+                    notifications=helper_general.get_notifications(),
                 )
-                content = cur.fetchone()
-                if content:
-                    content = content[0]
-            cur.execute("SELECT * FROM Comments WHERE postId=?;", (post_id,))
-            for comment in cur.fetchall():
-                time = datetime.strptime(comment[3], "%Y-%m-%d %H:%M:%S").strftime(
-                    "%d-%m-%y %H:%M"
-                )
+            for comment in row:
+                time = time = datetime.strptime(comment[3], "%Y-%m-%d %H:%M:%S")
                 comments["comments"].append(
                     {
                         "commentId": comment[0],
                         "username": comment[1],
                         "body": comment[2],
-                        "date": time,
+                        "date": helper_general.display_short_notification_age((datetime.now() - time).total_seconds()),
                         "profilePic": helper_profile.get_profile_picture(comment[1]),
                     }
                 )
@@ -154,19 +171,18 @@ def post(post_id: int) -> object:
                 "post_page.html",
                 author=author,
                 postId=post_id,
-                title=title,
                 body=body,
                 username=username,
                 liked=liked,
                 date=date_posted,
                 likes=likes,
-                accountType=account_type,
+                images=images,
+                account_type=account_type,
                 user_account_type=user_account_type,
                 comments=comments,
                 requestCount=helper_connections.get_connection_request_count(),
                 allUsernames=helper_general.get_all_usernames(),
                 avatar=helper_profile.get_profile_picture(username),
-                type=post_type,
                 content=content,
                 notifications=helper_general.get_notifications(),
             )
@@ -215,7 +231,6 @@ def feed() -> object:
             session["prev-page"] = request.url
             return render_template(
                 "feed.html",
-                posts=all_posts,
                 requestCount=helper_connections.get_connection_request_count(),
                 allUsernames=helper_general.get_all_usernames(),
                 errors=errors,
@@ -227,7 +242,6 @@ def feed() -> object:
             session["prev-page"] = request.url
             return render_template(
                 "feed.html",
-                posts=all_posts,
                 requestCount=helper_connections.get_connection_request_count(),
                 allUsernames=helper_general.get_all_usernames(),
                 content=content,
@@ -300,95 +314,68 @@ def submit_post() -> object:
     Returns:
         Updated feed with new post added
     """
-    valid = True
-    form_type = request.form.get("form_type")
+    valid = False
     post_privacy = request.form.get("privacy")
 
-    if form_type == "Quiz":
-        (
-            date_created,
-            author,
-            quiz_name,
-            questions,
-        ) = helper_quizzes.save_quiz_details()
-        valid, message = helper_quizzes.validate_quiz(quiz_name, questions)
-        if valid:
-            helper_quizzes.add_quiz(
-                author, date_created, post_privacy, questions, quiz_name
+    post_body = request.form["post_text"]
+
+    allFileNames = request.form["allFileNames"]
+    allFileNamesSplit = allFileNames.split(",") # comma separated string
+
+    # user needs to upload some data to proceed
+    if len(allFileNames) > 0 or len(post_body) > 0: valid = True
+
+    # Only adds the post if a title has been input.
+    if valid is True:
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            # Get account type
+            cur.execute(
+                "SELECT type FROM ACCOUNTS WHERE username=?;",
+                (session["username"],),
             )
-        else:
-            session["error"] = message
+            account_type = cur.fetchone()[0]
 
-        return redirect("quizzes")
-    else:
-        post_title = request.form["post_title"]
-        post_body = request.form["post_text"]
+            cur.execute("SELECT COUNT(*) FROM POSTS")
+            
+            row_count = int(cur.fetchone()[0])
+            row_id = row_count + 1
 
-        if form_type == "Image":
-            file = request.files["file"]
-            if not file:
-                valid = False
-            if valid:
-                file_name_hashed = helper_posts.upload_image(file)
-            elif file:
-                valid = False
+            cur.execute(
+                "INSERT INTO POSTS (postId, body, username,"
+                "privacy) VALUES (?, ?, ?, ?);",
+                (
+                    row_id,
+                    post_body,
+                    session["username"],
+                    post_privacy,
+                ),
+            )
 
-        elif form_type == "Link":
-            link = request.form.get("link")
-            if helper_posts.validate_youtube(link):
-                data = urlparse(link)
-                query = parse_qs(data.query)
-                video_id = query["v"][0]
-            else:
-                valid = False
-
-        # Only adds the post if a title has been input.
-        if post_title != "" and valid is True:
-            with sqlite3.connect("database.db") as conn:
-                cur = conn.cursor()
-                # Get account type
-                cur.execute(
-                    "SELECT type FROM ACCOUNTS WHERE username=?;",
-                    (session["username"],),
-                )
-                account_type = cur.fetchone()[0]
-
-                cur.execute(
-                    "INSERT INTO POSTS (title, body, username, post_type, "
-                    "privacy, account_type) VALUES (?, ?, ?, ?, ?, ?);",
-                    (
-                        post_title,
-                        post_body,
-                        session["username"],
-                        form_type,
-                        post_privacy,
-                        account_type,
-                    ),
-                )
-                conn.commit()
-
-                if form_type == "Image" and valid is True:
+            if len(allFileNames) > 0:
+                for fileName in allFileNamesSplit:
                     cur.execute(
                         "INSERT INTO PostContent (postId, contentUrl) "
                         "VALUES (?, ?);",
                         (
-                            cur.lastrowid,
-                            "/static/images/post_imgs/" + file_name_hashed + ".jpg",
+                            row_id,
+                            fileName,
                         ),
                     )
-                    conn.commit()
-                elif form_type == "Link":
-                    cur.execute(
-                        "INSERT INTO PostContent (postId, contentUrl) "
-                        "VALUES (?, ?);",
-                        (cur.lastrowid, video_id),
-                    )
-                    conn.commit()
 
-                helper_posts.update_submission_achievements(cur)
-        else:
-            # Prints error message stating that the title is missing.
-            session["error"] = ["Make sure all fields are filled in correctly!"]
+            conn.commit()
+
+            usernames_tagged = re.findall(r"@(\w+)", post_body)
+            
+            for username in usernames_tagged:
+                helper_general.new_notification_username(username, 
+                "You have been tagged by {} in a post!".format(session["username"]),
+                "/post_page/{}".format(row_id))
+
+            helper_posts.update_submission_achievements(cur)
+    else:
+        # Prints error message stating that the title is missing.
+        session["error"] = ["Make sure all fields are filled in correctly!"]
 
     return redirect("/feed")
 
@@ -435,7 +422,6 @@ def like_post() -> object:
             cur.execute("SELECT username FROM AllUserLikes WHERE postId=?;", (post_id,))
             row = cur.fetchall()
             names = [x[0] for x in row]
-            print(row, names)
             if session["username"] not in names:
                 # 1 exp earned for the author of the post
                 helper_login.check_level_exists(username, conn)
@@ -509,6 +495,11 @@ def submit_comment() -> object:
 
             helper_posts.update_comment_achievements(row, username)
 
+            # we haven't commented on our own post
+            if username != session["username"]:
+                helper_general.new_notification_username(username, "{} has commented on your post!".format(session["username"]),
+            "/post_page/{}".format(post_id))
+
     session["postId"] = post_id
     return redirect("/post_page/" + post_id)
 
@@ -580,3 +571,38 @@ def delete_comment() -> object:
             conn.commit()
 
     return redirect("post_page/" + post_id)
+
+@posts_blueprint.route("/upload_file", methods=["POST"])
+def upload_file():
+    """
+    An API that sends the files using a form, they are then saved here
+    and a list of names of the files is returned
+    """
+
+    max_file_upload = 10
+    file_names = []
+    if request.files:
+        for fileName in request.files:
+            file = request.files[fileName]
+
+            fileName = helper_posts.upload_image(file)
+            file_names.append(fileName)
+
+            max_file_upload -= 1
+            if max_file_upload <= 0: break
+
+    return jsonify(file_names)
+
+@posts_blueprint.route("/delete_file", methods=["POST"])
+def delete_file():
+    """
+    An API call to delete a file with a given name from the server
+    """
+    fileName = request.args.get("filename")
+    # try and prevent escaping this path
+    fileName.replace(".", "")
+    fileName.replace("/", "")
+
+    helper_posts.delete_file(fileName+".jpg")
+    
+    return "200"

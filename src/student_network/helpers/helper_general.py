@@ -31,7 +31,7 @@ def allowed_file(file_name) -> bool:
 
 
 def display_short_notification_age(seconds):
-    prefixes = ["y", "m", "d", "h", "m", "s"]
+    prefixes = ["y", "mo", "d", "h", "m", "s"]
     values = [3600 * 24 * 365, 3600 * 31 * 24, 3600 * 24, 3600, 60, 1]
 
     for i in range(len(prefixes)):
@@ -119,6 +119,20 @@ def new_notification(body, url):
             "INSERT INTO notification (username, body, date, url) VALUES (?, "
             "?, ?, ?);",
             (session["username"], body, now.strftime("%Y-%m-%d %H:%M:%S"), url),
+        )
+
+        conn.commit()
+
+def new_notification_username(username, body, url):
+    now = datetime.now()
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+
+        cur.execute(
+            "INSERT INTO notification (username, body, date, url) VALUES (?, "
+            "?, ?, ?);",
+            (username, body, now.strftime("%Y-%m-%d %H:%M:%S"), url),
         )
 
         conn.commit()

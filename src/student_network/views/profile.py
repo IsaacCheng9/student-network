@@ -10,6 +10,7 @@ import student_network.helpers.helper_connections as helper_connections
 import student_network.helpers.helper_general as helper_general
 import student_network.helpers.helper_login as helper_login
 import student_network.helpers.helper_profile as helper_profile
+import student_network.helpers.helper_posts as helper_posts
 from flask import Blueprint, redirect, render_template, request, session
 
 profile_blueprint = Blueprint(
@@ -188,7 +189,7 @@ def profile(username: str) -> object:
 
     for user_post in sort_posts:
         add = ""
-        if len(user_post[2]) > 250:
+        if len(user_post[1]) > 250:
             add = "..."
 
         if user_post[5] == "protected":
@@ -214,12 +215,11 @@ def profile(username: str) -> object:
                 "title": user_post[1],
                 "profile_pic": "https://via.placeholder.com/600",
                 "author": user_post[3],
-                "account_type": user_post[6],
+                "account_type": helper_posts.get_account_type(user_post[3]),
                 "date_posted": time,
-                "body": (user_post[2])[:250] + add,
+                "body": (user_post[1])[:250] + add,
                 "privacy": privacy,
                 "icon": icon,
-                "type": user_post[8],
             }
         )
 

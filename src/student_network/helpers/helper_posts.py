@@ -104,7 +104,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                 if i == int(number):
                     break
                 add = ""
-                if len(user_post[2]) > 250:
+                if len(user_post[1]) > 250:
                     add = "..."
                 time = datetime.strptime(user_post[4], "%Y-%m-%d").strftime("%d-%m-%y")
 
@@ -117,7 +117,6 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                 account_type = accounts[0]
 
                 post_id = user_post[0]
-                post_type = user_post[8]
 
                 cur.execute(
                     "SELECT * FROM Comments WHERE postId=? LIMIT 5;", (post_id,)
@@ -138,16 +137,6 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                     )
                 )
 
-                if post_type in ("Image", "Link"):
-                    cur.execute(
-                        "SELECT contentUrl " "FROM PostContent WHERE postId=?;",
-                        (post_id,),
-                    )
-
-                    content = cur.fetchone()
-                    if content is not None:
-                        content = content[0]
-
                 cur.execute(
                     "SELECT COUNT(commentID)" "FROM Comments WHERE postId=?;",
                     (post_id,),
@@ -159,15 +148,17 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
 
                 liked = check_if_liked(cur, post_id, session["username"])
 
+                cur.execute("SELECT (contentUrl) FROM PostContent WHERE postId=?", (post_id,))
+                images = cur.fetchall()
+
                 all_posts["AllPosts"].append(
                     {
                         "postId": user_post[0],
-                        "title": user_post[1],
                         "profile_pic": helper_profile.get_profile_picture(user_post[3]),
                         "author": user_post[3],
                         "account_type": account_type,
                         "date_posted": time,
-                        "body": (user_post[2])[:250] + add,
+                        "body": (user_post[1])[:250] + add,
                         "post_type": user_post[8],
                         "privacy": user_post[5],
                         "content": content,
@@ -175,6 +166,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                         "like_count": like_count,
                         "liked": liked,
                         "comments": comments,
+                        "images": images
                     }
                 )
                 i += 1
@@ -226,6 +218,18 @@ def upload_image(file):
         img.save(file_path + ".jpg")
     return file_name_hashed
 
+def delete_file(filename):
+    """
+    Deletes a file from post images
+
+    Args:
+        filename: Post image file name
+    """
+    if filename == "": return
+
+    file_path = os.path.join("./static/images"+ "//post_imgs", filename)
+    os.remove(file_path)
+
 
 def update_submission_achievements(cur):
     """
@@ -265,3 +269,17 @@ def validate_youtube(url: str):
     url_regex_match = re.match(url_regex, url)
 
     return url_regex_match
+
+
+def get_account_type(username):
+    """
+    Returns the type of an account for username
+        username: The username to check the type for
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT type " "FROM ACCOUNTS WHERE username=?;",
+                    (username,),
+                )
+
+        return cur.fetchone()
