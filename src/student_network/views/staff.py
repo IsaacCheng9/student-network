@@ -35,7 +35,6 @@ def show_staff_requests() -> object:
             cur.execute("SELECT username FROM ACCOUNTS WHERE type='pending_staff';")
             conn.commit()
             row = cur.fetchall()
-            request_count = helper_connections.get_connection_request_count()
             if len(row) > 0:
                 for elem in row:
                     requests.append(elem[0])

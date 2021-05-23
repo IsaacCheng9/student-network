@@ -136,30 +136,7 @@ def post(post_id: int) -> object:
                 if content:
                     content = content[0]
             cur.execute("SELECT * FROM Comments WHERE postId=?;", (post_id,))
-            row = cur.fetchall()
-            if len(row) == 0:
-                session["prev-page"] = request.url
-                return render_template(
-                    "post_page.html",
-                    author=author,
-                    postId=post_id,
-                    title=title,
-                    body=body,
-                    username=username,
-                    date=date_posted,
-                    likes=likes,
-                    liked=liked,
-                    account_type=account_type,
-                    user_account_type=user_account_type,
-                    comments=None,
-                    requestCount=helper_connections.get_connection_request_count(),
-                    allUsernames=helper_general.get_all_usernames(),
-                    avatar=helper_profile.get_profile_picture(username),
-                    type=post_type,
-                    content=content,
-                    notifications=helper_general.get_notifications(),
-                )
-            for comment in row:
+            for comment in cur.fetchall():
                 time = datetime.strptime(comment[3], "%Y-%m-%d %H:%M:%S").strftime(
                     "%d-%m-%y %H:%M"
                 )
@@ -447,7 +424,7 @@ def like_post() -> object:
             username = row[1]
 
             cur.execute(
-                "UPDATE POSTS SET likes=?  WHERE postId=? ;",
+                "UPDATE POSTS SET likes=? WHERE postId=? ;",
                 (
                     likes,
                     post_id,
