@@ -134,6 +134,9 @@ def post(post_id: int) -> object:
             )
             user_account_type = cur.fetchone()[0]
 
+            cur.execute("SELECT contentUrl from PostContent WHERE postId=?;", (post_id,))
+            images = cur.fetchall()
+
             cur.execute("SELECT *" "FROM Comments WHERE postId=?;", (post_id,))
             row = cur.fetchall()
             if len(row) == 0:
@@ -147,6 +150,7 @@ def post(post_id: int) -> object:
                     date=date_posted,
                     likes=likes,
                     liked=liked,
+                    images=images,
                     account_type=account_type,
                     user_account_type=user_account_type,
                     comments=None,
@@ -179,6 +183,7 @@ def post(post_id: int) -> object:
                 liked=liked,
                 date=date_posted,
                 likes=likes,
+                images=images,
                 account_type=account_type,
                 user_account_type=user_account_type,
                 comments=comments,
@@ -233,7 +238,6 @@ def feed() -> object:
             session["prev-page"] = request.url
             return render_template(
                 "feed.html",
-                posts=all_posts,
                 requestCount=helper_connections.get_connection_request_count(),
                 allUsernames=helper_general.get_all_usernames(),
                 errors=errors,
@@ -245,7 +249,6 @@ def feed() -> object:
             session["prev-page"] = request.url
             return render_template(
                 "feed.html",
-                posts=all_posts,
                 requestCount=helper_connections.get_connection_request_count(),
                 allUsernames=helper_general.get_all_usernames(),
                 content=content,

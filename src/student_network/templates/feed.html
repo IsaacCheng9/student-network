@@ -228,6 +228,8 @@
 
 <link rel="stylesheet" href="../static/styles/slideshow.css" type="text/css" />
 
+<script src="../static/FormatBody.js"></script>
+
 <script>
     function LoadVideo(elem) {
         let id = $(elem).attr("data-link");
@@ -312,11 +314,6 @@
         setTimeout(function() {
             new Slideshow("post-gallery-" + post.postId, imagesToDisplay, (new Array(post.images.length)).fill(""));
         }, 1000);
-    }
-
-    function FormatBody(body) {
-        body = markdown.toHTML(body);
-        return body.replace(/(@(\w+))/gi, `<a href="/profile/$2" class="tagged_user">$1</a>`);
     }
 
     let loadingPost = false;
