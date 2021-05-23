@@ -259,13 +259,9 @@
                         </div>`;
         }
 
-        let postBody = ``;
-
-        if (post.body !== "") {
-            postBody = `<div class="sixteen wide column">
+        let postBody = `<div class="sixteen wide column">
                     <div class="ui container" style="overflow-wrap: anywhere;">${FormatBody(post.body)}</div>
                 </div>`;
-        }
 
         let icon;
         if (post.liked === true) {
