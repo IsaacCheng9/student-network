@@ -148,7 +148,9 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
 
                 liked = check_if_liked(cur, post_id, session["username"])
 
-                cur.execute("SELECT (contentUrl) FROM PostContent WHERE postId=?", (post_id,))
+                cur.execute(
+                    "SELECT (contentUrl) FROM PostContent WHERE postId=?", (post_id,)
+                )
                 images = cur.fetchall()
 
                 all_posts["AllPosts"].append(
@@ -166,7 +168,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                         "like_count": like_count,
                         "liked": liked,
                         "comments": comments,
-                        "images": images
+                        "images": images,
                     }
                 )
                 i += 1
@@ -218,6 +220,7 @@ def upload_image(file):
         img.save(file_path + ".jpg")
     return file_name_hashed
 
+
 def delete_file(filename):
     """
     Deletes a file from post images
@@ -225,9 +228,10 @@ def delete_file(filename):
     Args:
         filename: Post image file name
     """
-    if filename == "": return
+    if filename == "":
+        return
 
-    file_path = os.path.join("./static/images"+ "//post_imgs", filename)
+    file_path = os.path.join("./static/images" + "//post_imgs", filename)
     os.remove(file_path)
 
 
@@ -278,8 +282,9 @@ def get_account_type(username):
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT type " "FROM ACCOUNTS WHERE username=?;",
-                    (username,),
-                )
+        cur.execute(
+            "SELECT type " "FROM ACCOUNTS WHERE username=?;",
+            (username,),
+        )
 
         return cur.fetchone()

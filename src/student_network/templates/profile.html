@@ -5,431 +5,587 @@
 {% block title %}Profile{% endblock %} {% block content %}
 
 <style>
-    .gold {
-        background: conic-gradient(#edc800, #e3b600, #f3cf00, #ffe800, #edc800, #e3b600, #f3cf00, #ffe800, #edc800, #e3b600, #f3cf00, #ffe800, #edc800, #e3b600, #f3cf00, #ffe800);
+  .gold {
+    background: conic-gradient(
+      #edc800,
+      #e3b600,
+      #f3cf00,
+      #ffe800,
+      #edc800,
+      #e3b600,
+      #f3cf00,
+      #ffe800,
+      #edc800,
+      #e3b600,
+      #f3cf00,
+      #ffe800,
+      #edc800,
+      #e3b600,
+      #f3cf00,
+      #ffe800
+    );
+  }
+
+  .silver {
+    background: conic-gradient(
+      #d7d7d7,
+      #c3c3c3,
+      #cccccc,
+      #c6c6c6,
+      #d7d7d7,
+      #c3c3c3,
+      #cccccc,
+      #c6c6c6,
+      #d7d7d7,
+      #c3c3c3,
+      #cccccc,
+      #c6c6c6,
+      #d7d7d7,
+      #c3c3c3,
+      #cccccc,
+      #c6c6c6
+    );
+  }
+
+  .bronze {
+    background: conic-gradient(
+      #d95641,
+      #b14439,
+      #b2453a,
+      #d25645,
+      #d95641,
+      #b14439,
+      #b2453a,
+      #d25645,
+      #d95641,
+      #b14439,
+      #b2453a,
+      #d25645,
+      #d95641,
+      #b14439,
+      #b2453a,
+      #d25645
+    );
+  }
+
+  .platinum {
+    background: conic-gradient(
+      #e6e9bf,
+      #d2b5aa,
+      #cbaea3,
+      #d4b5ab,
+      #e6e9bf,
+      #d2b5aa,
+      #cbaea3,
+      #d4b5ab,
+      #e6e9bf,
+      #d2b5aa,
+      #cbaea3,
+      #d4b5ab,
+      #e6e9bf,
+      #d2b5aa,
+      #cbaea3,
+      #d4b5ab
+    );
+  }
+
+  .diamond {
+    background: conic-gradient(
+      #85c1e9,
+      #d6eaf8,
+      #2980b9,
+      #3498db,
+      #85c1e9,
+      #d6eaf8,
+      #2980b9,
+      #3498db,
+      #85c1e9,
+      #d6eaf8,
+      #2980b9,
+      #3498db,
+      #85c1e9,
+      #d6eaf8,
+      #2980b9,
+      #3498db
+    );
+  }
+
+  .bronze-glow {
+    text-shadow: 0 0 5px #b2453a;
+    color: #b2453a !important;
+  }
+
+  .silver-glow {
+    text-shadow: 0 0 5px #c3c3c3;
+    color: #c3c3c3 !important;
+  }
+
+  .gold-glow {
+    text-shadow: 0 0 5px #e3b600;
+    color: #e3b600 !important;
+  }
+
+  .platinum-glow {
+    text-shadow: 0 0 5px #d2b5aa;
+    color: #d2b5aa !important;
+  }
+
+  .diamond-glow {
+    text-shadow: 0 0 5px #85c1e9;
+    color: #85c1e9 !important;
+  }
+
+  .achievement-icon {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    background-clip: text;
+    text-fill-color: transparent;
+  }
+
+  .achievement:hover .achievement-icon {
+    animation-duration: 300ms;
+    animation-name: achievement-hover;
+    animation-timing-function: ease-in-out;
+  }
+
+  @keyframes achievement-hover {
+    0% {
+      transform: scaleX(1) scaleY(1);
     }
 
-    .silver {
-        background: conic-gradient(#d7d7d7, #c3c3c3, #cccccc, #c6c6c6, #d7d7d7, #c3c3c3, #cccccc, #c6c6c6, #d7d7d7, #c3c3c3, #cccccc, #c6c6c6, #d7d7d7, #c3c3c3, #cccccc, #c6c6c6);
+    20% {
+      transform: scaleX(0.8) scaleY(1.1);
     }
 
-    .bronze {
-        background: conic-gradient(#d95641, #b14439, #b2453a, #d25645, #d95641, #b14439, #b2453a, #d25645, #d95641, #b14439, #b2453a, #d25645, #d95641, #b14439, #b2453a, #d25645);
+    50% {
+      transform: scaleX(1.2) scaleY(0.9);
     }
 
-    .platinum {
-        background: conic-gradient(#e6e9bf, #d2b5aa, #cbaea3, #d4b5ab, #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab, #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab, #e6e9bf, #d2b5aa, #cbaea3, #d4b5ab);
+    100% {
+      transform: scaleX(1) scaleY(1);
     }
+  }
 
-    .diamond {
-        background: conic-gradient(#85c1e9, #d6eaf8, #2980b9, #3498db, #85c1e9, #d6eaf8, #2980b9, #3498db, #85c1e9, #d6eaf8, #2980b9, #3498db, #85c1e9, #d6eaf8, #2980b9, #3498db);
+  .scrolling {
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    max-height: 800px;
+  }
+
+  /* Semantic UI has these classes, however they're only applicable to*/
+  /* grids, containers, rows and columns.*/
+  /* plus, there isn't any `mobile hidden`, `X hidden` class.*/
+  /* this snippet is using the same class names and same approach*/
+  /* plus a bit more but to all elements.*/
+  /* see https://github.com/Semantic-Org/Semantic-UI/issues/1114*/
+
+  /* Mobile */
+  @media only screen and (max-width: 767px) {
+    [class*="mobile hidden"],
+    [class*="tablet only"]:not(.mobile),
+    [class*="computer only"]:not(.mobile),
+    [class*="large screen only"]:not(.mobile),
+    [class*="widescreen only"]:not(.mobile),
+    [class*="or lower hidden"] {
+      display: none !important;
     }
+  }
 
-    .bronze-glow {
-        text-shadow: 0 0 5px #b2453a;
-        color: #b2453a !important;
+  /* Tablet / iPad Portrait */
+  @media only screen and (min-width: 768px) and (max-width: 991px) {
+    [class*="mobile only"]:not(.tablet),
+    [class*="tablet hidden"],
+    [class*="computer only"]:not(.tablet),
+    [class*="large screen only"]:not(.tablet),
+    [class*="widescreen only"]:not(.tablet),
+    [class*="or lower hidden"]:not(.mobile) {
+      display: none !important;
     }
+  }
 
-    .silver-glow {
-        text-shadow: 0 0 5px #c3c3c3;
-        color: #c3c3c3 !important;
+  /* Computer / Desktop / iPad Landscape */
+  @media only screen and (min-width: 992px) and (max-width: 1199px) {
+    [class*="mobile only"]:not(.computer),
+    [class*="tablet only"]:not(.computer),
+    [class*="computer hidden"],
+    [class*="large screen only"]:not(.computer),
+    [class*="widescreen only"]:not(.computer),
+    [class*="or lower hidden"]:not(.tablet):not(.mobile) {
+      display: none !important;
     }
+  }
 
-    .gold-glow {
-        text-shadow: 0 0 5px #e3b600;
-        color: #e3b600 !important;
+  /* Large Monitor */
+  @media only screen and (min-width: 1200px) and (max-width: 1919px) {
+    [class*="mobile only"]:not([class*="large screen"]),
+    [class*="tablet only"]:not([class*="large screen"]),
+    [class*="computer only"]:not([class*="large screen"]),
+    [class*="large screen hidden"],
+    [class*="widescreen only"]:not([class*="large screen"]),
+    [class*="or lower hidden"]:not(.computer):not(.tablet):not(.mobile) {
+      display: none !important;
     }
+  }
 
-    .platinum-glow {
-        text-shadow: 0 0 5px #d2b5aa;
-        color: #d2b5aa !important;
+  /* Widescreen Monitor */
+  @media only screen and (min-width: 1920px) {
+    [class*="mobile only"]:not([class*="widescreen"]),
+    [class*="tablet only"]:not([class*="widescreen"]),
+    [class*="computer only"]:not([class*="widescreen"]),
+    [class*="large screen only"]:not([class*="widescreen"]),
+    [class*="widescreen hidden"],
+    [class*="widescreen or lower hidden"] {
+      display: none !important;
     }
-
-    .diamond-glow {
-        text-shadow: 0 0 5px #85c1e9;
-        color: #85c1e9 !important;
-    }
-
-    .achievement-icon {
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-
-        background-clip: text;
-        text-fill-color: transparent;
-    }
-
-    .achievement:hover .achievement-icon {
-        animation-duration: 300ms;
-        animation-name: achievement-hover;
-        animation-timing-function: ease-in-out;
-    }
-
-    @keyframes achievement-hover {
-        0% {
-            transform: scaleX(1) scaleY(1);
-        }
-
-        20% {
-            transform: scaleX(0.8) scaleY(1.1);
-        }
-
-        50% {
-            transform: scaleX(1.2) scaleY(0.9);
-        }
-
-        100% {
-            transform: scaleX(1) scaleY(1);
-        }
-    }
-
-    .scrolling {
-        overflow-y: auto;
-        overflow-x: hidden;
-        scroll-behavior: smooth;
-        max-height: 800px;
-    }
-
-    /* Semantic UI has these classes, however they're only applicable to*/
-    /* grids, containers, rows and columns.*/
-    /* plus, there isn't any `mobile hidden`, `X hidden` class.*/
-    /* this snippet is using the same class names and same approach*/
-    /* plus a bit more but to all elements.*/
-    /* see https://github.com/Semantic-Org/Semantic-UI/issues/1114*/
-
-    /* Mobile */
-    @media only screen and (max-width: 767px) {
-
-        [class*="mobile hidden"],
-        [class*="tablet only"]:not(.mobile),
-        [class*="computer only"]:not(.mobile),
-        [class*="large screen only"]:not(.mobile),
-        [class*="widescreen only"]:not(.mobile),
-        [class*="or lower hidden"] {
-            display: none !important;
-        }
-    }
-
-    /* Tablet / iPad Portrait */
-    @media only screen and (min-width: 768px) and (max-width: 991px) {
-
-        [class*="mobile only"]:not(.tablet),
-        [class*="tablet hidden"],
-        [class*="computer only"]:not(.tablet),
-        [class*="large screen only"]:not(.tablet),
-        [class*="widescreen only"]:not(.tablet),
-        [class*="or lower hidden"]:not(.mobile) {
-            display: none !important;
-        }
-    }
-
-    /* Computer / Desktop / iPad Landscape */
-    @media only screen and (min-width: 992px) and (max-width: 1199px) {
-
-        [class*="mobile only"]:not(.computer),
-        [class*="tablet only"]:not(.computer),
-        [class*="computer hidden"],
-        [class*="large screen only"]:not(.computer),
-        [class*="widescreen only"]:not(.computer),
-        [class*="or lower hidden"]:not(.tablet):not(.mobile) {
-            display: none !important;
-        }
-    }
-
-    /* Large Monitor */
-    @media only screen and (min-width: 1200px) and (max-width: 1919px) {
-
-        [class*="mobile only"]:not([class*="large screen"]),
-        [class*="tablet only"]:not([class*="large screen"]),
-        [class*="computer only"]:not([class*="large screen"]),
-        [class*="large screen hidden"],
-        [class*="widescreen only"]:not([class*="large screen"]),
-        [class*="or lower hidden"]:not(.computer):not(.tablet):not(.mobile) {
-            display: none !important;
-        }
-    }
-
-    /* Widescreen Monitor */
-    @media only screen and (min-width: 1920px) {
-
-        [class*="mobile only"]:not([class*="widescreen"]),
-        [class*="tablet only"]:not([class*="widescreen"]),
-        [class*="computer only"]:not([class*="widescreen"]),
-        [class*="large screen only"]:not([class*="widescreen"]),
-        [class*="widescreen hidden"],
-        [class*="widescreen or lower hidden"] {
-            display: none !important;
-        }
-    }
-
+  }
 </style>
 
 <div class="ui segment">
-    <div class="ui grid container stackable">
-        <div class="row">
-            <div class="five wide column" id="left-column">
-                <img style="margin-bottom: 1em; border-radius: 1em" class="ui image fluid rounded" src="{{ profile_picture }}" alt="" />
+  <div class="ui grid container stackable">
+    <div class="row">
+      <div class="five wide column" id="left-column">
+        <img
+          style="margin-bottom: 1em; border-radius: 1em"
+          class="ui image fluid rounded"
+          src="{{ profile_picture }}"
+          alt=""
+        />
 
-                <h1 class="mobile only">
-                    <div>{{ name }}</div>
-                </h1>
+        <h1 class="mobile only">
+          <div>{{ name }}</div>
+        </h1>
 
-                <div class="ui list">
-                    <div class="item">
-                        <div class="ui label basic">
-                            <i class="male icon"></i>
-                            {{ gender }}
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="ui label basic">
-                            <i class="birthday cake icon"></i>
-                            {{ birthday }} ({{ age }} years old)
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="ui label blue basic">
-                            <i class="envelope open outline icon"></i>
-                            {{ email }}
-                        </div>
-                    </div>
-                    <div class="ui progress indicating {{ progress_color }} tiny">
-                        <!-- TO DO: fix experience level bar -->
-                        <div class="bar" style="width: {{ 100*current_xp/xp_next_level }}%;">
-                            <div class="progress"></div>
-                        </div>
-                        <div class="label">
-                            Level {{ level }} ({{ current_xp }}/{{ xp_next_level }})
-                        </div>
-                    </div>
-                    <div class="ui divider hidden"></div>
-                </div>
-                <div class="ui divider horizontal">Hobbies</div>
-                <div style="text-align: center">
-                    {% for hobby in hobbies %}
-                    <a class="ui label teal" style="text-transform: capitalize">{{ hobby[0] }}</a>
-                    {% endfor %} {% if hobbies|length == 0 %}
-                    <p>No Hobbies</p>
-                    {% endif %}
-                </div>
-                <div class="ui divider horizontal">Interests</div>
-                <div style="text-align: center">
-                    {% for interest in interests %}
-                    <a class="ui label purple" style="text-transform: capitalize">{{ interest[0] }}</a>
-                    {% endfor %} {% if interests|length == 0 %}
-                    <p>No Interests</p>
-                    {% endif %}
-                </div>
-
-                <div class="ui horizontal divider">Top Achievements</div>
-
-                <div class="ui icons" style="text-align: center">
-                    {% for achievement in unlocked_achievements %}
-                    <div class="achievement" style="display: inline-block" data-html='<div class="header">{{ achievement[4] }}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;"
-                        class="{{ achievement[2] }}-glow">{{ achievement[2] }}</div>{{ achievement[0] }}<br><b>{{ achievement[3] }} XP</b>'>
-                        <i class="icon {{ achievement[1] }} big {{ achievement[2] }} achievement-icon" data-title="{{ achievement[4] }}" data-content="{{ achievement[0] }} | {{ achievement[3] }} XP"></i>
-                    </div>
-                    {% endfor %} {% if unlocked_achievements|length == 0 %}
-                    <p>No Unlocked Achievements</p>
-                    {% endif %}
-                </div>
-
-                <div class="ui horizontal divider">Socials</div>
-                <div style="text-align: center">
-                    {% if socials|length == 0 %}
-                    <p>No Socials</p>
-                    {% endif %}
-                </div>
-                {% if socials|length > 0 %}
-                <div class="ui grid two column container stackable">
-                    {% if 'facebook' in socials %}
-                    <div class="column">
-                        <a href="https://www.facebook.com/{{ socials['facebook'] }}" target="_blank">
-                            <button class="ui button facebook icon fluid mini">
-                                <i class="facebook icon"></i>
-                                Facebook
-                            </button>
-                        </a>
-                    </div>
-                    {% endif %} {% if 'linkedin' in socials %}
-                    <div class="column">
-                        <a href="https://www.linkedin.com/in/{{ socials['linkedin'] }}" target="_blank">
-                            <button class="ui button linkedin icon fluid mini">
-                                <i class="linkedin icon"></i>
-                                LinkedIn
-                            </button>
-                        </a>
-                    </div>
-                    {% endif %} {% if 'twitter' in socials %}
-                    <div class="column">
-                        <a href="https://www.twitter.com/{{ socials['twitter'] }}" target="_blank">
-                            <button class="ui button twitter icon fluid mini">
-                                <i class="linkedin icon"></i>
-                                Twitter
-                            </button>
-                        </a>
-                    </div>
-                    {% endif %} {% if 'instagram' in socials %}
-                    <div class="column">
-                        <a href="https://www.instagram.com/{{ socials['instagram'] }}" target="_blank">
-                            <button class="ui button instagram icon fluid mini">
-                                <i class="instagram icon"></i>
-                                Instagram
-                            </button>
-                        </a>
-                    </div>
-                    {% endif %} {% if 'youtube' in socials %}
-                    <div class="column">
-                        <a href="https://www.youtube.com/c/{{ socials['youtube'] }}" target="_blank">
-                            <button class="ui button youtube icon fluid mini">
-                                <i class="youtube icon"></i>
-                                YouTube
-                            </button>
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
-                {% endif %}
+        <div class="ui list">
+          <div class="item">
+            <div class="ui label basic">
+              <i class="male icon"></i>
+              {{ gender }}
             </div>
-            <div class="eleven wide column">
-                <div class="ui grid">
-                    <div class="sixteen wide column">
-                        <h1>
-                            <div class="mobile hidden">{{ name }}</div>
-                        </h1>
-                    </div>
-                    <div class="eight wide column">
-                        {% if account_type == "staff" %}
-                        <div class="ui label basic medium red">
-                            @{{ username }}
-                            <div class="detail">{{ account_type }}</div>
-                        </div>
-                        {% elif account_type == "admin" %}
-                        <div class="ui label basic medium purple">
-                            @{{ username }}
-                            <div class="detail">{{ account_type }}</div>
-                        </div>
-                        {% else %}
-                        <div class="ui label basic medium blue">
-                            @{{ username }}
-                            <div class="detail">{{ account_type }}</div>
-                        </div>
-                        {% endif %}
-                    </div>
-                    <div class="eight wide column">
-                        <div style="float: right">
-                            {% if session and session["username"] == username %}
-                            <div class="right floated content">
-                                <a href="../edit-profile">
-                                    <button class="ui button icon green">
-                                        <i class="icon pencil"></i>
-                                        Edit Profile
-                                    </button>
-                                </a>
-                            </div>
-                            {% endif %}
-                            <a href="">
-                                <i class="exclamation triangle icon"></i>
-                                Report user
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="ui list">
-                    <div class="item"><b>Studying: {{ degree }} </b></div>
-                </div>
-                <p style="overflow-wrap: anywhere">{{ bio }}</p>
-                {% if username != session["username"] and session["username"] %}
-                <div class="ui grid">
-                    <div class="right floated column">
-                        <div class="ui buttons right floated">
-                            {% if type == None %}
-                            <button class="ui blue button tiny" form="connect-request">
-                                <i class="user icon"></i>
-                                Connect
-                            </button>
-                            <form action="{{ url_for('connections.connect_request', username=username) }}" method="POST" id="connect-request"></form>
-                            {% endif %} {% if type == "request" %}
-                            <button class="ui grey button tiny" form="pending-remove-connection">
-                                <i class="bell slash icon"></i>
-                                Pending
-                            </button>
-                            <form action="{{ url_for('connections.remove_connection', username=username) }}" method="GET" id="pending-remove-connection"></form>
-                            {% endif %} {% if type == "incoming" %}
-                            <button class="ui green button tiny" form="accept">
-                                <i class="user icon"></i>
-                                Accept Request
-                            </button>
-                            <form action="{{ url_for('connections.accept_connection_request', username=username) }}" method="GET" id="accept"></form>
-                            {% endif %} {% if type == "connected" %}
-                            <button class="ui blue button tiny" form="close-connection">
-                                <i class="handshake outline icon"></i>
-                                Mark as Close Friend
-                            </button>
-                            <form action="{{ url_for('connections.close_connection', username=username) }}" method="GET" id="close-connection"></form>
-                            {% endif %} {% if type == "close_friend" %}
-                            <button class="ui purple button tiny" form="remove-close">
-                                <i class="handshake outline icon"></i>
-                                Close Friends
-                            </button>
-                            <form action="{{ url_for('connections.remove_close_friend', username=username) }}" method="GET" id="remove-close"></form>
-                            {% endif %} {% if type == "connected" or type == "close_friend" %}
-                            <button class="ui green button tiny" form="connected-remove-connection">
-                                <i class="user icon"></i>
-                                Connected
-                            </button>
-                            <form action="{{ url_for('connections.remove_connection', username=username) }}" method="GET" id="connected-remove-connection"></form>
-                            {% endif %} {% if type == "block" %}
-                            <button class="ui red button tiny" form="unblock-button">
-                                <i class="bell slash icon"></i>
-                                Blocked
-                            </button>
-                            <form action="{{ url_for('connections.unblock_user', username=username) }}" method="GET" id="unblock-button"></form>
-                            {% else %}
-                            <button class="ui red button tiny" form="block-button">
-                                <i class="bell slash icon"></i>
-                                Block
-                            </button>
-                            <form action="{{ url_for('connections.block_user', username=username) }}" method="GET" id="block-button"></form>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
-
-                <div class="scrolling" id="posts-container" style="padding: 1em; margin-top: 2em">
-                    <div class="ui horizontal divider">Posts</div>
-                    {% for post in posts.UserPosts %}
-                    <div class="ui grid stackable">
-                        <div class="sixteen wide column">
-                            <h2>
-                                {% if post.type == "Text" %}
-                                <i class="icon file outline alternate"></i>
-                                {% endif %} {% if post.type == "Image" %}
-                                <i class="icon image"></i>
-                                {% endif %} {% if post.type == "Link" %}
-                                <i class="icon linkify"></i>
-                                {% endif %}
-                                <a href="/post_page/{{ post.postId }}">{{ post.title }}</a>
-                                <div style="float: right">{{ post.date_posted }}</div>
-                            </h2>
-                            <div class="ui divider horizontal hidden"></div>
-                            {{ post.body }}
-                            <div style="float: right" class="text-muted">
-                                <div class="ui label icon basic">
-                                    {{ post.privacy }}
-                                    <div class="detail">
-                                        <i class="icon {{ post.icon }}"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="ui divider"></div>
-                    {% endfor %}
-                </div>
+          </div>
+          <div class="item">
+            <div class="ui label basic">
+              <i class="birthday cake icon"></i>
+              {{ birthday }} ({{ age }} years old)
             </div>
+          </div>
+          <div class="item">
+            <div class="ui label blue basic">
+              <i class="envelope open outline icon"></i>
+              {{ email }}
+            </div>
+          </div>
+          <div class="ui progress indicating {{ progress_color }} tiny">
+            <!-- TO DO: fix experience level bar -->
+            <div
+              class="bar"
+              style="width: {{ 100*current_xp/xp_next_level }}%;"
+            >
+              <div class="progress"></div>
+            </div>
+            <div class="label">
+              Level {{ level }} ({{ current_xp }}/{{ xp_next_level }})
+            </div>
+          </div>
+          <div class="ui divider hidden"></div>
         </div>
+        <div class="ui divider horizontal">Hobbies</div>
+        <div style="text-align: center">
+          {% for hobby in hobbies %}
+          <a class="ui label teal" style="text-transform: capitalize"
+            >{{ hobby[0] }}</a
+          >
+          {% endfor %} {% if hobbies|length == 0 %}
+          <p>No Hobbies</p>
+          {% endif %}
+        </div>
+        <div class="ui divider horizontal">Interests</div>
+        <div style="text-align: center">
+          {% for interest in interests %}
+          <a class="ui label purple" style="text-transform: capitalize"
+            >{{ interest[0] }}</a
+          >
+          {% endfor %} {% if interests|length == 0 %}
+          <p>No Interests</p>
+          {% endif %}
+        </div>
+
+        <div class="ui horizontal divider">Top Achievements</div>
+
+        <div class="ui icons" style="text-align: center">
+          {% for achievement in unlocked_achievements %}
+          <div
+            class="achievement"
+            style="display: inline-block"
+            data-html='<div class="header">{{ achievement[4] }}</div><div style="color: grey; text-transform: uppercase; font-size: 0.8em;"
+                        class="{{ achievement[2] }}-glow">{{ achievement[2] }}</div>{{ achievement[0] }}<br><b>{{ achievement[3] }} XP</b>'
+          >
+            <i
+              class="icon {{ achievement[1] }} big {{ achievement[2] }} achievement-icon"
+              data-title="{{ achievement[4] }}"
+              data-content="{{ achievement[0] }} | {{ achievement[3] }} XP"
+            ></i>
+          </div>
+          {% endfor %} {% if unlocked_achievements|length == 0 %}
+          <p>No Unlocked Achievements</p>
+          {% endif %}
+        </div>
+
+        <div class="ui horizontal divider">Socials</div>
+        <div style="text-align: center">
+          {% if socials|length == 0 %}
+          <p>No Socials</p>
+          {% endif %}
+        </div>
+        {% if socials|length > 0 %}
+        <div class="ui grid two column container stackable">
+          {% if 'facebook' in socials %}
+          <div class="column">
+            <a
+              href="https://www.facebook.com/{{ socials['facebook'] }}"
+              target="_blank"
+            >
+              <button class="ui button facebook icon fluid mini">
+                <i class="facebook icon"></i>
+                Facebook
+              </button>
+            </a>
+          </div>
+          {% endif %} {% if 'linkedin' in socials %}
+          <div class="column">
+            <a
+              href="https://www.linkedin.com/in/{{ socials['linkedin'] }}"
+              target="_blank"
+            >
+              <button class="ui button linkedin icon fluid mini">
+                <i class="linkedin icon"></i>
+                LinkedIn
+              </button>
+            </a>
+          </div>
+          {% endif %} {% if 'twitter' in socials %}
+          <div class="column">
+            <a
+              href="https://www.twitter.com/{{ socials['twitter'] }}"
+              target="_blank"
+            >
+              <button class="ui button twitter icon fluid mini">
+                <i class="linkedin icon"></i>
+                Twitter
+              </button>
+            </a>
+          </div>
+          {% endif %} {% if 'instagram' in socials %}
+          <div class="column">
+            <a
+              href="https://www.instagram.com/{{ socials['instagram'] }}"
+              target="_blank"
+            >
+              <button class="ui button instagram icon fluid mini">
+                <i class="instagram icon"></i>
+                Instagram
+              </button>
+            </a>
+          </div>
+          {% endif %} {% if 'youtube' in socials %}
+          <div class="column">
+            <a
+              href="https://www.youtube.com/c/{{ socials['youtube'] }}"
+              target="_blank"
+            >
+              <button class="ui button youtube icon fluid mini">
+                <i class="youtube icon"></i>
+                YouTube
+              </button>
+            </a>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      <div class="eleven wide column">
+        <div class="ui grid">
+          <div class="sixteen wide column">
+            <h1>
+              <div class="mobile hidden">{{ name }}</div>
+            </h1>
+          </div>
+          <div class="eight wide column">
+            {% if account_type == "staff" %}
+            <div class="ui label basic medium red">
+              @{{ username }}
+              <div class="detail">{{ account_type }}</div>
+            </div>
+            {% elif account_type == "admin" %}
+            <div class="ui label basic medium purple">
+              @{{ username }}
+              <div class="detail">{{ account_type }}</div>
+            </div>
+            {% else %}
+            <div class="ui label basic medium blue">
+              @{{ username }}
+              <div class="detail">{{ account_type }}</div>
+            </div>
+            {% endif %}
+          </div>
+          <div class="eight wide column">
+            <div style="float: right">
+              {% if session and session["username"] == username %}
+              <div class="right floated content">
+                <a href="../edit-profile">
+                  <button class="ui button icon green">
+                    <i class="icon pencil"></i>
+                    Edit Profile
+                  </button>
+                </a>
+              </div>
+              {% endif %}
+              <a href="">
+                <i class="exclamation triangle icon"></i>
+                Report user
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="ui list">
+          <div class="item"><b>Studying: {{ degree }} </b></div>
+        </div>
+        <p style="overflow-wrap: anywhere">{{ bio }}</p>
+        {% if username != session["username"] and session["username"] %}
+        <div class="ui grid">
+          <div class="right floated column">
+            <div class="ui buttons right floated">
+              {% if type == None %}
+              <button class="ui blue button tiny" form="connect-request">
+                <i class="user icon"></i>
+                Connect
+              </button>
+              <form
+                action="{{ url_for('connections.connect_request', username=username) }}"
+                method="POST"
+                id="connect-request"
+              ></form>
+              {% endif %} {% if type == "request" %}
+              <button
+                class="ui grey button tiny"
+                form="pending-remove-connection"
+              >
+                <i class="bell slash icon"></i>
+                Pending
+              </button>
+              <form
+                action="{{ url_for('connections.remove_connection', username=username) }}"
+                method="GET"
+                id="pending-remove-connection"
+              ></form>
+              {% endif %} {% if type == "incoming" %}
+              <button class="ui green button tiny" form="accept">
+                <i class="user icon"></i>
+                Accept Request
+              </button>
+              <form
+                action="{{ url_for('connections.accept_connection_request', username=username) }}"
+                method="GET"
+                id="accept"
+              ></form>
+              {% endif %} {% if type == "connected" %}
+              <button class="ui blue button tiny" form="close-connection">
+                <i class="handshake outline icon"></i>
+                Mark as Close Friend
+              </button>
+              <form
+                action="{{ url_for('connections.close_connection', username=username) }}"
+                method="GET"
+                id="close-connection"
+              ></form>
+              {% endif %} {% if type == "close_friend" %}
+              <button class="ui purple button tiny" form="remove-close">
+                <i class="handshake outline icon"></i>
+                Close Friends
+              </button>
+              <form
+                action="{{ url_for('connections.remove_close_friend', username=username) }}"
+                method="GET"
+                id="remove-close"
+              ></form>
+              {% endif %} {% if type == "connected" or type == "close_friend" %}
+              <button
+                class="ui green button tiny"
+                form="connected-remove-connection"
+              >
+                <i class="user icon"></i>
+                Connected
+              </button>
+              <form
+                action="{{ url_for('connections.remove_connection', username=username) }}"
+                method="GET"
+                id="connected-remove-connection"
+              ></form>
+              {% endif %} {% if type == "block" %}
+              <button class="ui red button tiny" form="unblock-button">
+                <i class="bell slash icon"></i>
+                Blocked
+              </button>
+              <form
+                action="{{ url_for('connections.unblock_user', username=username) }}"
+                method="GET"
+                id="unblock-button"
+              ></form>
+              {% else %}
+              <button class="ui red button tiny" form="block-button">
+                <i class="bell slash icon"></i>
+                Block
+              </button>
+              <form
+                action="{{ url_for('connections.block_user', username=username) }}"
+                method="GET"
+                id="block-button"
+              ></form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div
+          class="scrolling"
+          id="posts-container"
+          style="padding: 1em; margin-top: 2em"
+        >
+          <div class="ui horizontal divider">Posts</div>
+          {% for post in posts.UserPosts %}
+          <div class="ui grid stackable">
+            <div class="sixteen wide column">
+              <h2>
+                {% if post.type == "Text" %}
+                <i class="icon file outline alternate"></i>
+                {% endif %} {% if post.type == "Image" %}
+                <i class="icon image"></i>
+                {% endif %} {% if post.type == "Link" %}
+                <i class="icon linkify"></i>
+                {% endif %}
+                <a href="/post_page/{{ post.postId }}">{{ post.title }}</a>
+                <div style="float: right">{{ post.date_posted }}</div>
+              </h2>
+              <div class="ui divider horizontal hidden"></div>
+              {{ post.body }}
+              <div style="float: right" class="text-muted">
+                <div class="ui label icon basic">
+                  {{ post.privacy }}
+                  <div class="detail">
+                    <i class="icon {{ post.icon }}"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ui divider"></div>
+          {% endfor %}
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Use static/local versions instead of this cdnjs link -->
@@ -438,15 +594,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
 
 <script>
-    $("[data-html]").popup();
+  $("[data-html]").popup();
 
-    /*document.addEventListener("DOMContentLoaded", function() {
+  /*document.addEventListener("DOMContentLoaded", function() {
               var height = document.getElementById("left-column").clientHeight;
               document.getElementById("posts-container").style.setProperty("max-height", height+"px", "important");
 
               console.log(height);
           })*/
-
 </script>
 
 {% endblock %}

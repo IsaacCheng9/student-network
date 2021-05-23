@@ -123,6 +123,7 @@ def new_notification(body, url):
 
         conn.commit()
 
+
 def new_notification_username(username, body, url):
     now = datetime.now()
 

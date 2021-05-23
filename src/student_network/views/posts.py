@@ -95,8 +95,7 @@ def post(post_id: int) -> object:
 
         # Gets user from database using username.
         cur.execute(
-            "SELECT body, username, date, likes "
-            "FROM POSTS WHERE postId=?;",
+            "SELECT body, username, date, likes " "FROM POSTS WHERE postId=?;",
             (post_id,),
         )
         row = cur.fetchall()
@@ -129,7 +128,9 @@ def post(post_id: int) -> object:
             )
             user_account_type = cur.fetchone()[0]
 
-            cur.execute("SELECT contentUrl from PostContent WHERE postId=?;", (post_id,))
+            cur.execute(
+                "SELECT contentUrl from PostContent WHERE postId=?;", (post_id,)
+            )
             images = cur.fetchall()
 
             cur.execute("SELECT *" "FROM Comments WHERE postId=?;", (post_id,))
@@ -162,7 +163,9 @@ def post(post_id: int) -> object:
                         "commentId": comment[0],
                         "username": comment[1],
                         "body": comment[2],
-                        "date": helper_general.display_short_notification_age((datetime.now() - time).total_seconds()),
+                        "date": helper_general.display_short_notification_age(
+                            (datetime.now() - time).total_seconds()
+                        ),
                         "profilePic": helper_profile.get_profile_picture(comment[1]),
                     }
                 )
@@ -320,10 +323,11 @@ def submit_post() -> object:
     post_body = request.form["post_text"]
 
     allFileNames = request.form["allFileNames"]
-    allFileNamesSplit = allFileNames.split(",") # comma separated string
+    allFileNamesSplit = allFileNames.split(",")  # comma separated string
 
     # user needs to upload some data to proceed
-    if len(allFileNames) > 0 or len(post_body) > 0: valid = True
+    if len(allFileNames) > 0 or len(post_body) > 0:
+        valid = True
 
     # Only adds the post if a title has been input.
     if valid is True:
@@ -337,7 +341,7 @@ def submit_post() -> object:
             account_type = cur.fetchone()[0]
 
             cur.execute("SELECT COUNT(*) FROM POSTS")
-            
+
             row_count = int(cur.fetchone()[0])
             row_id = row_count + 1
 
@@ -366,11 +370,13 @@ def submit_post() -> object:
             conn.commit()
 
             usernames_tagged = re.findall(r"@(\w+)", post_body)
-            
+
             for username in usernames_tagged:
-                helper_general.new_notification_username(username, 
-                "You have been tagged by {} in a post!".format(session["username"]),
-                "/post_page/{}".format(row_id))
+                helper_general.new_notification_username(
+                    username,
+                    "You have been tagged by {} in a post!".format(session["username"]),
+                    "/post_page/{}".format(row_id),
+                )
 
             helper_posts.update_submission_achievements(cur)
     else:
@@ -497,8 +503,11 @@ def submit_comment() -> object:
 
             # we haven't commented on our own post
             if username != session["username"]:
-                helper_general.new_notification_username(username, "{} has commented on your post!".format(session["username"]),
-            "/post_page/{}".format(post_id))
+                helper_general.new_notification_username(
+                    username,
+                    "{} has commented on your post!".format(session["username"]),
+                    "/post_page/{}".format(post_id),
+                )
 
     session["postId"] = post_id
     return redirect("/post_page/" + post_id)
@@ -572,6 +581,7 @@ def delete_comment() -> object:
 
     return redirect("post_page/" + post_id)
 
+
 @posts_blueprint.route("/upload_file", methods=["POST"])
 def upload_file():
     """
@@ -589,9 +599,11 @@ def upload_file():
             file_names.append(fileName)
 
             max_file_upload -= 1
-            if max_file_upload <= 0: break
+            if max_file_upload <= 0:
+                break
 
     return jsonify(file_names)
+
 
 @posts_blueprint.route("/delete_file", methods=["POST"])
 def delete_file():
@@ -603,6 +615,6 @@ def delete_file():
     fileName.replace(".", "")
     fileName.replace("/", "")
 
-    helper_posts.delete_file(fileName+".jpg")
-    
+    helper_posts.delete_file(fileName + ".jpg")
+
     return "200"
