@@ -306,7 +306,9 @@
         document.getElementById("postsContainer").innerHTML += html;
 
         setTimeout(function() {
-            new Slideshow("post-gallery-" + post.postId, imagesToDisplay, (new Array(post.images.length)).fill(""));
+            if (imagesToDisplay.length > 0){
+                new Slideshow("post-gallery-" + post.postId, imagesToDisplay, (new Array(post.images.length)).fill(""));
+            }
         }, 1000);
     }
 

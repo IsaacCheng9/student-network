@@ -209,8 +209,10 @@
     imagesToDisplay = imagesToDisplay.map(function(x) {
         return "/static/images/post_imgs/" + x[0] + ".jpg";
     })
-
-    new Slideshow("slideshow-images", imagesToDisplay, (new Array(imagesToDisplay.length)).fill(""));
+    
+    if (imagesToDisplay.lengt > 0){
+        new Slideshow("slideshow-images", imagesToDisplay, (new Array(imagesToDisplay.length)).fill(""));
+    }
 
 </script>
 
