@@ -589,6 +589,7 @@ def delete_file():
     helper_posts.delete_file(file_name + ".jpg")
     return "200"
 
+
 @posts_blueprint.route("/user_exists", methods=["GET"])
 def user_exists():
     username = request.args.get("username")
@@ -606,4 +607,3 @@ def user_exists():
         return "True"
 
     return "False"
-
