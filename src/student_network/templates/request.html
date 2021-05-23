@@ -148,7 +148,7 @@ content %}
     {% endfor %}
   </div>
   {%endif%}
-  <div class="ui horizontal divider">Recomended Connections</div>
+  <div class="ui horizontal divider">Recommended Connections</div>
   <div class="ui middle aligned list">
     {% if mutuals|length > 0 %} {% for i in range(mutuals|length) %}
     <div class="item">
@@ -170,8 +170,7 @@ content %}
           >{{mutuals[i][0]}}</a
         >
         <br />
-        {% if mutuals[i][2] == "mutual connection" or mutuals[i][2] == "mutual
-        connections" %} {{mutuals[i][1]}} {% endif %} {{mutuals[i][2]}}
+        {{mutuals[i][1]}}
       </div>
     </div>
     {% endfor %} {% else %}

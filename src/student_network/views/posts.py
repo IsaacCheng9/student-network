@@ -39,9 +39,7 @@ def post(post_id: int) -> object:
     # check post restrictions
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute(
-            "SELECT privacy, username " "FROM POSTS WHERE postId=?;", (post_id,)
-        )
+        cur.execute("SELECT privacy, username FROM POSTS WHERE postId=?;", (post_id,))
         row = cur.fetchone()
         if row is None:
             return render_template(
@@ -71,9 +69,7 @@ def post(post_id: int) -> object:
                         if privacy == "protected":
                             return render_template(
                                 "error.html",
-                                message=[
-                                    "This post is only available to " "connections."
-                                ],
+                                message=["This post is only available to connections."],
                             )
                     else:
                         # If the user and author are connected, check that they
@@ -406,7 +402,7 @@ def like_post() -> object:
         liked = helper_posts.check_if_liked(cur, post_id, session["username"])
         if not liked:
             cur.execute(
-                "INSERT INTO UserLikes (postId,username)" "VALUES (?, ?);",
+                "INSERT INTO UserLikes (postId,username) VALUES (?, ?);",
                 (post_id, session["username"]),
             )
 
@@ -417,7 +413,7 @@ def like_post() -> object:
             username = row[1]
 
             cur.execute(
-                "UPDATE POSTS SET likes=? " " WHERE postId=? ;",
+                "UPDATE POSTS SET likes=? WHERE postId=? ;",
                 (
                     likes,
                     post_id,
@@ -439,7 +435,7 @@ def like_post() -> object:
                     (username,),
                 )
                 cur.execute(
-                    "INSERT INTO AllUserLikes (postId,username)" "VALUES (?, ?);",
+                    "INSERT INTO AllUserLikes (postId,username) VALUES (?, ?);",
                     (post_id, session["username"]),
                 )
                 conn.commit()
@@ -452,7 +448,7 @@ def like_post() -> object:
             likes = row[0] - 1
 
             cur.execute(
-                "UPDATE POSTS SET likes=? " " WHERE postId=? ;",
+                "UPDATE POSTS SET likes=? WHERE postId=? ;",
                 (
                     likes,
                     post_id,
@@ -461,7 +457,7 @@ def like_post() -> object:
             conn.commit()
 
             cur.execute(
-                "DELETE FROM UserLikes " "WHERE (postId=? AND username=?)",
+                "DELETE FROM UserLikes WHERE (postId=? AND username=?)",
                 (post_id, session["username"]),
             )
             conn.commit()
@@ -485,18 +481,18 @@ def submit_comment() -> object:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             cur.execute(
-                "INSERT INTO Comments (postId, body, username) " "VALUES (?, ?, ?);",
+                "INSERT INTO Comments (postId, body, username) VALUES (?, ?, ?);",
                 (post_id, comment_body, session["username"]),
             )
             conn.commit()
 
             # Get username on post
-            cur.execute("SELECT username FROM POSTS " "WHERE postId=?;", (post_id,))
+            cur.execute("SELECT username FROM POSTS WHERE postId=?;", (post_id,))
             username = cur.fetchone()[0]
 
             # Get number of comments
             cur.execute(
-                "SELECT COUNT(commentId) FROM Comments " "WHERE postID=?;", (post_id,)
+                "SELECT COUNT(commentId) FROM Comments WHERE postID=?;", (post_id,)
             )
             row = cur.fetchone()[0]
 
@@ -530,9 +526,8 @@ def delete_post() -> object:
         if row[0] is None:
             message.append("Error: this post does not exist")
         else:
-            # cur.execute("DELETE FROM POSTS WHERE postId=?", (post_id,))
             cur.execute(
-                "UPDATE POSTS " "SET privacy=? " "WHERE postId=?", ("deleted", post_id)
+                "UPDATE POSTS SET privacy=? WHERE postId=?;", ("deleted", post_id)
             )
             conn.commit()
 

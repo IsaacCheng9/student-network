@@ -52,6 +52,9 @@ def profile(username: str) -> object:
     interests = []
     message = []
 
+    if "register_details" in session:
+        session.pop("register_details", None)
+
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets user from database using username.
@@ -88,7 +91,10 @@ def profile(username: str) -> object:
         if username == session["username"]:
             # Gets the user's posts regardless of post settings if user is the
             # owner of the profile.
-            cur.execute("SELECT * FROM POSTS WHERE username=?", (username,))
+            cur.execute(
+                "SELECT * FROM POSTS WHERE username=? AND privacy!='deleted'",
+                (username,),
+            )
             sort_posts = cur.fetchall()
         else:
             # Gets the connection type between the profile owner and the user.
@@ -163,7 +169,7 @@ def profile(username: str) -> object:
                     sort_posts = cur.fetchall()
             else:
                 cur.execute(
-                    "SELECT * FROM POSTS WHERE username=? " "AND privacy=='public' ",
+                    "SELECT * FROM POSTS WHERE username=? AND privacy=='public' ",
                     (username,),
                 )
                 sort_posts = cur.fetchall()
@@ -218,7 +224,7 @@ def profile(username: str) -> object:
         )
 
     # Gets account type.
-    cur.execute("SELECT type FROM " "ACCOUNTS WHERE username=?;", (username,))
+    cur.execute("SELECT type FROM ACCOUNTS WHERE username=?;", (username,))
     row = cur.fetchall()
     account_type = row[0][0]
 
@@ -472,10 +478,8 @@ def edit_profile() -> object:
                 # Inserts new hobbies and interests into the database if the
                 # user made a new input.
 
-                cur.execute("DELETE FROM UserHobby WHERE " "username=?;", (username,))
-                cur.execute(
-                    "DELETE FROM UserInterests WHERE " "username=?;", (username,)
-                )
+                cur.execute("DELETE FROM UserHobby WHERE username=?;", (username,))
+                cur.execute("DELETE FROM UserInterests WHERE username=?;", (username,))
                 if hobbies != [""]:
                     for hobby in hobbies:
                         cur.execute(

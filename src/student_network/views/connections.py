@@ -339,12 +339,12 @@ def show_connect_requests() -> object:
         )
         blocked_connections = cur.fetchall()
 
-        # Extracts mutual connections.
-        mutual_connections = helper_connections.get_recommended_connections(
+        # Extracts recommended connections.
+        recommended_connections = helper_connections.get_recommended_connections(
             session["username"]
         )
         mutual_avatars = []
-        for mutual in mutual_connections:
+        for mutual in recommended_connections:
             mutual_avatars.append(helper_profile.get_profile_picture(mutual[0]))
 
         # Lists usernames of all connected people.
@@ -372,7 +372,7 @@ def show_connect_requests() -> object:
         connections=connections,
         pending=pending_connections,
         blocked=blocked_connections,
-        mutuals=mutual_connections,
+        mutuals=recommended_connections,
         mutual_avatars=mutual_avatars,
         notifications=helper_general.get_notifications(),
     )

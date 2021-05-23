@@ -32,57 +32,65 @@ content %}
         <div class="ui form">
           <div class="required field">
             <label>Username</label>
-            <label>
-              <input name="username_input" type="text" placeholder="Username" />
-            </label>
+            <!--{% if not 'Username must only contain letters and numbers!' in errors and
+            not 'Username has already been registered!' in errors %}{% endif %}-->
+
+            <input
+              name="username_input"
+              type="text"
+              placeholder="Username"
+              value="{{details[0]}}"
+            />
           </div>
           <div class="required field">
             <label>Full Name</label>
-            <label>
-              <input
-                name="fullname_input"
-                type="text"
-                placeholder="Full Name"
-              />
-            </label>
+            <!--{% if not 'Full name exceeds 40 characters!' in errors and
+            not 'Full name must only contain letters and spaces!' in errors %}
+            {% endif %}
+            -->
+            <input
+              name="fullname_input"
+              type="text"
+              placeholder="Full Name"
+              value="{{details[1]}}"
+            />
           </div>
+
           <div class="required field">
             <label>Email Address</label>
-            <label>
-              <input
-                name="email_input"
-                type="email"
-                placeholder="Email Address"
-              />
-            </label>
+            <!--{% if not 'Email has already been registered!' in errors and
+            not 'Email is invalid!' in errors and
+            not 'Email address does not belong to University of Exeter!' in errors %}
+            {% endif %}
+            -->
+            <input
+              name="email_input"
+              type="email"
+              placeholder="Email Address"
+              value="{{details[2]}}"
+            />
           </div>
           <div class="required field">
             <label>Password</label>
-            <label>
-              <input name="psw_input" type="password" placeholder="Password" />
-            </label>
+            <input name="psw_input" type="password" placeholder="Password" />
           </div>
           <div class="required field">
             <label>Confirm Password</label>
-            <label>
-              <input
-                name="psw_input_check"
-                type="password"
-                placeholder="Password"
-              />
-            </label>
+            <input
+              name="psw_input_check"
+              type="password"
+              placeholder="Password"
+            />
           </div>
           <div class="inline fields">
             <label>Select user type: </label>
             <div class="required field">
-              <label class="radio-inline">
-                <input
-                  type="radio"
-                  name="optradio"
-                  value="student"
-                  checked
-                />Student
-              </label>
+              <input
+                type="radio"
+                name="optradio"
+                value="student"
+                checked
+              />Student
               <label class="radio-inline">
                 <input
                   type="radio"
@@ -94,9 +102,7 @@ content %}
           </div>
           <div class="required field">
             <div class="ui checkbox">
-              <label>
-                <input type="checkbox" name="terms" />
-              </label>
+              <input type="checkbox" name="terms" />
               <label>
                 I have read and understood the
                 <a href="/terms">Terms of Service</a></label
