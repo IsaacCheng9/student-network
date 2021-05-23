@@ -350,21 +350,21 @@ def get_recommended_connections(username: str) -> list:
                         if is_close_friend(session["username"], conec):
                             label = conec
                             break
-                main = str(count) + " mutual connections including " + label
+                main = str(count) + " mutual connections including <b>{}</b>".format(label)
             elif index == 1:
                 for h in hobbies.keys():
                     if student in hobbies[h]:
                         hobby = h
                         break
-                main = "you both enjoy hobbies including " + hobby
+                main = "You both enjoy hobbies including <b>{}</b>".format(hobby)
             elif index == 2:
                 for i in interests.keys():
                     if student in interests[i]:
                         interest = i
                         break
-                main = "you are both interested in " + interest
+                main = "You are both interested in <b>{}</b>".format(interest)
             else:
-                main = "you both study " + degree[1]
+                main = "You both study " + degree[1]
 
             recommendations.append([student, main, sum(score_totals[student])])
 
