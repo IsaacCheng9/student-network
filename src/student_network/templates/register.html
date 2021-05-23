@@ -33,18 +33,10 @@ content %}
           <div class="required field">
             <label>Username</label>
             <!--{% if not 'Username must only contain letters and numbers!' in errors and
-            not 'Username has already been registered!' in errors %}{% endif %}
-            -->
-            {% if details[0] == '' %}
-            <input name="username_input" type="text" placeholder="Username" />
-            {% else %}
-            <input
-              name="username_input"
-              type="text"
-              placeholder="Username"
-              value="{{details[0]}}"
-            />
-            {% endif %}
+            not 'Username has already been registered!' in errors %}{% endif %}-->
+            
+            <input name="username_input" type="text"  placeholder="Username" value="{{details[0]}}" />
+            
           </div>
           <div class="required field">
             <label>Full Name</label>
@@ -52,16 +44,8 @@ content %}
             not 'Full name must only contain letters and spaces!' in errors %}
             {% endif %}
             -->
-            {% if details[1] == '' %}
-            <input name="fullname_input" type="text" placeholder="Full Name" />
-            {% else %}
-            <input
-              name="fullname_input"
-              type="text"
-              placeholder="Full Name"
-              value="{{details[1]}}"
-            />
-            {% endif %}
+            <input name="fullname_input" type="text" placeholder="Full Name" value="{{details[1]}}" />
+            
           </div>
 
           <div class="required field">
@@ -71,20 +55,8 @@ content %}
             not 'Email address does not belong to University of Exeter!' in errors %}
             {% endif %}
             -->
-            {% if details[2] == '' %}
-            <input
-              name="email_input"
-              type="email"
-              placeholder="Email Address"
-            />
-            {% else %}
-            <input
-              name="email_input"
-              type="email"
-              placeholder="Email Address"
-              value="{{details[2]}}"
-            />
-            {% endif %}
+            <input name="email_input" type="email" placeholder="Email Address" value="{{details[2]}}" />
+            
           </div>
           <div class="required field">
             <label>Password</label>
