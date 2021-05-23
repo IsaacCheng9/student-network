@@ -259,10 +259,15 @@
                         </div>`;
         }
 
-        let postBody = `<div class="sixteen wide column">
+
+        if (post.body !== "") {
+            let re = /(https?:\/\/)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com)\/(watch\?v=|embed\/|v\/|.+\?v=)?([^&=%\?]{11})/
+            const yt_link = post.body.match(re);  // array containing all elements of video
+
+            let postBody = `<div class="sixteen wide column">
                     <div class="ui container" style="overflow-wrap: anywhere;">${FormatBody(post.body)}</div>
                 </div>`;
-
+        }
         let icon;
         if (post.liked === true) {
             icon = `<i class="heart icon red"></i>`;
