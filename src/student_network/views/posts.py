@@ -5,7 +5,6 @@ Handles the view for posts on the feed and related functionality.
 import re
 import sqlite3
 from datetime import datetime
-from urllib.parse import parse_qs, urlparse
 
 import student_network.helpers.helper_achievements as helper_achievements
 import student_network.helpers.helper_connections as helper_connections
@@ -13,9 +12,6 @@ import student_network.helpers.helper_general as helper_general
 import student_network.helpers.helper_login as helper_login
 import student_network.helpers.helper_posts as helper_posts
 import student_network.helpers.helper_profile as helper_profile
-import student_network.helpers.helper_quizzes as helper_quizzes
-import student_network.helpers.helper_posts as helper_posts
-
 from flask import Blueprint, jsonify, redirect, render_template, request, session
 
 posts_blueprint = Blueprint(
@@ -157,7 +153,7 @@ def post(post_id: int) -> object:
                     notifications=helper_general.get_notifications(),
                 )
             for comment in row:
-                time = time = datetime.strptime(comment[3], "%Y-%m-%d %H:%M:%S")
+                time = datetime.strptime(comment[3], "%Y-%m-%d %H:%M:%S")
                 comments["comments"].append(
                     {
                         "commentId": comment[0],
@@ -222,11 +218,8 @@ def feed() -> object:
         cur.execute("SELECT MAX(postId) FROM POSTS")
         row = cur.fetchone()
 
-    all_posts, content, valid = helper_posts.fetch_posts(2, row[0])
+    _, content, valid = helper_posts.fetch_posts(2, row[0])
     # Displays any error messages.
-
-    all_posts = []
-
     if valid:
         if "error" in session:
             errors = session["error"]
@@ -317,20 +310,12 @@ def submit_post() -> object:
     Returns:
         Updated feed with new post added
     """
-    valid = False
     post_privacy = request.form.get("privacy")
-
     post_body = request.form["post_text"]
-
-    allFileNames = request.form["allFileNames"]
-    allFileNamesSplit = allFileNames.split(",")  # comma separated string
-
-    # user needs to upload some data to proceed
-    if len(allFileNames) > 0 or len(post_body) > 0:
-        valid = True
+    all_file_names = request.form["allFileNames"].split(",")
 
     # Only adds the post if a title has been input.
-    if valid is True:
+    if len(all_file_names) > 0 or len(post_body) > 0:
         with sqlite3.connect("database.db") as conn:
             cur = conn.cursor()
             # Get account type
@@ -338,13 +323,9 @@ def submit_post() -> object:
                 "SELECT type FROM ACCOUNTS WHERE username=?;",
                 (session["username"],),
             )
-            account_type = cur.fetchone()[0]
-
             cur.execute("SELECT COUNT(*) FROM POSTS")
-
             row_count = int(cur.fetchone()[0])
             row_id = row_count + 1
-
             cur.execute(
                 "INSERT INTO POSTS (postId, body, username,"
                 "privacy) VALUES (?, ?, ?, ?);",
@@ -356,8 +337,8 @@ def submit_post() -> object:
                 ),
             )
 
-            if len(allFileNames) > 0:
-                for fileName in allFileNamesSplit:
+            if len(all_file_names) > 0:
+                for fileName in all_file_names:
                     cur.execute(
                         "INSERT INTO PostContent (postId, contentUrl) "
                         "VALUES (?, ?);",
@@ -368,16 +349,13 @@ def submit_post() -> object:
                     )
 
             conn.commit()
-
             usernames_tagged = re.findall(r"@(\w+)", post_body)
-
             for username in usernames_tagged:
                 helper_general.new_notification_username(
                     username,
                     "You have been tagged by {} in a post!".format(session["username"]),
                     "/post_page/{}".format(row_id),
                 )
-
             helper_posts.update_submission_achievements(cur)
     else:
         # Prints error message stating that the title is missing.
@@ -398,11 +376,6 @@ def like_post() -> object:
 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        # check user hasn't liked post already
-        # cur.execute("SELECT username, postId FROM UserLikes"
-        #            " WHERE postId=? AND username=? ;",
-        #            (post_id, session["username"]))
-        # row = cur.fetchone()
         liked = helper_posts.check_if_liked(cur, post_id, session["username"])
         if not liked:
             cur.execute(
@@ -588,15 +561,14 @@ def upload_file():
     An API that sends the files using a form, they are then saved here
     and a list of names of the files is returned
     """
-
     max_file_upload = 10
     file_names = []
     if request.files:
-        for fileName in request.files:
-            file = request.files[fileName]
+        for file_name in request.files:
+            file = request.files[file_name]
 
-            fileName = helper_posts.upload_image(file)
-            file_names.append(fileName)
+            file_name = helper_posts.upload_image(file)
+            file_names.append(file_name)
 
             max_file_upload -= 1
             if max_file_upload <= 0:
@@ -610,11 +582,9 @@ def delete_file():
     """
     An API call to delete a file with a given name from the server
     """
-    fileName = request.args.get("filename")
+    file_name = request.args.get("filename")
     # try and prevent escaping this path
-    fileName.replace(".", "")
-    fileName.replace("/", "")
-
-    helper_posts.delete_file(fileName + ".jpg")
-
+    file_name.replace(".", "")
+    file_name.replace("/", "")
+    helper_posts.delete_file(file_name + ".jpg")
     return "200"
