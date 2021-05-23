@@ -71,7 +71,7 @@
         top: 0;
         left: 0;
     }
-    
+
     .tagged_user {
         color: #0a66c2;
         font-weight: 700;
@@ -109,10 +109,10 @@
                     </div>
                     <div class="content">
                         <div class="centered">
-                            <div style="overflow-wrap: anywhere;" id="main-post-body">{{ body }}</div>
+                            <div style="overflow-wrap: anywhere;" class="apply-markdown">{{ body }}</div>
                         </div>
                         <div id="slideshow-images">
-<!--
+                            <!--
                             {% for image in images %}
                             <img class="slideshow-img" src="/static/images/post_imgs/{{image[0]}}.jpg">
                             {% endfor %}
@@ -134,58 +134,58 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="content">
-                            <div class="ui comments">
-                                <form action="{{ url_for('posts.like_post') }}" class="ui reply form" id="likes" method="POST">
+                    </div>
+                </div>
+                <div class="ui card fluid">
+                    <div class="content">
+                        <div class="ui comments">
+                            <form action="{{ url_for('posts.like_post') }}" class="ui reply form" id="likes" method="POST">
+                                <input type="hidden" name="postId" value="{{ postId }}">
+                            </form>
+
+                            <h3>Comments ({{comments["comments"] | length}})</h3>
+                            {% for comment in comments["comments"] %}
+                            <div class="comment">
+                                <a class="avatar">
+                                    <img src="{{ comment.profilePic }}" alt="" />
+                                </a>
+                                <div class="content">
+                                    <a class="author">{{ comment.username }}</a>
+                                    <div class="metadata">
+                                        <span class="date">{{ comment.date }}</span>
+                                    </div>
+                                    {% if session["username"] == comment.username or user_account_type == "staff" %}
+                                    <button type="submit" form="deleteComment{{ comment.commentId }}" class="ui mini red button icon">
+                                        <i class="small trash alternate outline icon"></i>
+                                    </button>
+                                    {% endif %}
+                                    <form action="{{ url_for('posts.delete_comment') }}" class="ui reply form" id="deleteComment{{ comment.commentId }}" method="POST">
+                                        <input type="hidden" name="postId" value="{{ postId }}">
+                                        <input type="hidden" name="commentId" value="{{ comment.commentId }}">
+                                    </form>
+                                    <div class="text">{{ comment.body }}</div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="hidden content">
+                            <div>
+                                <form action="{{ url_for('posts.submit_comment') }}" class="ui reply form" id="comment" method="POST">
+                                    <input type="hidden" name="postId" value="{{ postId }}">
+                                    <div class="field">
+                                        <label>
+                                            <textarea placeholder="Comment here" name="comment_text"></textarea>
+                                        </label>
+                                    </div>
+                                </form>
+                                <form action="{{ url_for('posts.delete_post') }}" class="ui form" id="deletePost" method="POST">
                                     <input type="hidden" name="postId" value="{{ postId }}">
                                 </form>
-
-                                <h3>Comments ({{comments["comments"] | length}})</h3>
-                                {% for comment in comments["comments"] %}
-                                <div class="comment">
-                                    <a class="avatar">
-                                        <img src="{{ comment.profilePic }}" alt="" />
-                                    </a>
-                                    <div class="content">
-                                        <a class="author">{{ comment.username }}</a>
-                                        <div class="metadata">
-                                            <span class="date">{{ comment.date }}</span>
-                                        </div>
-                                        {% if session["username"] == comment.username or user_account_type == "staff" %}
-                                        <button type="submit" form="deleteComment{{ comment.commentId }}" class="ui mini red button icon">
-                                            <i class="small trash alternate outline icon"></i>
-                                        </button>
-                                        {% endif %}
-                                        <form action="{{ url_for('posts.delete_comment') }}" class="ui reply form" id="deleteComment{{ comment.commentId }}" method="POST">
-                                            <input type="hidden" name="postId" value="{{ postId }}">
-                                            <input type="hidden" name="commentId" value="{{ comment.commentId }}">
-                                        </form>
-                                        <div class="text">
-                                            {{ comment.body }}
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            <div class="hidden content">
-                                <div>
-                                    <form action="{{ url_for('posts.submit_comment') }}" class="ui reply form" id="comment" method="POST">
-                                        <input type="hidden" name="postId" value="{{ postId }}">
-                                        <div class="field">
-                                            <label>
-                                                <textarea placeholder="Comment here" name="comment_text"></textarea>
-                                            </label>
-                                        </div>
-                                    </form>
-                                    <form action="{{ url_for('posts.delete_post') }}" class="ui form" id="deletePost" method="POST">
-                                        <input type="hidden" name="postId" value="{{ postId }}">
-                                    </form>
-                                    <br>
-                                    {% if session["username"] == username or user_account_type == "staff" %}
-                                    <input type="submit" value="Delete Post" form="deletePost" class="negative left floated ui button">
-                                    {% endif %}
-                                    <input type="submit" value="Post comment" form="comment" class="ui right floated blue button">
-                                </div>
+                                <br>
+                                {% if session["username"] == username or user_account_type == "staff" %}
+                                <input type="submit" value="Delete Post" form="deletePost" class="negative left floated ui button">
+                                {% endif %}
+                                <input type="submit" value="Post comment" form="comment" class="ui right floated blue button">
                             </div>
                         </div>
                     </div>
@@ -195,21 +195,23 @@
     </div>
 </div>
 <script>
-    var mainPostBody = document.getElementById("main-post-body");
+    var markdownElements = document.querySelectorAll(".apply-markdown");
     
-    mainPostBody.innerHTML = FormatBody(mainPostBody.innerHTML);
-    
+    for (let elem of markdownElements){
+        elem.innerHTML = FormatBody(elem.innerHTML);
+    }
+
     var imageUrls = [];
-    
+
     var imagesToDisplay = JSON.parse('{{images | tojson | safe}}');
-    
+
     // remove the nested arrays since it returns a 2D list
-    imagesToDisplay = imagesToDisplay.map(function(x){
-        return "/static/images/post_imgs/"+x[0]+".jpg";
+    imagesToDisplay = imagesToDisplay.map(function(x) {
+        return "/static/images/post_imgs/" + x[0] + ".jpg";
     })
-    
+
     new Slideshow("slideshow-images", imagesToDisplay, (new Array(imagesToDisplay.length)).fill(""));
+
 </script>
 
 {% endblock %}
-
