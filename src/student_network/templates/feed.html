@@ -228,6 +228,8 @@
 
 <link rel="stylesheet" href="../static/styles/slideshow.css" type="text/css" />
 
+<script src="../static/FormatBody.js"></script>
+
 <script>
     function LoadVideo(elem) {
         let id = $(elem).attr("data-link");
@@ -257,17 +259,15 @@
                         </div>`;
         }
 
-        let postBody = ``;
 
         if (post.body !== "") {
             let re = /(https?:\/\/)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com)\/(watch\?v=|embed\/|v\/|.+\?v=)?([^&=%\?]{11})/
             const yt_link = post.body.match(re);  // array containing all elements of video
 
-            postBody = `<div class="sixteen wide column">
+            let postBody = `<div class="sixteen wide column">
                     <div class="ui container" style="overflow-wrap: anywhere;">${FormatBody(post.body)}</div>
                 </div>`;
         }
-
         let icon;
         if (post.liked === true) {
             icon = `<i class="heart icon red"></i>`;
@@ -315,11 +315,6 @@
         setTimeout(function() {
             new Slideshow("post-gallery-" + post.postId, imagesToDisplay, (new Array(post.images.length)).fill(""));
         }, 1000);
-    }
-
-    function FormatBody(body) {
-        body = markdown.toHTML(body);
-        return body.replace(/(@(\w+))/gi, `<a href="/profile/$2" class="tagged_user">$1</a>`);
     }
 
     let loadingPost = false;

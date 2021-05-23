@@ -31,7 +31,7 @@ def allowed_file(file_name) -> bool:
 
 
 def display_short_notification_age(seconds):
-    prefixes = ["y", "m", "d", "h", "m", "s"]
+    prefixes = ["y", "mo", "d", "h", "m", "s"]
     values = [3600 * 24 * 365, 3600 * 31 * 24, 3600 * 24, 3600, 60, 1]
 
     for i in range(len(prefixes)):
