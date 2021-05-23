@@ -97,7 +97,7 @@ def profile(username: str) -> object:
             sort_posts = cur.fetchall()
         else:
             # Gets the connection type between the profile owner and the user.
-            thier_close_friend = helper_connections.is_close_friend(
+            their_close_friend = helper_connections.is_close_friend(
                 username, session["username"]
             )
             your_close_friend = helper_connections.is_close_friend(
@@ -147,7 +147,7 @@ def profile(username: str) -> object:
                 count += 1
             if session["username"] in connections:
                 # check if user trying to view profile is a close friend
-                if thier_close_friend:
+                if their_close_friend:
                     cur.execute(
                         "SELECT * "
                         "FROM POSTS WHERE username=? "
