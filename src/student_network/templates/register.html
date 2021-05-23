@@ -36,12 +36,15 @@ content %}
             not 'Username has already been registered!' in errors %}{% endif %}
             -->
             {% if details[0] == '' %}
-              <input name="username_input" type="text"  placeholder="Username" />
+            <input name="username_input" type="text" placeholder="Username" />
             {% else %}
-              <input name="username_input" type="text"  placeholder="Username" value={{details[0]}} />
+            <input
+              name="username_input"
+              type="text"
+              placeholder="Username"
+              value="{{details[0]}}"
+            />
             {% endif %}
-            
-            
           </div>
           <div class="required field">
             <label>Full Name</label>
@@ -50,13 +53,17 @@ content %}
             {% endif %}
             -->
             {% if details[1] == '' %}
-              <input name="fullname_input" type="text" placeholder="Full Name" />
+            <input name="fullname_input" type="text" placeholder="Full Name" />
             {% else %}
-              <input name="fullname_input" type="text" placeholder="Full Name" value={{details[1]}} />
+            <input
+              name="fullname_input"
+              type="text"
+              placeholder="Full Name"
+              value="{{details[1]}}"
+            />
             {% endif %}
-            
           </div>
-          
+
           <div class="required field">
             <label>Email Address</label>
             <!--{% if not 'Email has already been registered!' in errors and
@@ -65,11 +72,19 @@ content %}
             {% endif %}
             -->
             {% if details[2] == '' %}
-              <input name="email_input" type="email" placeholder="Email Address" />
+            <input
+              name="email_input"
+              type="email"
+              placeholder="Email Address"
+            />
             {% else %}
-              <input name="email_input" type="email" placeholder="Email Address" value={{details[2]}} />
+            <input
+              name="email_input"
+              type="email"
+              placeholder="Email Address"
+              value="{{details[2]}}"
+            />
             {% endif %}
-            
           </div>
           <div class="required field">
             <label>Password</label>

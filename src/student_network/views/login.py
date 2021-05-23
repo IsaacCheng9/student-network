@@ -153,7 +153,7 @@ def register_page() -> object:
         if "register_details" in session:
             details = session["register_details"]
         else:
-            details = ["","",""]
+            details = ["", "", ""]
         return render_template(
             "register.html",
             notifications=notifications,
