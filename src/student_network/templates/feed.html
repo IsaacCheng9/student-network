@@ -208,7 +208,7 @@
                 <div class="ui label top attached">Your post preview</div>
                 <div id="post-preview"></div>
             </div>
-            
+
         </div>
     </div>
     <input type="submit" value="Make post" class="ui button fluid teal" form="make-post-form">
@@ -227,8 +227,10 @@
 <script src="../static/slideshow.js"></script>
 
 <link rel="stylesheet" href="../static/styles/slideshow.css" type="text/css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/embed.min.css">
 
 <script src="../static/FormatBody.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/embed.min.js"></script>
 
 <script>
     function LoadVideo(elem) {
@@ -259,15 +261,19 @@
                         </div>`;
         }
 
+        let re = /(https?:\/\/)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com)\/(watch\?v=|embed\/|v\/|.+\?v=)?([^&=%\?]{11})/
+        const yt_link = post.body.match(re); // array containing all elements of video
+        
+        var youtube_video = "";
+        if (yt_link != null){
+            var yt_id = yt_link[6];
+            youtube_video = `<div class="ui container"><div class="ui embed" data-source="youtube" data-id="${yt_id}" data-placeholder="https://img.youtube.com/vi/${yt_id}/hqdefault.jpg"></div></div>`;
+        }
 
-        if (post.body !== "") {
-            let re = /(https?:\/\/)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com)\/(watch\?v=|embed\/|v\/|.+\?v=)?([^&=%\?]{11})/
-            const yt_link = post.body.match(re);  // array containing all elements of video
-
-            let postBody = `<div class="sixteen wide column">
+        let postBody = `<div class="sixteen wide column">
                     <div class="ui container" style="overflow-wrap: anywhere;">${FormatBody(post.body)}</div>
                 </div>`;
-        }
+
         let icon;
         if (post.liked === true) {
             icon = `<i class="heart icon red"></i>`;
@@ -281,7 +287,7 @@
             imagesToDisplay.push(`/static/images/post_imgs/${image}.jpg`);
         }
 
-        let html = `<div class="ui segment">
+        let html = `<div class="ui segment" id="post-number-${post.postId}">
             <div class="ui grid stackable">
                 <div class="one wide column">
                     <img src="${post.profile_pic}" alt="" class="ui image centered round" style="border-radius: 100%" />
@@ -298,7 +304,7 @@
                 <div class="sixteen wide column">
                     <div id="post-gallery-${post.postId}"></div>
                 </div>
-                
+                ${youtube_video}
                 <div class="sixteen wide column">
                     <div>${post.comment_count} comments &nbsp;&nbsp; ${post.like_count}
                       ${icon}</div>
@@ -308,10 +314,12 @@
             </div>
         </div>`;
 
-        document.getElementById("postsContainer").innerHTML += html;
+        $('#postsContainer').append(html);
+        
+        $('#post-number-'+post.postId+" .ui.embed").embed();
 
         setTimeout(function() {
-            if (imagesToDisplay.length > 0){
+            if (imagesToDisplay.length > 0) {
                 new Slideshow("post-gallery-" + post.postId, imagesToDisplay, (new Array(post.images.length)).fill(""));
             }
         }, 1000);
@@ -409,10 +417,10 @@
 
         var elem = document.querySelector("[data-file='" + fileName + "']");
         elem.parentNode.removeChild(elem);
-        
+
         var arr = [];
         var imgs = document.querySelectorAll(".image-preview");
-        for (var img of imgs){
+        for (var img of imgs) {
             arr.push(img.getAttribute("data-file"));
         }
         document.getElementById("allFileNames").value = arr.join(",");
@@ -420,7 +428,7 @@
 
     function ShowPreview() {
         var value = document.getElementById("post_text").value;
-        
+
         document.getElementById("post-preview-parent").style.display = value.length > 0 ? "block" : "none";
         document.getElementById("post-preview").innerHTML = FormatBody(value);
     }
