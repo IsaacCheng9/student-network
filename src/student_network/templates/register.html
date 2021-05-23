@@ -1,117 +1,161 @@
 <meta property="og:title" content="Reconnect | Register" />
-<meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
-<meta property="og:description" content="The Student Network. Connecting students in and outside the classroom." />
+<meta
+  property="og:image"
+  content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
+/>
+<meta
+  property="og:description"
+  content="The Student Network. Connecting students in and outside the classroom."
+/>
 {% extends "base.html" %} {% block title %}Register{% endblock %} {% block
 content %}
 <div class="ui segment basic">
-    <form action="/register" method="POST">
-        <div class="ui card centered" style="min-width: 600px">
-            <div class="content">
-                <div class="header">Register</div>
-            </div>
-            <div class="content">
-                {% if errors %}
-                <div class="ui message red">
-                    <div class="header">Incorrect Credentials</div>
-                    {% for item in errors %}
-                    <p>{{ item }}</p>
-                    {% endfor %}
-                </div>
-                {% endif %} {% if "register" in notifications %}
-                <div class="ui message green">
-                    <div class="header">Success</div>
-                    <p>Account created successfully. You can now login.</p>
-                </div>
-                {% endif %}
-                <div class="ui form">
-                    <div class="required field">
-                        <label>Username</label>
-                        <!--{% if not 'Username must only contain letters and numbers!' in errors and
+  <form action="/register" method="POST">
+    <div class="ui card centered" style="min-width: 600px">
+      <div class="content">
+        <div class="header">Register</div>
+      </div>
+      <div class="content">
+        {% if errors %}
+        <div class="ui message red">
+          <div class="header">Incorrect Credentials</div>
+          {% for item in errors %}
+          <p>{{ item }}</p>
+          {% endfor %}
+        </div>
+        {% endif %} {% if "register" in notifications %}
+        <div class="ui message green">
+          <div class="header">Success</div>
+          <p>Account created successfully. You can now login.</p>
+        </div>
+        {% endif %}
+        <div class="ui form">
+          <div class="required field">
+            <label>Username</label>
+            <!--{% if not 'Username must only contain letters and numbers!' in errors and
             not 'Username has already been registered!' in errors %}{% endif %}-->
 
-                        <input autocomplete="username" class="ui input" oninput="CheckUsernameExists();" name="username_input" type="text" placeholder="Username" value="{{details[0]}}" id="username_input" />
-                        <div class="ui red message" id="usernameError" style="display: none;"></div>
-                    </div>
-                    <div class="required field">
-                        <label>Full Name</label>
-                        <!--{% if not 'Full name exceeds 40 characters!' in errors and
+            <input
+              autocomplete="username"
+              class="ui input"
+              oninput="CheckUsernameExists();"
+              name="username_input"
+              type="text"
+              placeholder="Username"
+              value="{{details[0]}}"
+              id="username_input"
+            />
+            <div
+              class="ui red message"
+              id="usernameError"
+              style="display: none"
+            ></div>
+          </div>
+          <div class="required field">
+            <label>Full Name</label>
+            <!--{% if not 'Full name exceeds 40 characters!' in errors and
             not 'Full name must only contain letters and spaces!' in errors %}
             {% endif %}
             -->
-                        <input autocomplete="name" name="fullname_input" type="text" placeholder="Full Name" value="{{details[1]}}" />
-                    </div>
+            <input
+              autocomplete="name"
+              name="fullname_input"
+              type="text"
+              placeholder="Full Name"
+              value="{{details[1]}}"
+            />
+          </div>
 
-                    <div class="required field">
-                        <label>Email Address</label>
-                        <!--{% if not 'Email has already been registered!' in errors and
+          <div class="required field">
+            <label>Email Address</label>
+            <!--{% if not 'Email has already been registered!' in errors and
             not 'Email is invalid!' in errors and
             not 'Email address does not belong to University of Exeter!' in errors %}
             {% endif %}
             -->
-                        <input autocomplete="email" name="email_input" type="email" placeholder="Email Address" value="{{details[2]}}" />
-                    </div>
-                    <div class="required field">
-                        <label>Password</label>
-                        <input name="psw_input" type="password" placeholder="Password" />
-                    </div>
-                    <div class="required field">
-                        <label>Confirm Password</label>
-                        <input name="psw_input_check" type="password" placeholder="Password" />
-                    </div>
-                    <div class="inline fields">
-                        <label>Select user type: </label>
-                        <div class="required field">
-                            <input type="radio" name="optradio" value="student" checked />Student
-                            <label class="radio-inline">
-                                <input type="radio" name="optradio" value="pending_staff" />Staff
-                            </label>
-                        </div>
-                    </div>
-                    <div class="required field">
-                        <div class="ui checkbox">
-                            <input type="checkbox" name="terms" />
-                            <label>
-                                I have read and understood the
-                                <a href="/terms">Terms of Service</a></label>
-                        </div>
-                    </div>
-                </div>
+            <input
+              autocomplete="email"
+              name="email_input"
+              type="email"
+              placeholder="Email Address"
+              value="{{details[2]}}"
+            />
+          </div>
+          <div class="required field">
+            <label>Password</label>
+            <input name="psw_input" type="password" placeholder="Password" />
+          </div>
+          <div class="required field">
+            <label>Confirm Password</label>
+            <input
+              name="psw_input_check"
+              type="password"
+              placeholder="Password"
+            />
+          </div>
+          <div class="inline fields">
+            <label>Select user type: </label>
+            <div class="required field">
+              <input
+                type="radio"
+                name="optradio"
+                value="student"
+                checked
+              />Student
+              <label class="radio-inline">
+                <input
+                  type="radio"
+                  name="optradio"
+                  value="pending_staff"
+                />Staff
+              </label>
             </div>
-            <div class="extra content">
-                <p>
-                    Already have an account?<a href="/login" style="color: #0077cc">
-                        Login here</a>.
-                </p>
+          </div>
+          <div class="required field">
+            <div class="ui checkbox">
+              <input type="checkbox" name="terms" />
+              <label>
+                I have read and understood the
+                <a href="/terms">Terms of Service</a></label
+              >
             </div>
-            <input type="submit" value="Register" class="ui button submit" />
+          </div>
         </div>
-    </form>
+      </div>
+      <div class="extra content">
+        <p>
+          Already have an account?<a href="/login" style="color: #0077cc">
+            Login here</a
+          >.
+        </p>
+      </div>
+      <input type="submit" value="Register" class="ui button submit" />
+    </div>
+  </form>
 </div>
 
 <script>
-    function CheckUsernameExists() {
-        var input = document.getElementById("username_input");
-        var error = document.getElementById("usernameError");
+  function CheckUsernameExists() {
+    var input = document.getElementById("username_input");
+    var error = document.getElementById("usernameError");
 
-        var xhttp = new XMLHttpRequest();
+    var xhttp = new XMLHttpRequest();
 
-        xhttp.onreadystatechange = function() {
-            if (this.readyState === 4 && this.status === 200) {
-                if (this.response == "True"){
-                    error.innerHTML = "Username already taken.";
-                    error.style.display = "block";
-                } else {
-                    error.innerHTML = "";
-                    error.style.display = "none";
-                }
-            }
+    xhttp.onreadystatechange = function () {
+      if (this.readyState === 4 && this.status === 200) {
+        if (this.response == "True") {
+          error.innerHTML = "Username already taken.";
+          error.style.display = "block";
+        } else {
+          error.innerHTML = "";
+          error.style.display = "none";
         }
+      }
+    };
 
-
-        xhttp.open("GET", "user_exists?username=" + input.value);
-        xhttp.send();
-    }
-
+    xhttp.open("GET", "user_exists?username=" + input.value);
+    xhttp.send();
+  }
 </script>
 
 {% endblock %}
