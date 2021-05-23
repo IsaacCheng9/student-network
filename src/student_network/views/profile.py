@@ -51,6 +51,9 @@ def profile(username: str) -> object:
     interests = []
     message = []
 
+    if "register_details" in session:
+        session.pop("register_details", None)
+
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         # Gets user from database using username.

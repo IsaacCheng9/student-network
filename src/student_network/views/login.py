@@ -150,10 +150,15 @@ def register_page() -> object:
         session.pop("notifications", None)
         session["prev-page"] = request.url
 
+        if "register_details" in session:
+            details = session["register_details"]
+        else:
+            details = ["","",""]
         return render_template(
             "register.html",
             notifications=notifications,
             errors=errors,
+            details=details,
             requestCount=helper_connections.get_connection_request_count(),
         )
 
@@ -215,6 +220,9 @@ def register_submit() -> object:
             return redirect("/register")
         # Displays error message(s) stating why their details are invalid.
         else:
+            details = [username, full_name, email]
+            session["register_details"] = details
+
             session["error"] = message
             return redirect("/register")
 
