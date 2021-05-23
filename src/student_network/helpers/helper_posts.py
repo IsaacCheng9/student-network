@@ -219,6 +219,12 @@ def upload_image(file):
     return file_name_hashed
 
 def delete_file(filename):
+    """
+    Deletes a file from post images
+
+    Args:
+        filename: Post image file name
+    """
     if filename == "": return
 
     file_path = os.path.join("./static/images"+ "//post_imgs", filename)
@@ -264,7 +270,12 @@ def validate_youtube(url: str):
 
     return url_regex_match
 
+
 def get_account_type(username):
+    """
+    Returns the type of an account for username
+        username: The username to check the type for
+    """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute("SELECT type " "FROM ACCOUNTS WHERE username=?;",

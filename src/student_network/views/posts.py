@@ -113,7 +113,6 @@ def post(post_id: int) -> object:
             )
         else:
             data = row[0]
-            print(data)
             (body, username, date_posted, account_type, likes) = (
                 data[0],
                 data[1],
@@ -324,8 +323,7 @@ def submit_post() -> object:
     allFileNamesSplit = allFileNames.split(",") # comma separated string
 
     # user needs to upload some data to proceed
-    if len(allFileNames) > 0: valid = True
-    if len(post_body) > 0: valid = True
+    if len(allFileNames) > 0 or len(post_body) > 0: valid = True
 
     # Only adds the post if a title has been input.
     if valid is True:
@@ -424,7 +422,6 @@ def like_post() -> object:
             cur.execute("SELECT username FROM AllUserLikes WHERE postId=?;", (post_id,))
             row = cur.fetchall()
             names = [x[0] for x in row]
-            print(row, names)
             if session["username"] not in names:
                 # 1 exp earned for the author of the post
                 helper_login.check_level_exists(username, conn)
@@ -577,6 +574,11 @@ def delete_comment() -> object:
 
 @posts_blueprint.route("/upload_file", methods=["POST"])
 def upload_file():
+    """
+    An API that sends the files using a form, they are then saved here
+    and a list of names of the files is returned
+    """
+
     max_file_upload = 10
     file_names = []
     if request.files:
@@ -593,6 +595,9 @@ def upload_file():
 
 @posts_blueprint.route("/delete_file", methods=["POST"])
 def delete_file():
+    """
+    An API call to delete a file with a given name from the server
+    """
     fileName = request.args.get("filename")
     # try and prevent escaping this path
     fileName.replace(".", "")
