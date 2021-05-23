@@ -350,7 +350,9 @@ def get_recommended_connections(username: str) -> list:
                         if is_close_friend(session["username"], conec):
                             label = conec
                             break
-                main = str(count) + " mutual connections including <b>{}</b>".format(label)
+                main = str(count) + " mutual connections including <b>{}</b>".format(
+                    label
+                )
             elif index == 1:
                 for h in hobbies.keys():
                     if student in hobbies[h]:
