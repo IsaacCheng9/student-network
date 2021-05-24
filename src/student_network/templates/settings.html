@@ -54,15 +54,52 @@ content %}
         }
 
         .inventory-cell {
-            flex-basis: 100px;
-            height: 100px;
+            flex-basis: 150px;
+            height: 150px;
             background-color: rgba(200, 200, 200, 0.3);
             float: left;
             overflow: hidden;
+            position: relative;
         }
         
-        .inventory-cell img {
-            animation: rotate-item-rarity 30s infinite;
+        .inventory-background {
+            animation: rotate-item-rarity 30s infinite linear;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .inventory-item {
+            width: 70%;
+            height: 70%;
+            position: absolute;
+            top: 5%;
+            left: 15%;
+            /*filter: drop-shadow(2px 2px 0 white)
+                    drop-shadow(-2px 2px 0 white)
+                    drop-shadow(2px -2px 0 white)
+                    drop-shadow(-2px -2px 0 white);*/
+            text-align: center;
+        }
+        
+        .item-name {
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            padding: 0.3em;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.5);
+            user-select: none;
+            font-family: "Open Sans";
+            font-weight: 600;
+        }
+        .inventory-type {
+            position: absolute;
+            width: 2em;
+            height: 2em;
+            top: 0;
+            left: 0;
+            background-color: rgba(255, 255, 255, 0.5);
         }
         
         @keyframes rotate-item-rarity {
@@ -300,25 +337,13 @@ content %}
                         <div class="ui segment" id="inventory">
                             <div class="inventory-row">
                                 <div class="inventory-cell">
-                                    <img class="ui fluid image" src="../static/images/item_backgrounds/idea1.png">
+                                    <img class="inventory-background" src="../static/images/item_backgrounds/idea2.png">
+                                    <img class="inventory-item" src="https://www.geeklawblog.com/wp-content/uploads/sites/528/2018/12/liprofile-656x369.png" alt="">
+                                    <img src="../static/images/item_types/profile_background.png" alt="" class="inventory-type">
+                                    <div class="item-name">
+                                        Background
+                                    </div>
                                 </div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
-                                <div class="inventory-cell"></div>
                             </div>
                         </div>
 
