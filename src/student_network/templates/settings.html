@@ -1,398 +1,365 @@
 <meta property="og:title" content="Reconnect | Settings" />
-<meta
-  property="og:image"
-  content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
-/>
-<meta
-  property="og:description"
-  content="The Student Network. Connecting students in and outside the classroom."
-/>
+<meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
+<meta property="og:description" content="The Student Network. Connecting students in and outside the classroom." />
 {% extends "base.html" %} {% block title %}Settings{% endblock %} {% block
 content %}
 
 <html lang="en">
-  <meta charset="UTF-8" />
+<meta charset="UTF-8" />
 
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <!--
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<!--
     <link rel="stylesheet" href={{ url_for('static',
     filename='styles/semantic.css') }}>
     -->
-  <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" type="text/css" /> -->
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" type="text/css" /> -->
 
-  <head>
+<head>
     <title>Student Network - Profile</title>
     <!-- Standard Meta -->
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 
     <style type="text/css">
-      input[type="file"] {
-        display: none;
-      }
+        input[type="file"] {
+            display: none;
+        }
 
-      .custom-file-upload {
-        background-color: #e0e1e2;
-        padding: 10px;
-      }
+        .custom-file-upload {
+            background-color: #e0e1e2;
+            padding: 10px;
+        }
 
-      .custom-file-upload:hover {
-        background-color: #cacbcd;
-        cursor: pointer;
-      }
+        .custom-file-upload:hover {
+            background-color: #cacbcd;
+            cursor: pointer;
+        }
 
-      .sticky {
-        position: sticky;
-        top: 5px;
-        z-index: 99;
-      }
+        .sticky {
+            position: sticky;
+            top: 5px;
+            z-index: 99;
+        }
 
-      #hideValuesOnSelect {
-        display: none;
-      }
+        #hideValuesOnSelect {
+            display: none;
+        }
+
+        .inventory-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1em;
+        }
+
+        .inventory-cell {
+            flex-basis: 100px;
+            height: 100px;
+            background-color: rgba(200, 200, 200, 0.3);
+            float: left;
+            overflow: hidden;
+        }
+        
+        .inventory-cell img {
+            animation: rotate-item-rarity 30s infinite;
+        }
+        
+        @keyframes rotate-item-rarity {
+            0% {
+                transform: rotate(0deg) scale(2);
+            }
+            100% {
+                transform: rotate(360deg) scale(2);
+            }
+        }
+
     </style>
-  </head>
+</head>
 
-  <body>
+<body>
     <!-- Page Contents -->
     <div class="pusher">
-      <div class="ui container">
-        <div class="ui segment basic">
-          <div class="ui grid">
-            <div class="four wide column">
-              <div class="ui vertical fluid menu" id="menu">
-                <a class="item active" onclick='OpenTab("profile", this);'
-                  >Profile</a
-                >
-                <a class="item" onclick='OpenTab("socials", this);'>Socials</a>
-                <a class="item" onclick='OpenTab("notifications", this);'
-                  >Notifications</a
-                >
-                <a class="item" onclick='OpenTab("privacy", this);'>Privacy</a>
-              </div>
-            </div>
-            <div class="twelve wide stretched column">
-              {% if errors|length > 0 %}
-              <div class="ui red message">
-                {% for error in errors %}
-                <div class="ui list">
-                  <div class="item">{{ error }}</div>
-                </div>
-                {% endfor %}
-              </div>
-              {% endif %}
+        <div class="ui container">
+            <div class="ui segment basic">
+                <div class="ui grid stackable">
+                    <div class="four wide column">
+                        <div class="ui vertical fluid menu" id="menu">
+                            <a class="item active" onclick='OpenTab("profile", this);'>Profile</a>
+                            <a class="item" onclick='OpenTab("socials", this);'>Socials</a>
+                            <a class="item" onclick='OpenTab("notifications", this);'>Notifications</a>
+                            <a class="item" onclick='OpenTab("privacy", this);'>Privacy</a>
 
-              <div class="ui segment" id="profile">
-                <!-- name bio gender birthday profile_picture hobbies interests -->
-
-                <form
-                  action="/edit-profile"
-                  method="POST"
-                  class="ui form"
-                  enctype="multipart/form-data"
-                >
-                  <div class="field">
-                    <label>Degree</label>
-                    <label>
-                      <select name="degree_input">
-                        {% for item in degrees.degrees %} Degree: {% if
-                        item.degreeId == degree %}
-                        <option value="{{ item.degreeId }}" selected>
-                          {{ item.degree }}
-                        </option>
-                        {% else %}
-                        <option value="{{ item.degreeId }}">
-                          {{ item.degree }}
-                        </option>
-                        {% endif %} {% endfor %}
-                      </select>
-                    </label>
-                  </div>
-                  <div class="field">
-                    <label>Bio</label>
-                    <label>
-                      <textarea name="bio_input" rows="2" maxlength="160">
-{{ bio }}</textarea
-                      >
-                    </label>
-                  </div>
-                  <div class="field">
-                    <label>Gender</label>
-                    <label for=""></label
-                    ><select name="gender_input" id="">
-                      {% if gender == "Male" %}
-                      <option value="Male" selected>Male</option>
-                      {% else %}
-                      <option value="Male">Male</option>
-                      {% endif %} {% if gender == "Female" %}
-                      <option value="Female" selected>Female</option>
-                      {% else %}
-                      <option value="Female">Female</option>
-                      {% endif %} {% if gender == "Other" %}
-                      <option value="Other" selected>Other</option>
-                      {% else %}
-                      <option value="Other">Other</option>
-                      {% endif %}
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label>Birthday</label>
-                    <label>
-                      <input
-                        autocomplete="bday"
-                        name="dob_input"
-                        type="date"
-                        value="{{ date }}"
-                      />
-                    </label>
-                  </div>
-                  <div class="field">
-                    <label>Profile Picture</label>
-                    <input
-                      name="file"
-                      type="file"
-                      id="profile-picture-upload"
-                      accept="image/*"
-                      oninput='document.getElementById("avatar-file-name").innerHTML = this.files[0].name;'
-                    />
-                    <label
-                      for="profile-picture-upload"
-                      class="custom-file-upload ui label"
-                    >
-                      <i class="upload icon"></i>
-                      Upload
-                      <div class="detail" id="avatar-file-name">
-                        profile_pic.png
-                      </div>
-                    </label>
-                  </div>
-                  <div class="ui divider"></div>
-                  <div class="field" name="field">
-                    <label>Hobbies</label>
-                    <div style="color: grey">
-                      Use comma to separate the hobbies
+                            <a class="item" onclick='OpenTab("inventory", this);'>
+                                Inventory
+                                <div class="ui label">5</div>
+                            </a>
+                        </div>
                     </div>
-                    <label>
-                      <input
-                        name="hobbies_input"
-                        type="text"
-                        placeholder="{% if hobbies != none %} {% for item in hobbies %} {{ item[0] }}, {% endfor %} {% endif %}"
-                        maxlength="24"
-                      />
-                    </label>
-                    <script src="../static/hobbies.js"></script>
-                    <div class="ui divider hidden"></div>
-                    <div class="ui grid container" name="hobby-div">
-                      {% if hobbies != none %} {% for i in range(hobbies|length)
-                      %}
-                      <script>
-                        addHTag("{{ hobbies[i][0]}}");
-                      </script>
-                      {% endfor %} {% endif %}
-                    </div>
-                  </div>
-                  <div class="ui divider"></div>
-                  <div class="field">
-                    <label>Interests</label>
-                    <div style="color: grey">
-                      Use comma to separate the interests
-                    </div>
-                    <label>
-                      <input
-                        name="interests_input"
-                        type="text"
-                        maxlength="24"
-                        placeholder="{% if insterest != none %} {% for item in interests %} {{ item[0] }}, {% endfor %} {% endif %}"
-                      />
-                    </label>
-                    <script src="../static/interests.js"></script>
-                    <div class="ui divider hidden"></div>
-                    <div class="ui grid container" name="interest-div">
-                      {% if interests != none %} {% for i in
-                      range(interests|length) %}
-                      <script>
-                        addITag("{{ interests[i][0] }}");
-                      </script>
-                      {% endfor %} {% endif %}
-                    </div>
-                  </div>
-                  <button class="ui button submit">Save Changes</button>
-                </form>
-              </div>
-
-              <div class="ui segment" id="socials">
-                <form
-                  action="/edit_socials"
-                  method="POST"
-                  class="ui form"
-                  name="socials_edit"
-                  enctype="multipart/form-data"
-                >
-                  <div class="two fields">
-                    <div class="field">
-                      <label><i class="icon facebook"></i> Facebook</label>
-                      <label for="facebook"></label
-                      ><input
-                        type="text"
-                        name="facebook"
-                        id="facebook"
-                        placeholder="Username (e.g. joebloggs10)"
-                        value="{{ socials.get('facebook','') }}"
-                      />
-                    </div>
-                    <div class="field">
-                      <label><i class="icon twitter"></i> Twitter</label>
-                      <label for="twitter"></label
-                      ><input
-                        type="text"
-                        name="twitter"
-                        id="twitter"
-                        placeholder="Username (e.g. joebloggs10)"
-                        value="{{ socials.get('twitter','') }}"
-                      />
-                    </div>
-                  </div>
-                  <div class="two fields">
-                    <div class="field">
-                      <label><i class="icon youtube"></i> YouTube</label>
-                      <label for="youtube"></label
-                      ><input
-                        type="text"
-                        name="youtube"
-                        id="youtube"
-                        placeholder="Username (e.g. joebloggs10)"
-                        value="{{ socials.get('youtube','') }}"
-                      />
-                    </div>
-                    <div class="field">
-                      <label><i class="icon linkedin"></i> LinkedIn</label>
-                      <label for="linkedin"></label
-                      ><input
-                        type="text"
-                        name="linkedin"
-                        id="linkedin"
-                        placeholder="Username (e.g. joebloggs10)"
-                        value="{{ socials.get('linkedin', '') }}"
-                      />
-                    </div>
-                  </div>
-                  <div class="two fields">
-                    <div class="field">
-                      <label><i class="icon instagram"></i> Instagram</label>
-                      <label for="instagram"></label
-                      ><input
-                        type="text"
-                        name="instagram"
-                        id="instagram"
-                        placeholder="Username (e.g. joebloggs10)"
-                        value="{{ socials.get('instagram','') }}"
-                      />
-                    </div>
-                  </div>
-                  <input type="submit" class="ui button submit" value="Save" />
-                </form>
-              </div>
-              <div class="ui segment" id="notifications">Notif</div>
-
-              <div class="ui segment" id="privacy">
-                <form
-                  action="/profile_privacy"
-                  method="POST"
-                  class="ui form"
-                  enctype="multipart/form-data"
-                >
-                  <div class="field">
-                    <label>Select your profile page privacy settings:</label>
-                    <label>
-                      <select
-                        name="privacy"
-                        onchange="DisplayPrivacyTooltip(this)"
-                      >
-                        {% if privacy == "public" %}
-                        <option value="public" selected>Public</option>
-                        {% else %}
-                        <option value="public">Public</option>
-                        {% endif %} {% if privacy == "protected" %}
-                        <option value="protected" selected>Protected</option>
-                        {% else %}
-                        <option value="protected">Protected</option>
-                        {% endif %} {% if privacy == "close_friends" %}
-                        <option value="close_friends" selected>
-                          Close friends only
-                        </option>
-                        {% else %}
-                        <option value="close_friends">
-                          Close friends only
-                        </option>
-                        {% endif %} {% if privacy == "private" %}
-                        <option value="private" selected>Private</option>
-                        {% else %}
-                        <option value="private">Private</option>
+                    <div class="twelve wide stretched column">
+                        {% if errors|length > 0 %}
+                        <div class="ui red message">
+                            {% for error in errors %}
+                            <div class="ui list">
+                                <div class="item">{{ error }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
                         {% endif %}
-                      </select>
-                    </label>
-                  </div>
-                  <button class="ui button submit">Save Changes</button>
-                </form>
-              </div>
-              <div
-                class="ui segment"
-                id="privacy_description"
-                style="display: none"
-              >
-                <div id="public" style="display: none">
-                  Everyone can view all of your profile page details.
+
+                        <div class="ui segment" id="profile">
+                            <!-- name bio gender birthday profile_picture hobbies interests -->
+
+                            <form action="/edit-profile" method="POST" class="ui form" enctype="multipart/form-data">
+                                <div class="field">
+                                    <label>Degree</label>
+                                    <label>
+                                        <select name="degree_input">
+                                            {% for item in degrees.degrees %} Degree: {% if
+                        item.degreeId == degree %}
+                                            <option value="{{ item.degreeId }}" selected>
+                                                {{ item.degree }}
+                                            </option>
+                                            {% else %}
+                                            <option value="{{ item.degreeId }}">
+                                                {{ item.degree }}
+                                            </option>
+                                            {% endif %} {% endfor %}
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="field">
+                                    <label>Bio</label>
+                                    <label>
+                                        <textarea name="bio_input" rows="2" maxlength="160">
+                                        {{ bio }}</textarea>
+                                    </label>
+                                </div>
+                                <div class="field">
+                                    <label>Gender</label>
+                                    <label for=""></label><select name="gender_input" id="">
+                                        {% if gender == "Male" %}
+                                        <option value="Male" selected>Male</option>
+                                        {% else %}
+                                        <option value="Male">Male</option>
+                                        {% endif %} {% if gender == "Female" %}
+                                        <option value="Female" selected>Female</option>
+                                        {% else %}
+                                        <option value="Female">Female</option>
+                                        {% endif %} {% if gender == "Other" %}
+                                        <option value="Other" selected>Other</option>
+                                        {% else %}
+                                        <option value="Other">Other</option>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Birthday</label>
+                                    <label>
+                                        <input autocomplete="bday" name="dob_input" type="date" value="{{ date }}" />
+                                    </label>
+                                </div>
+                                <div class="field">
+                                    <label>Profile Picture</label>
+                                    <input name="file" type="file" id="profile-picture-upload" accept="image/*" oninput='document.getElementById("avatar-file-name").innerHTML = this.files[0].name;' />
+                                    <label for="profile-picture-upload" class="custom-file-upload ui label">
+                                        <i class="upload icon"></i>
+                                        Upload
+                                        <div class="detail" id="avatar-file-name">
+                                            profile_pic.png
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="ui divider"></div>
+                                <div class="field" name="field">
+                                    <label>Hobbies</label>
+                                    <div style="color: grey">
+                                        Use comma to separate the hobbies
+                                    </div>
+                                    <label>
+                                        <input name="hobbies_input" type="text" placeholder="{% if hobbies != none %} {% for item in hobbies %} {{ item[0] }}, {% endfor %} {% endif %}" maxlength="24" />
+                                    </label>
+                                    <script src="../static/hobbies.js"></script>
+                                    <div class="ui divider hidden"></div>
+                                    <div class="ui grid container" name="hobby-div">
+                                        {% if hobbies != none %} {% for i in range(hobbies|length)
+                      %}
+                                        <script>
+                                            addHTag("{{ hobbies[i][0]}}");
+
+                                        </script>
+                                        {% endfor %} {% endif %}
+                                    </div>
+                                </div>
+                                <div class="ui divider"></div>
+                                <div class="field">
+                                    <label>Interests</label>
+                                    <div style="color: grey">
+                                        Use comma to separate the interests
+                                    </div>
+                                    <label>
+                                        <input name="interests_input" type="text" maxlength="24" placeholder="{% if insterest != none %} {% for item in interests %} {{ item[0] }}, {% endfor %} {% endif %}" />
+                                    </label>
+                                    <script src="../static/interests.js"></script>
+                                    <div class="ui divider hidden"></div>
+                                    <div class="ui grid container" name="interest-div">
+                                        {% if interests != none %} {% for i in
+                      range(interests|length) %}
+                                        <script>
+                                            addITag("{{ interests[i][0] }}");
+
+                                        </script>
+                                        {% endfor %} {% endif %}
+                                    </div>
+                                </div>
+                                <button class="ui button submit">Save Changes</button>
+                            </form>
+                        </div>
+
+                        <div class="ui segment" id="socials">
+                            <form action="/edit_socials" method="POST" class="ui form" name="socials_edit" enctype="multipart/form-data">
+                                <div class="two fields">
+                                    <div class="field">
+                                        <label><i class="icon facebook"></i> Facebook</label>
+                                        <label for="facebook"></label><input type="text" name="facebook" id="facebook" placeholder="Username (e.g. joebloggs10)" value="{{ socials.get('facebook','') }}" />
+                                    </div>
+                                    <div class="field">
+                                        <label><i class="icon twitter"></i> Twitter</label>
+                                        <label for="twitter"></label><input type="text" name="twitter" id="twitter" placeholder="Username (e.g. joebloggs10)" value="{{ socials.get('twitter','') }}" />
+                                    </div>
+                                </div>
+                                <div class="two fields">
+                                    <div class="field">
+                                        <label><i class="icon youtube"></i> YouTube</label>
+                                        <label for="youtube"></label><input type="text" name="youtube" id="youtube" placeholder="Username (e.g. joebloggs10)" value="{{ socials.get('youtube','') }}" />
+                                    </div>
+                                    <div class="field">
+                                        <label><i class="icon linkedin"></i> LinkedIn</label>
+                                        <label for="linkedin"></label><input type="text" name="linkedin" id="linkedin" placeholder="Username (e.g. joebloggs10)" value="{{ socials.get('linkedin', '') }}" />
+                                    </div>
+                                </div>
+                                <div class="two fields">
+                                    <div class="field">
+                                        <label><i class="icon instagram"></i> Instagram</label>
+                                        <label for="instagram"></label><input type="text" name="instagram" id="instagram" placeholder="Username (e.g. joebloggs10)" value="{{ socials.get('instagram','') }}" />
+                                    </div>
+                                </div>
+                                <input type="submit" class="ui button submit" value="Save" />
+                            </form>
+                        </div>
+                        <div class="ui segment" id="notifications">Notif</div>
+
+                        <div class="ui segment" id="privacy">
+                            <form action="/profile_privacy" method="POST" class="ui form" enctype="multipart/form-data">
+                                <div class="field">
+                                    <label>Select your profile page privacy settings:</label>
+                                    <label>
+                                        <select name="privacy" onchange="DisplayPrivacyTooltip(this)">
+                                            {% if privacy == "public" %}
+                                            <option value="public" selected>Public</option>
+                                            {% else %}
+                                            <option value="public">Public</option>
+                                            {% endif %} {% if privacy == "protected" %}
+                                            <option value="protected" selected>Protected</option>
+                                            {% else %}
+                                            <option value="protected">Protected</option>
+                                            {% endif %} {% if privacy == "close_friends" %}
+                                            <option value="close_friends" selected>
+                                                Close friends only
+                                            </option>
+                                            {% else %}
+                                            <option value="close_friends">
+                                                Close friends only
+                                            </option>
+                                            {% endif %} {% if privacy == "private" %}
+                                            <option value="private" selected>Private</option>
+                                            {% else %}
+                                            <option value="private">Private</option>
+                                            {% endif %}
+                                        </select>
+                                    </label>
+                                </div>
+                                <button class="ui button submit">Save Changes</button>
+                            </form>
+                            <div class="ui segment" id="privacy_description">
+                                <div id="public" style="display: none">
+                                    Everyone can view all of your profile page details.
+                                </div>
+                                <div id="protected" style="display: none">
+                                    Only your connections can view your profile page.
+                                </div>
+                                <div id="close_friends" style="display: none">
+                                    Only your close friends can view your profile page.
+                                </div>
+                                <div id="private" style="display: none">
+                                    You are the only one who can view your profile page.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ui segment" id="inventory">
+                            <div class="inventory-row">
+                                <div class="inventory-cell">
+                                    <img class="ui fluid image" src="../static/images/item_backgrounds/idea1.png">
+                                </div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                                <div class="inventory-cell"></div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-                <div id="protected" style="display: none">
-                  Only your connections can view your profile page.
-                </div>
-                <div id="close_friends" style="display: none">
-                  Only your close friends can view your profile page.
-                </div>
-                <div id="private" style="display: none">
-                  You are the only one who can view your profile page.
-                </div>
-              </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </body>
+</body>
 
-  <script>
+<script>
     function OpenTab(tabName, curElem) {
-      let tabs = ["profile", "socials", "notifications", "privacy"];
-      let menuItems = document.querySelectorAll("#menu a");
+        let tabs = ["profile", "socials", "notifications", "privacy", "inventory"];
+        let menuItems = document.querySelectorAll("#menu a");
 
-      menuItems.forEach(function (elem) {
-        elem.classList.remove("active");
-      });
-      for (let tab of tabs) {
-        document.getElementById(tab).style.display =
-          tab === tabName ? "block" : "none";
-        if (curElem) {
-          curElem.classList.add("active");
+        menuItems.forEach(function(elem) {
+            elem.classList.remove("active");
+        });
+        for (let tab of tabs) {
+            document.getElementById(tab).style.display =
+                tab === tabName ? "block" : "none";
+            if (curElem) {
+                curElem.classList.add("active");
+            }
         }
-      }
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
-      OpenTab("profile");
+    document.addEventListener("DOMContentLoaded", function() {
+        OpenTab("inventory");
     });
 
     function DisplayPrivacyTooltip(setting) {
-      let tabs = ["public", "protected", "close_friends", "privacy"];
-      for (let tab of tabs) {
-        document.getElementById(tab).style.display =
-          tab === setting.value ? "block" : "none";
-      }
+        let tabs = ["public", "protected", "close_friends", "private"];
+        for (let tab of tabs) {
+            document.getElementById(tab).style.display =
+                tab === setting.value ? "block" : "none";
+        }
     }
-  </script>
 
-  {% endblock %}
+</script>
+
+{% endblock %}
+
 </html>
