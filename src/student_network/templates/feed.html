@@ -372,6 +372,7 @@
     $("#post-number-" + post.postId + " .ui.embed").embed();
 
     setTimeout(function () {
+        console.log(imagesToDisplay);
       if (imagesToDisplay.length > 0) {
         new Slideshow(
           "post-gallery-" + post.postId,

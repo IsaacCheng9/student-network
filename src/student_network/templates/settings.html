@@ -46,71 +46,6 @@ content %}
             display: none;
         }
 
-        .inventory-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 1em;
-        }
-
-        .inventory-cell {
-            flex-basis: 150px;
-            height: 150px;
-            background-color: rgba(200, 200, 200, 0.3);
-            float: left;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .inventory-background {
-            animation: rotate-item-rarity 30s infinite linear;
-            width: 100%;
-            height: 100%;
-        }
-        
-        .inventory-item {
-            width: 70%;
-            height: 70%;
-            position: absolute;
-            top: 5%;
-            left: 15%;
-            /*filter: drop-shadow(2px 2px 0 white)
-                    drop-shadow(-2px 2px 0 white)
-                    drop-shadow(2px -2px 0 white)
-                    drop-shadow(-2px -2px 0 white);*/
-            text-align: center;
-        }
-        
-        .item-name {
-            width: 100%;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            padding: 0.3em;
-            text-align: center;
-            background-color: rgba(255, 255, 255, 0.5);
-            user-select: none;
-            font-family: "Open Sans";
-            font-weight: 600;
-        }
-        .inventory-type {
-            position: absolute;
-            width: 2em;
-            height: 2em;
-            top: 0;
-            left: 0;
-            background-color: rgba(255, 255, 255, 0.5);
-        }
-        
-        @keyframes rotate-item-rarity {
-            0% {
-                transform: rotate(0deg) scale(2);
-            }
-            100% {
-                transform: rotate(360deg) scale(2);
-            }
-        }
-
     </style>
 </head>
 
@@ -334,19 +269,6 @@ content %}
                             </div>
                         </div>
 
-                        <div class="ui segment" id="inventory">
-                            <div class="inventory-row">
-                                <div class="inventory-cell">
-                                    <img class="inventory-background" src="../static/images/item_backgrounds/idea3.png">
-                                    <img class="inventory-item" src="https://www.geeklawblog.com/wp-content/uploads/sites/528/2018/12/liprofile-656x369.png" alt="">
-                                    <img src="../static/images/item_types/profile_background.png" alt="" class="inventory-type">
-                                    <div class="item-name">
-                                        Background
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
             </div>
@@ -356,7 +278,7 @@ content %}
 
 <script>
     function OpenTab(tabName, curElem) {
-        let tabs = ["profile", "socials", "notifications", "privacy", "inventory"];
+        let tabs = ["profile", "socials", "notifications", "privacy"];
         let menuItems = document.querySelectorAll("#menu a");
 
         menuItems.forEach(function(elem) {

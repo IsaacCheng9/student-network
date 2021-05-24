@@ -19,6 +19,7 @@ import student_network.views.profile as profile
 import student_network.views.quizzes as quizzes
 import student_network.views.staff as staff
 import student_network.views.shop as shop
+import student_network.views.inventory as inventory
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
@@ -35,6 +36,7 @@ app.register_blueprint(profile.profile_blueprint, url_prefix="")
 app.register_blueprint(quizzes.quizzes_blueprint, url_prefix="")
 app.register_blueprint(staff.staff_blueprint, url_prefix="")
 app.register_blueprint(shop.shop_blueprint, url_prefix="")
+app.register_blueprint(inventory.inventory_blueprint, url_prefix="")
 
 app.secret_key = (
     '\xfd{H\xe5 <\x95\xf9\xe3\x96.5\xd1\x01O <!\xd5"' "xa2\xa0\x9fR\xa1\xa8"
