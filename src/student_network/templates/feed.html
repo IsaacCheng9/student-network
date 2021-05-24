@@ -329,10 +329,11 @@
 
     let icon;
     if (post.liked === true) {
-      icon = `<i class="heart icon red"></i>`;
+      icon = `<button class="ui mini red button" form="likes${post.postId}" id="button${post.postId}">`;
     } else {
-      icon = `<i class="heart icon"></i>`;
+      icon = `<button class="ui mini button" form="likes${post.postId}">`;
     }
+
 
     var imagesToDisplay = [];
 
@@ -359,8 +360,21 @@
                 </div>
                 ${youtube_video}
                 <div class="sixteen wide column">
-                    <div>${post.comment_count} comments &nbsp;&nbsp; ${post.like_count}
-                      ${icon}</div>
+                 
+
+                    <div>${post.comment_count} comments &nbsp;&nbsp;
+                        <div class="ui left floated mini labeled button" tabindex="0">
+                                ${icon}
+                                <i class="heart icon"></i>
+                                </button>
+                                <a class="ui basic mini red left pointing label">
+                                ${post.like_count}
+                                </a>
+                        </div>
+                    </div>
+                    <form onsubmit="return likePost(${post.postId})" class="ui reply form" id="likes${post.postId}" method="POST">
+                    <input type="hidden" name="postId" value="${post.postId}" />
+                    </form>
                     <div class="ui comments">${comments}</div>
                     <a href="/post_page/${post.postId}"><i class="icon pencil"></i>Write a comment</a>
                 </div>
@@ -490,6 +504,24 @@
       value.length > 0 ? "block" : "none";
     document.getElementById("post-preview").innerHTML = FormatBody(value);
   }
+
+  function likePost(postId) {
+    let likePostCall = new XMLHttpRequest();
+    var form = document.getElementById('likes' + postId);
+    var formData = new FormData(form);
+    likePostCall.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+       // Typical action to be performed when the document is ready:
+       document.getElementById("button" + postId).innerHTML += 1;
+       document.getElementById("button" + postId).classList.add('red');
+    }
+    likePostCall.open("POST", "like_post");
+    likePostCall.send(formData);
+
+};
+  }
+
+
   ShowPreview();
 </script>
 
