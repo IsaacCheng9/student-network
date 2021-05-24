@@ -273,15 +273,20 @@ def calculate_similarity(
     for user in mutual_connections.keys():
         for conec in mutual_connections[user]:
             close = False
+            super_close = False
 
             if user not in score_totals.keys():
                 score_totals[user] = [0, 0, 0, 0]
 
             if is_close_friend(session["username"], conec):
                 close = True
+                if is_close_friend(conec, user):
+                    super_close = True
 
-            if close:
+            if super_close:
                 score_totals[user][0] += 50
+            elif close:
+                score_totals[user][0] += 20
             else:
                 score_totals[user][0] += 10
 
@@ -303,7 +308,7 @@ def calculate_similarity(
         if user not in score_totals.keys():
             score_totals[user] = [0, 0, 0, 0]
 
-        score_totals[user][3] += 2
+        score_totals[user][3] += 5
 
     return score_totals
 
@@ -341,38 +346,58 @@ def get_recommended_connections(username: str) -> list:
 
         recommendations = []
         for student in score_totals.keys():
+            simlist = []
             index = score_totals[student].index(max(score_totals[student]))
             if index == 0:
+                l1, l2 = [], []
                 count = len(mutual_connections[student])
-                label = mutual_connections[student][0]
-                if score_totals[student][0] > 50:
-                    for conec in mutual_connections[student]:
-                        if is_close_friend(session["username"], conec):
-                            label = conec
-                            break
-                main = str(count) + " mutual connections including <b>{}</b>".format(
-                    label
-                )
+                for conec in mutual_connections[student]:
+                    if is_close_friend(session["username"], conec):
+                        l1.append(conec)
+                    else:
+                        l2.append(conec)
+                simlist = l1 + l2
+
+                main = str(count) + " mutual connections including "
             elif index == 1:
                 for h in hobbies.keys():
                     if student in hobbies[h]:
-                        hobby = h
-                        break
-                main = "You both enjoy hobbies including <b>{}</b>".format(hobby)
+                        simlist.append(h)
+                main = "You both enjoy hobbies including "
             elif index == 2:
                 for i in interests.keys():
                     if student in interests[i]:
-                        interest = i
-                        break
-                main = "You are both interested in <b>{}</b>".format(interest)
+                        simlist.append(i)
+                main = "You are both interested in "
+
             else:
-                main = "You both study " + degree[1]
+                main = "You both study "
+                simlist.append(degree[1])
+
+            main += list_to_string(simlist[:3])
 
             recommendations.append([student, main, sum(score_totals[student])])
 
         recommendations = sorted(recommendations, key=lambda x: x[2], reverse=True)[:5]
 
         return recommendations
+
+def list_to_string(input: list) -> str:
+    """
+    Args:
+        input: A list of similar features, either mutual connections,
+               hobbies, interests, or degree.
+
+    Returns:
+        A human string version of the list of similar features
+    """
+    length = len(input)
+    if length == 1:
+        return "<b>{}</b>".format(input[0])
+    elif length == 2:
+        return "<b>{0}</b> and <b>{1}</b>".format(input[0], input[1])
+
+    return "<b>{0}</b>, <b>{1}</b> and <b>{2}</b>".format(input[0], input[1], input[2])
 
 
 def is_close_friend(username1: str, username2: str) -> bool:
