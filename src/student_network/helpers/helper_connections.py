@@ -175,6 +175,7 @@ def get_pending_connections(cur, username: str) -> list:
     )
     return cur.fetchall()
 
+
 def get_blocked_users(cur, username: str) -> list:
     """
     Gets blocked users for a user.
@@ -183,11 +184,11 @@ def get_blocked_users(cur, username: str) -> list:
         List of blocked users for a user.
     """
     cur.execute(
-        "SELECT user2 FROM Connection "
-        "WHERE user1=? AND connection_type='block'",
+        "SELECT user2 FROM Connection " "WHERE user1=? AND connection_type='block'",
         (username,),
     )
     return cur.fetchall()
+
 
 def get_mutual_hobbies(cur, username: str, invalid: list) -> dict:
     """
@@ -337,7 +338,11 @@ def get_recommended_connections(username: str) -> list:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        invalid = [x[0] for x in get_pending_connections(cur, username)+get_blocked_users(cur, username)]
+        invalid = [
+            x[0]
+            for x in get_pending_connections(cur, username)
+            + get_blocked_users(cur, username)
+        ]
         connections = [x[0] for x in helper_general.get_all_connections(username)]
         mutual_connections = {}
         for user in connections:
