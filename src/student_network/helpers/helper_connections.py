@@ -382,6 +382,7 @@ def get_recommended_connections(username: str) -> list:
 
         return recommendations
 
+
 def list_to_string(input: list) -> str:
     """
     Args:
