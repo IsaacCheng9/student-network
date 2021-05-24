@@ -110,7 +110,7 @@ def quiz(quiz_id: int) -> object:
                 conn.commit()
             question_feedback = []
             for i in range(5):
-                correct_answer = quiz_details[0][(5 * i) + 5]
+                correct_answer = quiz_details[(5 * i) + 5]
                 correct = user_answers[i] == correct_answer
                 question_feedback.append(
                     [questions[i], user_answers[i], correct_answer]

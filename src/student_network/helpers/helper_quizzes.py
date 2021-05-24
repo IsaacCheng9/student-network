@@ -85,56 +85,56 @@ def get_quiz_details(cur, quiz_id: int) -> Tuple[list, list, str, list, str]:
         Answer options, questions, and author, details, and name of the quiz.
     """
     cur.execute("SELECT * FROM Quiz WHERE quiz_id=?;", (quiz_id,))
-    quiz_details = cur.fetchall()
-    quiz_name = quiz_details[0][1]
-    quiz_author = quiz_details[0][3]
-    question_1 = quiz_details[0][4]
+    quiz_details = cur.fetchone()
+    quiz_name = quiz_details[1]
+    quiz_author = quiz_details[3]
+    question_1 = quiz_details[4]
     question_1_options = sample(
         [
-            quiz_details[0][5],
-            quiz_details[0][6],
-            quiz_details[0][7],
-            quiz_details[0][8],
+            quiz_details[5],
+            quiz_details[6],
+            quiz_details[7],
+            quiz_details[8],
         ],
         4,
     )
-    question_2 = quiz_details[0][9]
+    question_2 = quiz_details[9]
     question_2_options = sample(
         [
-            quiz_details[0][13],
-            quiz_details[0][10],
-            quiz_details[0][11],
-            quiz_details[0][12],
+            quiz_details[13],
+            quiz_details[10],
+            quiz_details[11],
+            quiz_details[12],
         ],
         4,
     )
-    question_3 = quiz_details[0][14]
+    question_3 = quiz_details[14]
     question_3_options = sample(
         [
-            quiz_details[0][18],
-            quiz_details[0][15],
-            quiz_details[0][16],
-            quiz_details[0][17],
+            quiz_details[18],
+            quiz_details[15],
+            quiz_details[16],
+            quiz_details[17],
         ],
         4,
     )
-    question_4 = quiz_details[0][19]
+    question_4 = quiz_details[19]
     question_4_options = sample(
         [
-            quiz_details[0][23],
-            quiz_details[0][20],
-            quiz_details[0][21],
-            quiz_details[0][22],
+            quiz_details[23],
+            quiz_details[20],
+            quiz_details[21],
+            quiz_details[22],
         ],
         4,
     )
-    question_5 = quiz_details[0][24]
+    question_5 = quiz_details[24]
     question_5_options = sample(
         [
-            quiz_details[0][28],
-            quiz_details[0][25],
-            quiz_details[0][26],
-            quiz_details[0][27],
+            quiz_details[28],
+            quiz_details[25],
+            quiz_details[26],
+            quiz_details[27],
         ],
         4,
     )
