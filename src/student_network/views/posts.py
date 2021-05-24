@@ -313,7 +313,7 @@ def submit_post() -> object:
     post_privacy = request.form.get("privacy")
     post_body = request.form["post_text"]
     all_file_names = request.form["allFileNames"]
-    
+
     all_file_names_split = all_file_names.split(",")
 
     # Only adds the post if a title has been input.
