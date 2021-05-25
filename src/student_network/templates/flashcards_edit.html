@@ -1,0 +1,64 @@
+<meta property="og:title" content="Reconnect | Flashcards" />
+<meta
+  property="og:image"
+  content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
+/>
+<meta
+  property="og:description"
+  content="The Student Network. Connecting students in and outside the classroom."
+/>
+{% extends "base.html" %} {% block title %}Flashcard set list{% endblock %} {% block
+content %}
+<!-- when writing the for loop, use the whole ui segment instead of just "sixteen wide column" -->
+
+<div class="ui segment" id="quiz-post-input">
+  {% if errors %}
+  <div class="ui message red">
+    <div class="header">Error:</div>
+    {% for item in errors %}
+    <p>{{ item }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="ui form">
+    <div class="field">
+      <label>Name</label>
+        <input
+          placeholder="Flashcard set name"
+          type="text"
+          name="set_name"
+        />
+    </div>
+  </div>
+
+{% for question in questions.keys() %}
+<div class="ui segment">
+  <div class="row">
+    <div class="ui sixteen wide column">
+      <div class="ui eight wide column">
+        Question: {{question}}
+      </div>
+      <div class="ui eight wide column">
+        Answer: {{questions[question]}}
+      </div>
+    </div>
+    <a href="{{ url_for('flashcards.flashcards_save', set_id=set_id) }}">
+      <button class="ui right floated blue button">
+        Save
+      </button>
+    </a>
+  </div>
+</div>
+{% endfor %}
+
+<div class="ui segment">
+  <div class="ui sixteen wide column">
+
+    <button action="{{ url_for('posts.feed') }}" class="ui left floated blue button"
+      >Add card</button>
+    <button action="{{ url_for('flashcards.flashcards_save', set_id=set_id) }}" class="ui right floated blue button"
+      >Complete</button>
+  </div>           
+</div>
+{% endblock %}

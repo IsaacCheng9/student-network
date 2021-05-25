@@ -1,4 +1,4 @@
-<meta property="og:title" content="Reconnect | Quiz" />
+<meta property="og:title" content="Reconnect | Quizzes" />
 <meta
   property="og:image"
   content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
@@ -61,7 +61,7 @@ content %}
     action="{{ url_for('posts.submit_post') }}"
     class="ui form"
     method="POST"
-  >
+  > <!-- looks like this should be 'helper_quizzes.add_quiz' but still doesnt work-->
     <label>
       <input hidden name="form_type" value="Quiz" />
     </label>
