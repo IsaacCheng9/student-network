@@ -20,43 +20,34 @@ content %}
     {% endfor %}
   </div>
   {% endif %}
-  <div class="ui buttons" id="post-type-buttons">
-    <a href="{{ url_for('flashcards.flashcards') }}">
-      <button class="ui button question-select basic">
-        <i class="icon pencil"></i>
-        Find flashcard sets
-      </button>
-    </a>
-    <a href="{{ url_for('flashcards.flashcards_user', username=username) }}">
-      <button class="ui button question-select basic">
-        <i class="icon pencil"></i>
+  <div>
+    <div class="ui pointing secondary menu">
+      <a class="item" href="{{ url_for('flashcards.flashcards') }}">
+        Find flashcards
+      </a>
+      <a class="item" href="{{ url_for('flashcards.flashcards_user', username=username) }}">
         My flashcard sets
-      </button>
-    </a>
-    <a href="{{ url_for('flashcards.flashcards_new') }}">
-      <button class="ui button question-select basic">
-        <i class="icon pencil"></i>
+      </a>
+      <a class="item" href="{{ url_for('flashcards.flashcards_new') }}">
         Create new set
-      </button>
-    </a>
-    <!--<a href="../flashcards/new">
-      <button class="ui button question-select basic">
-        <i class="icon pencil"></i>
-        Create a new flashcard set
-      </button>
-    </a>
-    -->
+      </a>
+    </div>
   </div>
+</div>
 
 {% for card_set in sets %}
 <div class="ui segment">
   <div class="ui grid">
     <div class="ui sixteen wide column">
       <h2>
-        <a href="/flashcards/set/{{ card_set[0] }}">{{ card_set[3] }}</a>
-        <div style="float: right">
-          <h5>{{ card_set[1] }}</h5>
-        </div>
+        {% if card_set[2] == username %}
+          <a href="/flashcards/edit/{{ card_set[0] }}">{{ card_set[3] }}</a>
+        {% else %}
+          <a href="/flashcards/set/{{ card_set[0] }}">{{ card_set[3] }}</a>
+        {% endif %}
+          <div style="float: right">
+            <h5>{{ card_set[1] }}</h5>
+          </div>
       </h2>
       Created by
       <a href="/profile/{{ card_set[2] }}">

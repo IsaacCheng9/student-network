@@ -46,11 +46,16 @@ content %}
 
 <div class="ui segment">
   <div class="ui sixteen wide column">
-    
-    <button href="{{ url_for('posts.feed') }}" class="ui left floated blue button"
-      >Add card</button>
-    <button href="{{ url_for('flashcards.flashcards') }}" class="ui right floated blue button"
-      >Complete</button>
+    <a href="{{ url_for('flashcards.flashcards') }}">
+      <button class="ui left floated blue button">
+        Back to sets
+      </button>
+    </a>
+    <a href="{{ url_for('flashcards.flashcards_play', set_id=set_id) }}">
+      <button class="ui right floated blue button">
+        Play Deck
+      </button>
+    </a>
   </div>           
 </div>
 {% endblock %}

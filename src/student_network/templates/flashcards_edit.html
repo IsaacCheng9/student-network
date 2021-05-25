@@ -11,7 +11,7 @@
 content %}
 <!-- when writing the for loop, use the whole ui segment instead of just "sixteen wide column" -->
 
-<div class="ui segment" id="quiz-post-input">
+<div class="ui segment" id="feedback-post-input">
   {% if errors %}
   <div class="ui message red">
     <div class="header">Error:</div>
@@ -32,33 +32,71 @@ content %}
     </div>
   </div>
 
-{% for question in questions.keys() %}
-<div class="ui segment">
-  <div class="row">
+  <div class="ui segment">
+    <div class="ui grid">
+    {% if questions %}
+      {% for question in questions.keys() %}
+        <div class="row">
+            <div class="ui eight wide column">
+              <div class="ui form">
+                Question:
+                <input
+                  placeholder="Question"
+                  type="text"
+                  name="question"
+                  value="{{question}}"
+                />
+              </div>
+            </div>
+            <div class="ui eight wide column">
+              <div class="ui form">
+                Answer:
+                <input
+                  placeholder="Answer"
+                  type="text"
+                  name="answer"
+                  value="{{questions[question]}}"
+                />
+              </div>
+            </div>
+        </div>
+      {% endfor %}
+    {% else %}
     <div class="ui sixteen wide column">
-      <div class="ui eight wide column">
-        Question: {{question}}
-      </div>
-      <div class="ui eight wide column">
-        Answer: {{questions[question]}}
-      </div>
+        <label>This deck has no cards</label>
     </div>
-    <a href="{{ url_for('flashcards.flashcards_save', set_id=set_id) }}">
-      <button class="ui right floated blue button">
-        Save
-      </button>
-    </a>
+    {%endif%}
+    </div>
   </div>
-</div>
-{% endfor %}
+    
 
 <div class="ui segment">
   <div class="ui sixteen wide column">
-
-    <button action="{{ url_for('posts.feed') }}" class="ui left floated blue button"
-      >Add card</button>
-    <button action="{{ url_for('flashcards.flashcards_save', set_id=set_id) }}" class="ui right floated blue button"
-      >Complete</button>
+    <a href="{{ url_for('flashcards.flashcards') }}">
+      <button class="ui left floated blue button">
+        Back to sets
+      </button>
+    </a>
+    <a href="{{ url_for('flashcards.flashcards_delete', set_id=set_id) }}">
+      <button class="ui left floated blue button">
+        Delete Deck
+      </button>
+    </a>
+    <a href="{{ url_for('flashcards.flashcards_play', set_id=set_id) }}">
+      <button class="ui right floated blue button">
+        Play Deck
+      </button>
+    </a>
+    <a href="{{ url_for('flashcards.flashcards_save', set_id=set_id) }}">
+      <button class="ui right floated blue button">
+        Save Deck
+      </button>
+    </a>
+    <a href="{{ url_for('flashcards.flashcards_add', set_id=set_id) }}">
+      <button class="ui right floated blue button">
+        Add Card
+      </button>
+    </a>
   </div>           
 </div>
 {% endblock %}

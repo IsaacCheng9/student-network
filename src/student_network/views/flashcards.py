@@ -30,7 +30,6 @@ def flashcards() -> object:
         cur = conn.cursor()
         cur.execute("SELECT set_id, date_created, author, set_name, cards_attempted FROM QuestionSets")
         row = cur.fetchall()
-        print(row)
         set_posts = sorted(row, key=lambda x: x[4], reverse=True)
 
     # Displays any error messages.
@@ -99,9 +98,52 @@ def flashcards_edit(set_id:int) -> object:
         The web page of flashcards created.
     """
 
-    #print("hhh", set_id, new)
+    #print("hhh", set_id)
 
-    print(set_id)
+
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        card_set = helper_flashcards.get_set_details(cur, set_id)
+
+    #print(card_set[3])
+    # Displays any error messages.
+    if "error" in session:
+        errors = session["error"]
+        session.pop("error", None)
+        return render_template(
+            "flashcards_edit.html",
+            requestCount=helper_connections.get_connection_request_count(),
+            questions=card_set[3],
+            set_name=card_set[0],
+            set_id=set_id,
+            errors=errors,
+            set_author=card_set[2],
+            username=session["username"],
+            notifications=helper_general.get_notifications(),
+        )
+    else:
+        return render_template(
+            "flashcards_edit.html",
+            requestCount=helper_connections.get_connection_request_count(),
+            questions=card_set[3],
+            set_name=card_set[0],
+            set_id=set_id,
+            set_author=card_set[2],
+            username=session["username"],
+            notifications=helper_general.get_notifications(),
+        )
+
+@flashcards_blueprint.route("/flashcards/set/<set_id>", methods=["GET", "POST"]) ####
+def flashcard_set(set_id: int) -> object:
+    """
+    Loads the flashcard set and processes the user's answers.
+
+    Args:
+        set_id: The ID of the flashcards to load.
+
+    Returns:
+        The web page for answering the questions, or feedback for your answers.
+    """
 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -112,20 +154,24 @@ def flashcards_edit(set_id:int) -> object:
         errors = session["error"]
         session.pop("error", None)
         return render_template(
-            "flashcards_edit.html",
+            "flashcards_set.html",
             requestCount=helper_connections.get_connection_request_count(),
-            questions=card_set[2],
+            questions=card_set[3],
+            set_name=card_set[0],
             set_id=set_id,
             errors=errors,
+            set_author=card_set[2],
             username=session["username"],
             notifications=helper_general.get_notifications(),
         )
     else:
         return render_template(
-            "flashcards_edit.html",
+            "flashcards_set.html",
             requestCount=helper_connections.get_connection_request_count(),
-            questions=card_set[2],
+            questions=card_set[3],
+            set_name=card_set[0],
             set_id=set_id,
+            set_author=card_set[2],
             username=session["username"],
             notifications=helper_general.get_notifications(),
         )
@@ -143,6 +189,32 @@ def flashcards_new() -> object:
 
     return redirect("/flashcards/edit/" + str(set_id))
 
+@flashcards_blueprint.route("/flashcards/edit/add/<set_id>", methods=["GET", "POST"])
+def flashcards_add(set_id) -> object:
+    """
+    Loads create new flashcard data.
+
+    Returns:
+        The web page of flashcards created.
+    """
+
+    helper_flashcards.add_card(set_id)
+
+    return redirect("/flashcards/set/" + str(set_id))
+
+@flashcards_blueprint.route("/flashcards/delete/<set_id>", methods=["GET", "POST"])
+def flashcards_delete(set_id) -> object:
+    """
+    Loads create new flashcard data.
+
+    Returns:
+        The web page of flashcards created.
+    """
+
+    helper_flashcards.delete_set(set_id)
+
+    return redirect("/flashcards")
+
 @flashcards_blueprint.route("/flashcards/save/<set_id>", methods=["GET", "POST"])
 def flashcards_save(set_id) -> object:
     """
@@ -154,39 +226,11 @@ def flashcards_save(set_id) -> object:
 
     helper_flashcards.save_set(set_id)
     
-    return redirect("/flashcards/edit/" + str(set_id))
-
-
-@flashcards_blueprint.route("/flashcards/set/<set_id>", methods=["GET", "POST"])
-def flashcard_set(set_id: int) -> object:
-    """
-    Loads the flashcard set and processes the user's answers.
-
-    Args:
-        set_id: The ID of the flashcards to load.
-
-    Returns:
-        The web page for answering the questions, or feedback for your answers.
-    """
-
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        card_set = helper_flashcards.get_set_details(cur, set_id)
-        #set_name=
-
-    return render_template(
-        "flashcards_set.html",
-        requestCount=helper_connections.get_connection_request_count(),
-        questions=card_set[2],
-        set_id=set_id,
-        set_name=card_set[0],
-        username=session["username"],
-        notifications=helper_general.get_notifications(),
-    )
+    return redirect("/flashcards/set/" + str(set_id))
 
 
 @flashcards_blueprint.route("/flascards/play/<set_id>", methods=["GET", "POST"])
-def flashcard_play(set_id: int, question: str) -> object:
+def flashcards_play(set_id: int, question: str) -> object:
     """
     Loads the flashcard set and processes the user's answers.
 
@@ -201,6 +245,7 @@ def flashcard_play(set_id: int, question: str) -> object:
         cur = conn.cursor()
         (
             set_name,
+            set_date,
             set_author,
             questions,
             cards_attempted
@@ -208,7 +253,7 @@ def flashcard_play(set_id: int, question: str) -> object:
 
     if request.method == "GET":
         return render_template(
-            "flashcards_set.html",
+            "flashcards_play.html",
             requestCount=helper_connections.get_connection_request_count(),
             set_name=set_name,
             #set_id=set_id,
