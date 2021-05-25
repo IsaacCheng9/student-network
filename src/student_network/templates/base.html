@@ -1,199 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
-  <meta property="og:site_name" content="Reconnect" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="{{ request.url }}" />
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
-    type="text/css"
-  />
-  <link
-    rel="shortcut icon"
-    href="../static/images/logo/chatboxes_stretch_png.png"
-  />
+<meta property="og:site_name" content="Reconnect" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="{{ request.url }}" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" type="text/css" />
+<link rel="shortcut icon" href="../static/images/logo/chatboxes_stretch_png.png" />
+<link rel="stylesheet" href="../static/styles/mobile.css">
 
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='styles/semantic.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/icon.min.css"
-    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/semantic.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/icon.min.css" />
     <title>Student Network - {% block title %}{% endblock %}</title>
     <!-- Standard Meta -->
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 
     <style type="text/css">
-      .student-background {
-        background-image: url("{{ url_for('static', filename='images/blue_background.png') }}") !important;
+        .student-background {
+            background-image: url("{{ url_for('static', filename='images/blue_background.png') }}") !important;
 
-        height: 100%;
+            height: 100%;
 
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
 
-        position: fixed;
-        z-index: -1;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
-      }
+            position: fixed;
+            z-index: -1;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+        }
 
-      .sticky {
-        position: sticky;
-        top: 5px;
-        z-index: 99;
-      }
+        .sticky {
+            position: sticky;
+            top: 5px;
+            z-index: 99;
+        }
+        
+        @media only screen and (min-width: 992px) and (max-width: 1199px){
+            * {
+                font-size: 10px;
+            }
+        }
+        
+        @media only screen and (min-width: 750px) and (max-width: 992px){
+            * {
+                font-size: 8px;
+            }
+        }
+            
+
     </style>
-  </head>
+</head>
 
-  <body>
-    <!-- Page Contents -->
-    <div class="pusher">
-      <div class="ui container">
+<body>
+    <div class="ui container">
         <div class="student-background"></div>
-        <div class="sticky">
-          <div class="ui menu small pointing stackable">
-            <div class="item">
-              <img
-                src="../static/images/logo/chatboxes_stretch_png.png"
-                onclick='location.href = "/"'
-                alt=""
-              />
+        <div class="ui menu small stackable">
+            <div class="item mobile hidden">
+                <img src="../static/images/logo/chatboxes_stretch_png.png" onclick='location.href = "/"' alt="" />
             </div>
             <a href="/" class="item">
-              <i class="user icon"></i>
-              My Profile
+                <i class="user icon"></i>
+                <div class="ui mobile hidden">My Profile</div>
             </a>
             {% if session["username"] %}
             <div class="ui simple dropdown item">
-              <i class="icon sitemap"></i>
-              Connections {% if requestCount > 0 %}
-              <div class="ui label red mini">{{ requestCount }}</div>
-              {% endif %}
-              <div class="menu">
-                <a href="/requests" class="item">
-                  <i class="icon sitemap"></i>
-                  My Connections {% if requestCount > 0 %}
-                  <div class="ui label red mini">{{ requestCount }}</div>
-                  {% endif %}
-                </a>
-                <a href="/members" class="item">
-                  <i class="icon users"></i>
-                  Find Users
-                </a>
-              </div>
-              <i class="icon dropdown"></i>
+                <i class="icon sitemap"></i>
+                <div class="ui mobile hidden">Connections</div> {% if requestCount > 0 %}
+                <div class="ui label red mini">{{ requestCount }}</div>
+                {% endif %}
+                <div class="menu">
+                    <a href="/requests" class="item">
+                        <i class="icon sitemap"></i>
+                        My Connections {% if requestCount > 0 %}
+                        <div class="ui label red mini">{{ requestCount }}</div>
+                        {% endif %}
+                    </a>
+                    <a href="/members" class="item">
+                        <i class="icon users"></i>
+                        Find Users
+                    </a>
+                </div>
+                <i class="icon dropdown"></i>
             </div>
             {% endif %}
             <a href="/feed" class="item">
-              <i class="icon newspaper outline"></i>
-              Feed
+                <i class="icon newspaper outline"></i>
+                <div class="ui mobile hidden">Feed</div>
             </a>
             <div class="ui simple dropdown item">
-              <i class="icon bar chart"></i>
-              Stats
-              <i class="icon dropdown"></i>
-              <div class="menu">
-                <a href="/achievements" class="item">
-                  <i class="icon trophy"></i>
-                  Achievements
-                </a>
-                <a href="/leaderboard" class="item">
-                  <i class="icon table"></i>
-                  Leaderboard
-                </a>
-              </div>
+                <i class="icon bar chart"></i>
+                <div class="ui mobile hidden">Stats</div>
+                <i class="icon dropdown"></i>
+                <div class="menu">
+                    <a href="/achievements" class="item">
+                        <i class="icon trophy"></i>
+                        Achievements
+                    </a>
+                    <a href="/leaderboard" class="item">
+                        <i class="icon table"></i>
+                        Leaderboard
+                    </a>
+                </div>
             </div>
             <div class="ui simple dropdown item">
-              <i class="icon gamepad"></i>
-              Games
-              <i class="icon dropdown"></i>
-              <div class="menu">
-                <a href="/quizzes" class="item">
-                  <i class="help icon"></i>
-                  Quiz
-                </a>
-              </div>
+                <i class="icon gamepad"></i>
+                <div class="ui mobile hidden">Games</div>
+                <i class="icon dropdown"></i>
+                <div class="menu">
+                    <a href="/quizzes" class="item">
+                        <i class="help icon"></i>
+                        Quiz
+                    </a>
+                </div>
             </div>
 
             <a href="/chat" class="item">
-              <i class="icon chat outline"></i>
-              Chat
+                <i class="icon chat outline"></i>
+                <div class="ui mobile hidden">Chat</div>
             </a>
 
             <div class="right menu">
-              {% if "admin" in session %} {% if session["admin"] %}
-              <div class="ui simple dropdown item">
-                <i class="lock icon"></i>
-                Admin Panel
-                <i class="icon dropdown"></i>
-                <div class="menu">
-                  <a href="{{url_for('show_staff_requests')}}" class="item">
-                    <i class="user icon"></i>
-                    Staff Requests
-                  </a>
+                {% if "admin" in session %} {% if session["admin"] %}
+                <div class="ui simple dropdown item">
+                    <i class="lock icon"></i>
+                    <div class="ui mobile hidden">Admin Panel</div>
+                    <i class="icon dropdown"></i>
+                    <div class="menu">
+                        <a href="{{url_for('show_staff_requests')}}" class="item">
+                            <i class="user icon"></i>
+                            Staff Requests
+                        </a>
+                    </div>
                 </div>
-              </div>
-              {% endif %} {% endif %} {% if "username" in session %}
-              <div class="ui simple dropdown item">
-                <i class="bell icon"></i>
-                {% if notifications|length > 0 %}
-                <div class="ui red label">{{notifications|length}}</div>
+                {% endif %} {% endif %} {% if "username" in session %}
+                <div class="ui simple dropdown item">
+                    <i class="bell icon"></i>
+                    {% if notifications|length > 0 %}
+                    <div class="ui red label">{{notifications|length}}</div>
+                    {% endif %}
+                    <div class="menu" style="max-height: 30vh; overflow-y: auto">
+                        {% for notification in notifications %}
+                        <a href="{{notification[2]}}" class="item" style="margin: 0.5em">
+                            <span>{{notification[0]}}</span>
+                            <span style="color: gray"> • {{notification[1]}}</span>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="ui simple dropdown item">
+                    <i class="user circle icon"></i>
+                    <div class="ui mobile hidden">Logged in as {{ session["username"] }}</div>
+                    <i class="icon dropdown"></i>
+                    <div class="menu">
+                        <a href="/edit-profile" class="item">
+                            <i class="icon cogs"></i>
+                            Profile Settings
+                        </a>
+                        <a href="/edit-profile" class="item">
+                            <i class="icon cog"></i>
+                            Customization
+                        </a>
+                        <a href="/logout" class="item">
+                            <i class="icon key"></i>
+                            Logout
+                        </a>
+                    </div>
+                </div>
                 {% endif %}
-                <div class="menu" style="max-height: 30vh; overflow-y: auto">
-                  {% for notification in notifications %}
-                  <a
-                    href="{{notification[2]}}"
-                    class="item"
-                    style="margin: 0.5em"
-                  >
-                    <span>{{notification[0]}}</span>
-                    <span style="color: gray"> • {{notification[1]}}</span>
-                  </a>
-                  {% endfor %}
-                </div>
-              </div>
-              <div class="ui simple dropdown item">
-                <i class="user circle icon"></i>
-                Logged in as {{ session["username"] }}
-                <i class="icon dropdown"></i>
-                <div class="menu">
-                  <a href="/edit-profile" class="item">
-                    <i class="icon cogs"></i>
-                    Profile Settings
-                  </a>
-                  <a href="/edit-profile" class="item">
-                    <i class="icon cog"></i>
-                    Customization
-                  </a>
-                  <a href="/logout" class="item">
-                    <i class="icon key"></i>
-                    Logout
-                  </a>
-                </div>
-              </div>
-              {% endif %}
             </div>
-          </div>
         </div>
 
         {% block content %} {% endblock %}
-      </div>
     </div>
-  </body>
+</body>
+
 </html>
