@@ -200,7 +200,7 @@ def flashcards_add(set_id) -> object:
 
     helper_flashcards.add_card(set_id)
 
-    return redirect("/flashcards/set/" + str(set_id))
+    return redirect("/flashcards/edit/" + str(set_id))
 
 @flashcards_blueprint.route("/flashcards/delete/<set_id>", methods=["GET", "POST"])
 def flashcards_delete(set_id) -> object:
