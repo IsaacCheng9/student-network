@@ -61,11 +61,6 @@ content %}
                             <a class="item" onclick='OpenTab("socials", this);'>Socials</a>
                             <a class="item" onclick='OpenTab("notifications", this);'>Notifications</a>
                             <a class="item" onclick='OpenTab("privacy", this);'>Privacy</a>
-
-                            <a class="item" onclick='OpenTab("inventory", this);'>
-                                Inventory
-                                <div class="ui label">5</div>
-                            </a>
                         </div>
                     </div>
                     <div class="twelve wide stretched column">
@@ -294,7 +289,7 @@ content %}
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        OpenTab("inventory");
+        OpenTab("profile");
     });
 
     function DisplayPrivacyTooltip(setting) {

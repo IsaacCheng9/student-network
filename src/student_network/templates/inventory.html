@@ -1,46 +1,47 @@
 <meta property="og:title" content="Reconnect | Shop" />
 <meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
 <meta property="og:description" content="The Student Network. Connecting students in and outside the classroom." />
+
 {% extends "base.html" %}
 {% block title %}Shop{% endblock %}
 {% block content %}
+
+<style>
+    .center-vertically {
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        height: 100%;
+    }
+
+</style>
 
 <link rel="stylesheet" href="../static/styles/inventory.css">
 
 <div class="ui segment">
     <div class="inventory-row">
+        {% for item in items %}
         <div class="inventory-cell">
-            <img class="inventory-background" src="../static/images/item_backgrounds/idea4.png">
-            <img class="inventory-item" src="https://www.geeklawblog.com/wp-content/uploads/sites/528/2018/12/liprofile-656x369.png" alt="">
-            <img src="../static/images/item_types/profile_background.png" alt="" class="inventory-type">
+            <img class="inventory-background" src="../static/images/item_rarity_backgrounds/idea{{item[3]}}.png">
+            <img src="../static/images/item_types/{{item[4]}}.png" alt="" class="inventory-type">
+            {% if item[4] == "font_pack" %}
+            <div class="inventory-item" style='font-family: "{{item[1]}}";'>
+                <p class="center-vertically">
+                    Example Text<br>
+                    <b>Example Text</b>
+                    <u>Example Text</u>
+                </p>
+            </div>
+            {%else%}
+            <img class="inventory-item" src="../static/images/item_backgrounds/{{item[1]}}.jpg" alt="">
+            {%endif%}
+            
             <div class="item-name">
-                Blurred Vision
+                {{item[1]}}
             </div>
         </div>
-        <div class="inventory-cell">
-            <img class="inventory-background" src="../static/images/item_backgrounds/idea3.png">
-            <img class="inventory-item" src="https://www.geeklawblog.com/wp-content/uploads/sites/528/2018/12/liprofile-656x369.png" alt="">
-            <img src="../static/images/item_types/profile_background.png" alt="" class="inventory-type">
-            <div class="item-name">
-                Blurred Vision
-            </div>
-        </div>
-        <div class="inventory-cell">
-            <img class="inventory-background" src="../static/images/item_backgrounds/idea2.png">
-            <img class="inventory-item" src="https://www.geeklawblog.com/wp-content/uploads/sites/528/2018/12/liprofile-656x369.png" alt="">
-            <img src="../static/images/item_types/profile_background.png" alt="" class="inventory-type">
-            <div class="item-name">
-                Blurred Vision
-            </div>
-        </div>
-        <div class="inventory-cell">
-            <img class="inventory-background" src="../static/images/item_backgrounds/idea1.png">
-            <img class="inventory-item" src="https://www.geeklawblog.com/wp-content/uploads/sites/528/2018/12/liprofile-656x369.png" alt="">
-            <img src="../static/images/item_types/profile_background.png" alt="" class="inventory-type">
-            <div class="item-name">
-                Blurred Vision
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </div>
 
