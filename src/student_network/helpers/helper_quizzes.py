@@ -13,14 +13,13 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
 
 
-def add_quiz(author, date_created, post_privacy, questions, quiz_name):
+def add_quiz(author, date_created, questions, quiz_name):
     """
     Adds quiz to the database.
 
     Args:
         author: Person who created the quiz.
         date_created: Date the quiz was created (YYYY/MM/DD).
-        post_privacy: Privacy setting for the quiz.
         questions: Questions and answers for the quiz.
         quiz_name: Name of the quiz.
     """
@@ -36,9 +35,9 @@ def add_quiz(author, date_created, post_privacy, questions, quiz_name):
             "question_4, question_4_ans_1, question_4_ans_2,"
             "question_4_ans_3, question_4_ans_4, question_5,"
             "question_5_ans_1, question_5_ans_2, question_5_ans_3,"
-            "question_5_ans_4, privacy) "
+            "question_5_ans_4) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "
-            "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+            "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
             (
                 quiz_name,
                 date_created,
@@ -68,7 +67,6 @@ def add_quiz(author, date_created, post_privacy, questions, quiz_name):
                 questions[4][2],
                 questions[4][3],
                 questions[4][4],
-                post_privacy,
             ),
         )
         conn.commit()

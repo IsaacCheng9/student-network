@@ -15,38 +15,35 @@ quizzes_blueprint = Blueprint(
 )
 
 
-@quizzes_blueprint.route("/quizzes", methods=["GET"])
-def quizzes() -> object:
+@quizzes_blueprint.route("/create_quiz", methods=["POST"])
+def create_quiz() -> object:
     """
-    Loads the sorted list of quizzes.
+    Creates the quiz and sends the user to the quiz they created.
 
     Returns:
-        The web page of quizzes created.
+        Redirection to the quiz the user just created.
     """
+    date_created, author, quiz_name, questions = helper_quizzes.save_quiz_details()
+    valid, message = helper_quizzes.validate_quiz(quiz_name, questions)
+    if valid:
+        helper_quizzes.add_quiz(author, date_created, questions, quiz_name)
+    else:
+        session["error"] = message
+
+    # Redirect the user to the quiz they just created.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT quiz_id, date_created, author, quiz_name, plays FROM Quiz")
-        row = cur.fetchall()
-        quiz_posts = sorted(row, key=lambda x: x[4], reverse=True)
-
-    # Displays any error messages.
-    if "error" in session:
-        errors = session["error"]
-        session.pop("error", None)
-        return render_template(
-            "quizzes.html",
-            requestCount=helper_connections.get_connection_request_count(),
-            quizzes=quiz_posts,
-            errors=errors,
-            notifications=helper_general.get_notifications(),
+        cur.execute(
+            "SELECT quiz_id FROM Quiz WHERE date_created=? AND author=? AND "
+            "quiz_name=?",
+            (
+                date_created,
+                author,
+                quiz_name,
+            ),
         )
-    else:
-        return render_template(
-            "quizzes.html",
-            requestCount=helper_connections.get_connection_request_count(),
-            quizzes=quiz_posts,
-            notifications=helper_general.get_notifications(),
-        )
+        quiz_id = str(cur.fetchone()[0])
+    return redirect("quiz/" + quiz_id)
 
 
 @quizzes_blueprint.route("/quiz/<quiz_id>", methods=["GET", "POST"])
@@ -132,3 +129,37 @@ def quiz(quiz_id: int) -> object:
                 score=score,
                 notifications=helper_general.get_notifications(),
             )
+
+
+@quizzes_blueprint.route("/quizzes", methods=["GET"])
+def quizzes() -> object:
+    """
+    Loads the sorted list of quizzes.
+
+    Returns:
+        The web page of quizzes created.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT quiz_id, date_created, author, quiz_name, plays FROM Quiz")
+        row = cur.fetchall()
+        quiz_posts = sorted(row, key=lambda x: x[4], reverse=True)
+
+    # Displays any error messages.
+    if "error" in session:
+        errors = session["error"]
+        session.pop("error", None)
+        return render_template(
+            "quizzes.html",
+            requestCount=helper_connections.get_connection_request_count(),
+            quizzes=quiz_posts,
+            errors=errors,
+            notifications=helper_general.get_notifications(),
+        )
+    else:
+        return render_template(
+            "quizzes.html",
+            requestCount=helper_connections.get_connection_request_count(),
+            quizzes=quiz_posts,
+            notifications=helper_general.get_notifications(),
+        )
