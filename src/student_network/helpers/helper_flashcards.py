@@ -74,14 +74,21 @@ def get_set_details(cur, set_id: int) -> Tuple[str, date, dict, int]:
 
 def delete_set(set_id):
 
-    print(set_id)
+
 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("DELETE FROM QuestionSets "
+        cur.execute("SELECT author FROM QuestionSets "
                     "WHERE set_id=?;",
                     (set_id,))
-        conn.commit()
+        author = cur.fetchone()[0]
+        if author == session["username"]:
+            cur.execute("DELETE FROM QuestionSets "
+                        "WHERE set_id=?;",
+                        (set_id,))
+            conn.commit()
+        else:
+            session["error"] = ["You cannot delete another user's flashcard set"]
 
 '''
 def save_set_question() -> Tuple[date, str, str, list]:     #####
@@ -128,24 +135,29 @@ def add_card(set_id):
 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT questions, answers "
+        cur.execute("SELECT questions, answers, author "
                     "FROM QuestionSets "
                     "WHERE set_id=?;", (set_id,))
         row = cur.fetchone()
         
-        if all(row):
-            count = len(row[0].split("|"))
-            questions = row[0] + "|question "+str(count)
-            answers= row[1] + "|answer "+str(count)
-        else:
-            questions = "question1"
-            answers = "answer1"
+        author = row[2]
+        if author == session["username"]:
+            if all(row):
+                count = len(row[0].split("|"))
+                questions = row[0] + "|question "+str(count)
+                answers= row[1] + "|answer "+str(count)
+            else:
+                questions = "question1"
+                answers = "answer1"
 
-        cur.execute("UPDATE QuestionSets "
-                    "SET questions=?, answers=? "
-                    "WHERE set_id=?;",
-                    (questions, answers, set_id))
-        conn.commit()
+            cur.execute("UPDATE QuestionSets "
+                        "SET questions=?, answers=? "
+                        "WHERE set_id=?;",
+                        (questions, answers, set_id))
+            conn.commit()
+
+        else:
+            session["error"] = ["You cannot add cards to another user's flashcard set"]
 
 def add_play(cur, set_id):
 

@@ -101,7 +101,7 @@ def flashcards_user(username: str) -> object:
             notifications=helper_general.get_notifications(),
         )
     
-@flashcards_blueprint.route("/flashcards/edit/<set_id>", methods=["GET", "POST"])
+@flashcards_blueprint.route("/flashcards/edit/<set_id>", methods=["GET"])
 def flashcards_edit(set_id:int) -> object:
     """
     Loads create new flashcard data.
@@ -145,7 +145,7 @@ def flashcards_edit(set_id:int) -> object:
             notifications=helper_general.get_notifications(),
         )
 
-@flashcards_blueprint.route("/flashcards/set/<set_id>", methods=["GET", "POST"]) ####
+@flashcards_blueprint.route("/flashcards/set/<set_id>", methods=["GET"])
 def flashcard_set(set_id: int) -> object:
     """
     Loads the flashcard set and processes the user's answers.
@@ -248,35 +248,10 @@ def flashcards_start_set(set_id: int) -> object:
         helper_flashcards.add_play(cur, set_id)
         conn.commit()
 
-    return redirect("/flashcards/play/nextquestion/"+str(set_id)+"/0")
+    return redirect("/flashcards/play/"+str(set_id))
 
-
-@flashcards_blueprint.route("/flashcards/play/nextquestion/<set_id>/<index>", methods=["GET", "POST"])   ###
-def flashcards_next_question(set_id: int, index: int) -> object:
-
-    # Gets the flashcards details from the database.
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        #helper_flashcards.add_play(cur, set_id)
-        #conn.commit()
-        questions = helper_flashcards.get_set_details(cur, set_id)[3]
-
-    #print(list(questions.items()))
-    questions = list(questions.items())
-
-    if questions:  
-        i = index
-        while i==index:
-            i = randint(0,len(questions)-1)
-    else:
-        print("yeye")
-        index = -1
-    
-    return redirect("/flashcards/play/"+str(set_id)+"/"+str(i))
-
-
-@flashcards_blueprint.route("/flashcards/play/<set_id>/<index>", methods=["GET", "POST"])
-def flashcards_play(set_id: int, index: int) -> object:
+@flashcards_blueprint.route("/flashcards/play/<set_id>", methods=["GET", "POST"])
+def flashcards_play(set_id: int) -> object:
     """
     Loads the flashcard set and processes the user's answers.
 
@@ -289,20 +264,15 @@ def flashcards_play(set_id: int, index: int) -> object:
     # Gets the flashcards details from the database.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        if index != "-1":
-            (
-                set_name,
-                set_date,
-                set_author,
-                questions,
-                cards_played
-            ) = helper_flashcards.get_set_details(cur, set_id)
+        (
+            set_name,
+            set_date,
+            set_author,
+            questions,
+            cards_played
+        ) = helper_flashcards.get_set_details(cur, set_id)
 
-            #print(list(questions.items()))
-            #question = list(questions.items())[int(index)]
-            question_list = questions.items()
-        else:
-            questions = "None"
+        question_list = questions.items()
 
     if request.method == "GET":
         return render_template(
@@ -310,59 +280,9 @@ def flashcards_play(set_id: int, index: int) -> object:
             requestCount=helper_connections.get_connection_request_count(),
             set_name=set_name,
             set_id=set_id,
-            index=index,
+            #index=index,
             question_list=dict(question_list),
             question_count=len(question_list),
             set_author=set_author,
             notifications=helper_general.get_notifications(),
         )
-    '''
-    elif request.method == "POST":
-        score = 0
-
-        # Gets the answers selected by the user.
-        user_answer = request.form.get("userAnswer"),
-
-            # 1 exp earned for the author of the quiz
-            #if quiz_author != session["username"]:
-            #    helper_login.check_level_exists(quiz_author, conn)
-            #    cur.execute(
-            #        "UPDATE UserLevel "
-            #        "SET experience = experience + 1 "
-            #        "WHERE username=?;",
-            #        (quiz_author,),
-            #    )
-            #    conn.commit()
-            #question_feedback = []
-            #for i in range(5):
-            #    correct_answer = quiz_details[0][(5 * i) + 5]
-            #    correct = user_answers[i] == correct_answer
-            #    question_feedback.append(
-            #        [questions[i], user_answers[i], correct_answer]
-            #    )
-            #    if correct:
-            #        score += 1
-            #helper_achievements.update_quiz_achievements(score)
-        
-        if questions[question] == user_answer:
-            score += 1
-
-            # Updates the number of times a quiz has been played.
-            cur.execute(
-                "UPDATE QuestionSets SET cards_attempted = cards_attempted + 1 WHERE set_id=?;", (set_id,)
-            )
-            conn.commit()
-
-        next_question = question
-        while next_question == question:
-            next_question = choice(list(questions.keys()))
-
-        return render_template(
-            "flashcard_play.html",
-            question=next_question,
-            answer=questions[next_question],
-            requestCount=helper_connections.get_connection_request_count(),
-            score=score,
-            notifications=helper_general.get_notifications(),
-        )
-    '''
