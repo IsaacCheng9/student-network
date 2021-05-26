@@ -7,165 +7,62 @@
   property="og:description"
   content="The Student Network. Connecting students in and outside the classroom."
 />
+
+<style>
+  .scene {
+    width: 100%;
+    height: 200px;
+  }
+
+  .card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    text-align: center;
+    line-height: 1500%;
+    transition: transform 5s;
+    transform-style: preserve-3d;
+  }
+
+  .side {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    font-weight: bold;
+    backface-visibility: hidden;
+  }
+
+  .back {
+    transform: rotateY(180deg);
+  }
+
+  .card.flip {
+    transform: rotateY(180deg);
+  }
+
+</style>
+
 {% extends "base.html" %} {% block title %}Flashcards{% endblock %} {% block content
 %}
 
-<div class="ui segment">
-  {%for index in range(questions|length)%}
-  <div class="ui compact" id="question-{{index}}">
-    <input
-      form="submitForm"
-      type="hidden"
-      class="userAnswer"
-      value=""
-      name="userAnswer{{index}}"
-    />
-    <div class="ui sixteen wide column">
-      <h2>{{set_name}}</h2>
-      <div class="ui label">{{set_author}}</div>
+  <div class="scene">
+    <div class="card ui segment">
+      <div class="side">{{question[0]}}</div>
+      <div class="side back">{{question[1]}}</div>
     </div>
-    <div class="ui sixteen wide column">
-      <button class="ui fluid button blue">
-        <h1>{{questions[index]}}</h1>
-      </button>
     </div>
-  </div>
-  {%endfor%}
-  <div class="ui horizontal divider"></div>
-  <div class="ui grid">
-    <div class="sixteen wide column" style="text-align: center">
-      <div
-        class="ui button"
-        id="prevQuestionBtn"
-        onclick="PreviousQuestion();"
-        style="float: left"
-      >
-        <i class="left arrow icon"></i> Previous
-      </div>
-      <div class="ui statistic">
-        <div class="value" id="questionNumber"></div>
-      </div>
-      <div
-        class="ui button"
-        id="nextQuestionBtn"
-        onclick="NextQuestion();"
-        style="float: right"
-      >
-        Next <i class="right arrow icon"></i>
-      </div>
-    </div>
-    <div class="sixteen wide column">
-      <form id="submitForm" method="POST" action="/quiz/{{quiz_id}}">
-        <input
-          value="Submit Answers"
-          type="submit"
-          class="ui button green icon"
-          style="float: right"
-          id="submitBtn"
-        />
-      </form>
-    </div>
-  </div>
-</div>
-
-{% for question in questions.keys() %}
-<div class="ui segment">
-  <div class="ui grid">
-    <div class="ui sixteen wide column">
-      <div class="ui eight wide column">
-        Question: {{question}}
-      </div>
-      <div class="ui eight wide column">
-        Answer: {{questions[question]}}
-      </div>
-    </div>
-  </div>
-</div>
-{% endfor %}
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <br>
+  <a href="{{ url_for('flashcards.flashcards_next_question', set_id=set_id, index=index) }}">
+    <button class="ui right floated gray button">
+      <i class="right arrow icon"></i>
+    </button>
+  </a>
 
 <script>
-  $(".selectable").click(function () {
-    $(this).parent().parent().find(".selectable").removeClass("selected");
-    $(this).addClass("selected");
-
-    $("#question-" + questionIndex)
-      .find(".userAnswer")
-      .val($(this).find("h1").html());
-
-    UpdateSubmitBtn();
+  var card = document.querySelector('.card');
+  card.addEventListener( 'click', function() {
+    card.classList.toggle('flip');
   });
-
-  function UpdateSubmitBtn() {
-    let allFilled = true;
-    $(".userAnswer").each(function () {
-      if ($(this).val() === "") {
-        allFilled = false;
-      }
-    });
-
-    $("#submitBtn").prop("disabled", !allFilled);
-    $("#submitBtn").removeClass("disabled");
-    if (!allFilled) {
-      $("#submitBtn").addClass("disabled");
-    }
-  }
-
-  let questionIndex = 0;
-
-  function Clamp(num, min, max) {
-    if (num < min) return min;
-    if (num > max) return max;
-    return num;
-  }
-
-  function NextQuestion() {
-    questionIndex++;
-    questionIndex = Clamp(questionIndex, 0, 4);
-    DisplayQuestion(questionIndex);
-
-    $("#nextQuestionBtn").prop("disabled", false);
-    $("#prevQuestionBtn").prop("disabled", false);
-
-    $("#nextQuestionBtn").removeClass("disabled");
-    $("#prevQuestionBtn").removeClass("disabled");
-
-    if (questionIndex === 4) {
-      $("#nextQuestionBtn").prop("disabled", true);
-      $("#nextQuestionBtn").addClass("disabled");
-    }
-  }
-
-  function PreviousQuestion() {
-    questionIndex--;
-    questionIndex = Clamp(questionIndex, 0, 4);
-    DisplayQuestion(questionIndex);
-
-    $("#prevQuestionBtn").prop("disabled", false);
-    $("#nextQuestionBtn").prop("disabled", false);
-
-    $("#nextQuestionBtn").removeClass("disabled");
-    $("#prevQuestionBtn").removeClass("disabled");
-
-    if (questionIndex === 0) {
-      $("#prevQuestionBtn").prop("disabled", true);
-      $("#prevQuestionBtn").addClass("disabled");
-    }
-  }
-
-  function DisplayQuestion(index) {
-    $(".quiz-question").hide();
-    $("#question-" + index).show();
-
-    $("#questionNumber").html(
-      `${index + 1}<span style="font-size: 0.4em;">/${5}</span>`
-    );
-  }
-
-  DisplayQuestion(0);
-  PreviousQuestion();
-  UpdateSubmitBtn();
 </script>
 
 {%endblock%}

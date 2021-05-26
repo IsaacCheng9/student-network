@@ -2,7 +2,7 @@
 Handles the view for flashcards and related functionality.
 """
 import sqlite3
-from random import choice
+from random import choice, randint
 from datetime import date
 
 import student_network.helpers.helper_achievements as helper_achievements
@@ -228,9 +228,45 @@ def flashcards_save(set_id) -> object:
     
     return redirect("/flashcards/set/" + str(set_id))
 
+@flashcards_blueprint.route("/flashcards/play/getquestions/<set_id>/<index>", methods=["GET", "POST"])   ###
+def flashcards_get_questions(set_id: int, index: int) -> object:
 
-@flashcards_blueprint.route("/flascards/play/<set_id>", methods=["GET", "POST"])
-def flashcards_play(set_id: int, question: str) -> object:
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        (
+            set_name,
+            set_date,
+            set_author,
+            questions,
+            cards_attempted
+        ) = helper_flashcards.get_set_details(cur, set_id)
+
+
+    questions = list(questions.items())
+
+    question = questions[index]
+
+
+@flashcards_blueprint.route("/flashcards/play/nextquestion/<set_id>/<index>", methods=["GET", "POST"])   ###
+def flashcards_next_question(set_id: int, index: int) -> object:
+
+    # Gets the flashcards details from the database.
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        questions = helper_flashcards.get_set_details(cur, set_id)[3]
+
+    #print(list(questions.items()))
+    questions = list(questions.items())
+
+    i = index
+    while i==index:
+        i = randint(0,len(questions)-1)
+    
+    return redirect("/flashcards/play/"+str(set_id)+"/"+str(i))
+
+
+@flashcards_blueprint.route("/flashcards/play/<set_id>/<index>", methods=["GET", "POST"])
+def flashcards_play(set_id: int, index: int) -> object:
     """
     Loads the flashcard set and processes the user's answers.
 
@@ -251,16 +287,21 @@ def flashcards_play(set_id: int, question: str) -> object:
             cards_attempted
         ) = helper_flashcards.get_set_details(cur, set_id)
 
+    #print(list(questions.items()))
+    question = list(questions.items())[int(index)]
+
     if request.method == "GET":
         return render_template(
             "flashcards_play.html",
             requestCount=helper_connections.get_connection_request_count(),
             set_name=set_name,
-            #set_id=set_id,
-            questions=questions,
+            set_id=set_id,
+            index=index,
+            question=question,
             set_author=set_author,
             notifications=helper_general.get_notifications(),
         )
+    '''
     elif request.method == "POST":
         score = 0
 
@@ -309,3 +350,4 @@ def flashcards_play(set_id: int, question: str) -> object:
             score=score,
             notifications=helper_general.get_notifications(),
         )
+    '''
