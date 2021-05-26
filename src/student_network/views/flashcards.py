@@ -10,7 +10,7 @@ import student_network.helpers.helper_connections as helper_connections
 import student_network.helpers.helper_general as helper_general
 import student_network.helpers.helper_login as helper_login
 import student_network.helpers.helper_flashcards as helper_flashcards
-from flask import Blueprint, redirect, render_template, request, session
+from flask import Blueprint, json, redirect, render_template, request, session, jsonify
 
 
 flashcards_blueprint = Blueprint(
@@ -299,10 +299,10 @@ def flashcards_play(set_id: int, index: int) -> object:
             ) = helper_flashcards.get_set_details(cur, set_id)
 
             #print(list(questions.items()))
-            question = list(questions.items())[int(index)]
+            #question = list(questions.items())[int(index)]
+            question_list = questions.items()
         else:
             questions = "None"
-    
 
     if request.method == "GET":
         return render_template(
@@ -311,7 +311,8 @@ def flashcards_play(set_id: int, index: int) -> object:
             set_name=set_name,
             set_id=set_id,
             index=index,
-            question=question,
+            question_list=dict(question_list),
+            question_count=len(question_list),
             set_author=set_author,
             notifications=helper_general.get_notifications(),
         )

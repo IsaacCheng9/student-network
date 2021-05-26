@@ -1,79 +1,121 @@
 <meta property="og:title" content="Reconnect | Flashcards" />
-<meta
-  property="og:image"
-  content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
-/>
-<meta
-  property="og:description"
-  content="The Student Network. Connecting students in and outside the classroom."
-/>
+<meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
+<meta property="og:description" content="The Student Network. Connecting students in and outside the classroom." />
 
 <style>
-  .scene {
-    width: 100%;
-    height: 200px;
-    position: center;
-  }
+    .scene {
+        margin-top: 5em;
+        margin-bottom: 5em;
+        height: 200px;
+        
+        display: flex;
 
-  .card {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    text-align: center;
-    line-height: 1500%;
-    transition: transform 5s;
-    transform-style: preserve-3d;
-  }
+        justify-content: center;
+        justify-items: center;
+    }
 
-  .side {
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    font-weight: bold;
-    backface-visibility: hidden;
-  }
+    .card {
+        transition: transform 1s !important;
+        transform-style: preserve-3d;
+        position: relative;
+        height: 100%;
+    }
 
-  .back {
-    transform: rotateY(180deg);
-  }
+    .side {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
 
-  .card.flip {
-    transform: rotateY(180deg);
-  }
+        font-weight: bold;
+        backface-visibility: hidden;
+
+        display: flex;
+
+        justify-content: center;
+        align-items: center;
+    }
+
+    .back {
+        transform: rotateY(180deg);
+    }
+
+    .card.flip {
+        transform: rotateY(180deg);
+    }
 
 </style>
 
 {% extends "base.html" %} {% block title %}Flashcards{% endblock %} {% block content
 %}
 
-{% if question!="None"  %}
-  <div class="scene">
-    <div class="card ui segment">
-      <div class="side">{{question[0]}}</div>
-      <div class="side back">{{question[1]}}</div>
-    </div>
-    </div>
-  <br>
-  <a href="{{ url_for('flashcards.flashcards_next_question', set_id=set_id, index=index) }}">
-    <button class="ui right floated gray button">
-      <i class="right arrow icon"></i>
-    </button>
-  </a>
+{% if question_count > 0 %}
+<div class="scene" id=cardsParent>
+    <div class="ui card" style="display: none;"></div>
+</div>
+<div class="ui buttons fluid">
+    <button class="ui button" onclick="PrevCard();"><i class="ui icon left arrow"></i> Previous</button>
+    <button class="ui button" onclick="RandomCard();"><i class="ui icon random"></i> Random</button>
+    <button class="ui button" onclick="NextCard();"><i class="ui icon right arrow"></i> Next</button>
+</div>
 {% else %}
-  <div class="ui segment">
+<div class="ui segment">
     <div class="ui sixteen wide column">
         <label>This deck has no cards</label>
     </div>
-  </div>
+</div>
 {% endif %}
 
 
 <script>
-  var card = document.querySelector('.card');
-  
-  card.addEventListener( 'click', function() {
-    card.classList.toggle('flip');
-  });
+    const allCards = JSON.parse(`{{question_list | tojson | safe}}`);
+    
+    var curCardIndex = 0;
+    
+    var index = 0;
+    for (var key in allCards){
+        document.getElementById("cardsParent").innerHTML += `
+            <div class="ui card" id="card_${index}">
+                <div class="side">${key}</div>
+                <div class="side back">${allCards[key]}</div>
+            </div>`;
+        index++;
+    }
+    
+    var cards = document.querySelectorAll('.card');
+    
+    for (var card of cards){
+        card.addEventListener("click", function(){
+            this.classList.toggle("flip");
+        })
+    }
+    
+    function PrevCard(){
+        curCardIndex = (curCardIndex - 1 + index) % index;
+        DisplayCard();
+    }
+    function NextCard(){
+        curCardIndex = (curCardIndex + 1 + index) % index;
+        DisplayCard();
+    }
+    function RandomCard(){        
+        curCardIndex = Math.floor(Math.random() * index);
+        DisplayCard();
+    }
+    
+    function DisplayCard(){
+        var allFlippedCards = document.querySelectorAll(".card.flip");
+        for (var card of allFlippedCards){
+            card.classList.remove("flip");
+        }
+        
+        for (var i = 0; i < index; i++){
+            document.getElementById("card_"+i).style.display = i == curCardIndex ? "block" : "none";
+        }
+    }
+    DisplayCard();
+
 </script>
 
 {%endblock%}
