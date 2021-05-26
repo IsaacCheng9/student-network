@@ -63,19 +63,27 @@ content %}
       <div class="ui container">
         <div class="ui segment basic">
           <div class="ui grid">
-            <div class="four wide column">
-              <div class="ui vertical fluid menu" id="menu">
+            <div class="sixteen wide column mobile hidden">
+              <div class="ui fluid menu" id="menu">
                 <a class="item active" onclick='OpenTab("profile", this);'
-                  >Profile</a
-                >
-                <a class="item" onclick='OpenTab("socials", this);'>Socials</a>
+                  ><i class="user circle icon"></i>
+                  Profile
+                </a>
+                <a class="item" onclick='OpenTab("socials", this);'
+                  ><i class="users icon"></i>
+                  Socials
+                </a>
                 <a class="item" onclick='OpenTab("notifications", this);'
-                  >Notifications</a
-                >
-                <a class="item" onclick='OpenTab("privacy", this);'>Privacy</a>
+                  ><i class="bell outline icon"></i>
+                  Notifications
+                </a>
+                <a class="item" onclick='OpenTab("privacy", this);'
+                  ><i class="unlock alternate icon"></i>
+                  Privacy
+                </a>
               </div>
             </div>
-            <div class="twelve wide stretched column">
+            <div class="sixteen wide stretched column">
               {% if errors|length > 0 %}
               <div class="ui red message">
                 {% for error in errors %}
@@ -360,6 +368,39 @@ content %}
             </div>
           </div>
         </div>
+      </div>
+    </div>
+    <div
+      class="ui equal width grid mobile only"
+      style="position: fixed; bottom: 1em; left: 0; right: 0"
+    >
+      <div
+        class="column"
+        style="background-color: #fff; text-align: center"
+        onclick='OpenTab("profile", this);'
+      >
+        <a class="item active"><i class="user circle icon"></i></a>
+      </div>
+      <div
+        class="column"
+        style="background-color: #fff; text-align: center"
+        onclick='OpenTab("socials", this);'
+      >
+        <a class="item"><i class="users icon"></i></a>
+      </div>
+      <div
+        class="column"
+        style="background-color: #fff; text-align: center"
+        onclick='OpenTab("notifications", this);'
+      >
+        <a class="item"><i class="bell outline icon"></i></a>
+      </div>
+      <div
+        class="column"
+        style="background-color: #fff; text-align: center"
+        onclick='OpenTab("privacy", this);'
+      >
+        <a class="item"><i class="unlock alternate icon"></i></a>
       </div>
     </div>
   </body>

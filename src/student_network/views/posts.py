@@ -312,7 +312,9 @@ def submit_post() -> object:
     """
     post_privacy = request.form.get("privacy")
     post_body = request.form["post_text"]
-    all_file_names = request.form["allFileNames"].split(",")
+    all_file_names = request.form["allFileNames"]
+
+    all_file_names_split = all_file_names.split(",")
 
     # Only adds the post if a title has been input.
     if len(all_file_names) > 0 or len(post_body) > 0:
@@ -338,7 +340,7 @@ def submit_post() -> object:
             )
 
             if len(all_file_names) > 0:
-                for fileName in all_file_names:
+                for fileName in all_file_names_split:
                     cur.execute(
                         "INSERT INTO PostContent (postId, contentUrl) "
                         "VALUES (?, ?);",
