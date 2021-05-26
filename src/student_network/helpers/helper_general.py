@@ -109,7 +109,7 @@ def get_notifications():
         return notification_metadata
 
 
-def one_exp(cur, username):
+def one_exp(cur, username: str):
     """
     Awards 1 exp point
 
