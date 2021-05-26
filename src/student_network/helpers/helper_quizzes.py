@@ -75,6 +75,7 @@ def add_quiz(author, date_created, questions, quiz_name):
 def get_quiz_details(cur, quiz_id: int) -> Tuple[list, list, str, list, str]:
     """
     Gets the details for the quiz being taken.
+
     Args:
         cur: Cursor for the SQLite database.
         quiz_id: The ID of the quiz being taken.
@@ -159,43 +160,17 @@ def save_quiz_details() -> Tuple[date, str, str, list]:
     date_created = date.today()
     author = session["username"]
     quiz_name = request.form.get("quiz_name")
-    questions = [
-        [
-            request.form.get("question_1"),
-            request.form.get("question_1_ans_1"),
-            request.form.get("question_1_ans_2"),
-            request.form.get("question_1_ans_3"),
-            request.form.get("question_1_ans_4"),
-        ],
-        [
-            request.form.get("question_2"),
-            request.form.get("question_2_ans_1"),
-            request.form.get("question_2_ans_2"),
-            request.form.get("question_2_ans_3"),
-            request.form.get("question_2_ans_4"),
-        ],
-        [
-            request.form.get("question_3"),
-            request.form.get("question_3_ans_1"),
-            request.form.get("question_3_ans_2"),
-            request.form.get("question_3_ans_3"),
-            request.form.get("question_3_ans_4"),
-        ],
-        [
-            request.form.get("question_4"),
-            request.form.get("question_4_ans_1"),
-            request.form.get("question_4_ans_2"),
-            request.form.get("question_4_ans_3"),
-            request.form.get("question_4_ans_4"),
-        ],
-        [
-            request.form.get("question_5"),
-            request.form.get("question_5_ans_1"),
-            request.form.get("question_5_ans_2"),
-            request.form.get("question_5_ans_3"),
-            request.form.get("question_5_ans_4"),
-        ],
-    ]
+    questions = []
+    for question in range(1, 6):
+        questions.append(
+            [
+                request.form.get("question_" + str(question)),
+                request.form.get("question_" + str(question) + "_ans_1"),
+                request.form.get("question_" + str(question) + "_ans_2"),
+                request.form.get("question_" + str(question) + "_ans_3"),
+                request.form.get("question_" + str(question) + "_ans_4"),
+            ]
+        )
     return date_created, author, quiz_name, questions
 
 
