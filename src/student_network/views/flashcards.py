@@ -2,8 +2,6 @@
 Handles the view for flashcards and related functionality.
 """
 import sqlite3
-from random import randint
-from datetime import date
 
 import student_network.helpers.helper_achievements as helper_achievements
 import student_network.helpers.helper_connections as helper_connections
@@ -24,7 +22,7 @@ def flashcards() -> object:
     Loads the sorted list of flashcards.
 
     Returns:
-        The web page of flashcards created.
+        The web page of flashcards.
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -64,8 +62,11 @@ def flashcards_user(username: str) -> object:
     """
     Loads specific user's flashcard data.
 
+    Args:
+        username: The username of the user to find sets from.
+
     Returns:
-        The web page of flashcards created.
+        The web page of flashcards created by this user.
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -106,18 +107,17 @@ def flashcards_edit(set_id:int) -> object:
     """
     Loads create new flashcard data.
 
+    Args:
+        set_id: The ID of the flashcards.
+
     Returns:
         The web page of flashcards created.
     """
-
-    #print("hhh", set_id)
-
 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         card_set = helper_flashcards.get_set_details(cur, set_id)
 
-    #print(card_set[3])
     # Displays any error messages.
     if "error" in session:
         errors = session["error"]
@@ -148,7 +148,7 @@ def flashcards_edit(set_id:int) -> object:
 @flashcards_blueprint.route("/flashcards/set/<set_id>", methods=["GET"])
 def flashcard_set(set_id: int) -> object:
     """
-    Loads the flashcard set and processes the user's answers.
+    Loads the flashcard set.
 
     Args:
         set_id: The ID of the flashcards to load.
@@ -191,7 +191,7 @@ def flashcard_set(set_id: int) -> object:
 @flashcards_blueprint.route("/flashcards/new", methods=["GET", "POST"])
 def flashcards_new() -> object:
     """
-    Loads create new flashcard data.
+    Create a new flashcard set
 
     Returns:
         The web page of flashcards created.
@@ -204,10 +204,13 @@ def flashcards_new() -> object:
 @flashcards_blueprint.route("/flashcards/edit/add/<set_id>", methods=["GET", "POST"])
 def flashcards_add(set_id) -> object:
     """
-    Loads create new flashcard data.
+    Edit a specific set
+
+    Args:
+        set_id: The ID of the flashcards.
 
     Returns:
-        The web page of flashcards created.
+        The web page of flashcards set to edit.
     """
 
     helper_flashcards.add_card(set_id)
@@ -217,23 +220,29 @@ def flashcards_add(set_id) -> object:
 @flashcards_blueprint.route("/flashcards/delete/<set_id>", methods=["GET", "POST"])
 def flashcards_delete(set_id) -> object:
     """
-    Loads create new flashcard data.
+    Delete a flashcard set.
+
+    Args:
+        set_id: The ID of the flashcards.
 
     Returns:
-        The web page of flashcards created.
+        The web page of flashcards list.
     """
 
     helper_flashcards.delete_set(set_id)
 
     return redirect("/flashcards")
 
-@flashcards_blueprint.route("/flashcards/save/<set_id>", methods=["GET", "POST"])
+@flashcards_blueprint.route("/flashcards/save/<set_id>", methods=["GET", "POST"]) ###
 def flashcards_save(set_id) -> object:
     """
-    Loads create new flashcard data.
+    Save the flashcard set
+
+    Args:
+        set_id: The ID of the flashcards.
 
     Returns:
-        The web page of flashcards created.
+        The web page of flashcards set.
     """
 
     helper_flashcards.save_set(set_id)
@@ -242,7 +251,15 @@ def flashcards_save(set_id) -> object:
 
 @flashcards_blueprint.route("/flashcards/play/start/<set_id>", methods=["GET", "POST"])
 def flashcards_start_set(set_id: int) -> object:
+    """
+    Starts the flashcard set to play and increments its play count
 
+    Args:
+        set_id: The ID of the flashcards.
+
+    Returns:
+        The web page for playing the flashcard set
+    """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         helper_flashcards.add_play(cur, set_id)
@@ -253,13 +270,13 @@ def flashcards_start_set(set_id: int) -> object:
 @flashcards_blueprint.route("/flashcards/play/<set_id>", methods=["GET", "POST"])
 def flashcards_play(set_id: int) -> object:
     """
-    Loads the flashcard set and processes the user's answers.
+    Loads the flashcard set to play
 
     Args:
         set_id: The ID of the flashcards to load.
 
     Returns:
-        The web page for answering the questions, or feedback for your answers.
+        The web page for playing the flashcard set
     """
     # Gets the flashcards details from the database.
     with sqlite3.connect("database.db") as conn:
