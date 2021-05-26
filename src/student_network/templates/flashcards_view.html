@@ -22,15 +22,27 @@ content %}
   {% endif %}
   <div>
     <div class="ui pointing secondary menu">
-      <a class="item" href="{{ url_for('flashcards.flashcards') }}">
-        Find flashcards
-      </a>
-      <a class="item" href="{{ url_for('flashcards.flashcards_user', username=username) }}">
-        My flashcard sets
-      </a>
-      <a class="item" href="{{ url_for('flashcards.flashcards_new') }}">
-        Create new set
-      </a>
+      {% if personal==True %}
+        <a class="item" href="{{ url_for('flashcards.flashcards') }}">
+          All flashcards
+        </a>
+        <a class="active item" href="{{ url_for('flashcards.flashcards_user', username=username) }}">
+          My flashcard sets
+        </a>
+        <a class="item" href="{{ url_for('flashcards.flashcards_new') }}">
+          Create new set
+        </a>
+      {% else %}
+        <a class="active item" href="{{ url_for('flashcards.flashcards') }}">
+          All flashcards
+        </a>
+        <a class="item" href="{{ url_for('flashcards.flashcards_user', username=username) }}">
+          My flashcard sets
+        </a>
+        <a class="item" href="{{ url_for('flashcards.flashcards_new') }}">
+          Create new set
+        </a>
+      {% endif %}
     </div>
   </div>
 </div>

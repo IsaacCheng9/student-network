@@ -2,7 +2,7 @@
 Handles the view for flashcards and related functionality.
 """
 import sqlite3
-from random import choice, randint
+from random import randint
 from datetime import date
 
 import student_network.helpers.helper_achievements as helper_achievements
@@ -41,6 +41,7 @@ def flashcards() -> object:
             requestCount=helper_connections.get_connection_request_count(),
             sets=set_posts,
             errors=errors,
+            personal=False,
             username=session["username"],
             notifications=helper_general.get_notifications(),
         )
@@ -49,6 +50,7 @@ def flashcards() -> object:
             "flashcards_view.html",
             requestCount=helper_connections.get_connection_request_count(),
             sets=set_posts,
+            personal=False,
             username=session["username"],
             notifications=helper_general.get_notifications(),
         )
@@ -77,6 +79,7 @@ def flashcards_user(username: str) -> object:
             requestCount=helper_connections.get_connection_request_count(),
             sets=set_posts,
             errors=errors,
+            personal=True,
             username=session["username"],
             notifications=helper_general.get_notifications(),
         )
@@ -85,6 +88,7 @@ def flashcards_user(username: str) -> object:
             "flashcards_view.html",
             requestCount=helper_connections.get_connection_request_count(),
             sets=set_posts,
+            personal=True,
             username=session["username"],
             notifications=helper_general.get_notifications(),
         )

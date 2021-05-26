@@ -133,10 +133,16 @@ def add_card(set_id):
                     "WHERE set_id=?;", (set_id,))
         row = cur.fetchone()
         print(row)
-        count = len(row[0].split("|"))
-        questions = row[0] + "|question "+str(count)
-        answers= row[1] + "|answer "+str(count)
-        print(questions, answers)
+        
+        if all(row):
+            count = len(row[0].split("|"))
+            questions = row[0] + "|question "+str(count)
+            answers= row[1] + "|answer "+str(count)
+            print(questions, answers)
+        else:
+            questions = "question1"
+            answers = "answer1"
+
         cur.execute("UPDATE QuestionSets "
                     "SET questions=?, answers=? "
                     "WHERE set_id=?;",

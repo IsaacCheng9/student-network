@@ -256,6 +256,26 @@ content %}
   </form>
 </div>
 
+<div class="ui segment">
+  <div class="ui pointing secondary menu">
+    {% if personal==True %}
+      <a class="item" href="{{ url_for('quizzes.quizzes') }}">
+        All quizzes
+      </a>
+      <a class="active item" href="{{ url_for('quizzes.quizzes_user', username=username) }}">
+        My quizzes
+      </a>
+    {% else %}
+      <a class="active item" href="{{ url_for('quizzes.quizzes') }}">
+        All quizzes
+      </a>
+      <a class="item" href="{{ url_for('quizzes.quizzes_user', username=username) }}">
+        My quizzes
+      </a>
+    {% endif %}
+  </div>
+</div>
+
 {% for quiz in quizzes %}
 <div class="ui segment">
   <div class="ui grid">
