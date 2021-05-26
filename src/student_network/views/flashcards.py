@@ -28,9 +28,13 @@ def flashcards() -> object:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT set_id, date_created, author, set_name, cards_attempted FROM QuestionSets")
+        cur.execute("SELECT set_id, date_created, author, set_name, cards_played FROM QuestionSets")
         row = cur.fetchall()
-        set_posts = sorted(row, key=lambda x: x[4], reverse=True)
+        set_posts = list(sorted(row, key=lambda x: x[4], reverse=True))
+        set_posts = [list(x) for x in set_posts]
+
+        for i, card_set in enumerate(set_posts):
+            set_posts[i].append(helper_flashcards.get_question_count(cur, card_set[0]))
 
     # Displays any error messages.
     if "error" in session:
@@ -65,10 +69,14 @@ def flashcards_user(username: str) -> object:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT set_id, date_created, author, set_name, cards_attempted "
+        cur.execute("SELECT set_id, date_created, author, set_name, cards_played "
                     "FROM QuestionSets WHERE author=?;", (username,))
         row = cur.fetchall()
         set_posts = sorted(row, key=lambda x: x[4], reverse=True)
+        set_posts = [list(x) for x in set_posts]
+
+        for i, card_set in enumerate(set_posts):
+            set_posts[i].append(helper_flashcards.get_question_count(cur, card_set[0]))
 
     # Displays any error messages.
     if "error" in session:
@@ -232,23 +240,15 @@ def flashcards_save(set_id) -> object:
     
     return redirect("/flashcards/set/" + str(set_id))
 
-@flashcards_blueprint.route("/flashcards/play/getquestions/<set_id>/<index>", methods=["GET", "POST"])   ###
-def flashcards_get_questions(set_id: int, index: int) -> object:
+@flashcards_blueprint.route("/flashcards/play/start/<set_id>", methods=["GET", "POST"])
+def flashcards_start_set(set_id: int) -> object:
 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        (
-            set_name,
-            set_date,
-            set_author,
-            questions,
-            cards_attempted
-        ) = helper_flashcards.get_set_details(cur, set_id)
+        helper_flashcards.add_play(cur, set_id)
+        conn.commit()
 
-
-    questions = list(questions.items())
-
-    question = questions[index]
+    return redirect("/flashcards/play/nextquestion/"+str(set_id)+"/0")
 
 
 @flashcards_blueprint.route("/flashcards/play/nextquestion/<set_id>/<index>", methods=["GET", "POST"])   ###
@@ -257,14 +257,20 @@ def flashcards_next_question(set_id: int, index: int) -> object:
     # Gets the flashcards details from the database.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
+        #helper_flashcards.add_play(cur, set_id)
+        #conn.commit()
         questions = helper_flashcards.get_set_details(cur, set_id)[3]
 
     #print(list(questions.items()))
     questions = list(questions.items())
 
-    i = index
-    while i==index:
-        i = randint(0,len(questions)-1)
+    if questions:  
+        i = index
+        while i==index:
+            i = randint(0,len(questions)-1)
+    else:
+        print("yeye")
+        index = -1
     
     return redirect("/flashcards/play/"+str(set_id)+"/"+str(i))
 
@@ -283,16 +289,20 @@ def flashcards_play(set_id: int, index: int) -> object:
     # Gets the flashcards details from the database.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        (
-            set_name,
-            set_date,
-            set_author,
-            questions,
-            cards_attempted
-        ) = helper_flashcards.get_set_details(cur, set_id)
+        if index != "-1":
+            (
+                set_name,
+                set_date,
+                set_author,
+                questions,
+                cards_played
+            ) = helper_flashcards.get_set_details(cur, set_id)
 
-    #print(list(questions.items()))
-    question = list(questions.items())[int(index)]
+            #print(list(questions.items()))
+            question = list(questions.items())[int(index)]
+        else:
+            questions = "None"
+    
 
     if request.method == "GET":
         return render_template(

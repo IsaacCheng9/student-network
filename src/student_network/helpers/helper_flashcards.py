@@ -132,13 +132,11 @@ def add_card(set_id):
                     "FROM QuestionSets "
                     "WHERE set_id=?;", (set_id,))
         row = cur.fetchone()
-        print(row)
         
         if all(row):
             count = len(row[0].split("|"))
             questions = row[0] + "|question "+str(count)
             answers= row[1] + "|answer "+str(count)
-            print(questions, answers)
         else:
             questions = "question1"
             answers = "answer1"
@@ -149,3 +147,18 @@ def add_card(set_id):
                     (questions, answers, set_id))
         conn.commit()
 
+def add_play(cur, set_id):
+
+    # Updates the number of times a quiz has been played.
+    cur.execute(
+        "UPDATE QuestionSets SET cards_played = cards_played + 1 WHERE set_id=?;", (set_id,)
+    )
+
+def get_question_count(cur, set_id):
+
+    cur.execute("SELECT questions FROM QuestionSets WHERE set_id=?;", (set_id,))
+    set_details = cur.fetchone()
+    if set_details[0] is None:
+        return 0
+    
+    return len(set_details[0].split("|"))

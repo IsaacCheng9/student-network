@@ -12,6 +12,7 @@
   .scene {
     width: 100%;
     height: 200px;
+    position: center;
   }
 
   .card {
@@ -45,6 +46,7 @@
 {% extends "base.html" %} {% block title %}Flashcards{% endblock %} {% block content
 %}
 
+{% if question!="None"  %}
   <div class="scene">
     <div class="card ui segment">
       <div class="side">{{question[0]}}</div>
@@ -57,9 +59,18 @@
       <i class="right arrow icon"></i>
     </button>
   </a>
+{% else %}
+  <div class="ui segment">
+    <div class="ui sixteen wide column">
+        <label>This deck has no cards</label>
+    </div>
+  </div>
+{% endif %}
+
 
 <script>
   var card = document.querySelector('.card');
+  
   card.addEventListener( 'click', function() {
     card.classList.toggle('flip');
   });

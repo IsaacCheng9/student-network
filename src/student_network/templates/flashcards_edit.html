@@ -79,21 +79,25 @@ content %}
 
 <a href="{{ url_for('flashcards.flashcards_delete', set_id=set_id) }}">
   <button class="ui left floated red button">
+    <i class="small trash alternate outline icon"></i>
     Delete Deck
   </button>
 </a>
-<a href="{{ url_for('flashcards.flashcards_next_question', set_id=set_id, index=0) }}">
+<a href="{{ url_for('flashcards.flashcards_start_set', set_id=set_id) }}">
   <button class="ui right floated teal button">
+    <i class="small clone icon"></i>
     Play Deck
   </button>
 </a>
 <a href="{{ url_for('flashcards.flashcards_save', set_id=set_id) }}">
   <button class="ui right floated teal button">
+    <i class="small save icon"></i>
     Save Deck
   </button>
 </a>
 <a href="{{ url_for('flashcards.flashcards_add', set_id=set_id) }}">
   <button class="ui right floated teal button">
+    <i class="small plus icon"></i>
     Add Card
   </button>
 </a>

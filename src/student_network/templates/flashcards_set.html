@@ -53,8 +53,9 @@ content %}
 
 
 <div class="ui sixteen wide column">
-  <a href="{{ url_for('flashcards.flashcards_next_question', set_id=set_id, index=0) }}">
+  <a href="{{ url_for('flashcards.flashcards_start_set', set_id=set_id) }}">
     <button class="ui right floated teal button">
+      <i class="small clone icon"></i>
       Play Deck
     </button>
   </a>

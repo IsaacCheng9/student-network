@@ -109,6 +109,20 @@ def get_notifications():
         return notification_metadata
 
 
+def one_exp(cur, username):
+    """
+    Awards 1 exp point
+
+    Args:
+        username: user to award exp to
+    """
+    cur.execute(
+        "UPDATE UserLevel "
+        "SET experience = experience + 1 "
+        "WHERE username=?;",
+        (username,),
+    )
+
 def new_notification(body, url):
     now = datetime.now()
 

@@ -143,12 +143,7 @@ def quiz(quiz_id: int) -> object:
             # 1 exp earned for the author of the quiz
             if quiz_author != session["username"]:
                 helper_login.check_level_exists(quiz_author, conn)
-                cur.execute(
-                    "UPDATE UserLevel "
-                    "SET experience = experience + 1 "
-                    "WHERE username=?;",
-                    (quiz_author,),
-                )
+                helper_general.one_exp(cur, quiz_author)
                 conn.commit()
             question_feedback = []
             for i in range(5):
