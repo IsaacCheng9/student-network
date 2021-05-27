@@ -128,9 +128,7 @@ def update_connection_achievements(cur, username: str):
     my_interests = []
     for interest in row:
         my_interests.append(interest[0])
-    cur.execute(
-        "SELECT hobby FROM UserHobby WHERE username=?;", (session["username"],)
-    )
+    cur.execute("SELECT hobby FROM UserHobby WHERE username=?;", (session["username"],))
     row = cur.fetchall()
     my_hobbies = []
     for hobby in row:
