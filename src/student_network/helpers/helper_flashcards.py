@@ -134,7 +134,7 @@ def generate_set():
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO QuestionSets (date_created,author) " "VALUES (?, ?);",
+            "INSERT INTO QuestionSets (date_created,author) VALUES (?, ?);",
             (date.today(), session["username"]),
         )
         cur.execute("SELECT MAX(set_id) FROM QuestionSets;")
@@ -153,7 +153,7 @@ def add_card(set_id):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT questions, answers, author " "FROM QuestionSets " "WHERE set_id=?;",
+            "SELECT questions, answers, author FROM QuestionSets WHERE set_id=?;",
             (set_id,),
         )
         row = cur.fetchone()

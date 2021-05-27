@@ -72,7 +72,7 @@ def get_level(username: str) -> List[int]:
         helper_login.check_level_exists(username, conn)
         # Get user experience
         cur.execute(
-            "SELECT experience FROM " "UserLevel WHERE username=?;", (username,)
+            "SELECT experience FROM UserLevel WHERE username=?;", (username,)
         )
         row = cur.fetchone()
 

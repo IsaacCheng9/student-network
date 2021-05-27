@@ -121,7 +121,7 @@ def update_connection_achievements(cur, username: str):
 
     # Get user interests and hobbies
     cur.execute(
-        "SELECT interest FROM UserInterests " "WHERE username=?;",
+        "SELECT interest FROM UserInterests WHERE username=?;",
         (session["username"],),
     )
     row = cur.fetchall()
@@ -129,19 +129,19 @@ def update_connection_achievements(cur, username: str):
     for interest in row:
         my_interests.append(interest[0])
     cur.execute(
-        "SELECT hobby FROM UserHobby " "WHERE username=?;", (session["username"],)
+        "SELECT hobby FROM UserHobby WHERE username=?;", (session["username"],)
     )
     row = cur.fetchall()
     my_hobbies = []
     for hobby in row:
         my_hobbies.append(hobby[0])
     # Get connected user interests and hobbies
-    cur.execute("SELECT interest FROM UserInterests " "WHERE username=?;", (username,))
+    cur.execute("SELECT interest FROM UserInterests WHERE username=?;", (username,))
     row = cur.fetchall()
     connection_interests = []
     for interest in row:
         connection_interests.append(interest[0])
-    cur.execute("SELECT hobby FROM UserHobby " "WHERE username=?;", (username,))
+    cur.execute("SELECT hobby FROM UserHobby WHERE username=?;", (username,))
     row = cur.fetchall()
     connection_hobbies = []
     for hobby in row:
@@ -172,7 +172,7 @@ def update_connection_achievements(cur, username: str):
     valid_user_count = 0
     for user in cons_user:
         cur.execute(
-            "SELECT username from UserProfile " "WHERE degree!=? AND username=?;",
+            "SELECT username from UserProfile WHERE degree!=? AND username=?;",
             (degree, user[0]),
         )
         if cur.fetchone():
@@ -182,7 +182,7 @@ def update_connection_achievements(cur, username: str):
     valid_user_count2 = 0
     for user in cons_user2:
         cur.execute(
-            "SELECT username from UserProfile " "WHERE degree!=? AND username=?;",
+            "SELECT username from UserProfile WHERE degree!=? AND username=?;",
             (degree_user2, user[0]),
         )
         if cur.fetchone():
@@ -236,7 +236,7 @@ def update_post_achievements(cur, likes: int, username: str):
 
     # Checks how many posts user has liked.
     cur.execute(
-        "SELECT COUNT(postId) FROM UserLikes" " WHERE username=? ;",
+        "SELECT COUNT(postId) FROM UserLikes WHERE username=? ;",
         (session["username"],),
     )
     row = cur.fetchone()[0]

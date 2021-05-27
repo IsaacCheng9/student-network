@@ -84,7 +84,7 @@ def get_connection_request_count() -> int:
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT * FROM Connection WHERE user2=? AND " "connection_type='request';",
+            "SELECT * FROM Connection WHERE user2=? AND connection_type='request';",
             (session["username"],),
         )
         return len(list(cur.fetchall()))
@@ -103,7 +103,7 @@ def get_connection_type(username: str):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT connection_type FROM Connection WHERE user1=? " "AND user2=?",
+            "SELECT connection_type FROM Connection WHERE user1=? AND user2=?",
             (
                 session["username"],
                 username,
@@ -117,7 +117,7 @@ def get_connection_type(username: str):
             return row[0]
         else:
             cur.execute(
-                "SELECT connection_type FROM Connection WHERE user1=? AND " "user2=?",
+                "SELECT connection_type FROM Connection WHERE user1=? AND user2=?",
                 (
                     username,
                     session["username"],
@@ -184,7 +184,7 @@ def get_blocked_users(cur, username: str) -> list:
         List of blocked users for a user.
     """
     cur.execute(
-        "SELECT user2 FROM Connection " "WHERE user1=? AND connection_type='block'",
+        "SELECT user2 FROM Connection WHERE user1=? AND connection_type='block'",
         (username,),
     )
     return cur.fetchall()

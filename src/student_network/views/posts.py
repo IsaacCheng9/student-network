@@ -91,7 +91,7 @@ def post(post_id: int) -> object:
 
         # Gets user from database using username.
         cur.execute(
-            "SELECT body, username, date, likes " "FROM POSTS WHERE postId=?;",
+            "SELECT body, username, date, likes FROM POSTS WHERE postId=?;",
             (post_id,),
         )
         row = cur.fetchall()
@@ -129,7 +129,7 @@ def post(post_id: int) -> object:
             )
             images = cur.fetchall()
 
-            cur.execute("SELECT *" "FROM Comments WHERE postId=?;", (post_id,))
+            cur.execute("SELECT * FROM Comments WHERE postId=?;", (post_id,))
             row = cur.fetchall()
             if len(row) == 0:
                 session["prev-page"] = request.url

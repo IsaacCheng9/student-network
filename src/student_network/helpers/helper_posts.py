@@ -33,7 +33,7 @@ def check_if_liked(cur, post_id: int, username: str) -> bool:
         True if post has been liked by user, False if not
     """
     cur.execute(
-        "SELECT username FROM UserLikes " "WHERE postId=? AND username=?;",
+        "SELECT username FROM UserLikes WHERE postId=? AND username=?;",
         (post_id, username),
     )
     if cur.fetchone():
@@ -110,7 +110,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
 
                 # Get account type
                 cur.execute(
-                    "SELECT type " "FROM ACCOUNTS WHERE username=? ", (user_post[3],)
+                    "SELECT type FROM ACCOUNTS WHERE username=? ", (user_post[3],)
                 )
 
                 accounts = cur.fetchone()
@@ -138,12 +138,12 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                 )
 
                 cur.execute(
-                    "SELECT COUNT(commentID)" "FROM Comments WHERE postId=?;",
+                    "SELECT COUNT(commentID) FROM Comments WHERE postId=?;",
                     (post_id,),
                 )
                 comment_count = cur.fetchone()[0]
 
-                cur.execute("SELECT likes " "FROM POSTS WHERE postId=?;", (post_id,))
+                cur.execute("SELECT likes FROM POSTS WHERE postId=?;", (post_id,))
                 like_count = cur.fetchone()[0]
 
                 liked = check_if_liked(cur, post_id, session["username"])
@@ -282,7 +282,7 @@ def get_account_type(username):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
         cur.execute(
-            "SELECT type " "FROM ACCOUNTS WHERE username=?;",
+            "SELECT type FROM ACCOUNTS WHERE username=?;",
             (username,),
         )
 

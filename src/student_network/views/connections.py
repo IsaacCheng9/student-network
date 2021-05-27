@@ -35,13 +35,13 @@ def close_connection(username: str) -> object:
                 conn_type = helper_connections.get_connection_type(username)
                 if conn_type == "connected":
                     cur.execute(
-                        "SELECT * FROM CloseFriend WHERE " "(user1=? AND user2=?);",
+                        "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",
                         (session["username"], username),
                     )
                     if cur.fetchone() is None:
                         # Gets user from database using username.
                         cur.execute(
-                            "INSERT INTO CloseFriend (user1, user2) " "VALUES (?,?);",
+                            "INSERT INTO CloseFriend (user1, user2) VALUES (?,?);",
                             (
                                 session["username"],
                                 username,

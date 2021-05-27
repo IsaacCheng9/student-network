@@ -68,6 +68,7 @@ def profile(username: str) -> object:
             message.append("The username " + username + " does not exist.")
             message.append(" Please ensure you have entered the name correctly.")
             session["prev-page"] = request.url
+            session["error"] = message
             return render_template(
                 "error.html",
                 message=message,
