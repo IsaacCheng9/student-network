@@ -1,121 +1,129 @@
 <meta property="og:title" content="Reconnect | Flashcards" />
-<meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
-<meta property="og:description" content="The Student Network. Connecting students in and outside the classroom." />
+<meta
+  property="og:image"
+  content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
+/>
+<meta
+  property="og:description"
+  content="The Student Network. Connecting students in and outside the classroom."
+/>
 
 <style>
-    .scene {
-        margin-top: 5em;
-        margin-bottom: 5em;
-        height: 200px;
-        
-        display: flex;
+  .scene {
+    margin-top: 5em;
+    margin-bottom: 5em;
+    height: 200px;
 
-        justify-content: center;
-        justify-items: center;
-    }
+    display: flex;
 
-    .card {
-        transition: transform 1s !important;
-        transform-style: preserve-3d;
-        position: relative;
-        height: 100%;
-    }
+    justify-content: center;
+    justify-items: center;
+  }
 
-    .side {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+  .card {
+    transition: transform 1s !important;
+    transform-style: preserve-3d;
+    position: relative;
+    height: 100%;
+  }
 
-        font-weight: bold;
-        backface-visibility: hidden;
+  .side {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 
-        display: flex;
+    font-weight: bold;
+    backface-visibility: hidden;
 
-        justify-content: center;
-        align-items: center;
-    }
+    display: flex;
 
-    .back {
-        transform: rotateY(180deg);
-    }
+    justify-content: center;
+    align-items: center;
+  }
 
-    .card.flip {
-        transform: rotateY(180deg);
-    }
+  .back {
+    transform: rotateY(180deg);
+  }
 
+  .card.flip {
+    transform: rotateY(180deg);
+  }
 </style>
 
-{% extends "base.html" %} {% block title %}Flashcards{% endblock %} {% block content
-%}
-
-{% if question_count > 0 %}
-<div class="scene" id=cardsParent>
-    <div class="ui card" style="display: none;"></div>
+{% extends "base.html" %} {% block title %}Flashcards{% endblock %} {% block
+content %} {% if question_count > 0 %}
+<div class="scene" id="cardsParent">
+  <div class="ui card" style="display: none"></div>
 </div>
 <div class="ui buttons fluid">
-    <button class="ui button" onclick="PrevCard();"><i class="ui icon left arrow"></i> Previous</button>
-    <button class="ui button" onclick="RandomCard();"><i class="ui icon random"></i> Random</button>
-    <button class="ui button" onclick="NextCard();"><i class="ui icon right arrow"></i> Next</button>
+  <button class="ui button" onclick="PrevCard();">
+    <i class="ui icon left arrow"></i> Previous
+  </button>
+  <button class="ui button" onclick="RandomCard();">
+    <i class="ui icon random"></i> Random
+  </button>
+  <button class="ui button" onclick="NextCard();">
+    <i class="ui icon right arrow"></i> Next
+  </button>
 </div>
 {% else %}
 <div class="ui segment">
-    <div class="ui sixteen wide column">
-        <label>This deck has no cards</label>
-    </div>
+  <div class="ui sixteen wide column">
+    <label>This deck has no cards</label>
+  </div>
 </div>
 {% endif %}
 
-
 <script>
-    const allCards = JSON.parse(`{{question_list | tojson | safe}}`);
-    
-    var curCardIndex = 0;
-    
-    var index = 0;
-    for (var key in allCards){
-        document.getElementById("cardsParent").innerHTML += `
+  const allCards = JSON.parse(`{{question_list | tojson | safe}}`);
+
+  var curCardIndex = 0;
+
+  var index = 0;
+  for (var key in allCards) {
+    document.getElementById("cardsParent").innerHTML += `
             <div class="ui card" id="card_${index}">
                 <div class="side">${key}</div>
                 <div class="side back">${allCards[key]}</div>
             </div>`;
-        index++;
-    }
-    
-    var cards = document.querySelectorAll('.card');
-    
-    for (var card of cards){
-        card.addEventListener("click", function(){
-            this.classList.toggle("flip");
-        })
-    }
-    
-    function PrevCard(){
-        curCardIndex = (curCardIndex - 1 + index) % index;
-        DisplayCard();
-    }
-    function NextCard(){
-        curCardIndex = (curCardIndex + 1 + index) % index;
-        DisplayCard();
-    }
-    function RandomCard(){        
-        curCardIndex = Math.floor(Math.random() * index);
-        DisplayCard();
-    }
-    
-    function DisplayCard(){
-        var allFlippedCards = document.querySelectorAll(".card.flip");
-        for (var card of allFlippedCards){
-            card.classList.remove("flip");
-        }
-        
-        for (var i = 0; i < index; i++){
-            document.getElementById("card_"+i).style.display = i == curCardIndex ? "block" : "none";
-        }
-    }
-    DisplayCard();
+    index++;
+  }
 
+  var cards = document.querySelectorAll(".card");
+
+  for (var card of cards) {
+    card.addEventListener("click", function () {
+      this.classList.toggle("flip");
+    });
+  }
+
+  function PrevCard() {
+    curCardIndex = (curCardIndex - 1 + index) % index;
+    DisplayCard();
+  }
+  function NextCard() {
+    curCardIndex = (curCardIndex + 1 + index) % index;
+    DisplayCard();
+  }
+  function RandomCard() {
+    curCardIndex = Math.floor(Math.random() * index);
+    DisplayCard();
+  }
+
+  function DisplayCard() {
+    var allFlippedCards = document.querySelectorAll(".card.flip");
+    for (var card of allFlippedCards) {
+      card.classList.remove("flip");
+    }
+
+    for (var i = 0; i < index; i++) {
+      document.getElementById("card_" + i).style.display =
+        i == curCardIndex ? "block" : "none";
+    }
+  }
+  DisplayCard();
 </script>
 
 {%endblock%}

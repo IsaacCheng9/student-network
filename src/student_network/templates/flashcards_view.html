@@ -7,8 +7,8 @@
   property="og:description"
   content="The Student Network. Connecting students in and outside the classroom."
 />
-{% extends "base.html" %} {% block title %}Flashcard set list{% endblock %} {% block
-content %}
+{% extends "base.html" %} {% block title %}Flashcard set list{% endblock %} {%
+block content %}
 <!-- when writing the for loop, use the whole ui segment instead of just "sixteen wide column" -->
 
 <div class="ui segment" id="quiz-post-input">
@@ -23,25 +23,31 @@ content %}
   <div>
     <div class="ui pointing secondary menu">
       {% if personal==True %}
-        <a class="item" href="{{ url_for('flashcards.flashcards') }}">
-          All flashcards
-        </a>
-        <a class="active item" href="{{ url_for('flashcards.flashcards_user', username=username) }}">
-          My flashcard sets
-        </a>
-        <a class="item" href="{{ url_for('flashcards.flashcards_new') }}">
-          Create new set
-        </a>
+      <a class="item" href="{{ url_for('flashcards.flashcards') }}">
+        All flashcards
+      </a>
+      <a
+        class="active item"
+        href="{{ url_for('flashcards.flashcards_user', username=username) }}"
+      >
+        My flashcard sets
+      </a>
+      <a class="item" href="{{ url_for('flashcards.flashcards_new') }}">
+        Create new set
+      </a>
       {% else %}
-        <a class="active item" href="{{ url_for('flashcards.flashcards') }}">
-          All flashcards
-        </a>
-        <a class="item" href="{{ url_for('flashcards.flashcards_user', username=username) }}">
-          My flashcard sets
-        </a>
-        <a class="item" href="{{ url_for('flashcards.flashcards_new') }}">
-          Create new set
-        </a>
+      <a class="active item" href="{{ url_for('flashcards.flashcards') }}">
+        All flashcards
+      </a>
+      <a
+        class="item"
+        href="{{ url_for('flashcards.flashcards_user', username=username) }}"
+      >
+        My flashcard sets
+      </a>
+      <a class="item" href="{{ url_for('flashcards.flashcards_new') }}">
+        Create new set
+      </a>
       {% endif %}
     </div>
   </div>
@@ -53,13 +59,13 @@ content %}
     <div class="ui sixteen wide column">
       <h2>
         {% if card_set[2] == username %}
-          <a href="/flashcards/edit/{{ card_set[0] }}">{{ card_set[3] }}</a>
+        <a href="/flashcards/edit/{{ card_set[0] }}">{{ card_set[3] }}</a>
         {% else %}
-          <a href="/flashcards/set/{{ card_set[0] }}">{{ card_set[3] }}</a>
+        <a href="/flashcards/set/{{ card_set[0] }}">{{ card_set[3] }}</a>
         {% endif %}
-          <div style="float: right">
-            <h5>{{ card_set[1] }}</h5>
-          </div>
+        <div style="float: right">
+          <h5>{{ card_set[1] }}</h5>
+        </div>
       </h2>
       <a href="/profile/{{ card_set[2] }}">
         <div class="ui label">
@@ -71,5 +77,4 @@ content %}
     </div>
   </div>
 </div>
-{% endfor %} 
-{% endblock %}
+{% endfor %} {% endblock %}

@@ -26,7 +26,9 @@ def flashcards() -> object:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT set_id, date_created, author, set_name, cards_played FROM QuestionSets")
+        cur.execute(
+            "SELECT set_id, date_created, author, set_name, cards_played FROM QuestionSets"
+        )
         row = cur.fetchall()
         set_posts = list(sorted(row, key=lambda x: x[4], reverse=True))
         set_posts = [list(x) for x in set_posts]
@@ -57,6 +59,7 @@ def flashcards() -> object:
             notifications=helper_general.get_notifications(),
         )
 
+
 @flashcards_blueprint.route("/flashcards/<username>", methods=["GET", "POST"])
 def flashcards_user(username: str) -> object:
     """
@@ -70,8 +73,11 @@ def flashcards_user(username: str) -> object:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT set_id, date_created, author, set_name, cards_played "
-                    "FROM QuestionSets WHERE author=?;", (username,))
+        cur.execute(
+            "SELECT set_id, date_created, author, set_name, cards_played "
+            "FROM QuestionSets WHERE author=?;",
+            (username,),
+        )
         row = cur.fetchall()
         set_posts = sorted(row, key=lambda x: x[4], reverse=True)
         set_posts = [list(x) for x in set_posts]
@@ -101,9 +107,10 @@ def flashcards_user(username: str) -> object:
             username=session["username"],
             notifications=helper_general.get_notifications(),
         )
-    
+
+
 @flashcards_blueprint.route("/flashcards/edit/<set_id>", methods=["GET"])
-def flashcards_edit(set_id:int) -> object:
+def flashcards_edit(set_id: int) -> object:
     """
     Loads create new flashcard data.
 
@@ -144,6 +151,7 @@ def flashcards_edit(set_id:int) -> object:
             username=session["username"],
             notifications=helper_general.get_notifications(),
         )
+
 
 @flashcards_blueprint.route("/flashcards/set/<set_id>", methods=["GET"])
 def flashcard_set(set_id: int) -> object:
@@ -188,6 +196,7 @@ def flashcard_set(set_id: int) -> object:
             notifications=helper_general.get_notifications(),
         )
 
+
 @flashcards_blueprint.route("/flashcards/new", methods=["GET", "POST"])
 def flashcards_new() -> object:
     """
@@ -197,9 +206,10 @@ def flashcards_new() -> object:
         The web page of flashcards created.
     """
 
-    set_id=helper_flashcards.generate_set()
+    set_id = helper_flashcards.generate_set()
 
     return redirect("/flashcards/edit/" + str(set_id))
+
 
 @flashcards_blueprint.route("/flashcards/edit/add/<set_id>", methods=["GET", "POST"])
 def flashcards_add(set_id) -> object:
@@ -217,6 +227,7 @@ def flashcards_add(set_id) -> object:
 
     return redirect("/flashcards/edit/" + str(set_id))
 
+
 @flashcards_blueprint.route("/flashcards/delete/<set_id>", methods=["GET", "POST"])
 def flashcards_delete(set_id) -> object:
     """
@@ -233,7 +244,8 @@ def flashcards_delete(set_id) -> object:
 
     return redirect("/flashcards")
 
-@flashcards_blueprint.route("/flashcards/save/<set_id>", methods=["GET", "POST"]) ###
+
+@flashcards_blueprint.route("/flashcards/save/<set_id>", methods=["GET", "POST"])  ###
 def flashcards_save(set_id) -> object:
     """
     Save the flashcard set
@@ -246,8 +258,9 @@ def flashcards_save(set_id) -> object:
     """
 
     helper_flashcards.save_set(set_id)
-    
+
     return redirect("/flashcards/set/" + str(set_id))
+
 
 @flashcards_blueprint.route("/flashcards/play/start/<set_id>", methods=["GET", "POST"])
 def flashcards_start_set(set_id: int) -> object:
@@ -265,7 +278,8 @@ def flashcards_start_set(set_id: int) -> object:
         helper_flashcards.add_play(cur, set_id)
         conn.commit()
 
-    return redirect("/flashcards/play/"+str(set_id))
+    return redirect("/flashcards/play/" + str(set_id))
+
 
 @flashcards_blueprint.route("/flashcards/play/<set_id>", methods=["GET", "POST"])
 def flashcards_play(set_id: int) -> object:
@@ -286,7 +300,7 @@ def flashcards_play(set_id: int) -> object:
             set_date,
             set_author,
             questions,
-            cards_played
+            cards_played,
         ) = helper_flashcards.get_set_details(cur, set_id)
 
         question_list = questions.items()
@@ -297,7 +311,7 @@ def flashcards_play(set_id: int) -> object:
             requestCount=helper_connections.get_connection_request_count(),
             set_name=set_name,
             set_id=set_id,
-            #index=index,
+            # index=index,
             question_list=dict(question_list),
             question_count=len(question_list),
             set_author=set_author,

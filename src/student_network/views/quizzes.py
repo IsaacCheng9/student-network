@@ -163,6 +163,7 @@ def quizzes() -> object:
             notifications=helper_general.get_notifications(),
         )
 
+
 @quizzes_blueprint.route("/quizzes/<username>", methods=["GET"])
 def quizzes_user(username: str) -> object:
     """
@@ -173,8 +174,11 @@ def quizzes_user(username: str) -> object:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT quiz_id, date_created, author, quiz_name, plays "
-                    "FROM Quiz WHERE author=?;", (username,))
+        cur.execute(
+            "SELECT quiz_id, date_created, author, quiz_name, plays "
+            "FROM Quiz WHERE author=?;",
+            (username,),
+        )
         row = cur.fetchall()
         quiz_posts = sorted(row, key=lambda x: x[4], reverse=True)
 

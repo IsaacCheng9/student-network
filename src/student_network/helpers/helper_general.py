@@ -117,11 +117,10 @@ def one_exp(cur, username: str):
         username: user to award exp to
     """
     cur.execute(
-        "UPDATE UserLevel "
-        "SET experience = experience + 1 "
-        "WHERE username=?;",
+        "UPDATE UserLevel " "SET experience = experience + 1 " "WHERE username=?;",
         (username,),
     )
+
 
 def new_notification(body, url):
     now = datetime.now()

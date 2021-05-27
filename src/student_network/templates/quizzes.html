@@ -61,7 +61,8 @@ content %}
     action="{{ url_for('quizzes.create_quiz') }}"
     class="ui form"
     method="POST"
-  > <!-- looks like this should be 'helper_quizzes.add_quiz' but still doesnt work-->
+  >
+    <!-- looks like this should be 'helper_quizzes.add_quiz' but still doesnt work-->
     <label>
       <input hidden name="form_type" value="Quiz" />
     </label>
@@ -259,19 +260,23 @@ content %}
 <div class="ui segment">
   <div class="ui pointing secondary menu">
     {% if personal==True %}
-      <a class="item" href="{{ url_for('quizzes.quizzes') }}">
-        All quizzes
-      </a>
-      <a class="active item" href="{{ url_for('quizzes.quizzes_user', username=username) }}">
-        My quizzes
-      </a>
+    <a class="item" href="{{ url_for('quizzes.quizzes') }}"> All quizzes </a>
+    <a
+      class="active item"
+      href="{{ url_for('quizzes.quizzes_user', username=username) }}"
+    >
+      My quizzes
+    </a>
     {% else %}
-      <a class="active item" href="{{ url_for('quizzes.quizzes') }}">
-        All quizzes
-      </a>
-      <a class="item" href="{{ url_for('quizzes.quizzes_user', username=username) }}">
-        My quizzes
-      </a>
+    <a class="active item" href="{{ url_for('quizzes.quizzes') }}">
+      All quizzes
+    </a>
+    <a
+      class="item"
+      href="{{ url_for('quizzes.quizzes_user', username=username) }}"
+    >
+      My quizzes
+    </a>
     {% endif %}
   </div>
 </div>
