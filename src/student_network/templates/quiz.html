@@ -99,6 +99,8 @@
     }
 
     let questionIndex = 0;
+    
+    const questionCount = '{{questions|length}}';
 
     function Clamp(num, min, max) {
         if (num < min) return min;
@@ -108,7 +110,7 @@
 
     function NextQuestion() {
         questionIndex++;
-        questionIndex = Clamp(questionIndex, 0, 4);
+        questionIndex = Clamp(questionIndex, 0, questionCount-1);
         DisplayQuestion(questionIndex);
 
         $("#nextQuestionBtn").prop("disabled", false);
@@ -117,7 +119,7 @@
         $("#nextQuestionBtn").removeClass("disabled");
         $("#prevQuestionBtn").removeClass("disabled");
 
-        if (questionIndex === 4) {
+        if (questionIndex === questionCount-1) {
             $("#nextQuestionBtn").prop("disabled", true);
             $("#nextQuestionBtn").addClass("disabled");
         }
@@ -125,7 +127,7 @@
 
     function PreviousQuestion() {
         questionIndex--;
-        questionIndex = Clamp(questionIndex, 0, 4);
+        questionIndex = Clamp(questionIndex, 0, questionCount-1);
         DisplayQuestion(questionIndex);
 
         $("#prevQuestionBtn").prop("disabled", false);
@@ -134,7 +136,7 @@
         $("#nextQuestionBtn").removeClass("disabled");
         $("#prevQuestionBtn").removeClass("disabled");
 
-        if (questionIndex === 0) {
+        if (questionIndex === questionCount-1) {
             $("#prevQuestionBtn").prop("disabled", true);
             $("#prevQuestionBtn").addClass("disabled");
         }
@@ -145,7 +147,7 @@
         $("#question-" + index).show();
 
         $("#questionNumber").html(
-            `${index + 1}<span style="font-size: 0.4em;">/${5}</span>`
+            `${index + 1}<span style="font-size: 0.4em;">/${questionCount}</span>`
         );
     }
 
