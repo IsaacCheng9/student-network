@@ -33,9 +33,7 @@ content %}
     <form action="{{ url_for('quizzes.create_quiz') }}" class="ui form" method="POST">
         <div class="field">
             <label>Quiz Name</label>
-            <label>
-                <input type="text" name="quiz_name" />
-            </label>
+            <input type="text" name="quiz_name" />
         </div>
 
         <div id="quizQuestions"></div>
