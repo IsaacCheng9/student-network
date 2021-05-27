@@ -47,18 +47,27 @@ block content %}
             type="text"
             name="question"
             value="{{question}}"
+            id="question_{{ loop.index0 }}"
           />
         </div>
       </div>
-      <div class="ui eight wide column">
+      <div class="ui seven wide column">
         <div class="ui form">
           <input
             placeholder="Answer"
             type="text"
             name="answer"
             value="{{questions[question]}}"
+            id="answer_{{ loop.index0 }}"
           />
         </div>
+      </div>
+      <div class="ui one wide column">
+        <a href="{{ url_for('flashcards.flashcards_delete_question', set_id=set_id, index=loop.index) }}">
+          <button class="ui red button icon">
+            <i class="small trash alternate outline icon"></i>
+          </button>
+        </a>
       </div>
     </div>
   </div>
@@ -84,7 +93,14 @@ block content %}
     Play Deck
   </button>
 </a>
-<a href="{{ url_for('flashcards.flashcards_save', set_id=set_id) }}">
+
+<!--<a href="{{ url_for('flashcards.flashcards_save', set_id=set_id) }}">
+  <button class="ui right floated teal button">
+    <i class="small save icon"></i>
+    Save Deck
+  </button>
+</a>-->
+<a href="{{ url_for('flashcards.flashcards') }}">
   <button class="ui right floated teal button">
     <i class="small save icon"></i>
     Save Deck

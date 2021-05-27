@@ -55,11 +55,52 @@ def delete_set(set_id):
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT author FROM QuestionSets " "WHERE set_id=?;", (set_id,))
+        cur.execute("SELECT author FROM QuestionSets WHERE set_id=?;", (set_id,))
         author = cur.fetchone()[0]
         if author == session["username"]:
-            cur.execute("DELETE FROM QuestionSets " "WHERE set_id=?;", (set_id,))
+            cur.execute("DELETE FROM QuestionSets WHERE set_id=?;", (set_id,))
             conn.commit()
+        else:
+            session["error"] = ["You cannot delete another user's flashcard set"]
+
+def delete_question(set_id, index):
+    """
+    Delete specific set
+
+    Args:
+        set_id: ID of the set to delete from
+        index: the index of the question to delete
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT author FROM QuestionSets WHERE set_id=?;", (set_id,))
+        author = cur.fetchone()[0]
+        if author == session["username"]:
+            cur.execute("SELECT questions, answers FROM QuestionSets WHERE set_id=?;", (set_id,))
+            set_details = cur.fetchone()
+            if not all(set_details[0]):
+                session["error"] = ["Question does not exist"]
+
+            questions = set_details[0].split("|")
+            answers = set_details[1].split("|")
+
+            if len(questions) > index:
+                print("a", questions, answers, set_id)
+                questions.pop(index)
+                answers = "|".join(questions)
+
+                answers.pop(index)
+                questions = "|".join(answers)
+            else:
+                session["error"] = ["Question does not exist"]
+
+            print(questions, answers, set_id)
+            cur.execute(
+                "UPDATE QuestionSets SET questions=?, answers=? WHERE set_id=?;",
+                (questions, answers, set_id),
+            )
+            conn.commit()
+
         else:
             session["error"] = ["You cannot delete another user's flashcard set"]
 
@@ -125,7 +166,7 @@ def add_card(set_id):
                 answers = "answer1"
 
             cur.execute(
-                "UPDATE QuestionSets " "SET questions=?, answers=? " "WHERE set_id=?;",
+                "UPDATE QuestionSets SET questions=?, answers=? WHERE set_id=?;",
                 (questions, answers, set_id),
             )
             conn.commit()
