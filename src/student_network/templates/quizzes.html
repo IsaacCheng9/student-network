@@ -1,325 +1,169 @@
 <meta property="og:title" content="Reconnect | Quiz" />
-<meta
-  property="og:image"
-  content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
-/>
-<meta
-  property="og:description"
-  content="The Student Network. Connecting students in and outside the classroom."
-/>
+<meta property="og:image" content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg" />
+<meta property="og:description" content="The Student Network. Connecting students in and outside the classroom." />
 {% extends "base.html" %} {% block title %}Quiz list{% endblock %} {% block
 content %}
 <!-- when writing the for loop, use the whole ui segment instead of just "sixteen wide column" -->
 
-<div class="ui segment" id="quiz-post-input">
-  {% if errors %}
-  <div class="ui message red">
-    <div class="header">Error:</div>
-    {% for item in errors %}
-    <p>{{ item }}</p>
-    {% endfor %}
-  </div>
-  {% endif %}
-  <div class="ui buttons" id="post-type-buttons">
-    <div class="ui orange button basic">Question</div>
-    <button
-      class="ui orange button question-select basic"
-      onclick="SelectQuestion(1,this);"
-      id="default-question-btn"
-    >
-      <!-- id="default-question-btn">-->
-      1
-    </button>
-    <button
-      class="ui orange button question-select basic"
-      onclick="SelectQuestion(2,this);"
-    >
-      2
-    </button>
-    <button
-      class="ui orange button question-select basic"
-      onclick="SelectQuestion(3,this);"
-    >
-      3
-    </button>
-    <button
-      class="ui orange button question-select basic"
-      onclick="SelectQuestion(4,this);"
-    >
-      4
-    </button>
-    <button
-      class="ui orange button question-select basic"
-      onclick="SelectQuestion(5,this);"
-    >
-      5
-    </button>
-    <!--                    <button class="ui green button icon"><i class="plus icon"></i></button>-->
-  </div>
-  <div class="ui horizontal divider hidden"></div>
-  <form
-    action="{{ url_for('quizzes.create_quiz') }}"
-    class="ui form"
-    method="POST"
-  >
-    <label>
-      <input hidden name="form_type" value="Quiz" />
-    </label>
-    <div class="field">
-      <label>Quiz Name</label>
-      <label>
-        <input type="text" name="quiz_name" />
-      </label>
-    </div>
-    <div class="ui segment basic question-input" id="question1">
-      <div class="field">
-        <label>Question</label>
-        <label>
-          <input type="text" name="question_1" autocomplete="off" />
-        </label>
-      </div>
-      <div class="two fields">
-        <div class="field">
-          <label>Correct Answer</label>
-          <label>
-            <input type="text" name="question_1_ans_1" autocomplete="off" />
-          </label>
-        </div>
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_1_ans_2" autocomplete="off" />
-          </label>
-        </div>
-      </div>
-      <div class="two fields">
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_1_ans_3" autocomplete="off" />
-          </label>
-        </div>
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_1_ans_4" autocomplete="off" />
-          </label>
-        </div>
-      </div>
-    </div>
-    <div class="ui segment basic question-input" id="question2">
-      <div class="field">
-        <label>Question</label>
-        <label>
-          <input type="text" name="question_2" autocomplete="off" />
-        </label>
-      </div>
-      <div class="two fields">
-        <div class="field">
-          <label>Correct Answer</label>
-          <label>
-            <input type="text" name="question_2_ans_1" autocomplete="off" />
-          </label>
-        </div>
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_2_ans_2" autocomplete="off" />
-          </label>
-        </div>
-      </div>
-      <div class="two fields">
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_2_ans_3" autocomplete="off" />
-          </label>
-        </div>
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_2_ans_4" autocomplete="off" />
-          </label>
-        </div>
-      </div>
-    </div>
-    <div class="ui segment basic question-input" id="question3">
-      <div class="field">
-        <label>Question</label>
-        <label>
-          <input type="text" name="question_3" autocomplete="off" />
-        </label>
-      </div>
-      <div class="two fields">
-        <div class="field">
-          <label>Correct Answer</label>
-          <label>
-            <input type="text" name="question_3_ans_1" autocomplete="off" />
-          </label>
-        </div>
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_3_ans_2" autocomplete="off" />
-          </label>
-        </div>
-      </div>
-      <div class="two fields">
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_3_ans_3" autocomplete="off" />
-          </label>
-        </div>
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_3_ans_4" autocomplete="off" />
-          </label>
-        </div>
-      </div>
-    </div>
-    <div class="ui segment basic question-input" id="question4">
-      <div class="field">
-        <label>Question</label>
-        <label>
-          <input type="text" name="question_4" autocomplete="off" />
-        </label>
-      </div>
-      <div class="two fields">
-        <div class="field">
-          <label>Correct Answer</label>
-          <label>
-            <input type="text" name="question_4_ans_1" autocomplete="off" />
-          </label>
-        </div>
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_4_ans_2" autocomplete="off" />
-          </label>
-        </div>
-      </div>
-      <div class="two fields">
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_4_ans_3" autocomplete="off" />
-          </label>
-        </div>
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_4_ans_4" autocomplete="off" />
-          </label>
-        </div>
-      </div>
-    </div>
-    <div class="ui segment basic question-input" id="question5">
-      <div class="field">
-        <label>Question</label>
-        <label>
-          <input type="text" name="question_5" autocomplete="off" />
-        </label>
-      </div>
-      <div class="two fields">
-        <div class="field">
-          <label>Correct Answer</label>
-          <label>
-            <input type="text" name="question_5_ans_1" autocomplete="off" />
-          </label>
-        </div>
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_5_ans_2" autocomplete="off" />
-          </label>
-        </div>
-      </div>
-      <div class="two fields">
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_5_ans_3" autocomplete="off" />
-          </label>
-        </div>
-        <div class="field">
-          <label>Answer</label>
-          <label>
-            <input type="text" name="question_5_ans_4" autocomplete="off" />
-          </label>
-        </div>
-      </div>
-    </div>
+<style>
+    .question {
+        margin: 1em;
+        background-color: rgb(245, 245, 245);
+        padding: 1em;
+    }
 
-    <input type="submit" value="Create Quiz" class="ui button teal" />
-  </form>
+</style>
+
+<div class="ui segment" id="quiz-post-input">
+    {% if errors %}
+    <div class="ui message red">
+        <div class="header">Error:</div>
+        {% for item in errors %}
+        <p>{{ item }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="ui horizontal divider hidden"></div>
+    <form action="{{ url_for('quizzes.create_quiz') }}" class="ui form" method="POST">
+        <div class="field">
+            <label>Quiz Name</label>
+            <label>
+                <input type="text" name="quiz_name" />
+            </label>
+        </div>
+
+        <div id="quizQuestions"></div>
+
+        <button type="button" onclick="NewQuestion();" class="ui button green"><i class="icon add"></i> New Question</button>
+
+        <input type="submit" value="Create Quiz" class="ui button teal" />
+    </form>
 </div>
 
 {% for quiz in quizzes %}
 <div class="ui segment">
-  <div class="ui grid">
-    <div class="ui sixteen wide column">
-      <h2>
-        <a href="/quiz/{{ quiz[0] }}">{{ quiz[3] }}</a>
-        <div style="float: right">
-          <h5>{{ quiz[1] }}</h5>
+    <div class="ui grid">
+        <div class="ui sixteen wide column">
+            <h2>
+                <a href="/quiz/{{ quiz[0] }}">{{ quiz[3] }}</a>
+                <div style="float: right">
+                    <h5>{{ quiz[1] }}</h5>
+                </div>
+            </h2>
+            Created by
+            <a href="/profile/{{ quiz[2] }}">
+                <div class="ui label">
+                    {{ quiz[2] }}
+                    <div class="detail">{{ quiz[4] }} plays</div>
+                </div>
+            </a>
         </div>
-      </h2>
-      Created by
-      <a href="/profile/{{ quiz[2] }}">
-        <div class="ui label">
-          {{ quiz[2] }}
-          <div class="detail">{{ quiz[4] }} plays</div>
-        </div>
-      </a>
     </div>
-  </div>
 </div>
+{% endfor %}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
-  function SelectQuestion(index, elem) {
-    $(".question-select").addClass("basic");
-    $(elem).removeClass("basic");
+    function DeleteQuestion(elem) {
+        $(elem).parent().parent().remove();
 
-    if (index === 0) {
-      $(".question-input").hide();
-    } else if (!$("#question" + index).is(":visible")) {
-      $(".question-input").hide(300);
-      $("#question" + index).show(300);
+        UpdateQuestions();
     }
 
-    UpdateQuestionSelectBtns();
-  }
+    function UpdateQuestions() {
+        $('.question').each(function(index) {
+            var i = index + 1;
 
-  function UpdateQuestionSelectBtns() {
-    $(".question-input").each(function (index) {
-      let anyEmpty = false;
-      $(this)
-        .find("input")
-        .each(function () {
-          if ($(this).val() === "") {
-            anyEmpty = true;
-          }
+            $(this).find(".question-input").attr('name', 'question_' + i);
+            $(this).find(".correct-answer").attr('name', 'question_' + i + '_ans_1');
+            $(this).find(".wrong-answer-1").attr('name', 'question_' + i + '_ans_2');
+            $(this).find(".wrong-answer-2").attr('name', 'question_' + i + '_ans_3');
+            $(this).find(".wrong-answer-3").attr('name', 'question_' + i + '_ans_4');
+        })
+    }
+
+    function QuestionLabel(elem) {
+        var question = $(elem).closest(".question");
+
+        var allFilled = true;
+
+        $(question).find(".question-input").each(function() {
+            if ($(this).val().length === 0) {
+                allFilled = false;
+            }
         });
-      let currentQuestion = $(".question-select").eq(index);
-      // invalid input
-      if (anyEmpty) {
-        currentQuestion.removeClass("green");
-      } else {
-        currentQuestion.addClass("green");
-        currentQuestion.removeClass("orange");
-      }
-    });
-  }
 
-  SelectQuestion(0, $("default-question-btn"));
+        question.find(".question-label").addClass("basic");
 
-  $(".question-input input").on("input", function () {
-    UpdateQuestionSelectBtns();
-  });
+        if (allFilled) {
+            question.find(".question-label").removeClass("basic");
+        }
+    }
+
+    function ToggleDetails(elem) {
+        var targetElem = $(elem).parent().parent().find(".question-details");
+
+        if (targetElem.is(":visible")) {
+            targetElem.slideUp();
+            $(elem).html('<i class="icon triangle down"></i>');
+        } else {
+            targetElem.slideDown();
+            $(elem).html('<i class="icon triangle up"></i>');
+        }
+    }
+
+    function NewQuestion() {
+        var html = `
+            <div class="question">
+                <div class="ui labeled input fluid">
+                    <button type="button" class="ui button icon toggle-arrow" onclick="ToggleDetails(this);"><i class="icon triangle up"></i></button>
+                    <div class="ui label teal basic question-label">Question</div>
+                    <input class="question-input question-slide-toggle" oninput="QuestionLabel(this);">
+                    <button class="ui button red icon" onclick="DeleteQuestion(this);"><i class="icon times"></i></button>
+                </div>
+                
+                <div class="question-details">
+                    <div class="ui horizontal divider"></div>
+                    <div class="ui grid">        
+                        <div class="eight wide column">
+                            <div class="ui labeled input fluid">
+                                <div class="ui label">Correct Answer</div>
+                                <input class="correct-answer question-input" oninput="QuestionLabel(this);">
+                            </div>
+                        </div>
+                        <div class="eight wide column">
+                            <div class="ui labeled input fluid">
+                                <div class="ui label">Wrong Answer</div>
+                                <input class="wrong-answer-1 question-input" oninput="QuestionLabel(this);">
+                            </div>
+                        </div>
+                        <div class="eight wide column">
+                            <div class="ui labeled input fluid">
+                                <div class="ui label">Wrong Answer</div>
+                                <input class="wrong-answer-2 question-input" oninput="QuestionLabel(this);">
+                            </div>
+                        </div>
+                        <div class="eight wide column">
+                            <div class="ui labeled input fluid">
+                                <div class="ui label">Wrong Answer</div>
+                                <input class="wrong-answer-3 question-input" oninput="QuestionLabel(this);">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+        $('#quizQuestions').append(html);
+
+        $('.question-slide-toggle').each(function() {
+            $(this).click(function() {
+                $(this).parent().parent().find(".question-details").slideDown();
+                $(this).parent().parent().find(".toggle-arrow").html('<i class="icon triangle up"></i>');
+            })
+        })
+        UpdateQuestions();
+    }
+
 </script>
-
-{% endfor %} {% endblock %}
+{% endblock %}
