@@ -1,4 +1,4 @@
-<meta property="og:title" content="Reconnect | Quiz" />
+<meta property="og:title" content="Reconnect | Quizzes" />
 <meta
   property="og:image"
   content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
@@ -61,7 +61,7 @@ content %}
     action="{{ url_for('quizzes.create_quiz') }}"
     class="ui form"
     method="POST"
-  >
+  > <!-- looks like this should be 'helper_quizzes.add_quiz' but still doesnt work-->
     <label>
       <input hidden name="form_type" value="Quiz" />
     </label>
@@ -256,6 +256,26 @@ content %}
   </form>
 </div>
 
+<div class="ui segment">
+  <div class="ui pointing secondary menu">
+    {% if personal==True %}
+      <a class="item" href="{{ url_for('quizzes.quizzes') }}">
+        All quizzes
+      </a>
+      <a class="active item" href="{{ url_for('quizzes.quizzes_user', username=username) }}">
+        My quizzes
+      </a>
+    {% else %}
+      <a class="active item" href="{{ url_for('quizzes.quizzes') }}">
+        All quizzes
+      </a>
+      <a class="item" href="{{ url_for('quizzes.quizzes_user', username=username) }}">
+        My quizzes
+      </a>
+    {% endif %}
+  </div>
+</div>
+
 {% for quiz in quizzes %}
 <div class="ui segment">
   <div class="ui grid">
@@ -289,6 +309,8 @@ content %}
     } else if (!$("#question" + index).is(":visible")) {
       $(".question-input").hide(300);
       $("#question" + index).show(300);
+    } else {
+      $(".question-input").hide(300);
     }
 
     UpdateQuestionSelectBtns();

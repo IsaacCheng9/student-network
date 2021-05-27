@@ -98,12 +98,7 @@ def quiz(quiz_id: int) -> object:
             # 1 exp earned for the author of the quiz
             if quiz_author != session["username"]:
                 helper_login.check_level_exists(quiz_author, conn)
-                cur.execute(
-                    "UPDATE UserLevel "
-                    "SET experience = experience + 1 "
-                    "WHERE username=?;",
-                    (quiz_author,),
-                )
+                helper_general.one_exp(cur, quiz_author)
                 conn.commit()
             question_feedback = []
             for i in range(5):
@@ -154,6 +149,8 @@ def quizzes() -> object:
             requestCount=helper_connections.get_connection_request_count(),
             quizzes=quiz_posts,
             errors=errors,
+            personal=False,
+            username=session["username"],
             notifications=helper_general.get_notifications(),
         )
     else:
@@ -161,5 +158,45 @@ def quizzes() -> object:
             "quizzes.html",
             requestCount=helper_connections.get_connection_request_count(),
             quizzes=quiz_posts,
+            personal=False,
+            username=session["username"],
+            notifications=helper_general.get_notifications(),
+        )
+
+@quizzes_blueprint.route("/quizzes/<username>", methods=["GET"])
+def quizzes_user(username: str) -> object:
+    """
+    Loads the sorted list of quizzes.
+
+    Returns:
+        The web page of quizzes created.
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT quiz_id, date_created, author, quiz_name, plays "
+                    "FROM Quiz WHERE author=?;", (username,))
+        row = cur.fetchall()
+        quiz_posts = sorted(row, key=lambda x: x[4], reverse=True)
+
+    # Displays any error messages.
+    if "error" in session:
+        errors = session["error"]
+        session.pop("error", None)
+        return render_template(
+            "quizzes.html",
+            requestCount=helper_connections.get_connection_request_count(),
+            quizzes=quiz_posts,
+            errors=errors,
+            personal=True,
+            username=username,
+            notifications=helper_general.get_notifications(),
+        )
+    else:
+        return render_template(
+            "quizzes.html",
+            requestCount=helper_connections.get_connection_request_count(),
+            quizzes=quiz_posts,
+            personal=True,
+            username=username,
             notifications=helper_general.get_notifications(),
         )
