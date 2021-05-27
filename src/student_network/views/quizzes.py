@@ -16,34 +16,40 @@ quizzes_blueprint = Blueprint(
 
 
 @quizzes_blueprint.route("/create_quiz", methods=["POST"])
-def create_quiz() -> object:
+def create_quiz():
     """
     Creates the quiz and sends the user to the quiz they created.
 
     Returns:
-        Redirection to the quiz the user just created.
+        Redirection to the quiz the user just created, or an error message if invalid.
     """
-    date_created, author, quiz_name, questions = helper_quizzes.save_quiz_details()
-    valid, message = helper_quizzes.validate_quiz(quiz_name, questions)
+    (
+        date_created,
+        author,
+        quiz_name,
+        questions,
+        answers,
+    ) = helper_quizzes.save_quiz_details()
+    valid, message = helper_quizzes.validate_quiz(quiz_name, questions, answers)
     if valid:
-        helper_quizzes.add_quiz(author, date_created, questions, quiz_name)
+        helper_quizzes.add_quiz(author, date_created, questions, answers, quiz_name)
+        # Redirect the user to the quiz they just created.
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT MAX(quiz_id) FROM Quiz WHERE date_created=? AND author=? AND "
+                "quiz_name=?",
+                (
+                    date_created,
+                    author,
+                    quiz_name,
+                ),
+            )
+            quiz_id = str(cur.fetchone()[0])
+        return redirect("quiz/" + quiz_id)
     else:
         session["error"] = message
-
-    # Redirect the user to the quiz they just created.
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT quiz_id FROM Quiz WHERE date_created=? AND author=? AND "
-            "quiz_name=?",
-            (
-                date_created,
-                author,
-                quiz_name,
-            ),
-        )
-        quiz_id = str(cur.fetchone()[0])
-    return redirect("quiz/" + quiz_id)
+        return redirect("quizzes")
 
 
 @quizzes_blueprint.route("/quiz/<quiz_id>", methods=["GET", "POST"])
@@ -82,13 +88,9 @@ def quiz(quiz_id: int) -> object:
     elif request.method == "POST":
         score = 0
         # Gets the answers selected by the user.
-        user_answers = [
-            request.form.get("userAnswer0"),
-            request.form.get("userAnswer1"),
-            request.form.get("userAnswer2"),
-            request.form.get("userAnswer3"),
-            request.form.get("userAnswer4"),
-        ]
+        user_answers = []
+        for num in range(len(questions)):
+            user_answers.append(request.form.get("userAnswer" + str(num)))
 
         # Displays an error message if they have not answered all questions.
         if any(user_answers) == "":
@@ -100,9 +102,12 @@ def quiz(quiz_id: int) -> object:
                 helper_login.check_level_exists(quiz_author, conn)
                 helper_general.one_exp(cur, quiz_author)
                 conn.commit()
+            # Provides feedback to the user on how they performed on each question.
             question_feedback = []
-            for i in range(5):
-                correct_answer = quiz_details[(5 * i) + 5]
+            cur.execute("SELECT * FROM Question WHERE quiz_id=?;", (quiz_id,))
+            questions_raw = cur.fetchall()
+            for i in range(len(questions_raw)):
+                correct_answer = questions_raw[i][3]
                 correct = user_answers[i] == correct_answer
                 question_feedback.append(
                     [questions[i], user_answers[i], correct_answer]
@@ -110,18 +115,20 @@ def quiz(quiz_id: int) -> object:
                 if correct:
                     score += 1
             helper_achievements.update_quiz_achievements(score)
-
             # Updates the number of times a quiz has been played.
             cur.execute(
                 "UPDATE Quiz SET plays = plays + 1 WHERE quiz_id=?;", (quiz_id,)
             )
             conn.commit()
 
+            percentage = round(100 * score / len(questions_raw))
+
             return render_template(
                 "quiz_results.html",
                 question_feedback=question_feedback,
                 requestCount=helper_connections.get_connection_request_count(),
                 score=score,
+                percentage=percentage,
                 notifications=helper_general.get_notifications(),
             )
 
