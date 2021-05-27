@@ -24,29 +24,29 @@ block content %}
     <div class="ui pointing secondary menu">
       {% if personal==True %}
       <a class="item" href="{{ url_for('flashcards.flashcards') }}">
-        All flashcards
+        All Flashcards
       </a>
       <a
         class="active item"
         href="{{ url_for('flashcards.flashcards_user', username=username) }}"
       >
-        My flashcard sets
+        Flashcards Created By Me
       </a>
       <a class="item" href="{{ url_for('flashcards.flashcards_new') }}">
-        Create new set
+        Create New Flashcard Set
       </a>
       {% else %}
       <a class="active item" href="{{ url_for('flashcards.flashcards') }}">
-        All flashcards
+        All Flashcards
       </a>
       <a
         class="item"
         href="{{ url_for('flashcards.flashcards_user', username=username) }}"
       >
-        My flashcard sets
+        Flashcards Created By Me
       </a>
       <a class="item" href="{{ url_for('flashcards.flashcards_new') }}">
-        Create new set
+        Create New Flashcard Set
       </a>
       {% endif %}
     </div>
