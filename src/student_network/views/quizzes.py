@@ -16,34 +16,40 @@ quizzes_blueprint = Blueprint(
 
 
 @quizzes_blueprint.route("/create_quiz", methods=["POST"])
-def create_quiz() -> object:
+def create_quiz():
     """
     Creates the quiz and sends the user to the quiz they created.
 
     Returns:
-        Redirection to the quiz the user just created.
+        Redirection to the quiz the user just created, or an error message if invalid.
     """
-    date_created, author, quiz_name, questions = helper_quizzes.save_quiz_details()
-    valid, message = helper_quizzes.validate_quiz(quiz_name, questions)
+    (
+        date_created,
+        author,
+        quiz_name,
+        questions,
+        answers,
+    ) = helper_quizzes.save_quiz_details()
+    valid, message = helper_quizzes.validate_quiz(quiz_name, questions, answers)
     if valid:
-        helper_quizzes.add_quiz(author, date_created, questions, quiz_name)
+        helper_quizzes.add_quiz(author, date_created, questions, answers, quiz_name)
+        # Redirect the user to the quiz they just created.
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT MAX(quiz_id) FROM Quiz WHERE date_created=? AND author=? AND "
+                "quiz_name=?",
+                (
+                    date_created,
+                    author,
+                    quiz_name,
+                ),
+            )
+            quiz_id = str(cur.fetchone()[0])
+        return redirect("quiz/" + quiz_id)
     else:
         session["error"] = message
-
-    # Redirect the user to the quiz they just created.
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT quiz_id FROM Quiz WHERE date_created=? AND author=? AND "
-            "quiz_name=?",
-            (
-                date_created,
-                author,
-                quiz_name,
-            ),
-        )
-        quiz_id = str(cur.fetchone()[0])
-    return redirect("quiz/" + quiz_id)
+        return redirect("quizzes")
 
 
 @quizzes_blueprint.route("/quiz/<quiz_id>", methods=["GET", "POST"])
