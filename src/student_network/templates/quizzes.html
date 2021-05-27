@@ -12,36 +12,41 @@ content %}
 <!-- when writing the for loop, use the whole ui segment instead of just "sixteen wide column" -->
 
 <style>
-    .question {
-        margin: 1em;
-        background-color: rgb(245, 245, 245);
-        padding: 1em;
-    }
-
+  .question {
+    margin: 1em;
+    background-color: rgb(245, 245, 245);
+    padding: 1em;
+  }
 </style>
 
 <div class="ui segment" id="quiz-post-input">
-    {% if errors %}
-    <div class="ui message red">
-        <div class="header">Error:</div>
-        {% for item in errors %}
-        <p>{{ item }}</p>
-        {% endfor %}
+  {% if errors %}
+  <div class="ui message red">
+    <div class="header">Error:</div>
+    {% for item in errors %}
+    <p>{{ item }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div class="ui horizontal divider hidden"></div>
+  <form
+    action="{{ url_for('quizzes.create_quiz') }}"
+    class="ui form"
+    method="POST"
+  >
+    <div class="field">
+      <label>Quiz Name</label>
+      <input type="text" name="quiz_name" />
     </div>
-    {% endif %}
-    <div class="ui horizontal divider hidden"></div>
-    <form action="{{ url_for('quizzes.create_quiz') }}" class="ui form" method="POST">
-        <div class="field">
-            <label>Quiz Name</label>
-            <input type="text" name="quiz_name" />
-        </div>
 
-        <div id="quizQuestions"></div>
+    <div id="quizQuestions"></div>
 
-        <button type="button" onclick="NewQuestion();" class="ui button green"><i class="icon add"></i> New Question</button>
+    <button type="button" onclick="NewQuestion();" class="ui button green">
+      <i class="icon add"></i> New Question
+    </button>
 
-        <input type="submit" value="Create Quiz" class="ui button teal" />
-    </form>
+    <input type="submit" value="Create Quiz" class="ui button teal" />
+  </form>
 </div>
 
 <div class="ui segment">
@@ -70,79 +75,91 @@ content %}
 
 {% for quiz in quizzes %}
 <div class="ui segment">
-    <div class="ui grid">
-        <div class="ui sixteen wide column">
-            <h2>
-                <a href="/quiz/{{ quiz[0] }}">{{ quiz[3] }}</a>
-                <div style="float: right">
-                    <h5>{{ quiz[1] }}</h5>
-                </div>
-            </h2>
-            Created by
-            <a href="/profile/{{ quiz[2] }}">
-                <div class="ui label">
-                    {{ quiz[2] }}
-                    <div class="detail">{{ quiz[4] }} plays</div>
-                </div>
-            </a>
+  <div class="ui grid">
+    <div class="ui sixteen wide column">
+      <h2>
+        <a href="/quiz/{{ quiz[0] }}">{{ quiz[3] }}</a>
+        <div style="float: right">
+          <h5>{{ quiz[1] }}</h5>
         </div>
+      </h2>
+      Created by
+      <a href="/profile/{{ quiz[2] }}">
+        <div class="ui label">
+          {{ quiz[2] }}
+          <div class="detail">{{ quiz[4] }} plays</div>
+        </div>
+      </a>
     </div>
+  </div>
 </div>
 {% endfor %}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
 <script>
-    function DeleteQuestion(elem) {
-        $(elem).parent().parent().remove();
+  function DeleteQuestion(elem) {
+    $(elem).parent().parent().remove();
 
-        UpdateQuestions();
-    }
+    UpdateQuestions();
+  }
 
-    function UpdateQuestions() {
-        $('.question').each(function(index) {
-            var i = index + 1;
+  function UpdateQuestions() {
+    $(".question").each(function (index) {
+      var i = index + 1;
 
-            $(this).find(".question-input").attr('name', 'question_' + i);
-            $(this).find(".correct-answer").attr('name', 'question_' + i + '_ans_1');
-            $(this).find(".wrong-answer-1").attr('name', 'question_' + i + '_ans_2');
-            $(this).find(".wrong-answer-2").attr('name', 'question_' + i + '_ans_3');
-            $(this).find(".wrong-answer-3").attr('name', 'question_' + i + '_ans_4');
-        })
-    }
+      $(this)
+        .find(".question-input")
+        .attr("name", "question_" + i);
+      $(this)
+        .find(".correct-answer")
+        .attr("name", "question_" + i + "_ans_1");
+      $(this)
+        .find(".wrong-answer-1")
+        .attr("name", "question_" + i + "_ans_2");
+      $(this)
+        .find(".wrong-answer-2")
+        .attr("name", "question_" + i + "_ans_3");
+      $(this)
+        .find(".wrong-answer-3")
+        .attr("name", "question_" + i + "_ans_4");
+    });
+  }
 
-    function QuestionLabel(elem) {
-        var question = $(elem).closest(".question");
+  function QuestionLabel(elem) {
+    var question = $(elem).closest(".question");
 
-        var allFilled = true;
+    var allFilled = true;
 
-        $(question).find(".question-input").each(function() {
-            if ($(this).val().length === 0) {
-                allFilled = false;
-            }
-        });
-
-        question.find(".question-label").addClass("basic");
-
-        if (allFilled) {
-            question.find(".question-label").removeClass("basic");
+    $(question)
+      .find(".question-input")
+      .each(function () {
+        if ($(this).val().length === 0) {
+          allFilled = false;
         }
+      });
+
+    question.find(".question-label").addClass("basic");
+
+    if (allFilled) {
+      question.find(".question-label").removeClass("basic");
     }
+  }
 
-    function ToggleDetails(elem) {
-        var targetElem = $(elem).parent().parent().find(".question-details");
+  function ToggleDetails(elem) {
+    var targetElem = $(elem).parent().parent().find(".question-details");
 
-        if (targetElem.is(":visible")) {
-            targetElem.slideUp();
-            $(elem).html('<i class="icon triangle down"></i>');
-        } else {
-            targetElem.slideDown();
-            $(elem).html('<i class="icon triangle up"></i>');
-        }
+    if (targetElem.is(":visible")) {
+      targetElem.slideUp();
+      $(elem).html('<i class="icon triangle down"></i>');
+    } else {
+      targetElem.slideDown();
+      $(elem).html('<i class="icon triangle up"></i>');
     }
+  }
 
-    function NewQuestion() {
-        var html = `
+  function NewQuestion() {
+    var html = `
             <div class="question">
                 <div class="ui labeled input fluid">
                     <button type="button" class="ui button icon toggle-arrow" onclick="ToggleDetails(this);"><i class="icon triangle up"></i></button>
@@ -182,16 +199,19 @@ content %}
                 </div>
             </div>`;
 
-        $('#quizQuestions').append(html);
+    $("#quizQuestions").append(html);
 
-        $('.question-slide-toggle').each(function() {
-            $(this).click(function() {
-                $(this).parent().parent().find(".question-details").slideDown();
-                $(this).parent().parent().find(".toggle-arrow").html('<i class="icon triangle up"></i>');
-            })
-        })
-        UpdateQuestions();
-    }
-
+    $(".question-slide-toggle").each(function () {
+      $(this).click(function () {
+        $(this).parent().parent().find(".question-details").slideDown();
+        $(this)
+          .parent()
+          .parent()
+          .find(".toggle-arrow")
+          .html('<i class="icon triangle up"></i>');
+      });
+    });
+    UpdateQuestions();
+  }
 </script>
 {% endblock %}
