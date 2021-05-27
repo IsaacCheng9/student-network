@@ -1,0 +1,81 @@
+<meta property="og:title" content="Reconnect | Flashcards" />
+<meta
+  property="og:image"
+  content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
+/>
+<meta
+  property="og:description"
+  content="The Student Network. Connecting students in and outside the classroom."
+/>
+{% extends "base.html" %} {% block title %}Flashcard set list{% endblock %} {%
+block content %}
+<!-- when writing the for loop, use the whole ui segment instead of just "sixteen wide column" -->
+
+<div class="ui segment" id="quiz-post-input">
+  {% if errors %}
+  <div class="ui message red">
+    <div class="header">Error:</div>
+    {% for item in errors %}
+    <p>{{ item }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div>
+    <div class="ui pointing secondary menu">
+      {% if personal==True %}
+      <a class="item" href="{{ url_for('flashcards.flashcards') }}">
+        All Flashcards
+      </a>
+      <a
+        class="active item"
+        href="{{ url_for('flashcards.flashcards_user', username=username) }}"
+      >
+        Flashcards Created By Me
+      </a>
+      <a class="item" href="{{ url_for('flashcards.flashcards_new') }}">
+        Create New Flashcard Set
+      </a>
+      {% else %}
+      <a class="active item" href="{{ url_for('flashcards.flashcards') }}">
+        All Flashcards
+      </a>
+      <a
+        class="item"
+        href="{{ url_for('flashcards.flashcards_user', username=username) }}"
+      >
+        Flashcards Created By Me
+      </a>
+      <a class="item" href="{{ url_for('flashcards.flashcards_new') }}">
+        Create New Flashcard Set
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% for card_set in sets %}
+<div class="ui segment">
+  <div class="ui grid">
+    <div class="ui sixteen wide column">
+      <h2>
+        {% if card_set[2] == username %}
+        <a href="/flashcards/edit/{{ card_set[0] }}">{{ card_set[3] }}</a>
+        {% else %}
+        <a href="/flashcards/set/{{ card_set[0] }}">{{ card_set[3] }}</a>
+        {% endif %}
+        <div style="float: right">
+          <h5>{{ card_set[1] }}</h5>
+        </div>
+      </h2>
+      Created by
+      <a href="/profile/{{ card_set[2] }}">
+        <div class="ui label">
+          {{ card_set[2] }}
+          <div class="detail">{{ card_set[5] }} cards</div>
+          <div class="detail">{{ card_set[4] }} plays</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+{% endfor %} {% endblock %}

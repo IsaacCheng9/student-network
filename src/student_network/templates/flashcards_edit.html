@@ -1,0 +1,103 @@
+<meta property="og:title" content="Reconnect | Flashcards" />
+<meta
+  property="og:image"
+  content="https://i.ibb.co/hL3WsKP/full-logo-jpg.jpg"
+/>
+<meta
+  property="og:description"
+  content="The Student Network. Connecting students in and outside the classroom."
+/>
+{% extends "base.html" %} {% block title %}Flashcards edit set{% endblock %} {%
+block content %}
+<!-- when writing the for loop, use the whole ui segment instead of just "sixteen wide column" -->
+
+{% if errors %}
+<div class="ui segment">
+  <div class="ui message red">
+    <div class="header">Error:</div>
+    {% for item in errors %}
+    <p>{{ item }}</p>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="ui segment">
+  <div class="ui form">
+    <div class="field">
+      <label>Name</label>
+      <input
+        placeholder="Flashcard set name"
+        type="text"
+        name="set_name"
+        value="{{set_name}}"
+      />
+    </div>
+  </div>
+</div>
+
+{% if questions %} {% for question in questions.keys() %}
+<div class="ui segment">
+  <div class="ui grid">
+    <div class="row">
+      <div class="ui eight wide column">
+        <div class="ui form">
+          <input
+            placeholder="Question"
+            type="text"
+            name="question"
+            value="{{question}}"
+          />
+        </div>
+      </div>
+      <div class="ui eight wide column">
+        <div class="ui form">
+          <input
+            placeholder="Answer"
+            type="text"
+            name="answer"
+            value="{{questions[question]}}"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="ui vertical divider"></div>
+</div>
+{% endfor %} {% else %}
+<div class="ui segment">
+  <div class="ui sixteen wide column">
+    <label>This deck has no cards</label>
+  </div>
+</div>
+{%endif%}
+
+<a href="{{ url_for('flashcards.flashcards_delete', set_id=set_id) }}">
+  <button class="ui left floated red button">
+    <i class="small trash alternate outline icon"></i>
+    Delete Deck
+  </button>
+</a>
+<a href="{{ url_for('flashcards.flashcards_start_set', set_id=set_id) }}">
+  <button class="ui right floated teal button">
+    <i class="small clone icon"></i>
+    Play Deck
+  </button>
+</a>
+<a href="{{ url_for('flashcards.flashcards_save', set_id=set_id) }}">
+  <button class="ui right floated teal button">
+    <i class="small save icon"></i>
+    Save Deck
+  </button>
+</a>
+<a href="{{ url_for('flashcards.flashcards_add', set_id=set_id) }}">
+  <button class="ui right floated teal button">
+    <i class="small plus icon"></i>
+    Add Card
+  </button>
+</a>
+<a href="{{ url_for('flashcards.flashcards') }}">
+  <button class="ui right floated gray button">Back to Sets</button>
+</a>
+
+{% endblock %}
