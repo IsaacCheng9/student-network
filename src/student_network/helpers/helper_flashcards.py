@@ -63,6 +63,7 @@ def delete_set(set_id):
         else:
             session["error"] = ["You cannot delete another user's flashcard set"]
 
+
 def delete_question(set_id, index):
     """
     Delete specific set
@@ -76,7 +77,9 @@ def delete_question(set_id, index):
         cur.execute("SELECT author FROM QuestionSets WHERE set_id=?;", (set_id,))
         author = cur.fetchone()[0]
         if author == session["username"]:
-            cur.execute("SELECT questions, answers FROM QuestionSets WHERE set_id=?;", (set_id,))
+            cur.execute(
+                "SELECT questions, answers FROM QuestionSets WHERE set_id=?;", (set_id,)
+            )
             set_details = cur.fetchone()
             if not all(set_details[0]):
                 session["error"] = ["Question does not exist"]
