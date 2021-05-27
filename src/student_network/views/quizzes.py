@@ -121,11 +121,14 @@ def quiz(quiz_id: int) -> object:
             )
             conn.commit()
 
+            percentage = round(100 * score / len(questions_raw))
+
             return render_template(
                 "quiz_results.html",
                 question_feedback=question_feedback,
                 requestCount=helper_connections.get_connection_request_count(),
                 score=score,
+                percentage=percentage,
                 notifications=helper_general.get_notifications(),
             )
 
