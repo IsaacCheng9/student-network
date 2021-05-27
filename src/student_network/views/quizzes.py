@@ -88,13 +88,9 @@ def quiz(quiz_id: int) -> object:
     elif request.method == "POST":
         score = 0
         # Gets the answers selected by the user.
-        user_answers = [
-            request.form.get("userAnswer0"),
-            request.form.get("userAnswer1"),
-            request.form.get("userAnswer2"),
-            request.form.get("userAnswer3"),
-            request.form.get("userAnswer4"),
-        ]
+        user_answers = []
+        for num in range(len(questions)):
+            user_answers.append(request.form.get("userAnswer" + str(num)))
 
         # Displays an error message if they have not answered all questions.
         if any(user_answers) == "":
@@ -106,9 +102,12 @@ def quiz(quiz_id: int) -> object:
                 helper_login.check_level_exists(quiz_author, conn)
                 helper_general.one_exp(cur, quiz_author)
                 conn.commit()
+            # Provides feedback to the user on how they performed on each question.
             question_feedback = []
-            for i in range(5):
-                correct_answer = quiz_details[(5 * i) + 5]
+            cur.execute("SELECT * FROM Question WHERE quiz_id=?;", (quiz_id,))
+            questions_raw = cur.fetchall()
+            for i in range(len(questions_raw)):
+                correct_answer = questions_raw[i][3]
                 correct = user_answers[i] == correct_answer
                 question_feedback.append(
                     [questions[i], user_answers[i], correct_answer]
@@ -116,7 +115,6 @@ def quiz(quiz_id: int) -> object:
                 if correct:
                     score += 1
             helper_achievements.update_quiz_achievements(score)
-
             # Updates the number of times a quiz has been played.
             cur.execute(
                 "UPDATE Quiz SET plays = plays + 1 WHERE quiz_id=?;", (quiz_id,)
