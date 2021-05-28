@@ -88,7 +88,6 @@ def delete_question(set_id, index):
             answers = set_details[1].split("|")
 
             if len(questions) > index:
-                # print("a", questions, answers, set_id)
                 questions.pop(index)
                 questions = "|".join(questions)
 
@@ -97,7 +96,6 @@ def delete_question(set_id, index):
             else:
                 session["error"] = ["Question does not exist"]
 
-            # print(questions, answers, set_id)
             cur.execute(
                 "UPDATE QuestionSets SET questions=?, answers=? WHERE set_id=?;",
                 (questions, answers, set_id),
@@ -113,7 +111,7 @@ def save_set(set_id):
     Save changes to question set
 
     Returns:
-        Author, date created, questions, answers, and set name.
+        Page with saved set
     """
     # Gets set details.
     with sqlite3.connect("database.db") as conn:
