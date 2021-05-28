@@ -45,7 +45,7 @@ block content %}
           <input
             placeholder="Question"
             type="text"
-            name="question"
+            name="question_{{ loop.index0 }}"
             value="{{question}}"
             id="question_{{ loop.index0 }}"
           />
@@ -56,9 +56,9 @@ block content %}
           <input
             placeholder="Answer"
             type="text"
-            name="answer"
+            name="answer_{{ loop.index }}"
             value="{{questions[question]}}"
-            id="answer_{{ loop.index0 }}"
+            id="answer_{{ loop.index }}"
           />
         </div>
       </div>

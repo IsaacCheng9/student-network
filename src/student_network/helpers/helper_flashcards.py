@@ -108,23 +108,20 @@ def delete_question(set_id, index):
             session["error"] = ["You cannot delete another user's flashcard set"]
 
 
-'''
-def save_set_question() -> Tuple[date, str, str, list]:     #####
+
+def save_set_question():     #####
     """
-    Gets details about questions and metadata for the set.
+    Save changes to question set
 
     Returns:
         Author, date created, questions, answers, and set name.
     """
     # Gets set details.
-    date_created = date.today()
-    author = session["username"]
     set_name = request.form.get("set_name")
     question = request.form.get("question")
     answer = request.form.get("answer")
 
-    return date_created, author, set_name, question, answer
-'''
+
 
 
 def generate_set():
@@ -161,9 +158,25 @@ def add_card(set_id):
         author = row[2]
         if author == session["username"]:
             if all(row):
-                count = len(row[0].split("|"))
-                questions = row[0] + "|question " + str(count)
-                answers = row[1] + "|answer " + str(count)
+                question_list = row[0].split("|")
+                answer_list = row[1].split("|")
+                count = len(question_list) + 1
+                if not "question " + str(count) in question_list:
+                    questions = row[0] + "|question " + str(count)
+                else:
+                    q = "question " + str(count)
+                    while q in question_list:
+                        q = q + " 2"
+                    questions = row[0] + "|" + q
+                
+                if not "answer " + str(count) in answer_list:
+                    answers = row[1] + "|answer " + str(count)
+                else:
+                    a = "answer " + str(count)
+                    while a in answer_list:
+                        a = a + " 2"
+                    answers = row[1] + "|" + a
+
             else:
                 questions = "question1"
                 answers = "answer1"
