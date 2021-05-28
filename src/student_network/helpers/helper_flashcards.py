@@ -108,8 +108,7 @@ def delete_question(set_id, index):
             session["error"] = ["You cannot delete another user's flashcard set"]
 
 
-
-def save_set_question():     #####
+def save_set_question():  #####
     """
     Save changes to question set
 
@@ -120,8 +119,6 @@ def save_set_question():     #####
     set_name = request.form.get("set_name")
     question = request.form.get("question")
     answer = request.form.get("answer")
-
-
 
 
 def generate_set():
@@ -168,7 +165,7 @@ def add_card(set_id):
                     while q in question_list:
                         q = q + " 2"
                     questions = row[0] + "|" + q
-                
+
                 if not "answer " + str(count) in answer_list:
                     answers = row[1] + "|answer " + str(count)
                 else:
