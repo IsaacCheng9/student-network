@@ -101,6 +101,7 @@ def quiz(quiz_id: int) -> object:
             if quiz_author != session["username"]:
                 helper_login.check_level_exists(quiz_author, conn)
                 helper_general.one_exp(cur, quiz_author)
+                helper_achievements.update_quiz_achievements(score, True)
                 conn.commit()
             # Provides feedback to the user on how they performed on each question.
             question_feedback = []

@@ -6,7 +6,6 @@ import sqlite3
 import student_network.helpers.helper_achievements as helper_achievements
 import student_network.helpers.helper_connections as helper_connections
 import student_network.helpers.helper_general as helper_general
-import student_network.helpers.helper_login as helper_login
 import student_network.helpers.helper_flashcards as helper_flashcards
 from flask import Blueprint, json, redirect, render_template, request, session, jsonify
 
@@ -123,6 +122,12 @@ def flashcards_edit(set_id: int) -> object:
 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
+
+        cur.execute("SELECT author FROM QuestionSets WHERE set_id=?;", (set_id,))
+        author = cur.fetchone()[0]
+        if author != session["username"]:
+            return redirect("/flashcards/set/" + str(set_id))
+
         card_set = helper_flashcards.get_set_details(cur, set_id)
 
     # Displays any error messages.
@@ -316,13 +321,15 @@ def flashcards_play(set_id: int) -> object:
         cur = conn.cursor()
         (
             set_name,
-            set_date,
+            _,
             set_author,
             questions,
-            cards_played,
+            plays,
         ) = helper_flashcards.get_set_details(cur, set_id)
 
         question_list = questions.items()
+    
+    helper_achievements.update_flashcard_achievements(set_author, plays)
 
     if request.method == "GET":
         return render_template(
