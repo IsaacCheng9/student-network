@@ -110,8 +110,8 @@ def save_set(set_id):
     """
     Save changes to question set
 
-    Returns:
-        Page with saved set
+    Args:
+        set_id: ID of the set to save
     """
     # Gets set details.
     with sqlite3.connect("database.db") as conn:
