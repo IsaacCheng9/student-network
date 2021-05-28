@@ -90,10 +90,10 @@ def delete_question(set_id, index):
             if len(questions) > index:
                 print("a", questions, answers, set_id)
                 questions.pop(index)
-                answers = "|".join(questions)
+                questions = "|".join(questions)
 
                 answers.pop(index)
-                questions = "|".join(answers)
+                answers = "|".join(answers)
             else:
                 session["error"] = ["Question does not exist"]
 

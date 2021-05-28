@@ -64,7 +64,7 @@ block content %}
       </div>
       <div class="ui one wide column">
         <a
-          href="{{ url_for('flashcards.flashcards_delete_question', set_id=set_id, index=loop.index) }}"
+          href="{{ url_for('flashcards.flashcards_delete_question', set_id=set_id, index=loop.index-1) }}"
         >
           <button class="ui red button icon">
             <i class="small trash alternate outline icon"></i>
