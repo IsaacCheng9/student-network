@@ -145,6 +145,9 @@ def save_set(set_id):
 def generate_set():
     """
     Generate new set with logged in user as author
+
+    Returns:
+        set_id of new set
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
