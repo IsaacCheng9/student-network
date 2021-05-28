@@ -88,7 +88,7 @@ def delete_question(set_id, index):
             answers = set_details[1].split("|")
 
             if len(questions) > index:
-                print("a", questions, answers, set_id)
+                #print("a", questions, answers, set_id)
                 questions.pop(index)
                 questions = "|".join(questions)
 
@@ -97,7 +97,7 @@ def delete_question(set_id, index):
             else:
                 session["error"] = ["Question does not exist"]
 
-            print(questions, answers, set_id)
+            #print(questions, answers, set_id)
             cur.execute(
                 "UPDATE QuestionSets SET questions=?, answers=? WHERE set_id=?;",
                 (questions, answers, set_id),
@@ -108,7 +108,7 @@ def delete_question(set_id, index):
             session["error"] = ["You cannot delete another user's flashcard set"]
 
 
-def save_set_question():  #####
+def save_set(set_id):
     """
     Save changes to question set
 
@@ -116,9 +116,32 @@ def save_set_question():  #####
         Author, date created, questions, answers, and set name.
     """
     # Gets set details.
-    set_name = request.form.get("set_name")
-    question = request.form.get("question")
-    answer = request.form.get("answer")
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        
+        count = get_question_count(cur, set_id)
+
+    questions, answers = "", ""
+    for i in range(count):
+        if request.form.get("question_"+str(i)):
+            questions += str(request.form.get("question_"+str(i))) + "|"
+        if request.form.get("answer_"+str(i)):
+            answers += str(request.form.get("answer_"+str(i))) + "|"
+    if questions[-1] == "|":
+        questions = questions[:-1]
+    if answers[-1] == "|":
+        answers = answers[:-1]
+
+    if request.form.get("set_name"):
+        name = request.form.get("set_name")
+    else:
+        name = "Unnamed"
+        
+    cur.execute(
+        "UPDATE QuestionSets SET set_name=?, questions=?, answers=? WHERE set_id=?;",
+        (name, questions, answers, set_id),
+    )
+    conn.commit()
 
 
 def generate_set():

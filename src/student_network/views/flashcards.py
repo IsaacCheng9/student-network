@@ -276,7 +276,9 @@ def flashcards_save(set_id) -> object:
 
     helper_flashcards.save_set(set_id)
 
-    return redirect("/flashcards/set/" + str(set_id))
+    session["error"] = ["save"]
+
+    return redirect("/flashcards/edit/" + str(set_id))
 
 
 @flashcards_blueprint.route("/flashcards/play/start/<set_id>", methods=["GET", "POST"])
