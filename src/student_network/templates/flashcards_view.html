@@ -13,12 +13,19 @@ block content %}
 
 <div class="ui segment" id="quiz-post-input">
   {% if errors %}
-  <div class="ui message red">
-    <div class="header">Error:</div>
-    {% for item in errors %}
-    <p>{{ item }}</p>
-    {% endfor %}
-  </div>
+    {% if "delete set" in errors %}
+    <div class="ui message red">
+      <div class="header">Success</div>
+      <p>Deck deleted successfully</p>
+    </div>
+    {% else %}
+    <div class="ui message red">
+      <div class="header">Error:</div>
+      {% for item in errors %}
+      <p>{{ item }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
   {% endif %}
   <div>
     <div class="ui pointing secondary menu">
@@ -75,6 +82,15 @@ block content %}
           <div class="detail">{{ card_set[4] }} {% if card_set[4]==1 %} play {% else %} plays {% endif %}</div>
         </div>
       </a>
+      {% if card_set[2] == username %}
+      <div class="ui one wide column" style="float: right">
+        <a href="{{ url_for('flashcards.flashcards_delete', set_id=card_set[0]) }}">
+          <button class="ui red button icon">
+            <i class="small trash alternate outline icon"></i>
+          </button>
+        </a>
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>

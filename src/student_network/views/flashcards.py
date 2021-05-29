@@ -247,6 +247,8 @@ def flashcards_delete(set_id) -> object:
 
     helper_flashcards.delete_set(set_id)
 
+    session["error"] = ["delete set"]
+
     return redirect("/flashcards")
 
 
