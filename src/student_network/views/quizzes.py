@@ -159,6 +159,10 @@ def quizzes() -> object:
         cur.execute("SELECT quiz_id, date_created, author, quiz_name, plays FROM Quiz")
         row = cur.fetchall()
         quiz_posts = sorted(row, key=lambda x: x[4], reverse=True)
+        quiz_posts = [list(x) for x in quiz_posts]
+
+        for i, quiz in enumerate(quiz_posts):
+            quiz_posts[i].append(helper_quizzes.get_question_count(cur, quiz[0]))
 
     # Displays any error messages.
     if "error" in session:
@@ -201,6 +205,10 @@ def quizzes_user(username: str) -> object:
         )
         row = cur.fetchall()
         quiz_posts = sorted(row, key=lambda x: x[4], reverse=True)
+        quiz_posts = [list(x) for x in quiz_posts]
+
+        for i, quiz in enumerate(quiz_posts):
+            quiz_posts[i].append(helper_quizzes.get_question_count(cur, quiz[0]))
 
     # Displays any error messages.
     if "error" in session:
@@ -224,3 +232,19 @@ def quizzes_user(username: str) -> object:
             username=username,
             notifications=helper_general.get_notifications(),
         )
+
+@quizzes_blueprint.route("/quiz/delete/<quiz_id>", methods=["GET", "POST"])
+def quizzes_delete(quiz_id) -> object:
+    """
+    Delete a quiz.
+
+    Args:
+        set_id: The ID of the quiz.
+
+    Returns:
+        The web page of the quizzes list.
+    """
+
+    helper_quizzes.delete_quiz(quiz_id)
+
+    return redirect("/quizzes")

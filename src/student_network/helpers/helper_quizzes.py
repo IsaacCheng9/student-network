@@ -216,3 +216,37 @@ def make_quiz(
     else:
         session["error"] = message
         return False
+
+def delete_quiz(quiz_id):
+    """
+    Delete specific quiz
+
+    Args:
+        quiz_id: ID of the quiz to delete
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT author FROM Quiz WHERE quiz_id=?;", (quiz_id,))
+        author = cur.fetchone()[0]
+        if author == session["username"]:
+            cur.execute("DELETE FROM Question WHERE quiz_id=?;", (quiz_id,))
+            conn.commit()
+            cur.execute("DELETE FROM Quiz WHERE quiz_id=?;", (quiz_id,))
+            conn.commit()
+        else:
+            session["error"] = ["You cannot delete another user's quiz"]
+
+def get_question_count(cur, quiz_id):
+    """
+    Get number of questions in a quiz
+
+    Args:
+        quiz_id: ID of the quiz to count
+    """
+    cur.execute("SELECT question FROM Question WHERE quiz_id=?;", (quiz_id,))
+    set_details = cur.fetchall()
+
+    if set_details[0] is None:
+        return 0
+
+    return len(set_details)
