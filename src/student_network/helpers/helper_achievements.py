@@ -305,8 +305,8 @@ def update_flashcard_achievements(author, plays):
 
     # Award achievement ID 32 - Teacher if necessary
     if session["username"] != author:
-        apply_achievement(session["username"], 32)
+        apply_achievement(author, 32)
     
     # Award achievement ID 32 - Professor if necessary
     if plays == 50:
-        apply_achievement(session["username"], 33)
+        apply_achievement(author, 33)
