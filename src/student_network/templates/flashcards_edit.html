@@ -11,23 +11,21 @@
 block content %}
 <!-- when writing the for loop, use the whole ui segment instead of just "sixteen wide column" -->
 
-{% if errors %}
-  {% if "save" in errors %}
-  <div class="ui message green">
-    <div class="header">Success</div>
-    <p>Deck saved successfully</p>
+{% if errors %} {% if "save" in errors %}
+<div class="ui message green">
+  <div class="header">Success</div>
+  <p>Deck saved successfully</p>
+</div>
+{% else %}
+<div class="ui segment">
+  <div class="ui message red">
+    <div class="header">Error:</div>
+    {% for item in errors %}
+    <p>{{ item }}</p>
+    {% endfor %}
   </div>
-  {% else %}
-  <div class="ui segment">
-    <div class="ui message red">
-      <div class="header">Error:</div>
-      {% for item in errors %}
-      <p>{{ item }}</p>
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
-{% endif %}
+</div>
+{% endif %} {% endif %}
 
 <form
   action="{{ url_for('flashcards.flashcards_save', set_id=set_id) }}"
