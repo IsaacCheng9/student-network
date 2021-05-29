@@ -210,9 +210,7 @@ def profile(username: str) -> object:
             icon = "users"
 
         # Get number of comments
-        cur.execute(
-            "SELECT * FROM comments WHERE postId=?", (user_post[0],)
-        )
+        cur.execute("SELECT * FROM comments WHERE postId=?", (user_post[0],))
         comment_count = len(cur.fetchall())
 
         liked = helper_posts.check_if_liked(cur, user_post[0], session["username"])
