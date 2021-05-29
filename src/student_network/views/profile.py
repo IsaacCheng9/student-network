@@ -209,16 +209,26 @@ def profile(username: str) -> object:
             privacy = str(user_post[5]).capitalize()
             icon = "users"
 
+        # Get number of comments
+        cur.execute(
+            "SELECT * FROM comments WHERE postId=?", (user_post[0],)
+        )
+        comment_count = len(cur.fetchall())
+
+        liked = helper_posts.check_if_liked(cur, user_post[0], session["username"])
+
         time = datetime.strptime(user_post[4], "%Y-%m-%d").strftime("%d-%m-%y")
         user_posts["UserPosts"].append(
             {
                 "postId": user_post[0],
-                "title": user_post[1],
+                "title": (user_post[1])[:250] + add,
                 "profile_pic": "https://via.placeholder.com/600",
                 "author": user_post[3],
+                "likes": user_post[2],
+                "comments": comment_count,
+                "liked": liked,
                 "account_type": helper_posts.get_account_type(user_post[3]),
                 "date_posted": time,
-                "body": (user_post[1])[:250] + add,
                 "privacy": privacy,
                 "icon": icon,
             }
