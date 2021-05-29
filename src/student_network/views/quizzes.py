@@ -32,7 +32,6 @@ def create_quiz():
     ) = helper_quizzes.save_quiz_details()
 
     out = helper_quizzes.make_quiz(quiz_name, questions, answers, author, date_created)
-    print(out)
     if out == False:
         return redirect("quizzes")
     else:
@@ -55,16 +54,12 @@ def create_quiz_from_set(set_id: int):
         answers,
     ) = helper_quizzes.generate_answers_from_set(set_id)
 
-    print(questions, answers)
-
     out = helper_quizzes.make_quiz(quiz_name, questions, answers, author, date_created)
-    print(out)
     if out == False:
         print("failed")
         return redirect("/quizzes")
     else:
         print("passed")
-        # return redirect("quiz/" + out
         return redirect("/quiz/" + out)
 
 
@@ -80,7 +75,6 @@ def quiz(quiz_id: int) -> object:
         The web page for answering the questions, or feedback for your answers.
     """
 
-    print("HEREEEEE")
     # Gets the quiz details from the database.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
