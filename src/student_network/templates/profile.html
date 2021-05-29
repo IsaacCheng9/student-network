@@ -528,7 +528,8 @@
                 <div style="float: right">{{ post.date_posted }}</div>
               </h2>
               <div class="ui divider horizontal hidden"></div>
-              {{ post.comments }} comments &nbsp;&nbsp; {{ post.likes }} {% if
+              {{ post.comments }} {% if post.comments==1 %} comment {% else %} comments {% endif %}
+              &nbsp;&nbsp; {{ post.likes }} {% if
               post.liked %} <i class="heart icon red"></i> {% else %}
               <i class="heart icon"></i> {% endif %}
               <div style="float: right" class="text-muted">
