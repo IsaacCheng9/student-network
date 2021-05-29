@@ -217,6 +217,7 @@ def make_quiz(
         session["error"] = message
         return False
 
+
 def delete_quiz(quiz_id):
     """
     Delete specific quiz
@@ -235,6 +236,7 @@ def delete_quiz(quiz_id):
             conn.commit()
         else:
             session["error"] = ["You cannot delete another user's quiz"]
+
 
 def get_question_count(cur, quiz_id):
     """

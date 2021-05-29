@@ -71,8 +71,14 @@ block content %}
       <a href="/profile/{{ card_set[2] }}">
         <div class="ui label">
           {{ card_set[2] }}
-          <div class="detail">{{ card_set[5] }} {% if card_set[5]==1 %} card {% else %} cards {% endif %}</div>
-          <div class="detail">{{ card_set[4] }} {% if card_set[4]==1 %} play {% else %} plays {% endif %}</div>
+          <div class="detail">
+            {{ card_set[5] }} {% if card_set[5]==1 %} card {% else %} cards {%
+            endif %}
+          </div>
+          <div class="detail">
+            {{ card_set[4] }} {% if card_set[4]==1 %} play {% else %} plays {%
+            endif %}
+          </div>
         </div>
       </a>
     </div>

@@ -233,6 +233,7 @@ def quizzes_user(username: str) -> object:
             notifications=helper_general.get_notifications(),
         )
 
+
 @quizzes_blueprint.route("/quiz/delete/<quiz_id>", methods=["GET", "POST"])
 def quizzes_delete(quiz_id) -> object:
     """
