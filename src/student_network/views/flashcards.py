@@ -328,7 +328,7 @@ def flashcards_play(set_id: int) -> object:
         ) = helper_flashcards.get_set_details(cur, set_id)
 
         question_list = questions.items()
-    
+
     helper_achievements.update_flashcard_achievements(set_author, plays)
 
     if request.method == "GET":

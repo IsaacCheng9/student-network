@@ -275,7 +275,7 @@ def update_profile_achievements(username: str):
         apply_achievement(session["username"], 23)
 
 
-def update_quiz_achievements(score: int, other_user: bool=False):
+def update_quiz_achievements(score: int, other_user: bool = False):
     """
     Updates achievements after completing a quiz.
 
@@ -292,7 +292,8 @@ def update_quiz_achievements(score: int, other_user: bool=False):
     # Award achievement ID 30 - Trivia writer if necessary
     if other_user:
         apply_achievement(session["username"], 30)
-   
+
+
 def update_flashcard_achievements(author, plays):
     """
     Updates achievements after playing a flashcard set.
@@ -306,7 +307,7 @@ def update_flashcard_achievements(author, plays):
     # Award achievement ID 32 - Teacher if necessary
     if session["username"] != author:
         apply_achievement(author, 32)
-    
+
     # Award achievement ID 32 - Professor if necessary
     if plays == 50:
         apply_achievement(author, 33)
