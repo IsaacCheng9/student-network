@@ -88,12 +88,12 @@ content %}
         <div class="ui label">
           {{ quiz[2] }}
           <div class="detail">
-            {{ quiz[5] }} {% if quiz[5]==1 %} question {% else %} questions {% endif %}
+            {{ quiz[5] }} {% if quiz[5]==1 %} question {% else %} questions {%
+            endif %}
           </div>
           <div class="detail">
             {{ quiz[4] }} {% if quiz[4]==1 %} play {% else %} plays {% endif %}
           </div>
-          
         </div>
       </a>
       {% if quiz[2] == username %}
