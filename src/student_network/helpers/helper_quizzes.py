@@ -4,7 +4,7 @@ Performs checks and actions to help quizzes work effectively.
 import os
 import sqlite3
 from datetime import date
-from random import sample
+from random import sample, choice
 from typing import Tuple, List
 
 from flask import request, session
@@ -121,6 +121,34 @@ def save_quiz_details() -> Tuple[date, str, str, list, list]:
             break
     return date_created, author, quiz_name, questions, answers
 
+def generate_answers_from_set(set_id):
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM QuestionSets WHERE set_id=?;", (set_id,))
+        set_details = cur.fetchone()
+
+        if set_details:
+            if set_details[4]:
+                questions = set_details[4].split("|")
+            else:
+                questions = []
+            if set_details[5]:
+                answers = set_details[5].split("|")
+            else:
+                answers = []
+        else:
+            questions, answers = [], []
+        
+        mc_answers = [[x] for x in answers]
+        for i, answer in enumerate(mc_answers):
+            for _ in range(3):
+                add = answer[0]
+                while add in answer:
+                    add = choice(answers)
+                mc_answers[i].append(add)
+           
+        return (set_details[2], set_details[3], set_details[1], questions, mc_answers)
+            
 
 def validate_quiz(
     quiz_name: str, questions: list, answers: list
@@ -160,3 +188,27 @@ def validate_quiz(
                 )
 
     return valid, message
+
+def make_quiz(quiz_name: str, questions: list, answers: list, author: str, date_created: date):
+
+    valid, message = validate_quiz(quiz_name, questions, answers)
+    print(valid, message, quiz_name, questions, answers)
+    if valid:
+        add_quiz(author, date_created, questions, answers, quiz_name)
+        # Redirect the user to the quiz they just created.
+        with sqlite3.connect("database.db") as conn:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT MAX(quiz_id) FROM Quiz WHERE date_created=? AND author=? AND "
+                "quiz_name=?",
+                (
+                    date_created,
+                    author,
+                    quiz_name,
+                ),
+            )
+            quiz_id = str(cur.fetchone()[0])
+        return quiz_id
+    else:
+        session["error"] = message
+        return False

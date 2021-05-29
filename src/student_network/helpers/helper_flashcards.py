@@ -125,10 +125,12 @@ def save_set(set_id):
             questions += str(request.form.get("question_" + str(i))) + "|"
         if request.form.get("answer_" + str(i)):
             answers += str(request.form.get("answer_" + str(i))) + "|"
-    if questions[-1] == "|":
-        questions = questions[:-1]
-    if answers[-1] == "|":
-        answers = answers[:-1]
+    if questions:
+        if questions[-1] == "|":
+            questions = questions[:-1]
+    if answers:
+        if answers[-1] == "|":
+            answers = answers[:-1]
 
     if request.form.get("set_name"):
         name = request.form.get("set_name")

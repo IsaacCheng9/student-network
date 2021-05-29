@@ -30,26 +30,42 @@ def create_quiz():
         questions,
         answers,
     ) = helper_quizzes.save_quiz_details()
-    valid, message = helper_quizzes.validate_quiz(quiz_name, questions, answers)
-    if valid:
-        helper_quizzes.add_quiz(author, date_created, questions, answers, quiz_name)
-        # Redirect the user to the quiz they just created.
-        with sqlite3.connect("database.db") as conn:
-            cur = conn.cursor()
-            cur.execute(
-                "SELECT MAX(quiz_id) FROM Quiz WHERE date_created=? AND author=? AND "
-                "quiz_name=?",
-                (
-                    date_created,
-                    author,
-                    quiz_name,
-                ),
-            )
-            quiz_id = str(cur.fetchone()[0])
-        return redirect("quiz/" + quiz_id)
-    else:
-        session["error"] = message
+
+    out = helper_quizzes.make_quiz(quiz_name, questions, answers, author, date_created)
+    print(out)
+    if out == False:
         return redirect("quizzes")
+    else:
+        return redirect("quiz/" + out)
+
+
+@quizzes_blueprint.route("/create_quiz/<set_id>", methods=["GET", "POST"])
+def create_quiz_from_set(set_id: int):
+    """
+    Creates a quiz from a question setand sends the user to the quiz they created.
+
+    Returns:
+        Redirection to the quiz the user just created, or an error message if invalid.
+    """
+    (
+        date_created,
+        author,
+        quiz_name,
+        questions,
+        answers,
+    ) = helper_quizzes.generate_answers_from_set(set_id)
+    
+    print(questions, answers)
+
+    out = helper_quizzes.make_quiz(quiz_name, questions, answers, author, date_created)
+    print(out)
+    if out == False:
+        print("failed")
+        return redirect("/quizzes")
+    else:
+        print("passed")
+        #return redirect("quiz/" + out
+        return redirect("/quiz/" + out)
 
 
 @quizzes_blueprint.route("/quiz/<quiz_id>", methods=["GET", "POST"])
@@ -63,6 +79,8 @@ def quiz(quiz_id: int) -> object:
     Returns:
         The web page for answering the questions, or feedback for your answers.
     """
+
+    print("HEREEEEE")
     # Gets the quiz details from the database.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()

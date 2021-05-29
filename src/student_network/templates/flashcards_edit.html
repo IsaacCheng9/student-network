@@ -107,20 +107,10 @@ block content %}
   </button>
 </a>
 
-<!--<a href="{{ url_for('flashcards.flashcards_save', set_id=set_id) }}">
-    <button class="ui right floated teal button">
-      <i class="small save icon"></i>
-      Save Deck
-    </button>
-  </a>
-  -->
-
 <button class="ui right floated teal button" type="submit" form="questions">
   <i class="small save icon"></i>
   Save Deck
 </button>
-
-<!--<input type="submit" value="Save Deck" class="ui right floated teal button submit" />-->
 
 <a href="{{ url_for('flashcards.flashcards_add', set_id=set_id) }}">
   <button class="ui right floated teal button">
@@ -128,6 +118,14 @@ block content %}
     Add Card
   </button>
 </a>
+
+<a href="{{ url_for('quizzes.create_quiz_from_set', set_id=set_id) }}">
+  <button class="ui right floated teal button">
+    <i class="small question icon"></i>
+    Generate Quiz
+  </button>
+</a>
+
 <a href="{{ url_for('flashcards.flashcards') }}">
   <button class="ui right floated gray button">Back to Sets</button>
 </a>

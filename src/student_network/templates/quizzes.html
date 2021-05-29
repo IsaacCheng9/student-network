@@ -87,7 +87,8 @@ content %}
       <a href="/profile/{{ quiz[2] }}">
         <div class="ui label">
           {{ quiz[2] }}
-          <div class="detail">{{ quiz[4] }} plays</div>
+          <div class="detail">{{ quiz[4] }} {% if quiz[4]==1 %}
+            play {% else %} plays {% endif %}</div>
         </div>
       </a>
     </div>
