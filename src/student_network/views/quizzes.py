@@ -54,7 +54,7 @@ def create_quiz_from_set(set_id: int):
         questions,
         answers,
     ) = helper_quizzes.generate_answers_from_set(set_id)
-    
+
     print(questions, answers)
 
     out = helper_quizzes.make_quiz(quiz_name, questions, answers, author, date_created)
@@ -64,7 +64,7 @@ def create_quiz_from_set(set_id: int):
         return redirect("/quizzes")
     else:
         print("passed")
-        #return redirect("quiz/" + out
+        # return redirect("quiz/" + out
         return redirect("/quiz/" + out)
 
 

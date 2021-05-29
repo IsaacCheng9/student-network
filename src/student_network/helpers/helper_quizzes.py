@@ -121,6 +121,7 @@ def save_quiz_details() -> Tuple[date, str, str, list, list]:
             break
     return date_created, author, quiz_name, questions, answers
 
+
 def generate_answers_from_set(set_id):
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -138,7 +139,7 @@ def generate_answers_from_set(set_id):
                 answers = []
         else:
             questions, answers = [], []
-        
+
         mc_answers = [[x] for x in answers]
         for i, answer in enumerate(mc_answers):
             for _ in range(3):
@@ -146,9 +147,9 @@ def generate_answers_from_set(set_id):
                 while add in answer:
                     add = choice(answers)
                 mc_answers[i].append(add)
-           
+
         return (set_details[2], set_details[3], set_details[1], questions, mc_answers)
-            
+
 
 def validate_quiz(
     quiz_name: str, questions: list, answers: list
@@ -189,7 +190,10 @@ def validate_quiz(
 
     return valid, message
 
-def make_quiz(quiz_name: str, questions: list, answers: list, author: str, date_created: date):
+
+def make_quiz(
+    quiz_name: str, questions: list, answers: list, author: str, date_created: date
+):
 
     valid, message = validate_quiz(quiz_name, questions, answers)
     print(valid, message, quiz_name, questions, answers)
