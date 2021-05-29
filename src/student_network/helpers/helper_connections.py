@@ -294,7 +294,7 @@ def calculate_similarity(
 
             if is_close_friend(session["username"], conec):
                 close = True
-                if is_close_friend(conec, user):
+                if is_close_friend(conec, user) or is_close_friend(user, conec):
                     super_close = True
 
             if super_close:
