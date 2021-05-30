@@ -71,10 +71,9 @@ def leaderboard() -> object:
         top_users = cur.fetchall()
         if top_users:
             total_user_count = len(top_users)
-            # 0 = username, 1 = XP value
             top_users.sort(key=lambda x: x[1], reverse=True)
             my_ranking = 0
-            for user in top_users:
+            for user in top_users:      ### Linear search - potentially improve algorithm
                 my_ranking += 1
                 if user[0] == session["username"]:
                     break
@@ -91,6 +90,7 @@ def leaderboard() -> object:
                     top_users,
                 )
             )
+            percent = int(100*(my_ranking/total_user_count))
     session["prev-page"] = request.url
     return render_template(
         "leaderboard.html",
@@ -99,5 +99,6 @@ def leaderboard() -> object:
         allUsernames=helper_general.get_all_usernames(),
         myRanking=my_ranking,
         totalUserCount=total_user_count,
+        percent=percent,
         notifications=helper_general.get_notifications(),
     )
