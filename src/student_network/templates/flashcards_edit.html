@@ -112,7 +112,12 @@ block content %}
   Save Deck
 </button>
 
-<button class="ui right floated teal button" type="submit" form="questions" formaction="{{ url_for('flashcards.flashcards_add', set_id=set_id) }}">
+<button
+  class="ui right floated teal button"
+  type="submit"
+  form="questions"
+  formaction="{{ url_for('flashcards.flashcards_add', set_id=set_id) }}"
+>
   <i class="small plus icon"></i>
   Add Card
 </button>
