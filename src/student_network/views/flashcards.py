@@ -340,9 +340,9 @@ def flashcards_play(set_id: int) -> object:
             requestCount=helper_connections.get_connection_request_count(),
             set_name=set_name,
             set_id=set_id,
-            # index=index,
             question_list=dict(question_list),
             question_count=len(question_list),
             set_author=set_author,
+            username=session["username"],
             notifications=helper_general.get_notifications(),
         )

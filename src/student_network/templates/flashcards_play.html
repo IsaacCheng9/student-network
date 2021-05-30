@@ -10,7 +10,7 @@
 
 <style>
   .scene {
-    margin-top: 5em;
+    margin-top: 1em;
     margin-bottom: 5em;
     height: 200px;
 
@@ -52,8 +52,13 @@
   }
 </style>
 
-{% extends "base.html" %} {% block title %}Flashcards{% endblock %} {% block
+{% extends "base.html" %} {% block title %} Flashcards {% endblock %} {% block
 content %} {% if question_count > 0 %}
+
+<a href="{{ url_for('flashcards.flashcards_edit', set_id=set_id) }}">
+  <button class="ui teal button">Back to Set</button>
+</a>
+
 <div class="scene" id="cardsParent">
   <div class="ui card" style="display: none"></div>
 </div>

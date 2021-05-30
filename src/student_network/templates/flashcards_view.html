@@ -63,11 +63,7 @@ block content %}
   <div class="ui grid">
     <div class="ui sixteen wide column">
       <h2>
-        {% if card_set[2] == username %}
         <a href="/flashcards/edit/{{ card_set[0] }}">{{ card_set[3] }}</a>
-        {% else %}
-        <a href="/flashcards/set/{{ card_set[0] }}">{{ card_set[3] }}</a>
-        {% endif %}
         <div style="float: right">
           <h5>{{ card_set[1] }}</h5>
         </div>
