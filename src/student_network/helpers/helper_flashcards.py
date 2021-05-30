@@ -116,7 +116,6 @@ def save_set(set_id):
     # Gets set details.
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-
         count = get_question_count(cur, set_id)
 
     questions, answers = "", ""

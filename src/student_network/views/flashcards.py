@@ -227,7 +227,8 @@ def flashcards_add(set_id) -> object:
     Returns:
         The web page of flashcards set to edit.
     """
-
+ 
+    helper_flashcards.save_set(set_id)
     helper_flashcards.add_card(set_id)
 
     return redirect("/flashcards/edit/" + str(set_id))
@@ -270,7 +271,7 @@ def flashcards_delete_question(set_id: int, index: str) -> object:
 
 
 @flashcards_blueprint.route("/flashcards/save/<set_id>", methods=["GET", "POST"])
-def flashcards_save(set_id) -> object:
+def flashcards_save(set_id: int) -> object:
     """
     Save the flashcard set
 

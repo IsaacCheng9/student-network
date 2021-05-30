@@ -112,12 +112,10 @@ block content %}
   Save Deck
 </button>
 
-<a href="{{ url_for('flashcards.flashcards_add', set_id=set_id) }}">
-  <button class="ui right floated teal button">
-    <i class="small plus icon"></i>
-    Add Card
-  </button>
-</a>
+<button class="ui right floated teal button" type="submit" form="questions" formaction="{{ url_for('flashcards.flashcards_add', set_id=set_id) }}">
+  <i class="small plus icon"></i>
+  Add Card
+</button>
 
 <a href="{{ url_for('quizzes.create_quiz_from_set', set_id=set_id) }}">
   <button class="ui right floated teal button">
