@@ -447,7 +447,7 @@ def edit_profile() -> object:
                     message,
                     file_name_hashed,
                 ) = helper_profile.validate_profile_pic(file)
-                if valid:
+                if valid and file_name_hashed:
                     # Award achievement ID 18 - Show yourself if necessary
                     helper_achievements.apply_achievement(username, 18)
 
