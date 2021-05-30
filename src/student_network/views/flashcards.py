@@ -227,7 +227,7 @@ def flashcards_add(set_id) -> object:
     Returns:
         The web page of flashcards set to edit.
     """
- 
+
     helper_flashcards.save_set(set_id)
     helper_flashcards.add_card(set_id)
 

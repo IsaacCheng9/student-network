@@ -84,14 +84,17 @@
     </div>
     <div class="sixteen wide column">
       <form id="submitForm" method="POST" action="/quiz/{{quiz_id}}"></form>
-      <button class="ui right floated green button" type="submit" form="submitForm" id="submitBtn">
+      <button
+        class="ui right floated green button"
+        type="submit"
+        form="submitForm"
+        id="submitBtn"
+      >
         Submit Answers
       </button>
-      
+
       <a href="{{ url_for('quizzes.quizzes') }}">
-        <button class="ui left-floated gray button">
-          Back to Quizzes
-        </button>
+        <button class="ui left-floated gray button">Back to Quizzes</button>
       </a>
     </div>
   </div>
