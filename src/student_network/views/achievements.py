@@ -73,7 +73,10 @@ def leaderboard() -> object:
             total_user_count = len(top_users)
             top_users.sort(key=lambda x: x[1], reverse=True)
 
-            my_ranking = helper_achievements.binary_search(top_users, (session["username"], helper_general.get_exp(session["username"])))
+            my_ranking = helper_achievements.binary_search(
+                top_users,
+                (session["username"], helper_general.get_exp(session["username"])),
+            )
 
             top_users = top_users[0 : min(25, len(top_users))]
             top_users = list(

@@ -108,6 +108,7 @@ def get_notifications():
 
         return notification_metadata
 
+
 def check_level_exists(username: str, conn):
     """
     Checks that a user has a record in the database for their level.
@@ -124,6 +125,7 @@ def check_level_exists(username: str, conn):
         )
         conn.commit()
 
+
 def one_exp(cur, username: str):
     """
     Awards 1 exp point
@@ -135,6 +137,7 @@ def one_exp(cur, username: str):
         "UPDATE UserLevel SET experience = experience + 1 WHERE username=?;",
         (username,),
     )
+
 
 def get_exp(username: str):
     """
@@ -154,6 +157,7 @@ def get_exp(username: str):
         row = cur.fetchone()
 
         return int(row[0])
+
 
 def new_notification(body, url):
     now = datetime.now()
