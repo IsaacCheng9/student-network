@@ -111,7 +111,7 @@ def quiz(quiz_id: int) -> object:
         else:
             # 1 exp earned for the author of the quiz
             if quiz_author != session["username"]:
-                helper_login.check_level_exists(quiz_author, conn)
+                helper_general.check_level_exists(quiz_author, conn)
                 helper_general.one_exp(cur, quiz_author)
                 helper_achievements.update_quiz_achievements(score, True)
                 conn.commit()

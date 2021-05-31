@@ -67,20 +67,13 @@ def get_level(username: str) -> List[int]:
     xp_next_level = 100
     xp_increase_per_level = 15
 
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        helper_login.check_level_exists(username, conn)
-        # Get user experience
-        cur.execute("SELECT experience FROM UserLevel WHERE username=?;", (username,))
-        row = cur.fetchone()
+    exp = helper_general.get_exp(username)
+    while exp >= xp_next_level:
+        level += 1
+        exp -= xp_next_level
+        xp_next_level += xp_increase_per_level
 
-        exp = int(row[0])
-        while exp >= xp_next_level:
-            level += 1
-            exp -= xp_next_level
-            xp_next_level += xp_increase_per_level
-
-        return [level, exp, xp_next_level]
+    return [level, exp, xp_next_level]
 
 
 def get_profile_picture(username: str) -> str:

@@ -8,6 +8,7 @@ from string import capwords
 
 import student_network.helpers.helper_connections as helper_connections
 import student_network.helpers.helper_login as helper_login
+import student_network.helpers.helper_general as helper_general
 from flask import Blueprint, redirect, render_template, request, session
 from passlib.hash import sha256_crypt
 
@@ -212,7 +213,7 @@ def register_submit() -> object:
                     "/static/images/default-pfp.jpg",
                 ),
             )
-            helper_login.check_level_exists(username, conn)
+            helper_general.check_level_exists(username, conn)
             conn.commit()
 
             session["notifications"] = ["register"]

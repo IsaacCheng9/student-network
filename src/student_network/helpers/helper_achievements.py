@@ -311,3 +311,27 @@ def update_flashcard_achievements(author, plays):
     # Award achievement ID 32 - Professor if necessary
     if plays == 50:
         apply_achievement(author, 33)
+
+def binary_search(lst, target):
+    """
+    Binary search algorithm to find user in list of users
+
+    Args:
+        lst: list of users
+        target: username of target
+
+    Returns:
+        index of target in list if found
+    """
+    first, last = 0, len(lst)-1
+    while (first <= last):
+        mid = (first+last)//2
+        if lst[mid] == target:
+            return mid + 1
+        else:
+            if target[1]>lst[mid][1]:
+                last = mid - 1
+            else:
+                first = mid + 1
+    session["error"] = ["User not found"]
+    return

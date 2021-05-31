@@ -72,11 +72,9 @@ def leaderboard() -> object:
         if top_users:
             total_user_count = len(top_users)
             top_users.sort(key=lambda x: x[1], reverse=True)
-            my_ranking = 0
-            for user in top_users:  ### Linear search - potentially improve algorithm
-                my_ranking += 1
-                if user[0] == session["username"]:
-                    break
+
+            my_ranking = helper_achievements.binary_search(top_users, (session["username"], helper_general.get_exp(session["username"])))
+
             top_users = top_users[0 : min(25, len(top_users))]
             top_users = list(
                 map(
@@ -92,13 +90,28 @@ def leaderboard() -> object:
             )
             percent = int(100 * (my_ranking / total_user_count))
     session["prev-page"] = request.url
-    return render_template(
-        "leaderboard.html",
-        leaderboard=top_users,
-        requestCount=helper_connections.get_connection_request_count(),
-        allUsernames=helper_general.get_all_usernames(),
-        myRanking=my_ranking,
-        totalUserCount=total_user_count,
-        percent=percent,
-        notifications=helper_general.get_notifications(),
-    )
+    if "error" in session:
+        errors = session["error"]
+        session.pop("error", None)
+        return render_template(
+            "leaderboard.html",
+            leaderboard=top_users,
+            requestCount=helper_connections.get_connection_request_count(),
+            allUsernames=helper_general.get_all_usernames(),
+            myRanking=my_ranking,
+            totalUserCount=total_user_count,
+            percent=percent,
+            errors=errors,
+            notifications=helper_general.get_notifications(),
+        )
+    else:
+        return render_template(
+            "leaderboard.html",
+            leaderboard=top_users,
+            requestCount=helper_connections.get_connection_request_count(),
+            allUsernames=helper_general.get_all_usernames(),
+            myRanking=my_ranking,
+            totalUserCount=total_user_count,
+            percent=percent,
+            notifications=helper_general.get_notifications(),
+        )

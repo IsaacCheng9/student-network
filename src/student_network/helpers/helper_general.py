@@ -108,6 +108,21 @@ def get_notifications():
 
         return notification_metadata
 
+def check_level_exists(username: str, conn):
+    """
+    Checks that a user has a record in the database for their level.
+
+    Args:
+        username: The username of the user to check.
+        conn: The connection to the database.
+    """
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM UserLevel WHERE username=?;", (username,))
+    if cur.fetchone() is None:
+        cur.execute(
+            "INSERT INTO UserLevel (username, experience) VALUES (?, ?);", (username, 0)
+        )
+        conn.commit()
 
 def one_exp(cur, username: str):
     """
@@ -121,6 +136,24 @@ def one_exp(cur, username: str):
         (username,),
     )
 
+def get_exp(username: str):
+    """
+    Get current exp of given user
+
+    Args:
+        username: user to find exp value of
+
+    Returns:
+        exp of user
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        check_level_exists(username, conn)
+        # Get user experience
+        cur.execute("SELECT experience FROM UserLevel WHERE username=?;", (username,))
+        row = cur.fetchone()
+
+        return int(row[0])
 
 def new_notification(body, url):
     now = datetime.now()

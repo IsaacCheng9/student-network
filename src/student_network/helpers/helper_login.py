@@ -7,23 +7,6 @@ from typing import Tuple, List
 from email_validator import validate_email, EmailNotValidError
 
 
-def check_level_exists(username: str, conn):
-    """
-    Checks that a user has a record in the database for their level.
-
-    Args:
-        username: The username of the user to check.
-        conn: The connection to the database.
-    """
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM UserLevel WHERE username=?;", (username,))
-    if cur.fetchone() is None:
-        cur.execute(
-            "INSERT INTO UserLevel (username, experience) VALUES (?, ?);", (username, 0)
-        )
-        conn.commit()
-
-
 def validate_registration(
     cur,
     username: str,

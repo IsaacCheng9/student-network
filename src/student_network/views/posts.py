@@ -405,7 +405,7 @@ def like_post() -> object:
             names = [x[0] for x in row]
             if session["username"] not in names:
                 # 1 exp earned for the author of the post
-                helper_login.check_level_exists(username, conn)
+                helper_general.check_level_exists(username, conn)
                 helper_general.one_exp(cur, username)
                 cur.execute(
                     "INSERT INTO AllUserLikes (postId,username) VALUES (?, ?);",

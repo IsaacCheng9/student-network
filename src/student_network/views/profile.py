@@ -276,7 +276,7 @@ def profile(username: str) -> object:
     age = helper_profile.calculate_age(datetime_object)
 
     # get user level
-    helper_login.check_level_exists(username, conn)
+    helper_general.check_level_exists(username, conn)
 
     level_data = helper_profile.get_level(username)
     level = level_data[0]

@@ -4,6 +4,14 @@
 {% extends "base.html" %}
 {% block title %}Leaderboard{% endblock %}
 {% block content %}
+{% if errors %} 
+  <div class="ui message red">
+    <div class="header">Error:</div>
+    {% for item in errors %}
+    <p>{{ item }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
   <div class="ui segment">
     <div style="text-align: center;">
       <div class="ui statistic">
