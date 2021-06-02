@@ -144,8 +144,10 @@ def generate_answers_from_set(set_id):
         for i, answer in enumerate(mc_answers):
             for _ in range(3):
                 add = answer[0]
-                while add in answer:
+                count = 0
+                while add in answer and count < len(answers):
                     add = choice(answers)
+                    count += 1
                 mc_answers[i].append(add)
 
         return (set_details[2], set_details[3], set_details[1], questions, mc_answers)
