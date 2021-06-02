@@ -360,7 +360,7 @@ def show_connect_requests() -> object:
                 connections,
             )
         )
-        connections = sorted(connections, key=lambda x: x[2], reverse=True)
+        connections.sort(key=lambda x: x[2], reverse=True)
 
     session["prev-page"] = request.url
     return render_template(
