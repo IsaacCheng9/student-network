@@ -42,7 +42,7 @@ def apply_achievement(username: str, achievement_id: int):
                 (achievement_id,),
             )
             exp = cur.fetchone()[0]
-            helper_login.check_level_exists(username, conn)
+            helper_general.check_level_exists(username, conn)
             cur.execute(
                 "UPDATE UserLevel "
                 "SET experience = experience + ? "
