@@ -96,7 +96,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
                 row += cur.fetchall()
 
             # Sort reverse chronologically
-            row = sorted(row, key=lambda x: x[0], reverse=True)
+            row.sort(key=lambda x: x[0], reverse=True)
             i = 0
 
             # account type differentiation in posts db

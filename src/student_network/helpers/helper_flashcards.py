@@ -12,7 +12,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
 
 
-def get_set_details(cur, set_id: int) -> Tuple[str, date, dict, int]:
+def get_set_details(cur, set_id: int) -> Tuple[str, date, str, dict, int]:
     """
     Gets the details for the flashcard set being used.
     Args:
@@ -120,10 +120,18 @@ def save_set(set_id):
 
     questions, answers = "", ""
     for i in range(count):
-        if request.form.get("question_" + str(i)):
-            questions += str(request.form.get("question_" + str(i))) + "|"
-        if request.form.get("answer_" + str(i)):
-            answers += str(request.form.get("answer_" + str(i))) + "|"
+        new_q = str(request.form.get("question_" + str(i)))
+        if new_q:
+            new_q = validate_inputs(new_q)
+            questions += new_q + "|"
+        else:
+            questions += "|"
+        new_a = str(request.form.get("answer_" + str(i)))
+        if new_a:
+            new_a = validate_inputs(new_a)
+            answers += new_a + "|"
+        else:
+            answers += "|"
     if questions:
         if questions[-1] == "|":
             questions = questions[:-1]
@@ -143,7 +151,7 @@ def save_set(set_id):
     conn.commit()
 
 
-def generate_set():
+def generate_set() -> int:
     """
     Generate new set with logged in user as author
 
@@ -179,7 +187,7 @@ def add_card(set_id):
 
         author = row[2]
         if author == session["username"]:
-            if all(row):
+            if row[0] != "None" and row[1] != "None":
                 question_list = row[0].split("|")
                 answer_list = row[1].split("|")
                 count = len(question_list) + 1
@@ -227,7 +235,7 @@ def add_play(cur, set_id):
     )
 
 
-def get_question_count(cur, set_id):
+def get_question_count(cur, set_id) -> int:
     """
     Get number of questions in a set
 
@@ -240,3 +248,18 @@ def get_question_count(cur, set_id):
         return 0
 
     return len(set_details[0].split("|"))
+
+
+def validate_inputs(text: str) -> str:
+    """
+    Cut the flashcard to max size of 600 characters and Remove '|' characters
+    since they split questions in the database
+
+    Args:
+        text: input string
+
+    Returns:
+        Reformatted string
+    """
+    text = text[:600]
+    return text.replace("|", "")

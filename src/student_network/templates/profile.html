@@ -395,15 +395,18 @@
                 <a href="../edit-profile">
                   <button class="ui button icon green">
                     <i class="icon pencil"></i>
-                    Edit Profile
+                    Edit Profile &nbsp;
                   </button>
                 </a>
               </div>
-              {% endif %}
+              {% else %}
               <a href="">
-                <i class="exclamation triangle icon"></i>
-                Report user
+                <button class="ui button icon red">
+                  <i class="exclamation triangle icon"></i>
+                  Report User
+                </button>
               </a>
+              {% endif %}
             </div>
           </div>
         </div>

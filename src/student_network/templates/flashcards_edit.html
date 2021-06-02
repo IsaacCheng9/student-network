@@ -74,13 +74,14 @@ block content %}
         </div>
       </div>
       <div class="ui one wide column">
-        <a
-          href="{{ url_for('flashcards.flashcards_delete_question', set_id=set_id, index=loop.index0) }}"
+        <button
+          class="ui red button icon"
+          type="submit"
+          form="questions"
+          formaction="{{ url_for('flashcards.flashcards_delete_question', set_id=set_id, index=loop.index0) }}"
         >
-          <button class="ui red button icon">
-            <i class="small trash alternate outline icon"></i>
-          </button>
-        </a>
+          <i class="small trash alternate outline icon"></i>
+        </button>
       </div>
     </div>
   </div>

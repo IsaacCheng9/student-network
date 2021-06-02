@@ -153,8 +153,8 @@ def profile(username: str) -> object:
                     cur.execute(
                         "SELECT * "
                         "FROM POSTS WHERE username=? "
-                        "AND privacy!='private' "
-                        "AND privacy!='deleted' ",
+                        "AND privacy not in "
+                        "('private', 'deleted');",
                         (username,),
                     )
                     sort_posts = cur.fetchall()
@@ -162,9 +162,8 @@ def profile(username: str) -> object:
                     cur.execute(
                         "SELECT * "
                         "FROM POSTS WHERE username=? "
-                        "AND privacy!='close' "
-                        "AND privacy!='private' "
-                        "AND privacy!='deleted' ",
+                        "AND privacy not in "
+                        "('private', 'deleted', 'close');",
                         (username,),
                     )
                     sort_posts = cur.fetchall()
@@ -184,7 +183,7 @@ def profile(username: str) -> object:
         sort_posts = cur.fetchall()
 
     # Sort reverse chronologically
-    sort_posts = sorted(sort_posts, key=lambda x: x[0], reverse=True)
+    sort_posts.sort(key=lambda x: x[0], reverse=True)
 
     user_posts = {"UserPosts": []}
 
