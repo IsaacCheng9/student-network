@@ -187,7 +187,7 @@ def add_card(set_id):
 
         author = row[2]
         if author == session["username"]:
-            if all(row):
+            if row[0] != 'None' and row[1] != 'None':
                 question_list = row[0].split("|")
                 answer_list = row[1].split("|")
                 count = len(question_list) + 1
