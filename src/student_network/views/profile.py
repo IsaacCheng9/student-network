@@ -155,7 +155,7 @@ def profile(username: str) -> object:
                         "FROM POSTS WHERE username=? "
                         "AND privacy not in "
                         "('private', 'deleted');",
-                        (username,)
+                        (username,),
                     )
                     sort_posts = cur.fetchall()
                 else:
@@ -164,13 +164,13 @@ def profile(username: str) -> object:
                         "FROM POSTS WHERE username=? "
                         "AND privacy not in "
                         "('private', 'deleted', 'close');",
-                        (username,)
+                        (username,),
                     )
                     sort_posts = cur.fetchall()
             else:
                 cur.execute(
                     "SELECT * FROM POSTS WHERE username=? AND privacy=='public' ",
-                    (username,)
+                    (username,),
                 )
                 sort_posts = cur.fetchall()
 
