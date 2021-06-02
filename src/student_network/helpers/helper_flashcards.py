@@ -262,4 +262,4 @@ def validate_inputs(text: str) -> str:
         Reformatted string
     """
     text = text[:600]
-    return text.replace("|","")
+    return text.replace("|", "")
