@@ -253,7 +253,7 @@ def flashcards_delete(set_id) -> object:
     return redirect("/flashcards")
 
 
-@flashcards_blueprint.route("/flashcards/delete/<set_id>/<index>", methods=["GET"])
+@flashcards_blueprint.route("/flashcards/delete/<set_id>/<index>", methods=["GET", "POST"])
 def flashcards_delete_question(set_id: int, index: str) -> object:
     """
     Delete a flashcard question.
@@ -265,6 +265,7 @@ def flashcards_delete_question(set_id: int, index: str) -> object:
         The web page of flashcards list.
     """
 
+    helper_flashcards.save_set(set_id)
     helper_flashcards.delete_question(set_id, int(index))
 
     return redirect("/flashcards/edit/" + str(set_id))
