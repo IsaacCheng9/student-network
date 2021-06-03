@@ -108,7 +108,7 @@ def connect_request(username: str) -> object:
 
         session["add"] = "You can't connect with yourself!"
 
-    return redirect("/requests")
+    return redirect("/profile/" + username)
 
 
 @connections_blueprint.route("/unblock_user/<username>", methods=["GET", "POST"])
