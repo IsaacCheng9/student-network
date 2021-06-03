@@ -196,7 +196,7 @@ def accept_connection_request(username: str) -> object:
     else:
         session["add"] = "You can't connect with yourself!"
 
-    return redirect(session["prev-page"])
+    return redirect("/requests")
 
 
 @connections_blueprint.route("/block_user/<username>")
