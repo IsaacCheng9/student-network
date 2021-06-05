@@ -348,16 +348,15 @@
     }
 
     let privacy_text;
-    if (post.privacy == 'close') {
+    if (post.privacy == "close") {
       privacy_text = `<div class="ui label icon basic green">
                         Close Friends
                       </div>`;
-    } else if (post.privacy == 'private') {
+    } else if (post.privacy == "private") {
       privacy_text = `<div class="ui label icon basic gray">
                         Private
                       </div>`;
-    } else privacy_text=""
-
+    } else privacy_text = "";
 
     let html = `<div class="ui segment" id="post-number-${post.postId}">
             <div class="ui grid stackable">
