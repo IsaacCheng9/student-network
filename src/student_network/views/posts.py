@@ -56,16 +56,18 @@ def post(post_id: int) -> object:
                     return render_template(
                         "error.html",
                         message=["This post is private. You cannot access it."],
+                        requestCount=helper_connections.get_connection_request_count(),
                     )
                 else:
                     # Checks if user trying to view the post has a connection
                     # with the post author.
                     conn_type = helper_connections.get_connection_type(username)
-                    if conn_type is not True:
+                    if conn_type != "connected":
                         if privacy == "protected":
                             return render_template(
                                 "error.html",
                                 message=["This post is only available to connections."],
+                                requestCount=helper_connections.get_connection_request_count(),
                             )
                     else:
                         # If the user and author are connected, check that they
@@ -81,12 +83,14 @@ def post(post_id: int) -> object:
                                         "This post is only available to close "
                                         "friends."
                                     ],
+                                    requestCount=helper_connections.get_connection_request_count(),
                                 )
         else:
             if privacy != "public":
                 return render_template(
                     "error.html",
                     message=["This post is private. You cannot access it."],
+                    requestCount=helper_connections.get_connection_request_count(),
                 )
 
         # Gets user from database using username.

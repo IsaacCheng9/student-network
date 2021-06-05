@@ -347,6 +347,18 @@
       imagesToDisplay.push(`/static/images/post_imgs/${image}.jpg`);
     }
 
+    let privacy_text;
+    if (post.privacy == 'close') {
+      privacy_text = `<div class="ui label icon basic green">
+                        Close Friends
+                      </div>`;
+    } else if (post.privacy == 'private') {
+      privacy_text = `<div class="ui label icon basic gray">
+                        Private
+                      </div>`;
+    } else privacy_text=""
+
+
     let html = `<div class="ui segment" id="post-number-${post.postId}">
             <div class="ui grid stackable">
                 <div class="one wide column">
@@ -357,6 +369,7 @@
 <a href="/profile/${post.author}">${post.author}</a>
                         <div class="detail">${post.account_type}</div>
                     </div>
+                    ${privacy_text}
                     <a href="/post_page/${post.postId}">See full post</a>
                     <div style="float: right">${post.date_posted}</div>
                 </div>
