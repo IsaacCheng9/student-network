@@ -73,7 +73,7 @@ def post(post_id: int) -> object:
                         # If the user and author are connected, check that they
                         # are close friends.
                         connection = helper_connections.is_close_friend(
-                            session["username"], username
+                            username, session["username"]
                         )
                         if connection is not True:
                             if privacy == "close":
