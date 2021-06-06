@@ -291,6 +291,40 @@
           {% endif %}
         </div>
 
+        <div class="ui horizontal divider">Top Flashcard Sets</div>
+        {% for card_set in flashcards %}
+        <div class="ui segment">
+          <h3>
+            <a href="/flashcards/edit/{{ card_set[0] }}">{{ card_set[3] }}</a>
+            <div class="ui label mini" style="float:right">
+              {{ card_set[4] }} {% if card_set[4]==1 %} play {% else %} plays {%
+              endif %}
+              <div class="detail">
+                {{ card_set[5] }} {% if card_set[5]==1 %} card {% else %} cards {%
+                endif %}
+              </div>
+            </div>
+          </h3>
+          </div>
+          {% endfor %}
+        
+        <div class="ui horizontal divider">Top Quizzes</div>
+        {% for quiz in quizzes %}
+        <div class="ui segment">
+          <h3>
+            <a href="/quiz/{{ quiz[0] }}">{{ quiz[3] }}</a>
+            <div class="ui label mini" style="float:right">
+              {{ quiz[4] }} {% if quiz[4]==1 %} play {% else %} plays {%
+              endif %}
+              <div class="detail">
+                {{ quiz[5] }} {% if quiz[5]==1 %} question {% else %} questions {%
+                endif %}
+              </div>
+            </div>
+          </h3> 
+        </div>
+        {% endfor %}
+
         <div class="ui horizontal divider">Socials</div>
         <div style="text-align: center">
           {% if socials|length == 0 %}

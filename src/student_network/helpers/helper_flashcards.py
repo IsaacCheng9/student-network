@@ -252,8 +252,8 @@ def get_question_count(cur, set_id) -> int:
 
 def validate_inputs(text: str) -> str:
     """
-    Cut the flashcard to max size of 600 characters and Remove '|' characters
-    since they split questions in the database
+    Cut the flashcard to max size of 600 characters and remove '|'
+    characters since they split questions in the database
 
     Args:
         text: input string
@@ -263,3 +263,29 @@ def validate_inputs(text: str) -> str:
     """
     text = text[:600]
     return text.replace("|", "")
+
+def get_user_cards(username: str) -> list:
+    """
+    Get the flashcard sets of a given user
+
+    Args:
+        username: username to get sets from
+
+    Returns:
+        list of sets belonging to the user
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT set_id, date_created, author, set_name, cards_played "
+            "FROM QuestionSets WHERE author=?;",
+            (username,),
+        )
+        row = cur.fetchall()
+        set_posts = sorted(row, key=lambda x: x[4], reverse=True)
+        set_posts = [list(x) for x in set_posts]
+
+        for i, card_set in enumerate(set_posts):
+            set_posts[i].append(get_question_count(cur, card_set[0]))
+        
+    return set_posts

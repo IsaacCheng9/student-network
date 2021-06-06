@@ -11,6 +11,8 @@ import student_network.helpers.helper_general as helper_general
 import student_network.helpers.helper_login as helper_login
 import student_network.helpers.helper_profile as helper_profile
 import student_network.helpers.helper_posts as helper_posts
+import student_network.helpers.helper_flashcards as helper_flashcards
+import student_network.helpers.helper_quizzes as helper_quizzes
 from flask import Blueprint, redirect, render_template, request, session
 
 profile_blueprint = Blueprint(
@@ -264,7 +266,14 @@ def profile(username: str) -> object:
     if len(row) > 0:
         email = row[0][0]
 
+    # Gets socials of the user
     socials = helper_profile.read_socials(username)
+
+    # Gets flashcard sets made by the user
+    flashcards = helper_flashcards.get_user_cards(username)[:2]
+
+    # Gets quizzes made by the user
+    quizzes = helper_quizzes.get_user_quizzes(username)[:2]
 
     # Gets the user's six rarest achievements.
     unlocked_achievements, _ = helper_achievements.get_achievements(username)
@@ -308,6 +317,8 @@ def profile(username: str) -> object:
             degree=degree,
             email=email,
             socials=socials,
+            flashcards=flashcards,
+            quizzes=quizzes,
             posts=user_posts,
             type=conn_type,
             unlocked_achievements=first_six,
@@ -334,6 +345,8 @@ def profile(username: str) -> object:
             account_type=account_type,
             interests=interests,
             socials=socials,
+            flashcards=flashcards,
+            quizzes=quizzes,
             degree=degree,
             email=email,
             posts=user_posts,

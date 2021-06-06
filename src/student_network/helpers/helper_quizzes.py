@@ -254,3 +254,29 @@ def get_question_count(cur, quiz_id):
         return 0
 
     return len(set_details)
+
+def get_user_quizzes(username: str) -> list:
+    """
+    Get the quizzes of a given user
+
+    Args:
+        username: username to get quizzes from
+
+    Returns:
+        list of quizzes belonging to the user
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT quiz_id, date_created, author, quiz_name, plays "
+            "FROM Quiz WHERE author=?;",
+            (username,),
+        )
+        row = cur.fetchall()
+        quiz_posts = sorted(row, key=lambda x: x[4], reverse=True)
+        quiz_posts = [list(x) for x in quiz_posts]
+
+        for i, quiz in enumerate(quiz_posts):
+            quiz_posts[i].append(get_question_count(cur, quiz[0]))
+       
+    return quiz_posts

@@ -196,19 +196,7 @@ def quizzes_user(username: str) -> object:
     Returns:
         The web page of quizzes created.
     """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT quiz_id, date_created, author, quiz_name, plays "
-            "FROM Quiz WHERE author=?;",
-            (username,),
-        )
-        row = cur.fetchall()
-        quiz_posts = sorted(row, key=lambda x: x[4], reverse=True)
-        quiz_posts = [list(x) for x in quiz_posts]
-
-        for i, quiz in enumerate(quiz_posts):
-            quiz_posts[i].append(helper_quizzes.get_question_count(cur, quiz[0]))
+    quiz_posts = helper_quizzes.get_user_quizzes(username)
 
     # Displays any error messages.
     if "error" in session:

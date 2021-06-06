@@ -70,19 +70,7 @@ def flashcards_user(username: str) -> object:
     Returns:
         The web page of flashcards created by this user.
     """
-    with sqlite3.connect("database.db") as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT set_id, date_created, author, set_name, cards_played "
-            "FROM QuestionSets WHERE author=?;",
-            (username,),
-        )
-        row = cur.fetchall()
-        set_posts = sorted(row, key=lambda x: x[4], reverse=True)
-        set_posts = [list(x) for x in set_posts]
-
-        for i, card_set in enumerate(set_posts):
-            set_posts[i].append(helper_flashcards.get_question_count(cur, card_set[0]))
+    set_posts = helper_flashcards.get_user_cards(username)
 
     # Displays any error messages.
     if "error" in session:
