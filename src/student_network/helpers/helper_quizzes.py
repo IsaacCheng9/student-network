@@ -255,6 +255,7 @@ def get_question_count(cur, quiz_id):
 
     return len(set_details)
 
+
 def get_user_quizzes(username: str) -> list:
     """
     Get the quizzes of a given user
@@ -278,5 +279,5 @@ def get_user_quizzes(username: str) -> list:
 
         for i, quiz in enumerate(quiz_posts):
             quiz_posts[i].append(get_question_count(cur, quiz[0]))
-       
+
     return quiz_posts

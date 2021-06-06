@@ -264,6 +264,7 @@ def validate_inputs(text: str) -> str:
     text = text[:600]
     return text.replace("|", "")
 
+
 def get_user_cards(username: str) -> list:
     """
     Get the flashcard sets of a given user
@@ -287,5 +288,5 @@ def get_user_cards(username: str) -> list:
 
         for i, card_set in enumerate(set_posts):
             set_posts[i].append(get_question_count(cur, card_set[0]))
-        
+
     return set_posts
