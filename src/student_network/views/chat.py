@@ -19,21 +19,8 @@ db_path = os.path.join(BASE_DIR, "database.db")
 
 @chat_blueprint.route("/chat")
 def chat():
-    chat_rooms = helper_general.get_all_connections(session["username"])
-    chat_rooms = list(
-        map(lambda x: (x[0], helper_profile.get_profile_picture(x[0])), chat_rooms)
-    )
-
-    chat_rooms = [list(x) for x in chat_rooms]
-
-    for i, room in enumerate(chat_rooms):
-        message = helper_general.get_messages(room[0], True)
-        chat_rooms[i].append(message)
-
-    actives = [x for x in chat_rooms if x[2][2] != ""]
-    inactives = [x for x in chat_rooms if x[2][2] == ""]
-    actives.sort(key=lambda x: x[2][2])
-    chat_rooms = actives + inactives
+    
+    chat_rooms = helper_general.get_rooms()
 
     return render_template(
         "chat.html",
@@ -47,10 +34,8 @@ def chat():
 
 @chat_blueprint.route("/chat/<username>")
 def chat_username(username):
-    chat_rooms = helper_general.get_all_connections(session["username"])
-    chat_rooms = list(
-        map(lambda x: (x[0], helper_profile.get_profile_picture(x[0])), chat_rooms)
-    )
+    
+    chat_rooms = helper_general.get_rooms()
 
     """with sqlite3.connect(db_path) as conn:
         cur = conn.cursor()
@@ -59,7 +44,7 @@ def chat_username(username):
             "PrivateMessages WHERE (sender=? OR receiver=?);", (session[
             "username"], username))"""
 
-    messages = helper_general.get_messages(username)
+    messages = helper_general.get_messages(username)[0]
 
     return render_template(
         "chat.html",

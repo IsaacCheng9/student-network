@@ -6,6 +6,8 @@ import sqlite3
 from datetime import datetime
 from math import floor
 
+import student_network.helpers.helper_profile as helper_profile
+
 from flask import session
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -148,19 +150,46 @@ def get_messages(username: str, first=False):
         )
         row += cur.fetchall()
 
+        if row == []:
+            return [[""], "", ""]
+        
+        #row = [list(x) for x in row]
+
         row.sort(key=lambda x: x[2], reverse=True)
 
-        if first:
-            if row == []:
-                return ("", "", "")
-            else:
-                seconds = (
-                    datetime.now()
-                    - datetime.strptime(row[0][2], "%Y-%m-%d " "%H:%M:%S")
-                ).total_seconds()
-                elapsed = display_short_notification_age(seconds)
-                return (row[0][0], elapsed, seconds)
+        return [row, "", ""]
 
+def recent_message(date: str):
+    seconds = (
+        datetime.now()
+        - datetime.strptime(date, "%Y-%m-%d " "%H:%M:%S")
+    ).total_seconds()
+    elapsed = display_short_notification_age(seconds)
+
+    return (elapsed, seconds)
+
+
+def get_rooms():
+    chat_rooms = get_all_connections(session["username"])
+    chat_rooms = list(
+        map(lambda x: (x[0], helper_profile.get_profile_picture(x[0])), chat_rooms)
+    )
+
+    chat_rooms = [list(x) for x in chat_rooms]
+
+    for i, room in enumerate(chat_rooms):
+        message = get_messages(room[0])
+        if message[0][0] != "":
+            message[1], message[2] = recent_message(message[0][0][2])
+        chat_rooms[i].append(message)
+
+    #print(chat_rooms)
+    actives = [x for x in chat_rooms if x[2][2] != ""]
+    inactives = [x for x in chat_rooms if x[2][2] == ""]
+    actives.sort(key=lambda x: x[2][2])
+    chat_rooms = actives + inactives
+
+    return chat_rooms
 
 def one_exp(cur, username: str):
     """

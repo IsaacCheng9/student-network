@@ -84,7 +84,7 @@ content %}
               "
               id="{{user[0]}}-last-msg"
             >
-              {{user[2][0]}}
+              {{user[2][0][0][0]}}
             </p>
           </a>
           {% endfor %}
@@ -98,7 +98,26 @@ content %}
     >
       <div class="ui grid">
         <div class="sixteen wide column">
-          <div class="ui grid compact" id="message-container"></div>
+          <div class="ui grid compact" id="message-container">
+            {% for message in messages %}
+              <div class="row">
+                {% if message[1] != prev %}
+                  {% if message[1] == username %}
+                    <div class="chat-message-body right-floated">
+                  {% else %}
+                    <div class="chat-message-body left-floated">
+                  {% endif %}
+                  <div class="username">{{message[1]}}</div>
+                {% endif %}
+                  <div class="chat-message">
+                    {{message[0]}}
+                  </div>
+                </div>
+              </div>
+              {% set prev = message[1] %}
+            {% endfor %}
+          </div>
+
         </div>
         <div class="ui horizontal divider"></div>
         <div class="sixteen wide column">
@@ -205,8 +224,9 @@ content %}
 
     lastMessageUsername = msg.sender_username;
 
+
     let html = `<div class="row">
-                    <div class="chat-message-body ${extra}">
+                    <div  class="chat-message-body ${extra}">
                         ${usernameHTML}
                         <div class="chat-message">
                             ${msg.message}
@@ -220,6 +240,7 @@ content %}
       msg.sender_username + ": " + msg.message;
 
     $("#message-container").scrollTop($("#message-container")[0].scrollHeight);
+
   }
 </script>
 
