@@ -128,7 +128,7 @@ def check_level_exists(username: str, conn):
         conn.commit()
 
 
-def get_messages(username: str, first=False):
+def get_messages(username: str):
     """
     Get messages between logged in user and each user with chats
 
@@ -153,14 +153,21 @@ def get_messages(username: str, first=False):
         if row == []:
             return [[""], "", ""]
 
-        # row = [list(x) for x in row]
-
         row.sort(key=lambda x: x[2], reverse=True)
 
         return [row, "", ""]
 
 
-def recent_message(date: str):
+def recent_message(date: str) -> tuple(str, int):
+    """
+    Get time since the most recent message
+
+    Args:
+        date: datetime of message
+
+    Returns:
+        [type]: [description]
+    """
     seconds = (
         datetime.now() - datetime.strptime(date, "%Y-%m-%d " "%H:%M:%S")
     ).total_seconds()
@@ -170,6 +177,12 @@ def recent_message(date: str):
 
 
 def get_rooms():
+    """
+    Get chat rooms for user
+
+    Returns:
+        chat rooms of user
+    """
     chat_rooms = get_all_connections(session["username"])
     chat_rooms = list(
         map(lambda x: (x[0], helper_profile.get_profile_picture(x[0])), chat_rooms)
@@ -183,7 +196,6 @@ def get_rooms():
             message[1], message[2] = recent_message(message[0][0][2])
         chat_rooms[i].append(message)
 
-    # print(chat_rooms)
     actives = [x for x in chat_rooms if x[2][2] != ""]
     inactives = [x for x in chat_rooms if x[2][2] == ""]
     actives.sort(key=lambda x: x[2][2])
