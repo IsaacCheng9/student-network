@@ -25,11 +25,11 @@ def chat():
     )
 
     chat_rooms = [list(x) for x in chat_rooms]
-    
+
     for i, room in enumerate(chat_rooms):
         message = helper_general.get_messages(room[0], True)
         chat_rooms[i].append(message)
-    
+
     actives = [x for x in chat_rooms if x[2][2] != ""]
     inactives = [x for x in chat_rooms if x[2][2] == ""]
     actives.sort(key=lambda x: x[2][2])
@@ -58,7 +58,7 @@ def chat_username(username):
             "SELECT sender, receiver, message FROM "
             "PrivateMessages WHERE (sender=? OR receiver=?);", (session[
             "username"], username))"""
-    
+
     messages = helper_general.get_messages(username)
 
     return render_template(

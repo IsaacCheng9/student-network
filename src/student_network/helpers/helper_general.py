@@ -125,6 +125,7 @@ def check_level_exists(username: str, conn):
         )
         conn.commit()
 
+
 def get_messages(username: str, first=False):
     """
     Get messages between logged in user and each user with chats
@@ -151,12 +152,12 @@ def get_messages(username: str, first=False):
 
         if first:
             if row == []:
-                return ("","","")
+                return ("", "", "")
             else:
                 seconds = (
-                            datetime.now()
-                            - datetime.strptime(row[0][2], "%Y-%m-%d " "%H:%M:%S")
-                        ).total_seconds()
+                    datetime.now()
+                    - datetime.strptime(row[0][2], "%Y-%m-%d " "%H:%M:%S")
+                ).total_seconds()
                 elapsed = display_short_notification_age(seconds)
                 return (row[0][0], elapsed, seconds)
 
