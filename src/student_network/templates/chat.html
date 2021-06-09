@@ -74,8 +74,8 @@ content %}
           >
             <img src="{{user[1]}}" class="ui avatar image" alt="" />
             <span style="font-size: 1.3em">{{user[0]}}</span>
-            <span style="float: right">1h</span>
             <br />
+            <span style="float: right">{{user[2][1]}}</span>
             <p
               style="
                 white-space: nowrap;
@@ -84,10 +84,7 @@ content %}
               "
               id="{{user[0]}}-last-msg"
             >
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quia,
-              inventore dolores illum doloribus veritatis laboriosam culpa
-              eligendi nobis voluptate sunt commodi quas, beatae dignissimos
-              minima tempore vitae consectetur at impedit!
+              {{user[2][0]}}
             </p>
           </a>
           {% endfor %}

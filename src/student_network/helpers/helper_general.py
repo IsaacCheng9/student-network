@@ -125,6 +125,41 @@ def check_level_exists(username: str, conn):
         )
         conn.commit()
 
+def get_messages(username: str, first=False):
+    """
+    Get messages between logged in user and each user with chats
+
+    Args:
+        username: user to get messages of
+    """
+    with sqlite3.connect("database.db") as conn:
+        cur = conn.cursor()
+
+        cur.execute(
+            "SELECT message, sender, date FROM PrivateMessages WHERE (sender=? AND receiver=?) ",
+            (session["username"], username),
+        )
+        row = cur.fetchall()
+
+        cur.execute(
+            "SELECT message, sender, date FROM PrivateMessages WHERE (sender=? AND receiver=?) ",
+            (username, session["username"]),
+        )
+        row += cur.fetchall()
+
+        row.sort(key=lambda x: x[2], reverse=True)
+
+        if first:
+            if row == []:
+                return ("","","")
+            else:
+                seconds = (
+                            datetime.now()
+                            - datetime.strptime(row[0][2], "%Y-%m-%d " "%H:%M:%S")
+                        ).total_seconds()
+                elapsed = display_short_notification_age(seconds)
+                return (row[0][0], elapsed, seconds)
+
 
 def one_exp(cur, username: str):
     """
