@@ -5,6 +5,7 @@ import os
 import sqlite3
 from datetime import datetime
 from math import floor
+from typing import Tuple
 
 import student_network.helpers.helper_profile as helper_profile
 
@@ -158,7 +159,7 @@ def get_messages(username: str):
         return [row, "", ""]
 
 
-def recent_message(date: str) -> tuple(str, int):
+def recent_message(date: str) -> Tuple[str, int]:
     """
     Get time since the most recent message
 

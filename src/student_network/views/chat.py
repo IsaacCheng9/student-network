@@ -37,13 +37,6 @@ def chat_username(username):
 
     chat_rooms = helper_general.get_rooms()
 
-    """with sqlite3.connect(db_path) as conn:
-        cur = conn.cursor()
-        cur.execute(
-            "SELECT sender, receiver, message FROM "
-            "PrivateMessages WHERE (sender=? OR receiver=?);", (session[
-            "username"], username))"""
-
     messages = helper_general.get_messages(username)[0]
 
     return render_template(
