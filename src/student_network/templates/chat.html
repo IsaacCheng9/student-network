@@ -100,132 +100,126 @@ content %}
         <div class="sixteen wide column">
           <div class="ui grid compact" id="message-container">
             {% for message in messages %}
-              <div class="row">
-                {% if message[1] != prev %}
-                  {% if message[1] == username %}
-                    <div class="chat-message-body right-floated">
-                  {% else %}
-                    <div class="chat-message-body left-floated">
+            <div class="row">
+              {% if message[1] != prev %} {% if message[1] == username %}
+              <div class="chat-message-body right-floated">
+                {% else %}
+                <div class="chat-message-body left-floated">
                   {% endif %}
                   <div class="username">{{message[1]}}</div>
-                {% endif %}
-                  <div class="chat-message">
-                    {{message[0]}}
-                  </div>
+                  {% endif %}
+                  <div class="chat-message">{{message[0]}}</div>
                 </div>
               </div>
-              {% set prev = message[1] %}
-            {% endfor %}
-          </div>
-
-        </div>
-        <div class="ui horizontal divider"></div>
-        <div class="sixteen wide column">
-          <div id="typing-text"></div>
-
-          <form
-            class="ui form"
-            method="POST"
-            action=""
-            id="chat-message-form"
-          ></form>
-
-          <div class="ui input icon fluid">
-            <i class="icon arrow up"></i>
-            <label for="message-input"></label
-            ><input
-              name=""
-              rows="1"
-              class="no-resize"
-              id="message-input"
-              form="chat-message-form"
-              required
-            />
-          </div>
-          <div class="ui horizontal list big">
-            <div class="item">
-              <a href="#"><i class="icon paperclip"></i></a>
+              {% set prev = message[1] %} {% endfor %}
             </div>
-            <div class="item">
-              <a href="#"><i class="icon image"></i></a>
+          </div>
+          <div class="ui horizontal divider"></div>
+          <div class="sixteen wide column">
+            <div id="typing-text"></div>
+
+            <form
+              class="ui form"
+              method="POST"
+              action=""
+              id="chat-message-form"
+            ></form>
+
+            <div class="ui input icon fluid">
+              <i class="icon arrow up"></i>
+              <label for="message-input"></label
+              ><input
+                name=""
+                rows="1"
+                class="no-resize"
+                id="message-input"
+                form="chat-message-form"
+                required
+              />
             </div>
-            <div class="item">
-              <a href="#"><i class="icon video"></i></a>
+            <div class="ui horizontal list big">
+              <div class="item">
+                <a href="#"><i class="icon paperclip"></i></a>
+              </div>
+              <div class="item">
+                <a href="#"><i class="icon image"></i></a>
+              </div>
+              <div class="item">
+                <a href="#"><i class="icon video"></i></a>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    {% else %}
-    <div class="twelve wide column">
-      <div class="ui orange message">
-        Click a user on the left to begin chatting with them.
+      {% else %}
+      <div class="twelve wide column">
+        <div class="ui orange message">
+          Click a user on the left to begin chatting with them.
+        </div>
       </div>
+      {% endif %}
     </div>
-    {% endif %}
   </div>
-</div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 
-<script>
-  let socket = io.connect("http://" + document.domain + ":" + location.port);
+  <script>
+    let socket = io.connect("http://" + document.domain + ":" + location.port);
 
-  let private_socket = io(
-    "http://" + document.domain + ":" + location.port + "/private"
-  );
+    let private_socket = io(
+      "http://" + document.domain + ":" + location.port + "/private"
+    );
 
-  const username = "{{username}}";
-  const room = "{{room}}";
+    const username = "{{username}}";
+    const room = "{{room}}";
 
-  let lastMessageUsername = "";
+    let lastMessageUsername = "";
 
-  $("#chat-message-form").on("submit", function (e) {
-    e.preventDefault();
-
-    let message = $("#message-input").val();
-
-    let packet = {
-      sender_username: username,
-      username: room,
-      message: message,
-    };
-
-    $("#message-input").val("");
-
-    private_socket.emit("private_message", packet);
-    NewChatMessage(packet);
-  });
-
-  $(document).ready(function () {
-    private_socket.emit("username", username);
-  });
-
-  document.addEventListener("keydown", function (e) {
-    if (e.keyCode === 13) {
+    $("#chat-message-form").on("submit", function (e) {
       e.preventDefault();
-      $("#chat-message-form").submit();
-    }
-  });
 
-  private_socket.on("new_private_message", function (msg) {
-    NewChatMessage(msg);
-  });
+      let message = $("#message-input").val();
 
-  function NewChatMessage(msg) {
-    let extra =
-      msg.sender_username === username ? "right-floated" : "left-floated";
-    let usernameHTML = `<div class="username">${msg.sender_username}</div>`;
+      let packet = {
+        sender_username: username,
+        username: room,
+        message: message,
+      };
 
-    if (lastMessageUsername === msg.sender_username) {
-      usernameHTML = "";
-    }
+      $("#message-input").val("");
 
-    lastMessageUsername = msg.sender_username;
+      private_socket.emit("private_message", packet);
+      NewChatMessage(packet);
+    });
 
+    $(document).ready(function () {
+      private_socket.emit("username", username);
+    });
 
-    let html = `<div class="row">
+    document.addEventListener("keydown", function (e) {
+      if (e.keyCode === 13) {
+        e.preventDefault();
+        $("#chat-message-form").submit();
+      }
+    });
+
+    private_socket.on("new_private_message", function (msg) {
+      NewChatMessage(msg);
+    });
+
+    function NewChatMessage(msg) {
+      let extra =
+        msg.sender_username === username ? "right-floated" : "left-floated";
+      let usernameHTML = `<div class="username">${msg.sender_username}</div>`;
+
+      if (lastMessageUsername === msg.sender_username) {
+        usernameHTML = "";
+      }
+
+      lastMessageUsername = msg.sender_username;
+
+      let html = `<div class="row">
                     <div  class="chat-message-body ${extra}">
                         ${usernameHTML}
                         <div class="chat-message">
@@ -234,14 +228,16 @@ content %}
                     </div>
                 </div>`;
 
-    document.getElementById("message-container").innerHTML += html;
+      document.getElementById("message-container").innerHTML += html;
 
-    document.getElementById(room + "-last-msg").innerText =
-      msg.sender_username + ": " + msg.message;
+      document.getElementById(room + "-last-msg").innerText =
+        msg.sender_username + ": " + msg.message;
 
-    $("#message-container").scrollTop($("#message-container")[0].scrollHeight);
+      $("#message-container").scrollTop(
+        $("#message-container")[0].scrollHeight
+      );
+    }
+  </script>
 
-  }
-</script>
-
-{% endblock %}
+  {% endblock %}
+</div>
