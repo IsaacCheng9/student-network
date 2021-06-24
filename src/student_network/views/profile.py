@@ -233,6 +233,9 @@ def profile(username: str) -> object:
             }
         )
 
+    # Gets total (visible) post count
+    total_posts = len(user_posts["UserPosts"])
+
     # Gets account type.
     cur.execute("SELECT type FROM ACCOUNTS WHERE username=?;", (username,))
     row = cur.fetchall()
@@ -320,6 +323,7 @@ def profile(username: str) -> object:
             flashcards=flashcards,
             quizzes=quizzes,
             posts=user_posts,
+            total_posts=total_posts,
             type=conn_type,
             unlocked_achievements=first_six,
             allUsernames=helper_general.get_all_usernames(),
@@ -350,6 +354,7 @@ def profile(username: str) -> object:
             degree=degree,
             email=email,
             posts=user_posts,
+            total_posts=total_posts,
             type="none",
             unlocked_achievements=first_six,
             level=level,
