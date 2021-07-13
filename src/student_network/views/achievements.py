@@ -67,11 +67,10 @@ def leaderboard() -> object:
     """
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM UserLevel")
+        cur.execute("SELECT * FROM UserLevel ORDER BY experience DESC")
         top_users = cur.fetchall()
         if top_users:
             total_user_count = len(top_users)
-            top_users.sort(key=lambda x: x[1], reverse=True)
 
             my_ranking = helper_achievements.binary_search(
                 top_users,

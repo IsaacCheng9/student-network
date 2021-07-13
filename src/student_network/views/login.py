@@ -239,5 +239,5 @@ def logout() -> object:
     if "username" in session:
         session.clear()
         session["prev-page"] = request.url
-        return render_template("login.html")
+        return redirect("/login")
     return redirect("/")
