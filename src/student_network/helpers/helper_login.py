@@ -79,16 +79,19 @@ def validate_registration(
         valid_email = validate_email(email)
         # Updates with the normalised form of the email address.
         email = valid_email.email
+        # If the format is valid, checks that the email address has the
+        # University of Exeter domain.
+        if re.search("@.*", email) is not None:
+            domain = re.search("@.*", email).group()
+            domain_type = domain.split(".")[1]
+            if domain_type not in ["ac", "edu"]:
+                valid = False
+                message.append(
+                    "Email does not belong to a registered educational institute!"
+                )
     except EmailNotValidError:
         message.append("Email is invalid!")
         valid = False
-    # If the format is valid, checks that the email address has the
-    # University of Exeter domain.
-    if re.search("@.*", email) is not None:
-        domain = re.search("@.*", email).group()
-        if domain != "@exeter.ac.uk":
-            valid = False
-            message.append("Email address does not belong to University of Exeter!")
 
     # Checks that the password has a minimum length of 8 characters, and at
     # least one number.
