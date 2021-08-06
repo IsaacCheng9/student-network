@@ -18,7 +18,7 @@ students to engage with each other in a fun and friendly online environment.
 ![Taking Quizzes](https://i.imgur.com/mxKdQbC.png?1)
 ![Quiz Results](https://i.imgur.com/1ox2mcu.png?1)
 
-## Contributors
+## Collaborators
 
 - Isaac Cheng
 - Ryan Storey
@@ -65,7 +65,7 @@ To run the application, you should follow the following steps:
    [src/student_network](src/student_network).
 3. Ensure that you have the prerequisites to run the application (as explained
    in the previous section).
-4. Run the application with the command `python models.py`.
+4. Run the application with the command `python app.py`.
 5. Navigate to http://127.0.0.1:5000/ in your web browser.
 
 ## Usage
