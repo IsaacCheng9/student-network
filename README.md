@@ -3,9 +3,9 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
-A student network which promotes interaction within the University of Exeter's
-student community. This aims to provide social opportunities by encouraging
-students to engage with each other in a fun and friendly online environment.
+A student network which promotes interaction within the student community.
+This aims to provide social opportunities by encouraging students to engage with
+each other in a fun and friendly online environment.
 
 ## Screenshots
 
@@ -72,7 +72,7 @@ To run the application, you should follow the following steps:
 
 Upon opening the application, you will be greeted with a home page. From here,
 you can log into your existing account, or you can register a new account. It
-should be noted that registration will only work with University of Exeter email
+should be noted that registration will only work with university email
 addresses, and academics will be sent for manual verification after signing up.
 
 When you log in, you will be redirected to your profile page. This displays
@@ -159,17 +159,6 @@ repository as follows:
 [https://github.com/IsaacCheng9/student-network](https://github.com/IsaacCheng9/student-network)
 
 ### Documentation
-
-#### Kanban Methodology
-
-Project management is handled using the Kanban methodology through a Trello
-board, which can be found below:
-
-[https://trello.com/b/xnKnkaxg/reconnect](https://trello.com/b/xnKnkaxg/reconnect)
-
-We have taken regular snapshots of the Kanban board in Trello to archive our
-progress in the early stages. These can be found in the following path of the
-repository: [docs/kanban-snapshots](docs/kanban-snapshots)
 
 #### Requirements Analysis
 
