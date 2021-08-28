@@ -49,7 +49,7 @@ should `pip install` the following:
 - Pillow
 - Flask-SocketIO
 
-For example, you should `pip install passlib`.
+For example, you should run the following command to install passlib: `pip install passlib`
 
 ### Virtual Environment
 
