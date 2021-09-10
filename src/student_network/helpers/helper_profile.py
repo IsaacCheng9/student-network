@@ -5,13 +5,11 @@ import os
 import sqlite3
 import uuid
 from datetime import date, datetime
-from typing import Tuple, List
+from typing import List, Tuple
 
+import src.student_network.helpers.helper_general as helper_general
 from PIL import Image
 from werkzeug.utils import secure_filename
-
-import student_network.helpers.helper_general as helper_general
-import student_network.helpers.helper_login as helper_login
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")

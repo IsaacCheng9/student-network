@@ -4,10 +4,9 @@ Performs checks and actions to help user connections work effectively.
 import os
 import sqlite3
 
+import src.student_network.helpers.helper_general as helper_general
+import src.student_network.helpers.helper_profile as helper_profile
 from flask import session
-
-import student_network.helpers.helper_general as helper_general
-import student_network.helpers.helper_profile as helper_profile
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
