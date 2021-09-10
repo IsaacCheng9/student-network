@@ -4,7 +4,7 @@ Performs checks and actions to help flashcard sets work effectively.
 import os
 import sqlite3
 from datetime import date
-from typing import Tuple, List
+from typing import Tuple
 
 from flask import request, session
 

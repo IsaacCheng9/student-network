@@ -4,11 +4,10 @@ Performs checks and actions to help the achievements system work effectively.
 import os
 import sqlite3
 from datetime import date
-from typing import Tuple, Sized
+from typing import Sized, Tuple
 
-import student_network.helpers.helper_general as helper_general
-import student_network.helpers.helper_login as helper_login
-import student_network.helpers.helper_profile as helper_profile
+import src.student_network.helpers.helper_general as helper_general
+import src.student_network.helpers.helper_profile as helper_profile
 from flask import session
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

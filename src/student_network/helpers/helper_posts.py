@@ -8,12 +8,12 @@ import uuid
 from datetime import datetime
 from typing import Tuple
 
-import student_network.helpers.helper_achievements as helper_achievements
-import student_network.helpers.helper_general as helper_general
-import student_network.helpers.helper_profile as helper_profile
-import student_network.helpers.helper_connections as helper_connections
-from PIL import Image
+import src.student_network.helpers.helper_achievements as helper_achievements
+import src.student_network.helpers.helper_connections as helper_connections
+import src.student_network.helpers.helper_general as helper_general
+import src.student_network.helpers.helper_profile as helper_profile
 from flask import request, session
+from PIL import Image
 from werkzeug.utils import secure_filename
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

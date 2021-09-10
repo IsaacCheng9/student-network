@@ -7,8 +7,7 @@ from datetime import datetime
 from math import floor
 from typing import Tuple
 
-import student_network.helpers.helper_profile as helper_profile
-
+import src.student_network.helpers.helper_profile as helper_profile
 from flask import session
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
