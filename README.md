@@ -18,15 +18,6 @@ each other in a fun and friendly online environment.
 ![Taking Quizzes](https://i.imgur.com/mxKdQbC.png?1)
 ![Quiz Results](https://i.imgur.com/1ox2mcu.png?1)
 
-## Collaborators
-
-- Isaac Cheng
-- Ryan Storey
-- Sofia Reid
-- Barnie Gill
-- Oskar Oramus
-- Sam Shailer
-
 ## Installation
 
 ### Python Version
