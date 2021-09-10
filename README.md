@@ -61,12 +61,9 @@ This includes all the Python libraries required to run the application locally.
 To run the application, you should follow the following steps:
 
 1. Clone this GitHub repository.
-2. Navigate to the following directory in your terminal with the command:
-   `src/student_network`
-3. Ensure that you have the prerequisites to run the application (as explained
-   in the previous section).
-4. Run the application with the command: `python app.py`
-5. Navigate to http://127.0.0.1:5000/ in your web browser.
+2. Ensure that you're in the root directory: `student-network`
+3. Run the application with the command: `python -m src.student_network.app`
+4. Navigate to http://127.0.0.1:5000/ in your web browser.
 
 ## Usage
 
