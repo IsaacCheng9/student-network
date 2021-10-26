@@ -27,25 +27,8 @@ The application has been developed and tested to work on Python 3.8 and onwards.
 ### Python Libraries
 
 This project uses several Python libraries. To run the application locally, you
-should `pip install` the following:
-
-- click
-- email-validator
-- Flask
-- itsdangerous
-- Jinja2
-- MarkupSafe
-- passlib
-- Werkzeug
-- Pillow
-- Flask-SocketIO
-
-For example, you should run the following command to install passlib: `pip install passlib`
-
-### Virtual Environment
-
-Alternatively, a virtual environment has been included in the GitHub repository.
-This includes all the Python libraries required to run the application locally.
+should run the command `pip install -r requirements.txt`, which will install all
+the required libraries.
 
 ### Running the Application
 
@@ -53,8 +36,10 @@ To run the application, you should follow the following steps:
 
 1. Clone this GitHub repository.
 2. Ensure that you're in the root directory: `student-network`
-3. Run the application with the command: `python -m src.student_network.app`
-4. Navigate to http://127.0.0.1:5000/ in your web browser.
+3. Install the code as a package on your local machine with the command:
+   `pip install -e .`
+4. Run the application with the command: `python -m src.student_network.app`
+5. Navigate to http://127.0.0.1:5000/ in your web browser.
 
 ## Usage
 
