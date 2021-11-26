@@ -7,7 +7,7 @@ import uuid
 from datetime import date, datetime
 from typing import List, Tuple
 
-import src.student_network.helpers.helper_general as helper_general
+import student_network.helpers.helper_general as helper_general
 from PIL import Image
 from werkzeug.utils import secure_filename
 
