@@ -38,7 +38,7 @@ To run the application, you should follow the following steps:
 2. Ensure that you're in the root directory: `student-network`
 3. Install the code as a package on your local machine with the command:
    `pip install -e .`
-4. Run the application with the command: `python -m src.student_network.app`
+4. Run the application with the command: `python -m student_network.app`
 5. Navigate to http://127.0.0.1:5000/ in your web browser.
 
 ## Usage
