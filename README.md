@@ -24,22 +24,17 @@ each other in a fun and friendly online environment.
 
 The application has been developed and tested to work on Python 3.8 and onwards.
 
-### Python Libraries
-
-This project uses several Python libraries. To run the application locally, you
-should run the command `pip install -r requirements.txt`, which will install all
-the required libraries.
-
-### Running the Application
+### Running the Application Locally
 
 To run the application, you should follow the following steps:
 
 1. Clone this GitHub repository.
-2. Ensure that you're in the root directory: `student-network`
-3. Install the code as a package on your local machine with the command:
+2. Install the required Python libraries: `pip install -r requirements.txt`
+3. Ensure that you're in the root directory: `student-network`
+4. Install the code as a package on your local machine with the command:
    `pip install -e .`
-4. Run the application with the command: `python -m src.student_network.app`
-5. Navigate to http://127.0.0.1:5000/ in your web browser.
+5. Run the application with the command: `python -m student_network.app`
+6. Navigate to http://127.0.0.1:5000/ in your web browser.
 
 ## Usage
 
