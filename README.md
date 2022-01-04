@@ -97,9 +97,9 @@ part in quizzes made from other people.
 ## Demo Instructions
 
 For testing purposes, we have created a lot of accounts and sample data to make
-it easier to demo the product. This includes the users `barn354` and `ic324`,
-both with password `Password01`, have been set up with a full student profile
-and multiple posts.
+it easier to demo the product. The users `barn354` and `ic324`, both with
+password `Password01`, have been set up with a full student profile and multiple
+posts.
 
 The following dummy accounts have been set up:
 
