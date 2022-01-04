@@ -6,11 +6,11 @@ import sqlite3
 from datetime import date
 from string import capwords
 
+import bcrypt
 import student_network.helpers.helper_connections as helper_connections
-import student_network.helpers.helper_login as helper_login
 import student_network.helpers.helper_general as helper_general
+import student_network.helpers.helper_login as helper_login
 from flask import Blueprint, redirect, render_template, request, session
-from passlib.hash import sha256_crypt
 
 login_blueprint = Blueprint(
     "login", __name__, static_folder="static", template_folder="templates"
@@ -96,7 +96,7 @@ def login_submit() -> object:
          Redirection depending on whether login was successful or not.
     """
     username = request.form["username_input"].lower()
-    psw = request.form["psw_input"]
+    password = request.form["psw_input"].encode("utf-8")
 
     with sqlite3.connect("database.db") as conn:
         cur = conn.cursor()
@@ -107,13 +107,13 @@ def login_submit() -> object:
         conn.commit()
         row = cur.fetchone()
         if row:
-            hashed_psw = row[0]
+            hashed_password = row[0]
             account_type = row[1]
         else:
             session["error"] = ["login"]
             return redirect("/login")
-        if hashed_psw:
-            if sha256_crypt.verify(psw, hashed_psw):
+        if hashed_password:
+            if bcrypt.checkpw(password, hashed_password):
                 session["username"] = username
                 session["prev-page"] = request.url
                 if account_type == "admin":
@@ -189,7 +189,7 @@ def register_submit() -> object:
         )
         # Registers the user if the details are valid.
         if valid is True:
-            hash_password = sha256_crypt.hash(password)
+            hash_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
             cur.execute(
                 "INSERT INTO Accounts (username, password, email, type) "
                 "VALUES (?, ?, ?, ?);",
