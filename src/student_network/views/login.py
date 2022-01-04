@@ -189,9 +189,7 @@ def register_submit() -> object:
         )
         # Registers the user if the details are valid.
         if valid is True:
-            hash_password = bcrypt.hashpw(
-                    password.encode("utf-8"), bcrypt.gensalt()
-                )
+            hash_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
             cur.execute(
                 "INSERT INTO Accounts (username, password, email, type) "
                 "VALUES (?, ?, ?, ?);",
