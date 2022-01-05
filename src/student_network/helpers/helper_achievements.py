@@ -11,7 +11,7 @@ import student_network.helpers.helper_profile as helper_profile
 from flask import session
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "database.db")
+DB_PATH = os.path.join(BASE_DIR, "db.sqlite3")
 
 
 def apply_achievement(username: str, achievement_id: int):
@@ -22,7 +22,7 @@ def apply_achievement(username: str, achievement_id: int):
         username: The user who unlocked the achievement.
         achievement_id: The ID of the achievement unlocked.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM CompleteAchievements "
@@ -62,7 +62,7 @@ def get_achievements(username: str) -> Tuple[Sized, Sized]:
     Returns:
         A list of unlocked and locked achievements and their details.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         # Gets unlocked achievements, sorted by XP descending.
         cur.execute(

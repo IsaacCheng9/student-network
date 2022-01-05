@@ -65,7 +65,7 @@ def leaderboard() -> object:
     Returns:
         The web page for viewing rankings.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM UserLevel ORDER BY experience DESC")
         top_users = cur.fetchall()

@@ -11,7 +11,7 @@ import student_network.helpers.helper_profile as helper_profile
 from flask import session
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "database.db")
+DB_PATH = os.path.join(BASE_DIR, "db.sqlite3")
 
 
 def allowed_file(file_name) -> bool:
@@ -50,7 +50,7 @@ def get_all_connections(username: str) -> list:
     Returns:
         A list of all usernames that are connected to the logged in user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT user2 FROM Connection "
@@ -71,7 +71,7 @@ def get_all_usernames() -> list:
     Returns:
         A list of all usernames that have been registered.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute("SELECT username FROM Accounts")
 
@@ -81,7 +81,7 @@ def get_all_usernames() -> list:
 
 
 def get_notifications():
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
 
         cur.execute(
@@ -135,7 +135,7 @@ def get_messages(username: str):
     Args:
         username: user to get messages of
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
 
         cur.execute(
@@ -227,7 +227,7 @@ def get_exp(username: str):
     Returns:
         exp of user
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         check_level_exists(username, conn)
         # Get user experience
@@ -240,7 +240,7 @@ def get_exp(username: str):
 def new_notification(body, url):
     now = datetime.now()
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
 
         cur.execute(
@@ -255,7 +255,7 @@ def new_notification(body, url):
 def new_notification_username(username, body, url):
     now = datetime.now()
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
 
         cur.execute(

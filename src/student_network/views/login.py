@@ -98,7 +98,7 @@ def login_submit() -> object:
     username = request.form["username_input"].lower()
     password = request.form["psw_input"].encode("utf-8")
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
@@ -182,7 +182,7 @@ def register_submit() -> object:
     account = request.form.get("optradio")
 
     # Connects to the database to perform validation.
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         valid, message = helper_login.validate_registration(
             cur, username, full_name, password, password_confirm, email, terms

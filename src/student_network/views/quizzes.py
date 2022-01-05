@@ -76,7 +76,7 @@ def quiz(quiz_id: int) -> object:
     """
 
     # Gets the quiz details from the database.
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         (
             answers,
@@ -154,7 +154,7 @@ def quizzes() -> object:
     Returns:
         The web page of quizzes created.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute("SELECT quiz_id, date_created, author, quiz_name, plays FROM Quiz")
         row = cur.fetchall()

@@ -33,7 +33,7 @@ def post(post_id: int) -> object:
     session["prev-page"] = request.url
     content = None
     # check post restrictions
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute("SELECT privacy, username FROM POSTS WHERE postId=?;", (post_id,))
         row = cur.fetchone()
@@ -214,7 +214,7 @@ def feed() -> object:
         Redirection to their feed if they're logged in.
     """
     session["prev-page"] = request.url
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
 
         connections = helper_general.get_all_connections(session["username"])
@@ -261,7 +261,7 @@ def search_query() -> dict:
         JSON dictionary of search results of users, and their hobbies
         and interests.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         chars = request.args.get("chars")
         hobby = request.args.get("hobby")
@@ -322,7 +322,7 @@ def submit_post() -> object:
 
     # Only adds the post if a title has been input.
     if len(all_file_names) > 0 or len(post_body) > 0:
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect("db.sqlite3") as conn:
             cur = conn.cursor()
             # Get account type
             cur.execute(
@@ -380,7 +380,7 @@ def like_post() -> object:
     """
     post_id = request.form["postId"]
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         liked = helper_posts.check_if_liked(cur, post_id, session["username"])
         if not liked:
@@ -455,7 +455,7 @@ def submit_comment() -> object:
 
     # Only submits the comment if it is not empty.
     if comment_body.replace(" ", "") != "":
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect("db.sqlite3") as conn:
             cur = conn.cursor()
             cur.execute(
                 "INSERT INTO Comments (postId, body, username) VALUES (?, ?, ?);",
@@ -498,7 +498,7 @@ def delete_post() -> object:
     post_id = request.form["postId"]
     message = []
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute("SELECT postId FROM POSTS WHERE postId=?;", (post_id,))
         row = cur.fetchone()
@@ -534,7 +534,7 @@ def delete_comment() -> object:
     post_id = request.form["postId"]
     comment_id = request.form["commentId"]
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM Comments WHERE commentId=? ", (comment_id,))
         row = cur.fetchone()
@@ -595,7 +595,7 @@ def delete_file():
 def user_exists():
     username = request.args.get("username")
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
 
         cur.execute("SELECT username FROM ACCOUNTS WHERE username=?;", (username,))

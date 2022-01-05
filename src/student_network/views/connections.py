@@ -28,7 +28,7 @@ def close_connection(username: str) -> object:
         Redirection to the profile of the user they want to connect with.
     """
     if session["username"] != username:
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect("db.sqlite3") as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
             if cur.fetchone():
@@ -68,7 +68,7 @@ def connect_request(username: str) -> object:
         Redirection to the profile of the user they want to connect with.
     """
     if session["username"] != username:
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect("db.sqlite3") as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
             if cur.fetchone():
@@ -122,7 +122,7 @@ def unblock_user(username: str) -> object:
     Returns:
         Redirection to the unblocked user's profile page.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
         if cur.fetchone():
@@ -166,7 +166,7 @@ def accept_connection_request(username: str) -> object:
         Redirection to the profile of the user they want to connect with.
     """
     if session["username"] != username:
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect("db.sqlite3") as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
             if cur.fetchone():
@@ -213,7 +213,7 @@ def block_user(username: str) -> object:
     deleted = helper_connections.delete_connection(username)
     if deleted:
         if username != session["username"]:
-            with sqlite3.connect("database.db") as conn:
+            with sqlite3.connect("db.sqlite3") as conn:
                 cur = conn.cursor()
                 # Gets user from database using username.
                 cur.execute(
@@ -243,7 +243,7 @@ def remove_close_friend(username: str) -> object:
     # Checks that the user isn't trying to remove a connection with
     # themselves.
     if username != session["username"]:
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect("db.sqlite3") as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
             # Searches for the connection in the database.
@@ -285,7 +285,7 @@ def show_connect_requests() -> object:
     Returns:
         The web page for viewing connect requests.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         # Loads the list of connection requests and their avatars.
         requests = []
         avatars = []

@@ -57,7 +57,7 @@ def profile(username: str) -> object:
     if "register_details" in session:
         session.pop("register_details", None)
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         # Gets user from database using username.
         cur.execute(
@@ -374,7 +374,7 @@ def edit_profile() -> object:
         The updated profile page if the details provided were valid.
     """
     degrees = {"degrees": []}
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT birthday, bio, degree, privacy, gender FROM UserProfile "
@@ -450,7 +450,7 @@ def edit_profile() -> object:
         interests_unformatted = interests_input.split(",")
         interests = [interest.lower() for interest in interests_unformatted]
         # Connects to the database to perform validation.
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect("db.sqlite3") as conn:
             cur = conn.cursor()
 
             # Validates user profile details and uploaded image.
@@ -573,7 +573,7 @@ def profile_privacy() -> object:
         The web page to edit the user's profile details.
     """
     privacy = request.form.get("privacy")
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "UPDATE UserProfile SET privacy=? WHERE username=?;",
@@ -601,7 +601,7 @@ def edit_socials() -> object:
         "instagram": request.form.get("instagram"),
         "linkedin": request.form.get("linkedin"),
     }
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute("DELETE FROM UserSocial WHERE username=?;", (session["username"],))
         for key, value in socials.items():

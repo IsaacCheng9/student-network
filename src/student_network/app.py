@@ -20,7 +20,7 @@ from flask import Flask, request, session
 from flask_socketio import SocketIO
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "database.db")
+DB_PATH = os.path.join(BASE_DIR, "db.sqlite3")
 
 app = Flask(__name__)
 socketio = SocketIO(app)

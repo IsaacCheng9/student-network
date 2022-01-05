@@ -25,7 +25,7 @@ usernames = [
     "student1002",
 ]
 for username in usernames:
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         hash_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         cur.execute(

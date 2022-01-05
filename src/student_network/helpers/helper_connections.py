@@ -9,7 +9,7 @@ import student_network.helpers.helper_profile as helper_profile
 from flask import session
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "database.db")
+DB_PATH = os.path.join(BASE_DIR, "db.sqlite3")
 
 
 def delete_connection(username: str) -> bool:
@@ -25,7 +25,7 @@ def delete_connection(username: str) -> bool:
     # Checks that the user isn't trying to remove a connection with
     # themselves.
     if username != session["username"]:
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect("db.sqlite3") as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM Accounts WHERE username=?;", (username,))
 
@@ -80,7 +80,7 @@ def get_connection_request_count() -> int:
     if "username" not in session:
         return 0
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM Connection WHERE user2=? AND connection_type='request';",
@@ -99,7 +99,7 @@ def get_connection_type(username: str):
     Returns:
         The type of connection with the specified user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT connection_type FROM Connection WHERE user1=? AND user2=?",
@@ -335,7 +335,7 @@ def get_recommended_connections(username: str) -> list:
         List of recommended connections for a user and the number of shared
         connections, as well as users with shared degree or interests.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         invalid = [
             x[0]
@@ -425,7 +425,7 @@ def is_close_friend(username1: str, username2: str) -> bool:
     Returns:
         Whether the user2 is a close friend of user1 (True/False).
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT * FROM CloseFriend WHERE (user1=? AND user2=?);",

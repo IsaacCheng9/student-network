@@ -27,7 +27,7 @@ def show_staff_requests() -> object:
                 message=["You are not logged in to an admin account"],
                 requestCount=helper_connections.get_connection_request_count(),
             )
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect("db.sqlite3") as conn:
             # Loads the list of connection requests and their avatars.
             requests = []
             cur = conn.cursor()
@@ -63,7 +63,7 @@ def accept_staff(username: str):
     Returns:
         Redirection to the administration page.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "UPDATE ACCOUNTS SET type=? WHERE username=? ;", ("staff", username)
@@ -82,7 +82,7 @@ def reject_staff(username: str):
     Returns:
         Redirection to the administration page.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "UPDATE ACCOUNTS SET type=? WHERE username=? ;", ("student", username)

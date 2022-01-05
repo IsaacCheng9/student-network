@@ -23,7 +23,7 @@ def flashcards() -> object:
     Returns:
         The web page of flashcards.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT set_id, date_created, author, set_name, cards_played FROM QuestionSets"
@@ -108,7 +108,7 @@ def flashcards_edit(set_id: int) -> object:
         The web page of flashcards created.
     """
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
 
         cur.execute("SELECT author FROM QuestionSets WHERE set_id=?;", (set_id,))
@@ -158,7 +158,7 @@ def flashcard_set(set_id: int) -> object:
         The web page for answering the questions, or feedback for your answers.
     """
 
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         card_set = helper_flashcards.get_set_details(cur, set_id)
 
@@ -291,7 +291,7 @@ def flashcards_start_set(set_id: int) -> object:
     Returns:
         The web page for playing the flashcard set
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         helper_flashcards.add_play(cur, set_id)
         conn.commit()
@@ -311,7 +311,7 @@ def flashcards_play(set_id: int) -> object:
         The web page for playing the flashcard set
     """
     # Gets the flashcards details from the database.
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         (
             set_name,

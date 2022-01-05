@@ -17,7 +17,7 @@ from PIL import Image
 from werkzeug.utils import secure_filename
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "database.db")
+DB_PATH = os.path.join(BASE_DIR, "db.sqlite3")
 
 
 def check_if_liked(cur, post_id: int, username: str) -> bool:
@@ -57,7 +57,7 @@ def fetch_posts(number: int, starting_id: int) -> Tuple[dict, str, bool]:
     all_posts = {"AllPosts": []}
     if "username" in session:
         session["prev-page"] = request.url
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect("db.sqlite3") as conn:
             cur = conn.cursor()
 
             connections = helper_general.get_all_connections(session["username"])
@@ -279,7 +279,7 @@ def get_account_type(username):
     Returns the type of an account for username
         username: The username to check the type for
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT type FROM ACCOUNTS WHERE username=?;",

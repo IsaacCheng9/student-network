@@ -9,7 +9,7 @@ from typing import Tuple
 from flask import request, session
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "database.db")
+DB_PATH = os.path.join(BASE_DIR, "db.sqlite3")
 
 
 def get_set_details(cur, set_id: int) -> Tuple[str, date, str, dict, int]:
@@ -53,7 +53,7 @@ def delete_set(set_id):
     Args:
         set_id: ID of the set to delete
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute("SELECT author FROM QuestionSets WHERE set_id=?;", (set_id,))
         author = cur.fetchone()[0]
@@ -72,7 +72,7 @@ def delete_question(set_id, index):
         set_id: ID of the set to delete from
         index: the index of the question to delete
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute("SELECT author FROM QuestionSets WHERE set_id=?;", (set_id,))
         author = cur.fetchone()[0]
@@ -114,7 +114,7 @@ def save_set(set_id):
         set_id: ID of the set to save
     """
     # Gets set details.
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         count = get_question_count(cur, set_id)
 
@@ -158,7 +158,7 @@ def generate_set() -> int:
     Returns:
         set_id of new set
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "INSERT INTO QuestionSets (date_created,author) VALUES (?, ?);",
@@ -177,7 +177,7 @@ def add_card(set_id):
     Args:
         set_id: ID of the set to add to
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT questions, answers, author FROM QuestionSets WHERE set_id=?;",
@@ -275,7 +275,7 @@ def get_user_cards(username: str) -> list:
     Returns:
         list of sets belonging to the user
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT set_id, date_created, author, set_name, cards_played "

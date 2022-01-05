@@ -12,7 +12,7 @@ from PIL import Image
 from werkzeug.utils import secure_filename
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "database.db")
+DB_PATH = os.path.join(BASE_DIR, "db.sqlite3")
 
 
 def calculate_age(born: datetime) -> int:
@@ -40,7 +40,7 @@ def get_degree(username: str) -> Tuple[int, str]:
         The degree of the user.
         The degreeID of the user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute("SELECT degree FROM UserProfile WHERE username=?;", (username,))
         degree_id = cur.fetchone()
@@ -84,7 +84,7 @@ def get_profile_picture(username: str) -> str:
     Returns:
         The profile picture of the user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT profilepicture FROM UserProfile WHERE username=?;", (username,)
@@ -102,7 +102,7 @@ def read_socials(username: str):
     Returns:
         The social media accounts of that user.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         socials = {}
         # Gets the user's socials

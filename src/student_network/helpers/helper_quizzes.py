@@ -10,7 +10,7 @@ from typing import Tuple, List
 from flask import request, session
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "database.db")
+DB_PATH = os.path.join(BASE_DIR, "db.sqlite3")
 
 
 def add_quiz(author, date_created, questions, answers, quiz_name):
@@ -24,7 +24,7 @@ def add_quiz(author, date_created, questions, answers, quiz_name):
         answers: Answer options for the quiz.
         quiz_name: Name of the quiz.
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         # Inserts the quiz details into the database.
         cur.execute(
@@ -123,7 +123,7 @@ def save_quiz_details() -> Tuple[date, str, str, list, list]:
 
 
 def generate_answers_from_set(set_id):
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM QuestionSets WHERE set_id=?;", (set_id,))
         set_details = cur.fetchone()
@@ -202,7 +202,7 @@ def make_quiz(
     if valid:
         add_quiz(author, date_created, questions, answers, quiz_name)
         # Redirect the user to the quiz they just created.
-        with sqlite3.connect("database.db") as conn:
+        with sqlite3.connect("db.sqlite3") as conn:
             cur = conn.cursor()
             cur.execute(
                 "SELECT MAX(quiz_id) FROM Quiz WHERE date_created=? AND author=? AND "
@@ -227,7 +227,7 @@ def delete_quiz(quiz_id):
     Args:
         quiz_id: ID of the quiz to delete
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute("SELECT author FROM Quiz WHERE quiz_id=?;", (quiz_id,))
         author = cur.fetchone()[0]
@@ -266,7 +266,7 @@ def get_user_quizzes(username: str) -> list:
     Returns:
         list of quizzes belonging to the user
     """
-    with sqlite3.connect("database.db") as conn:
+    with sqlite3.connect("db.sqlite3") as conn:
         cur = conn.cursor()
         cur.execute(
             "SELECT quiz_id, date_created, author, quiz_name, plays "
