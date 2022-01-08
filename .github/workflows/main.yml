@@ -11,6 +11,10 @@ jobs:
   build:
     # The type of runner that the job will run on.
     runs-on: ubuntu-latest
+    # Configures the build to use Python 3.9.9.
+    strategy:
+      matrix:
+        python-version: [3.9.9]
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can
@@ -27,3 +31,20 @@ jobs:
         with:
           commit_message: Format code with Black and Prettier
           prettier_options: --write {**/*,*}.{js,ts,jsx,tsx,html,css}
+
+      - name: Switch to current branch
+        run: git checkout ${{ env.BRANCH }}
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Run unit tests with Pytest
+        run: python -m pytest

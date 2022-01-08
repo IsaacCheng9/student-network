@@ -187,7 +187,7 @@ def validate_profile_pic(file) -> Tuple[bool, List[str], str]:
     file_name_hashed = ""
 
     # Hashes the name of the file and resizes it.
-    if helper_general.allowed_file(file.filename):
+    if helper_general.is_allowed_photo_file(file.filename):
         secure_filename(file.filename)
         file_name_hashed = str(uuid.uuid4())
         file_path = os.path.join("./static/images" + "//avatars", file_name_hashed)

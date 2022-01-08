@@ -2,6 +2,7 @@
 
 [![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+![CI](https://github.com/IsaacCheng9/student-network/actions/workflows/main.yml/badge.svg)
 
 A student network which promotes interaction within the student community.
 This aims to provide social opportunities by encouraging students to engage with
@@ -107,29 +108,16 @@ The following dummy accounts have been set up:
 - `staffuser` and `staffusertwo` for staff accounts.
 - `adminuser` for an administrator account.
 
-## Poster
-
-A promotional poster has been designed for this project. It can be found in the
-following GitHub repository
-path: [docs/designs/poster.pdf](docs/designs/poster.pdf)
-
-## Unit Tests
-
-We have performed unit testing through the `pytest` library in Python. These
-have largely been focused towards auxiliary functions, as these are reused
-repeatedly in the Python application.
-
-## GitHub Repository
-
-The documentation and source files for our project can be found in our GitHub
-repository as follows:
-
-[https://github.com/IsaacCheng9/student-network](https://github.com/IsaacCheng9/student-network)
-
-### Documentation
+## Documentation
 
 #### Requirements Analysis
 
 Requirements analysis has been encapsulated through our research documents on
 potential solutions, design thinking plan, and MoSCoW matrix. They can be found
 in the following path: [docs/requirements-analysis](docs/requirements-analysis)
+
+### Poster
+
+A promotional poster has been designed for this project. It can be found in the
+following GitHub repository
+path: [docs/designs/poster.pdf](docs/designs/poster.pdf)

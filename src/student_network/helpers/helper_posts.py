@@ -204,7 +204,7 @@ def upload_image(file):
     """
     file_name_hashed = ""
     # Hashes the name of the file and resizes it.
-    if helper_general.allowed_file(file.filename):
+    if helper_general.is_allowed_photo_file(file.filename):
         secure_filename(file.filename)
         file_name_hashed = str(uuid.uuid4())
         file_path = os.path.join("./static/images" + "//post_imgs", file_name_hashed)
