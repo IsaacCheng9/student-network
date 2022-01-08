@@ -10,14 +10,15 @@ each other in a fun and friendly online environment.
 
 ## Screenshots
 
-![Profile](https://i.imgur.com/gvVlsvb.png)
-![Member List](https://i.imgur.com/7m3OdIb.png?1)
-![Connection Requests](https://i.imgur.com/mjyQ0it.png?1)
-![Posting to Feed](https://i.imgur.com/Dh43VH6.png?1)
-![Achievements](https://i.imgur.com/9wpoogO.png?1)
-![Leaderboard](https://i.imgur.com/tpaaVpK.png?1)
-![Taking Quizzes](https://i.imgur.com/mxKdQbC.png?1)
-![Quiz Results](https://i.imgur.com/1ox2mcu.png?1)
+![Profile](https://user-images.githubusercontent.com/47993930/148656392-dd7c2eb8-f495-45d2-ba2b-33a0c6aba631.png)
+![Member List](https://user-images.githubusercontent.com/47993930/148656401-5a0e245f-183e-4535-97d1-58018b8b0644.png)
+![Connection Requests](https://user-images.githubusercontent.com/47993930/148656410-df269b00-2ef9-4622-b6fc-4588e5d6a3d5.png)
+![Posting to Feed](https://user-images.githubusercontent.com/47993930/148656419-cff8cd16-abdb-46d2-9a81-cd65669ef67c.png)
+![Achievements](https://user-images.githubusercontent.com/47993930/148656427-21b91681-ebea-4898-8710-34d164c26963.png)
+![Leaderboard](https://user-images.githubusercontent.com/47993930/148656429-c92419ff-9a23-44aa-8e78-41f7dbf3b528.png)
+![Taking Quizzes](https://user-images.githubusercontent.com/47993930/148656440-ebe6b74b-ccdd-4277-a258-5bd467155bb2.png)
+![Quiz Results](https://user-images.githubusercontent.com/47993930/148656480-ae105aaa-26b9-4111-a168-ba383bcc0cbf.png)
+
 
 ## Installation
 
