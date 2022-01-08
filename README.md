@@ -108,29 +108,16 @@ The following dummy accounts have been set up:
 - `staffuser` and `staffusertwo` for staff accounts.
 - `adminuser` for an administrator account.
 
-## Poster
-
-A promotional poster has been designed for this project. It can be found in the
-following GitHub repository
-path: [docs/designs/poster.pdf](docs/designs/poster.pdf)
-
-## Unit Tests
-
-We have performed unit testing through the `pytest` library in Python. These
-have largely been focused towards auxiliary functions, as these are reused
-repeatedly in the Python application.
-
-## GitHub Repository
-
-The documentation and source files for our project can be found in our GitHub
-repository as follows:
-
-[https://github.com/IsaacCheng9/student-network](https://github.com/IsaacCheng9/student-network)
-
-### Documentation
+## Documentation
 
 #### Requirements Analysis
 
 Requirements analysis has been encapsulated through our research documents on
 potential solutions, design thinking plan, and MoSCoW matrix. They can be found
 in the following path: [docs/requirements-analysis](docs/requirements-analysis)
+
+### Poster
+
+A promotional poster has been designed for this project. It can be found in the
+following GitHub repository
+path: [docs/designs/poster.pdf](docs/designs/poster.pdf)
