@@ -110,7 +110,7 @@ The following dummy accounts have been set up:
 
 ## Documentation
 
-#### Requirements Analysis
+### Requirements Analysis
 
 Requirements analysis has been encapsulated through our research documents on
 potential solutions, design thinking plan, and MoSCoW matrix. They can be found
