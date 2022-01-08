@@ -46,33 +46,3 @@ def test_null_edit_profile():
     """
     valid, _ = helper_profile.validate_edit_profile("", "Male", "", [], [])
     assert valid is True
-
-
-# TODO: Fix this test.
-# def test_invalid_user_profile_route():
-#     """
-#     Tests that the invalid logged in user's route is handled correctly.
-#     """
-#     app = helper_profile.helper_profile
-#     client = app.test_client()
-#     url = "/profile"
-
-#     with client:
-#         response = client.get(url, follow_redirects=True)
-#         assert request.path == url_for("index_page")
-
-# TODO: Fix this test.
-# def test_valid_profile_route():
-#     """
-#     Tests whether valid profile routing is handled correctly.
-#     """
-#     app = helper_profile.helper_profile
-#     client = app.test_client()
-#     with client.session_transaction() as session:
-#         session["username"] = "student1"
-#     url = "/profile/student1"
-
-#     with client:
-#         response = client.get(url)
-#         assert response.status_code == 200
-#         assert request.path == url_for("profile", username="student1")

@@ -179,22 +179,3 @@ def test_null_registration():
         cur = conn.cursor()
         valid, _ = helper_login.validate_registration(cur, "", "", "", "", "", "")
         assert valid is False
-
-
-# TODO: Fix this test.
-# def test_login_route():
-#     app = helper_login.helper_login
-#     client = app.test_client()
-#     url = "/login"
-
-#     response = client.get(url)
-#     assert response.status_code == 200
-
-# TODO: Fix this test.
-# def test_register_route():
-#     app = helper_login.helper_login
-#     client = app.test_client()
-#     url = "/register"
-
-#     response = client.get(url)
-#     assert response.status_code == 200
