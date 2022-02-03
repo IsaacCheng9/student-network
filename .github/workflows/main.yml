@@ -47,4 +47,7 @@ jobs:
           pip install -e .
 
       - name: Run unit tests with Pytest
-        run: python -m pytest
+        run: coverage run --source=src -m pytest -v
+
+      - name: Get code coverage report
+        run: coverage report -m
