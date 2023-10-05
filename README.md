@@ -1,7 +1,6 @@
 # Student Network - Reconnect
 
 [![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 ![CI](https://github.com/IsaacCheng9/student-network/actions/workflows/main.yml/badge.svg)
 
 A student network which promotes interaction within the student community.
@@ -18,7 +17,6 @@ each other in a fun and friendly online environment.
 ![Leaderboard](https://user-images.githubusercontent.com/47993930/148656429-c92419ff-9a23-44aa-8e78-41f7dbf3b528.png)
 ![Taking Quizzes](https://user-images.githubusercontent.com/47993930/148656440-ebe6b74b-ccdd-4277-a258-5bd467155bb2.png)
 ![Quiz Results](https://user-images.githubusercontent.com/47993930/148656480-ae105aaa-26b9-4111-a168-ba383bcc0cbf.png)
-
 
 ## Installation
 

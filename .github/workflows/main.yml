@@ -26,12 +26,6 @@ jobs:
         with:
           args: "."
 
-      - name: Run front-end code formatting with Prettier
-        uses: creyD/prettier_action@v3.3
-        with:
-          commit_message: Format code with Black and Prettier
-          prettier_options: --write {**/*,*}.{js,ts,jsx,tsx,html,css}
-
       - name: Switch to current branch
         run: git checkout ${{ env.BRANCH }}
 
