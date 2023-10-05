@@ -196,7 +196,6 @@ def validate_quiz(
 def make_quiz(
     quiz_name: str, questions: list, answers: list, author: str, date_created: date
 ):
-
     valid, message = validate_quiz(quiz_name, questions, answers)
     print(valid, message, quiz_name, questions, answers)
     if valid:

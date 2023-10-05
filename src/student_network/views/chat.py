@@ -19,7 +19,6 @@ db_path = os.path.join(BASE_DIR, "db.sqlite3")
 
 @chat_blueprint.route("/chat")
 def chat():
-
     chat_rooms = helper_general.get_rooms()
 
     return render_template(
@@ -34,7 +33,6 @@ def chat():
 
 @chat_blueprint.route("/chat/<username>")
 def chat_username(username):
-
     chat_rooms = helper_general.get_rooms()
 
     messages = helper_general.get_messages(username)[0]

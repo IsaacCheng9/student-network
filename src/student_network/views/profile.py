@@ -90,7 +90,6 @@ def profile(username: str) -> object:
 
     # If the user is logged in, specific features can then be displayed.
     if session.get("username"):
-
         if username == session["username"]:
             # Gets the user's posts regardless of post settings if user is the
             # owner of the profile.
